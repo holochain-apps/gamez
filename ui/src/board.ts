@@ -17,6 +17,8 @@ export class  PieceDef {
   type: uuidv1
   constructor(
     public name: string, 
+    public height:number,
+    public width: number,
     public images: Array<string> // possible things a piece can look like
     ){
       this.type = uuidv1()

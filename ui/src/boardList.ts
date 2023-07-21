@@ -49,7 +49,7 @@ export type BoardListDelta =
   | {
     type: "set-board-type";
     id: uuidv1;
-    boardType: BoardType;
+    board: BoardState;
   }
   | {
     type: "set-avatar";
@@ -111,7 +111,8 @@ export const boardListGrammar: BoardListGrammar = {
         if (delta.type == "set-board-type") {
             const index = state.boardTypes.findIndex((type) => type.id === delta.id)
             if (index >= 0) {
-              state.boardTypes[index] = delta.boardType
+              state.boardTypes[index].board = delta.board
+              state.boardTypes[index].name = delta.board.name
             }    
         }
         if (delta.type == "set-name") {

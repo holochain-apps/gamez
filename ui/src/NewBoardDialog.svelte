@@ -27,7 +27,7 @@
     let boardEditor
 
 </script>
-<sl-dialog bind:this={dialog} label="New Board"
+<sl-dialog style="--width:600px" bind:this={dialog} label="New Board"
     on:sl-request-close={(event)=>{
         if (event.detail.source === 'overlay') {
         event.preventDefault();    

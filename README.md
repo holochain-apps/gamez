@@ -60,7 +60,7 @@ This will also bring up the Holochain Playground for advanced introspection of t
 To package the web happ:
 ``` bash
 npm run package
-```F
+```
 
 You'll have the `gamez.webhapp` in `workdir`. This is what you should distribute so that the Holochain Launcher can install it.
 You will also have its subcomponent `gamez.happ` in the same folder`.

@@ -18,8 +18,11 @@
 
     export const  open = async (hash: EntryHashB64)=> {
         boardHash = hash
-        boardEditor.edit(hash)
-        dialog.show()
+        const board: Board | undefined = await store.boardList.getBoard(boardHash)
+        if (board) {
+            boardEditor.edit(board.state())
+            dialog.show()
+        }
     }
 
     const { getStore } :any = getContext('gzStore');
@@ -72,7 +75,7 @@
     }
     let boardEditor
 </script>
-<sl-dialog persistent bind:this={dialog} label="Edit Board" 
+<sl-dialog style="--width:600px" bind:this={dialog} label="Edit Board" 
 on:sl-request-close={(event)=>{
     if (event.detail.source === 'overlay') {
     event.preventDefault();    

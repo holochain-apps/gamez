@@ -10,6 +10,7 @@
     import { faCog, faFileImport, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
     import { cloneDeep } from "lodash";
     import NewBoardDialog from './NewBoardDialog.svelte';
+    import EditGameTypeDialog from './EditGameTypeDialog.svelte';
 
     export let roleName = ""
   
@@ -68,6 +69,7 @@
         reader.readAsText(file);
     };
     let newBoardDialog
+    let editBoardDialog
 
   </script>
   
@@ -77,10 +79,11 @@
   <div class="flex-scrollable-parent">
     <div class="flex-scrollable-container">
     <div class='app' >
-      <NewBoardDialog bind:this={newBoardDialog}></NewBoardDialog>
 
     {#if gzStore}
-      <Toolbar profilesStore={profilesStore}/>
+    <NewBoardDialog bind:this={newBoardDialog}></NewBoardDialog>
+    <EditGameTypeDialog bind:this={editBoardDialog}></EditGameTypeDialog>
+    <Toolbar profilesStore={profilesStore}/>
       {#if ($boardList.avatars[myAgentPubKey] && $boardList.avatars[myAgentPubKey].name) || profilesStore}
         {#if $activeBoardHash !== undefined}
           <GamezPane on:requestChange={(event) => {gzStore.boardList.requestBoardChanges($activeBoardHash,event.detail)}}/>
@@ -90,25 +93,39 @@
 
           <div style="display:flex">
           <div style="margin-right:100px">
-            <h3>New Game:</h3>
+            <h3>Games:</h3>
               {#each $boardList && $boardList.boardTypes as boardType}
-                <sl-button
-                  style="max-width:100px;margin-right:10px"
-                  on:click={async ()=>{
-                    
-                    const board = await gzStore.boardList.makeBoard(cloneDeep(boardType.board))
-                    gzStore.boardList.setActiveBoard(board.hashB64())                  
-                  }}
-                >
-                  {boardType.name}
-                </sl-button>
+                <div style="display:flex; align-items:center;margin-bottom:5px;">
+                  <h3 style="margin-right:5px;">{boardType.name}:</h3> 
+                  <sl-button
+                    style="max-width:100px;margin-right:10px"
+                    on:click={async ()=>{
+                      
+                      const board = await gzStore.boardList.makeBoard(cloneDeep(boardType.board))
+                      gzStore.boardList.setActiveBoard(board.hashB64())                  
+                    }}
+                  >
+                    Play!
+                  </sl-button>
+                  <sl-button
+                    style="max-width:100px;margin-right:10px"
+                    on:click={async ()=>{     
+                      editBoardDialog.open(cloneDeep(boardType))           
+                    }}
+                  >
+                    <Fa icon={faCog}></Fa>
+                  </sl-button>
+                </div>
               {/each}
           </div>
           <div class="new-type">
             <h3>New Game Type:</h3>
             <input style="display:none" type="file" accept=".json" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
-            <sl-button on:click={()=>newBoardDialog.open()} style="" title="New Board">New <Fa icon={faSquarePlus} size=1x /></sl-button>
-            <sl-button on:click={()=>{fileinput.click();}} title="Import Board">Import <Fa icon={faFileImport} size=1x/></sl-button>                      
+            {#if $boardList && $boardList.boardTypes.length ==0}
+              <sl-button on:click={()=>{gzStore.addDefaultGames()}} title="Default Games">Default <Fa icon={faFileImport} size=1x/></sl-button>                      
+            {/if}
+              <sl-button on:click={()=>newBoardDialog.open()} style="" title="New Game">New <Fa icon={faSquarePlus} size=1x /></sl-button>
+            <sl-button on:click={()=>{fileinput.click();}} title="Import Game">Import <Fa icon={faFileImport} size=1x/></sl-button>                      
             </div>
           </div>
         </div> 

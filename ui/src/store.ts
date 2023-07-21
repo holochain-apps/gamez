@@ -81,7 +81,26 @@ export class GamezStore {
         this.boardList.requestChanges(changes)
         await this.boardList.workspace.commitChanges()       
     }
-
+    async addDefaultGames(): Promise<any> {
+        let changes = [{
+            type: "add-board-type",
+            boardType: {
+                id: uuidv1(),
+                name: "Chess",
+                board:CHESS
+            }},
+        {
+            type: "add-board-type",
+            boardType: {
+                id: uuidv1(),
+                name: "Go",
+                board:GO
+            }},
+        ]
+        //@ts-ignore
+        this.boardList.requestChanges(changes)
+        await this.boardList.workspace.commitChanges()
+    }
     async findOrMakeRoots(): Promise<any> {
 
         const roots = await toPromise(this.synStore.allRoots)
@@ -91,24 +110,6 @@ export class GamezStore {
         if (records.entryMap.size == 0) { 
             console.log(`Found no root entries, creating`)
             this.boardList = await BoardList.Create(this.synStore);
-            let changes = [{
-                    type: "add-board-type",
-                    boardType: {
-                        id: uuidv1(),
-                        name: "Chess",
-                        board:CHESS
-                    }},
-                {
-                    type: "add-board-type",
-                    boardType: {
-                        id: uuidv1(),
-                        name: "Go",
-                        board:GO
-                    }},
-            ]
-            //@ts-ignore
-            this.boardList.requestChanges(changes)
-            await this.boardList.workspace.commitChanges()
         } else {
             let boardListRoot
             let boardsRoot

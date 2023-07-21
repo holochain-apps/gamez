@@ -21,7 +21,6 @@
     export let handleDelete = undefined
     export let cancelEdit
 
-    let boardHash:EntryHashB64|undefined = undefined
     let text = ''
     let props:BoardProps = {bgUrl: "", pieces:{}}
     let pieceDefs: Array<PieceDef> = []
@@ -33,18 +32,11 @@
       pieceDefs = []
     }
 
-    export const  edit = async (hash: EntryHashB64)=> {
-      boardHash = hash
-      const board: Board | undefined = await store.boardList.getBoard(boardHash)
-      if (board) {
-          const state = board.state()
-          text = state.name
-          nameInput.value = text
-          pieceDefs = cloneDeep(state.pieceDefs)
-          props = state.props ? cloneDeep(state.props) : {bgUrl:""}
-      } else {
-          console.log("board not found:", boardHash)
-      }
+    export const  edit = async (state: BoardState)=> {
+      text = state.name
+      nameInput.value = text
+      pieceDefs = cloneDeep(state.pieceDefs)
+      props = state.props ? cloneDeep(state.props) : {bgUrl:""}
     }
 
     const addPieceDef = () => {
@@ -104,6 +96,7 @@
       </div>
       <sl-dialog label="Choose Emoji" bind:this={emojiDialog}>
           <emoji-picker on:emoji-click={(e)=>  {
+            console.log("PD", pieceDefs)
             pieceDefs[showEmojiPicker].images[0] = e.detail.unicode
             showEmojiPicker = undefined
             emojiDialog.hide()
@@ -114,25 +107,34 @@
       <DragDropList
         id="pieceDefs"
         type={VerticalDropZone}
-	      itemSize={45}
+	      itemSize={100}
         itemCount={pieceDefs.length}
         on:drop={onDropPieceDefs}
         let:index
         itemClass="unselectable"
         >
-        <div class="label-def">
+        <div class="piece-def">
           <div class="grip" ><Fa icon={faGripVertical}/></div>
-          <sl-button on:click={()=>{showEmojiPicker = index;emojiDialog.show()}} >
-            <span style="font-size:180%">{pieceDefs[index].images[0]}</span>
-          </sl-button>
-          <sl-input class='textarea' value={pieceDefs[index].images[0]} title="piece value"
-          on:input={e=>pieceDefs[index].images[0] = e.target.value}> </sl-input>
-          <sl-input class='textarea' value={pieceDefs[index].name} title="piece name"
-          on:input={e=>pieceDefs[index].name = e.target.value}> </sl-input>
-          <sl-button size="small"  on:click={deletePieceDef(index)} >
+          <div style="display:flex; flex-direction:column; ">
+
+            <div style="display:flex; flex-direction:row; align-items:flex-end;">
+              <sl-input label="Emoji" style="width:65px;" class='textarea' maxlength={1} value={pieceDefs[index].images[0]} title="piece value"
+              on:input={e=>pieceDefs[index].images[0] = e.target.value}> </sl-input>
+              <sl-button style="margin-bottom:5px" on:click={()=>{showEmojiPicker = index;emojiDialog.show()}} >
+                Pick
+              </sl-button>
+              <sl-input label="Name" style="width:165px;margin-left:10px" class='textarea' value={pieceDefs[index].name} title="piece name"
+              on:input={e=>pieceDefs[index].name = e.target.value}> </sl-input>
+              <sl-input label="Width" style="width:70px;" maxlength={3} class='textarea' value={pieceDefs[index].width}
+              on:input={e=>pieceDefs[index].width = parseInt(e.target.value)}> </sl-input>
+              <sl-input label="Height" style="width:70px;" maxlength={3} class='textarea' value={pieceDefs[index].height}
+              on:input={e=>pieceDefs[index].height = parseInt(e.target.value)}> </sl-input>
+            </div>
+          </div>
+          <sl-button style="margin-left:25px" size="small"  on:click={deletePieceDef(index)} >
             <Fa icon={faTrash}/>
           </sl-button>
-        </div>
+    </div>
       </DragDropList> 
     </div>
    
@@ -160,7 +162,7 @@
  <style>
   .board-editor {
     display: flex;
-    flex-basis: 270px;
+    flex-basis: 500px;
     font-style: normal;
     font-weight: 600;
     color: #000000;
@@ -182,12 +184,10 @@
     padding-left: 7px;
     padding-top: 10px;
   }
-  .group {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-  .label-def, .category-def {
+  .piece-def  {
+    border: solid 1px lightgray;
+    padding:10px;
+    border-radius: 10px;
     display: flex;
     flex-direction: row;
     align-items: center;
