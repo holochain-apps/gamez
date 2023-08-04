@@ -7,21 +7,21 @@ import { type AgentPubKey, type EntryHash, type EntryHashB64, encodeHashToBase64
 
 export interface Piece {
   id: uuidv1,
-  type: uuidv1
+  typeId: uuidv1
   x: number,
   y: number,
   imageIdx: number,
 }
 
 export class  PieceDef {
-  type: uuidv1
+  id: uuidv1
   constructor(
     public name: string, 
     public height:number,
     public width: number,
     public images: Array<string> // possible things a piece can look like
     ){
-      this.type = uuidv1()
+      this.id = uuidv1()
   }
 }
 
@@ -117,7 +117,7 @@ export interface BoardState {
           const id = uuidv1()
           const piece:Piece = {
             id,
-            type: delta.pieceType,
+            typeId: delta.pieceType,
             x: delta.x,
             y: delta.y,
             imageIdx: delta.imageIdx,

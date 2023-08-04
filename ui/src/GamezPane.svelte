@@ -49,7 +49,7 @@
 
   const getPieceDefs = (defs:Array<PieceDef>) => {
     const pieceDefs: {[key: string]: PieceDef} = {}
-    defs.forEach(d=>pieceDefs[d.type]=d)
+    defs.forEach(d=>pieceDefs[d.id]=d)
     return pieceDefs
   }
 
@@ -140,13 +140,13 @@
           <sl-button on:click={()=>{
             dispatch("requestChange", [{ 
               type: "add-piece", 
-              pieceType:p.type,
+              pieceType: p.id,
               imageIdx: 0,
               x: 5,
               y: 5,
             }]);
 
-            }}>{pieceDefs[p.type].images[0]} {pieceDefs[p.type].name}
+            }}>{pieceDefs[p.id].images[0]} {pieceDefs[p.id].name}
           </sl-button>
         {/each}
       </div>
@@ -160,9 +160,9 @@
           on:dragover={handleDragOver}          
 
           id={piece.id}
-          style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceDefs[piece.type].height}px`}
+          style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceDefs[piece.typeId].height}px`}
           >
-          {pieceDefs[piece.type].images[piece.imageIdx]}      
+          {pieceDefs[piece.typeId].images[piece.imageIdx]}      
         </div>
         {/each}
         <img bind:this={img} src={bgUrl}
