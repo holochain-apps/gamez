@@ -3,7 +3,7 @@
   import type { GamezStore } from "./store";
   import { Marked, Renderer } from "@ts-stack/markdown";
   import type { v1 as uuidv1 } from "uuid";
-  import type { BoardState, PieceDef } from "./board";
+  import { type BoardState, PieceDef, PieceType} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
   import AvatarIcon from "./AvatarIcon.svelte";
   import { decodeHashFromBase64 } from "@holochain/client";
@@ -146,7 +146,10 @@
               y: 5,
             }]);
 
-            }}>{pieceDefs[p.id].images[0]} {pieceDefs[p.id].name}
+            }}>
+             {#if pieceDefs[p.id].type===PieceType.Emoji}{pieceDefs[p.id].images[0]}{/if}
+             {#if pieceDefs[p.id].type===PieceType.Image}<img draggable={false} src={pieceDefs[p.id].images[0]} width={pieceDefs[p.id].width} height={pieceDefs[p.id].height}/>{/if}
+             {pieceDefs[p.id].name}
           </sl-button>
         {/each}
       </div>
@@ -162,10 +165,12 @@
           id={piece.id}
           style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceDefs[piece.typeId].height}px`}
           >
-          {pieceDefs[piece.typeId].images[piece.imageIdx]}      
+          {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
+          {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
+
         </div>
         {/each}
-        <img bind:this={img} src={bgUrl}
+        <img draggable={false} bind:this={img} src={bgUrl}
           
           style="padding:100px; background-color:lightgray; border:1px solid; flex: 1; object-fit: cover; overflow: hidden"
           on:drop={handleDragDrop}  

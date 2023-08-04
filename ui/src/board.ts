@@ -3,7 +3,10 @@ import { get } from "svelte/store";
 import { v1 as uuidv1 } from "uuid";
 import { type AgentPubKey, type EntryHash, type EntryHashB64, encodeHashToBase64, type AgentPubKeyB64, type Timestamp } from "@holochain/client";
 
-
+export enum PieceType {
+  Emoji,
+  Image,
+}
 
 export interface Piece {
   id: uuidv1,
@@ -16,6 +19,7 @@ export interface Piece {
 export class  PieceDef {
   id: uuidv1
   constructor(
+    public type: PieceType,
     public name: string, 
     public height:number,
     public width: number,

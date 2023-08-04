@@ -1,4 +1,4 @@
-import type { BoardState } from "./board";
+import { PieceType, type BoardState } from "./board";
 export const GO: BoardState = 
 {
     "name": "Go",
@@ -8,6 +8,7 @@ export const GO: BoardState =
     "min_players": 2,
     "pieceDefs": [
         {
+            "type": PieceType.Emoji,
             "images": [
                 "⚪️"
             ],
@@ -17,6 +18,7 @@ export const GO: BoardState =
             "id": "04dccef0-272f-11ee-b38c-d589530c7a77"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "⚫️"
             ],
@@ -42,6 +44,7 @@ export const CHESS : BoardState =
     "name": "chess",
     "pieceDefs": [
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♔"
             ],
@@ -51,6 +54,7 @@ export const CHESS : BoardState =
             "id": "9b1495f0-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♕"
             ],
@@ -60,6 +64,7 @@ export const CHESS : BoardState =
             "id": "9b1495f1-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♗"
             ],
@@ -69,6 +74,7 @@ export const CHESS : BoardState =
             "id": "9b1495f2-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♖"
             ],
@@ -78,6 +84,7 @@ export const CHESS : BoardState =
             "id": "9b1495f3-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♙"
             ],
@@ -87,6 +94,7 @@ export const CHESS : BoardState =
             "id": "9b1495f4-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♘"
             ],
@@ -96,6 +104,7 @@ export const CHESS : BoardState =
             "id": "9b1495f5-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♚"
             ],
@@ -105,6 +114,7 @@ export const CHESS : BoardState =
             "id": "9b1495e0-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♛"
             ],
@@ -114,6 +124,7 @@ export const CHESS : BoardState =
             "id": "9b1495e1-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♝"
             ],
@@ -123,6 +134,7 @@ export const CHESS : BoardState =
             "id": "9b1495e2-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♜"
             ],
@@ -132,6 +144,7 @@ export const CHESS : BoardState =
             "id": "9b1495e3-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♟"
             ],
@@ -141,6 +154,7 @@ export const CHESS : BoardState =
             "id": "9b1495e4-2654-11ee-92c9-138314b60697"
         },
         {
+            "type": PieceType.Emoji,
             "images": [
                 "♞"
             ],

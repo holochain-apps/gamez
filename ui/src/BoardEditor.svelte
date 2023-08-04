@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { PieceDef, type BoardProps, Board } from './board';
+    import { PieceDef, type BoardProps, Board, type BoardState, PieceType } from './board';
     import { getContext, onMount } from 'svelte';
   	import DragDropList, { VerticalDropZone, reorder, type DropEvent } from 'svelte-dnd-list';
     import 'emoji-picker-element';
@@ -25,6 +25,7 @@
     let props:BoardProps = {bgUrl: "", pieces:{}}
     let pieceDefs: Array<PieceDef> = []
     let nameInput
+
     export const reset = () => {
       nameInput.value = ""
       text = ''
@@ -40,7 +41,7 @@
     }
 
     const addPieceDef = () => {
-      pieceDefs.push(new PieceDef("smiley", 30, 30, [`🙂`]))
+      pieceDefs.push(new PieceDef(PieceType.Emoji, "smiley", 30, 30, [`🙂`]))
       pieceDefs = pieceDefs
     }
     const deletePieceDef = (index) => () => {
@@ -84,7 +85,7 @@
 <svelte:window on:keydown={handleKeydown}/>
   <div class='board-editor'>
     <div class="edit-title">
-      <div class="title-text">Title:</div> <sl-input class='textarea' maxlength="60" bind:this={nameInput}  on:input={e=>text= e.target.value}></sl-input>
+      <sl-input label="Name" class='textarea' maxlength="60" bind:this={nameInput}  on:input={e=>text= e.target.value}></sl-input>
     </div>
     <div class="edit-piece-defs unselectable">
       <div class="title-text">
@@ -107,7 +108,7 @@
       <DragDropList
         id="pieceDefs"
         type={VerticalDropZone}
-	      itemSize={100}
+	      itemSize={160}
         itemCount={pieceDefs.length}
         on:drop={onDropPieceDefs}
         let:index
@@ -116,19 +117,35 @@
         <div class="piece-def">
           <div class="grip" ><Fa icon={faGripVertical}/></div>
           <div style="display:flex; flex-direction:column; ">
-
             <div style="display:flex; flex-direction:row; align-items:flex-end;">
-              <sl-input label="Emoji" style="width:65px;" class='textarea' maxlength={1} value={pieceDefs[index].images[0]} title="piece value"
-              on:input={e=>pieceDefs[index].images[0] = e.target.value}> </sl-input>
-              <sl-button style="margin-bottom:5px" on:click={()=>{showEmojiPicker = index;emojiDialog.show()}} >
-                Pick
-              </sl-button>
+              <sl-select
+              style="margin-bottom:4px"
+              label="Piece Type"
+              on:sl-change={(e)=>{pieceDefs[index].type=parseInt(e.target.value)}}
+              >
+                <sl-option value={PieceType.Emoji}>Emoji</sl-option>
+                <sl-option value={PieceType.Image}>Image</sl-option>
+              </sl-select>
               <sl-input label="Name" style="width:165px;margin-left:10px" class='textarea' value={pieceDefs[index].name} title="piece name"
               on:input={e=>pieceDefs[index].name = e.target.value}> </sl-input>
               <sl-input label="Width" style="width:70px;" maxlength={3} class='textarea' value={pieceDefs[index].width}
               on:input={e=>pieceDefs[index].width = parseInt(e.target.value)}> </sl-input>
               <sl-input label="Height" style="width:70px;" maxlength={3} class='textarea' value={pieceDefs[index].height}
               on:input={e=>pieceDefs[index].height = parseInt(e.target.value)}> </sl-input>
+            </div>
+            <div style="display:flex; flex-direction:row; align-items:flex-end;">
+              {#if pieceDefs[index].type===PieceType.Emoji}
+                <sl-input label="Emoji" style="width:65px;" class='textarea' maxlength={1} value={pieceDefs[index].images[0]} title="piece value"
+                on:input={e=>pieceDefs[index].images[0] = e.target.value}> </sl-input>
+                <sl-button style="margin-bottom:5px" on:click={()=>{showEmojiPicker = index;emojiDialog.show()}} >
+                  Pick
+                </sl-button>
+              {/if}
+              {#if pieceDefs[index].type===PieceType.Image}
+                <sl-input label="Image URL" class='textarea' value={pieceDefs[index].images[0]} title="piece image"
+                  on:input={e=>pieceDefs[index].images[0] = e.target.value}> </sl-input>
+                  <img src={pieceDefs[index].images[0]} width="40" height="40"/>
+              {/if}
             </div>
           </div>
           <sl-button style="margin-left:25px" size="small"  on:click={deletePieceDef(index)} >
@@ -138,8 +155,10 @@
       </DragDropList> 
     </div>
    
-    <div class="edit-title">
-      <div class="title-text">Background Image:</div> <sl-input class='textarea' maxlength="255" value={props.bgUrl} on:input={e=>props.bgUrl = e.target.value} />
+    <div style="display:flex; flex-direction:row; align-items:flex-end;">
+       <sl-input label="Background Image" class='textarea' maxlength="255" value={props.bgUrl} on:input={e=>props.bgUrl = e.target.value} />
+        <img style="margin-right:20px" src={props.bgUrl} width="40" height="40"/>
+
     </div>
 
     <div class='controls'>
@@ -191,6 +210,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
   }
   .grip {
     margin-right:10px;
@@ -201,7 +221,8 @@
     flex-direction: row;
     align-items: center;
     font-weight: normal;
-    font-size: 120%;
+    margin-left: 5px;
+    margin-right: 15px;
   }
   .unselectable {
     -webkit-touch-callout: none;
