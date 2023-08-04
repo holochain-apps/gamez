@@ -25,16 +25,15 @@
 
     const store:GamezStore = getStore();
 
-    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps) => {
+    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
         store.boardList.requestChanges([
             {
                 type: 'set-board-type',
                 id: boardType.id,
                 board: {
                     status: boardType.board.status,
-                    players: [],
-                    max_players: boardType.board.max_players,
-                    min_players: boardType.board.min_players,
+                    max_players: maxPlayers,
+                    min_players: minPlayers,
                     name,
                     pieceDefs,
                     props

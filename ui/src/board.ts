@@ -32,10 +32,10 @@ export class  PieceDef {
 export type BoardProps = {
   pieces: {[key: string]: Piece},
   bgUrl: string,
+  players: Array<AgentPubKeyB64>,
 }
 
 export interface BoardState {
-  players: Array<AgentPubKeyB64>;
   status: string;
   name: string;
   max_players: number;
@@ -58,12 +58,25 @@ export interface BoardState {
         name: string;
       }
     | {
+        type: "set-player-range";
+        min_players: number;
+        max_players: number;
+      }
+    | {
         type: "set-props";
         props: BoardProps;
       }
     | {
         type: "set-piece-defs";
         pieceDefs: PieceDef[];
+      }
+    | {
+        type: "add-player";
+        player: AgentPubKeyB64;
+      }
+      | {
+        type: "remove-player";
+        player: AgentPubKeyB64;
       }
     | {
         type: "add-piece";
@@ -90,7 +103,7 @@ export interface BoardState {
       state.status = ""
       state.name = "untitled"
       state.pieceDefs = []
-      state.props = {bgUrl:"", pieces:{}}
+      state.props = {bgUrl:"", pieces:{}, players:[]}
     },
     applyDelta( 
       delta: BoardDelta,
@@ -107,15 +120,31 @@ export interface BoardState {
           if (delta.state.name !== undefined) state.name = delta.state.name
           if (delta.state.pieceDefs !== undefined) state.pieceDefs = delta.state.pieceDefs
           if (delta.state.props !== undefined) state.props = delta.state.props
+          if (delta.state.max_players !== undefined) state.max_players = delta.state.max_players
+          if (delta.state.min_players !== undefined) state.min_players = delta.state.min_players
           break;
         case "set-name":
           state.name = delta.name
+          break;
+        case "set-player-range":
+          state.min_players = delta.min_players
+          state.max_players = delta.max_players
           break;
         case "set-props":
           state.props = delta.props
           break;
         case "set-piece-defs":
           state.pieceDefs = delta.pieceDefs
+          break;
+        case "add-player":
+          if (state.props.players.length < state.max_players) 
+            state.props.players.push(delta.player)
+          break;
+        case "remove-player":
+          const index = state.props.players.findIndex((player) => player=== delta.player)
+          if (index>=0) {
+            state.props.players.splice(index,1)
+          }
           break;
         case "add-piece":
           const id = uuidv1()

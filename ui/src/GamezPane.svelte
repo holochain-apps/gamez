@@ -46,6 +46,7 @@
   $: pieceDefs = $state ? getPieceDefs($state.pieceDefs) : undefined;
 
   $: avatars = gzStore.boardList.avatars()
+  $: myAgentPubKey = gzStore ? gzStore.myAgentPubKey() : undefined
 
   const getPieceDefs = (defs:Array<PieceDef>) => {
     const pieceDefs: {[key: string]: PieceDef} = {}
@@ -60,6 +61,17 @@
   let draggingHandled = true
   let draggedItemId = ""
   let dragOffsetX, dragOffsetY
+  let dragType
+
+  function handleDragStartAdd(e) {
+    dragType = "add"
+    handleDragStart(e)
+  }
+
+  function handleDragStartMove(e) {
+    dragType = "move"
+    handleDragStart(e)
+  }
 
   function handleDragStart(e) {
     draggingHandled = false
@@ -89,14 +101,27 @@
       return
     }
     const bounds = img.getBoundingClientRect()
-    const x = (e.clientX - bounds.left)-dragOffsetX ;
-    const y = (e.clientY - bounds.top)-dragOffsetY ;
-    
-    dispatch("requestChange", [{ 
-      type: "move-piece", 
-      id: draggedItemId,
-      x,y
-    }]);
+
+    if (dragType == "move") {    
+      const x = (e.clientX - bounds.left)-dragOffsetX ;
+      const y = (e.clientY - bounds.top)-dragOffsetY ;
+      dispatch("requestChange", [{ 
+        type: "move-piece", 
+        id: draggedItemId,
+        x,y
+      }]);
+    }
+    else {
+      const def = pieceDefs[draggedItemId]
+      const x = (e.clientX - bounds.left) - def.width/2;
+      const y = (e.clientY - bounds.top)-dragOffsetY;
+      dispatch("requestChange", [{ 
+        type: "add-piece", 
+        pieceType: draggedItemId,
+        imageIdx: 0,
+        x,y
+      }]);
+    }
     clearDrag()
     //console.log("handleDragDropColumn",e, column )
   }
@@ -112,6 +137,14 @@
   $: bgImage = `background-image: url("`+ bgUrl+`");`
 
   let img
+
+  const canJoin = (state) => {
+    return (state.props.players.length < state.max_players) && !state.props.players.includes(myAgentPubKey)
+  }
+  const haveJoined = (state) => {
+    return state.props.players.includes(myAgentPubKey)
+  }
+
 </script>
 <div class="board">
     <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
@@ -132,32 +165,63 @@
     </div>
   </div>
   {#if $state}
+    {#if $state.min_players}
+      <div style="display:flex;justify-content:center">
+        Players:
+        <div style="display:flex">
+          {#each $state.props.players as player}
+          <AvatarIcon avatar={$avatars[player]}></AvatarIcon>
+          {/each}
+        </div>
+        {#if canJoin($state)}
+          <sl-button 
+            on:click={()=>{
+              dispatch("requestChange", [{ 
+              type: "add-player", 
+              player: myAgentPubKey
+            }]);
+
+            }}>
+          Join Game
+          </sl-button>
+        {/if}
+        {#if haveJoined($state)}
+          <sl-button 
+            on:click={()=>{
+              dispatch("requestChange", [{ 
+              type: "remove-player", 
+              player: myAgentPubKey
+            }]);
+
+            }}>
+          Leave Game
+          </sl-button>
+        {/if}
+      </div>
+    {/if}
 
     <div class="board-area">
       <div class="piece-source">
         <h3>Add:</h3>
         {#each Object.values(pieceDefs) as p}
-          <sl-button on:click={()=>{
-            dispatch("requestChange", [{ 
-              type: "add-piece", 
-              pieceType: p.id,
-              imageIdx: 0,
-              x: 5,
-              y: 5,
-            }]);
+          <div class="piece-def"
+            id={p.id}
+            draggable={haveJoined($state)}
+            class:draggable={haveJoined($state)}
+            on:dragstart={handleDragStartAdd}
+          >
+            {#if pieceDefs[p.id].type===PieceType.Emoji}{pieceDefs[p.id].images[0]}{/if}
+            {#if pieceDefs[p.id].type===PieceType.Image}<img draggable={false} src={pieceDefs[p.id].images[0]} width={pieceDefs[p.id].width} height={pieceDefs[p.id].height}/>{/if}
+            {pieceDefs[p.id].name}
 
-            }}>
-             {#if pieceDefs[p.id].type===PieceType.Emoji}{pieceDefs[p.id].images[0]}{/if}
-             {#if pieceDefs[p.id].type===PieceType.Image}<img draggable={false} src={pieceDefs[p.id].images[0]} width={pieceDefs[p.id].width} height={pieceDefs[p.id].height}/>{/if}
-             {pieceDefs[p.id].name}
-          </sl-button>
+          </div>
         {/each}
       </div>
       <div class="img-container">
         {#each pieces as piece}
         <div class="piece"
-          draggable={true}
-          on:dragstart={handleDragStart}
+          draggable={haveJoined($state)}
+          on:dragstart={handleDragStartMove}
           on:dragend={handleDragEnd}
           on:drop={handleDragDrop}  
           on:dragover={handleDragOver}          
@@ -198,6 +262,15 @@
 
   .piece {
     position: absolute;
+  }
+  .piece-def {
+    border: solid 1px;
+    padding: 5px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+  }
+  .draggable {
+    cursor: pointer;
   }
   .board {
     display: flex;

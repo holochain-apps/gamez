@@ -29,7 +29,7 @@
 
     const store:GamezStore = getStore();
 
-    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps) => {
+    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
         // ignore board type we don't update that.
         const board: Board | undefined = await store.boardList.getBoard(boardHash)
         if (board) {
@@ -47,6 +47,12 @@
             {
                 type: 'set-name',
                 name: name
+            })
+        }
+        if (minPlayers != state.min_players || maxPlayers != state.max_players) {
+            changes.push({type: 'set-player-range',
+            min_players: minPlayers,
+            max_players: maxPlayers,
             })
         }
         if (!isEqual(props, state.props)) {

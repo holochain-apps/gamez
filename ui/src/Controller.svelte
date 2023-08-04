@@ -100,8 +100,11 @@
                   <sl-button
                     style="max-width:100px;margin-right:10px"
                     on:click={async ()=>{
-                      
-                      const board = await gzStore.boardList.makeBoard(cloneDeep(boardType.board))
+                      const state = cloneDeep(boardType.board)
+                      if (state.min_players) {
+                        state.props.players.push(myAgentPubKey)
+                      }
+                      const board = await gzStore.boardList.makeBoard(state)
                       gzStore.boardList.setActiveBoard(board.hashB64())                  
                     }}
                   >
@@ -110,7 +113,8 @@
                   <sl-button
                     style="max-width:100px;margin-right:10px"
                     on:click={async ()=>{     
-                      editBoardDialog.open(cloneDeep(boardType))           
+                      const board = cloneDeep(boardType)
+                      editBoardDialog.open(board)           
                     }}
                   >
                     <Fa icon={faCog}></Fa>

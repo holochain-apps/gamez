@@ -22,20 +22,30 @@
     export let cancelEdit
 
     let text = ''
-    let props:BoardProps = {bgUrl: "", pieces:{}}
+    let minPlayers = ""
+    let maxPlayers = ""
+    let props:BoardProps = {bgUrl: "", pieces:{}, players:[]}
     let pieceDefs: Array<PieceDef> = []
     let nameInput
 
     export const reset = () => {
       nameInput.value = ""
+      maxPlayersInput.value = ""
+      minPlayersInput.value = ""
       text = ''
-      props = {bgUrl: "", pieces:{}}
+      maxPlayers = ""
+      minPlayers = ""
+      props = {bgUrl: "", pieces:{}, players:[]}
       pieceDefs = []
     }
 
     export const  edit = async (state: BoardState)=> {
       text = state.name
       nameInput.value = text
+      maxPlayers = state.max_players ? `${state.max_players}` : ""
+      maxPlayersInput.value = maxPlayers
+      minPlayers = state.min_players ? `${state.min_players}` : ""
+      minPlayersInput.value = minPlayers
       pieceDefs = cloneDeep(state.pieceDefs)
       props = state.props ? cloneDeep(state.props) : {bgUrl:""}
     }
@@ -50,12 +60,15 @@
     }
     onMount( async () => {
     })
-
+    const parseIntPlayers = (val:string):number => {
+      let v = parseInt(val)
+      return isNaN(v) ? 0 : v
+    }
     const handleKeydown = (e) => {
       if (e.key === "Escape") {
         cancelEdit()
       } else if (e.key === "Enter" && e.ctrlKey) {
-        handleSave(text, pieceDefs, props)
+        handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers))
       } else  if (e.key === 'Tab') {
         // trap focus
         const tabbable = Array.from(document.querySelectorAll('input'))
@@ -79,13 +92,17 @@
       pieceDefs = reorder(pieceDefs, from.index, to.index);
     }
    let showEmojiPicker :number|undefined = undefined
-   let emojiDialog
+   let emojiDialog, minPlayersInput, maxPlayersInput
 </script>
 
 <svelte:window on:keydown={handleKeydown}/>
   <div class='board-editor'>
     <div class="edit-title">
       <sl-input label="Name" class='textarea' maxlength="60" bind:this={nameInput}  on:input={e=>text= e.target.value}></sl-input>
+    </div>
+    <div style="display:flex; flex-direction:row;">
+      <sl-input style="width:90px" label="Min Players" class='textarea' maxlength="2" bind:this={minPlayersInput} on:input={e=>minPlayers= e.target.value}></sl-input>
+      <sl-input style="width:90px" label="Max Players" class='textarea' maxlength="2" bind:this={maxPlayersInput}  on:input={e=>maxPlayers= e.target.value}></sl-input>
     </div>
     <div class="edit-piece-defs unselectable">
       <div class="title-text">
@@ -170,7 +187,7 @@
       <sl-button on:click={cancelEdit} style="margin-left:10px">
         Cancel
       </sl-button>
-      <sl-button style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props)} variant="primary">
+      <sl-button style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers))} variant="primary">
         Save
       </sl-button>
     </div>

@@ -14,8 +14,8 @@
 
     const store:GamezStore = getStore();
 
-    const addBoard = async (name: string, pieceDefs: PieceDef[], props: BoardProps) => {
-        await store.makeGameType({players:[], status:"", max_players:0, min_players:0, name, pieceDefs, props})
+    const addBoard = async (name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
+        await store.makeGameType({status:"", max_players:maxPlayers, min_players:minPlayers, name, pieceDefs, props})
         // const board = await store.boardList.makeBoard()
         // store.boardList.setActiveBoard(board.hashB64())
         dialog.hide()
