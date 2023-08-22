@@ -81,25 +81,31 @@ export class GamezStore {
         this.boardList.requestChanges(changes)
         await this.boardList.workspace.commitChanges()       
     }
-    async addDefaultGames(): Promise<any> {
-        let changes = [{
-            type: "add-board-type",
-            boardType: {
-                id: uuidv1(),
-                name: "Chess",
-                board:CHESS
-            }},
-        {
-            type: "add-board-type",
-            boardType: {
-                id: uuidv1(),
-                name: "Go",
-                board:GO
-            }},
-        ]
-        //@ts-ignore
-        this.boardList.requestChanges(changes)
-        await this.boardList.workspace.commitChanges()
+    async addDefaultGames(name:string): Promise<any> {
+        let changes = []
+        switch(name) {
+            case "Chess": changes.push({
+                type: "add-board-type",
+                boardType: {
+                    id: uuidv1(),
+                    name: "Chess",
+                    board:CHESS
+                }})
+                break;
+            case "Go" :changes.push({
+                type: "add-board-type",
+                boardType: {
+                    id: uuidv1(),
+                    name: "Go",
+                    board:GO
+                }})
+                break;
+        }
+        if (changes.length>0) {
+            //@ts-ignore
+            this.boardList.requestChanges(changes)
+            await this.boardList.workspace.commitChanges()
+        }
     }
     async findOrMakeRoots(): Promise<any> {
 

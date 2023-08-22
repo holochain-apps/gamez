@@ -14,6 +14,7 @@
 
     export let roleName = ""
   
+    let DEFAULT_GAMES = ["Chess", "Go"]
     let synStore: SynStore;
     let gzStore: GamezStore;
     
@@ -93,8 +94,8 @@
 
           <div style="display:flex">
           <div style="margin-right:100px">
-            <h3>Games:</h3>
-              {#each $boardList && $boardList.boardTypes as boardType}
+            <h3>Game Library:</h3>
+              {#each $boardList.boardTypes as boardType}
                 <div style="display:flex; align-items:center;margin-bottom:5px;">
                   <h3 style="margin-right:5px;">{boardType.name}:</h3> 
                   <sl-button
@@ -123,13 +124,15 @@
               {/each}
           </div>
           <div class="new-type">
-            <h3>New Game Type:</h3>
+            <h3>Add Game to Library:</h3>
             <input style="display:none" type="file" accept=".json" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
-            {#if $boardList && $boardList.boardTypes.length ==0}
-              <sl-button on:click={()=>{gzStore.addDefaultGames()}} title="Default Games">Default <Fa icon={faFileImport} size=1x/></sl-button>                      
-            {/if}
-              <sl-button on:click={()=>newBoardDialog.open()} style="" title="New Game">New <Fa icon={faSquarePlus} size=1x /></sl-button>
-            <sl-button on:click={()=>{fileinput.click();}} title="Import Game">Import <Fa icon={faFileImport} size=1x/></sl-button>                      
+            <sl-button on:click={()=>newBoardDialog.open()} style="" title="New Game">New <Fa icon={faSquarePlus} size=1x /></sl-button>
+            <sl-button on:click={()=>{fileinput.click();}} title="Import Game">Import <Fa icon={faFileImport} size=1x/></sl-button>
+            {#each DEFAULT_GAMES as g}             
+              {#if !$boardList.boardTypes.find(b=>b.name == g) }
+                <sl-button on:click={()=>{gzStore.addDefaultGames(g)}} title={g}>{g} <Fa icon={faSquarePlus} size=1x/></sl-button>                      
+              {/if}
+            {/each}
             </div>
           </div>
         </div> 
