@@ -1,149 +1,223 @@
 <script lang="ts">
-    import Toolbar from './Toolbar.svelte'
-    import GamezPane from './GamezPane.svelte'
-    import { GamezStore } from './store'
-    import { setContext } from 'svelte';
-    import type { AppAgentClient } from '@holochain/client';
-    import type { SynStore } from '@holochain-syn/store';
-    import type { ProfilesStore } from "@holochain-open-dev/profiles";
-    import Fa from 'svelte-fa';
-    import { faCog, faFileImport, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
-    import { cloneDeep } from "lodash";
-    import NewBoardDialog from './NewBoardDialog.svelte';
-    import EditGameTypeDialog from './EditGameTypeDialog.svelte';
+  import Toolbar from "./Toolbar.svelte";
+  import GamezPane from "./GamezPane.svelte";
+  import { GamezStore } from "./store";
+  import { setContext } from "svelte";
+  import type { AppAgentClient } from "@holochain/client";
+  import type { SynStore } from "@holochain-syn/store";
+  import type { ProfilesStore } from "@holochain-open-dev/profiles";
+  import Fa from "svelte-fa";
+  import {
+    faCog,
+    faFileImport,
+    faSquarePlus,
+  } from "@fortawesome/free-solid-svg-icons";
+  import { cloneDeep } from "lodash";
+  import NewBoardDialog from "./NewBoardDialog.svelte";
+  import EditGameTypeDialog from "./EditGameTypeDialog.svelte";
 
-    export let roleName = ""
-  
-    let DEFAULT_GAMES = ["Chess", "Go"]
-    let synStore: SynStore;
-    let gzStore: GamezStore;
-    
-    export let client : AppAgentClient
-    export let profilesStore : ProfilesStore|undefined = undefined
+  export let roleName = "";
 
-    $: activeBoardHash = gzStore && gzStore.boardList ? gzStore.boardList.activeBoardHash : undefined
+  let DEFAULT_GAMES = ["Chess", "Go"];
+  let synStore: SynStore;
+  let gzStore: GamezStore;
 
-    initialize()
+  export let client: AppAgentClient;
+  export let profilesStore: ProfilesStore | undefined = undefined;
 
-    setContext('synStore', {
-      getStore: () => synStore,
-    });
-  
-    setContext('gzStore', {
-      getStore: () => gzStore,
-    });
-    const DEFAULT_KD_BG_IMG = "https://images.unsplash.com/photo-1557682250-33bd709cbe85"
-    //const DEFAULT_KD_BG_IMG = "https://img.freepik.com/free-photo/studio-background-concept-abstract-empty-light-gradient-purple-studio-room-background-product-plain-studio-background_1258-54461.jpg"
-    const NO_BOARD_IMG = "https://holochain.org/img/big_logo.png"
-    $: boardList = gzStore? gzStore.boardList.stateStore() : undefined
-    $: archivedBoards = boardList ? $boardList.boards.filter((board)=>board.status === "archived") : []
-    $: activeBoards = boardList ? $boardList.boards.filter((board)=>board.status !== "archived") : []
-    $: boardState = gzStore ? gzStore.boardList.getReadableBoardState($activeBoardHash) :  undefined
-    $: myAgentPubKey = gzStore ? gzStore.myAgentPubKey() : undefined
+  $: activeBoardHash =
+    gzStore && gzStore.boardList
+      ? gzStore.boardList.activeBoardHash
+      : undefined;
 
-    async function initialize() : Promise<void> {
-      const store = createStore()
-      synStore = store.synStore;
-      try {
-        await store.loadBoards()
-        gzStore = store
-      } catch (e) {
-        console.log("Error loading boards:", e)
-      }
+  initialize();
+
+  setContext("synStore", {
+    getStore: () => synStore,
+  });
+
+  setContext("gzStore", {
+    getStore: () => gzStore,
+  });
+  const DEFAULT_KD_BG_IMG =
+    "https://images.unsplash.com/photo-1557682250-33bd709cbe85";
+  //const DEFAULT_KD_BG_IMG = "https://img.freepik.com/free-photo/studio-background-concept-abstract-empty-light-gradient-purple-studio-room-background-product-plain-studio-background_1258-54461.jpg"
+  const NO_BOARD_IMG = "https://holochain.org/img/big_logo.png";
+  $: boardList = gzStore ? gzStore.boardList.stateStore() : undefined;
+  $: archivedBoards = boardList
+    ? $boardList.boards.filter((board) => board.status === "archived")
+    : [];
+  $: activeBoards = boardList
+    ? $boardList.boards.filter((board) => board.status !== "archived")
+    : [];
+  $: boardState = gzStore
+    ? gzStore.boardList.getReadableBoardState($activeBoardHash)
+    : undefined;
+  $: myAgentPubKey = gzStore ? gzStore.myAgentPubKey() : undefined;
+
+  async function initialize(): Promise<void> {
+    const store = createStore();
+    synStore = store.synStore;
+    try {
+      await store.loadBoards();
+      gzStore = store;
+    } catch (e) {
+      console.log("Error loading boards:", e);
     }
-    function createStore() : GamezStore {
-      const store = new GamezStore(
-        client,
-        roleName
-      );
-      return store
-    }
-    let fileinput;
-	const onFileSelected = (e)=>{
-        let file = e.target.files[0];
-        let reader = new FileReader();
+  }
+  function createStore(): GamezStore {
+    const store = new GamezStore(client, roleName);
+    return store;
+  }
+  let fileinput;
+  const onFileSelected = (e) => {
+    let file = e.target.files[0];
+    let reader = new FileReader();
 
-        reader.addEventListener("load", async () => {
-            const b = JSON.parse(reader.result as string)
-            await gzStore.makeGameType(b)
-        }, false);
-        reader.readAsText(file);
-    };
-    let newBoardDialog
-    let editBoardDialog
+    reader.addEventListener(
+      "load",
+      async () => {
+        const b = JSON.parse(reader.result as string);
+        await gzStore.makeGameType(b);
+      },
+      false
+    );
+    reader.readAsText(file);
+  };
+  let newBoardDialog;
+  let editBoardDialog;
+</script>
 
-  </script>
-  
-  <svelte:head>
-    <script src='https://kit.fontawesome.com/80d72fa568.js' crossorigin='anonymous'></script>
-  </svelte:head>
-  <div class="flex-scrollable-parent">
-    <div class="flex-scrollable-container">
-    <div class='app' >
-
-    {#if gzStore}
-    <NewBoardDialog bind:this={newBoardDialog}></NewBoardDialog>
-    <EditGameTypeDialog bind:this={editBoardDialog}></EditGameTypeDialog>
-    <Toolbar profilesStore={profilesStore}/>
-      {#if ($boardList.avatars[myAgentPubKey] && $boardList.avatars[myAgentPubKey].name) || profilesStore}
-        {#if $activeBoardHash !== undefined}
-          <GamezPane on:requestChange={(event) => {gzStore.boardList.requestBoardChanges($activeBoardHash,event.detail)}}/>
-        {:else}
-        <div class="welcome-text">
-          <p style="margin-bottom:20px;">Active Games: {activeBoards.length}, Archived Games: {archivedBoards.length}</p>
-
-          <div style="display:flex">
-          <div style="margin-right:100px">
-            <h3>Game Library:</h3>
-              {#each $boardList.boardTypes as boardType}
-                <div style="display:flex; align-items:center;margin-bottom:5px;">
-                  <h3 style="margin-right:5px;">{boardType.name}:</h3> 
-                  <sl-button
-                    style="max-width:100px;margin-right:10px"
-                    on:click={async ()=>{
-                      const state = cloneDeep(boardType.board)
-                      if (state.min_players) {
-                        state.props.players.push(myAgentPubKey)
-                      }
-                      const board = await gzStore.boardList.makeBoard(state)
-                      gzStore.boardList.setActiveBoard(board.hashB64())                  
+<svelte:head>
+  <script
+    src="https://kit.fontawesome.com/80d72fa568.js"
+    crossorigin="anonymous"
+  ></script>
+</svelte:head>
+<div class="flex-scrollable-parent">
+  <div class="flex-scrollable-container">
+    <div class="app">
+      {#if gzStore}
+        <NewBoardDialog bind:this={newBoardDialog} />
+        <EditGameTypeDialog bind:this={editBoardDialog} />
+        <Toolbar {profilesStore} />
+        {#if ($boardList.avatars[myAgentPubKey] && $boardList.avatars[myAgentPubKey].name) || profilesStore}
+          {#if $activeBoardHash !== undefined}
+            <GamezPane
+              on:requestChange={(event) => {
+                gzStore.boardList.requestBoardChanges(
+                  $activeBoardHash,
+                  event.detail
+                );
+              }}
+            />
+          {:else}
+            <div class="welcome-text">
+              <div class="games-list">
+                <h3>Active Games</h3>
+                {#each activeBoards as board}
+                  <div class="game"
+                  on:click={() => {
+                    gzStore.boardList.setActiveBoard(board.hash);
+                  }}
+                  >
+                    {board.name}
+                  </div>
+                {/each}
+                <h3>Archived Games</h3>
+                {#each archivedBoards as board}
+                  <div class="game"
+                    on:click={() => {
+                      gzStore.boardList.unarchiveBoard(board.hash);
                     }}
                   >
-                    Play!
-                  </sl-button>
-                  <sl-button
-                    style="max-width:100px;margin-right:10px"
-                    on:click={async ()=>{     
-                      const board = cloneDeep(boardType)
-                      editBoardDialog.open(board)           
-                    }}
-                  >
-                    <Fa icon={faCog}></Fa>
-                  </sl-button>
+                  {board.name}
+                  </div>
+                {/each}
+              </div>
+              <div style="display:flex; flex-direction:column">
+                <div style="margin-bottom:10px">
+                  <h3>Game Library:</h3>
+                  {#each $boardList.boardTypes as boardType}
+                    <div
+                      style="display:flex; align-items:center;margin-bottom:5px;"
+                    >
+                      <h3 style="margin-right:5px;">{boardType.name}:</h3>
+                      <sl-button
+                        style="max-width:100px;margin-right:10px"
+                        on:click={async () => {
+                          const state = cloneDeep(boardType.board);
+                          state.name = `${state.name}: ${
+                            $boardList.avatars[myAgentPubKey].name
+                          }- ${new Date().toLocaleDateString("en-US")}`;
+                          if (state.min_players) {
+                            state.props.players.push(myAgentPubKey);
+                          }
+                          const board = await gzStore.boardList.makeBoard(
+                            state
+                          );
+                          gzStore.boardList.setActiveBoard(board.hashB64());
+                        }}
+                      >
+                        Create Game
+                      </sl-button>
+                      <sl-button
+                        style="max-width:100px;margin-right:10px"
+                        on:click={async () => {
+                          const board = cloneDeep(boardType);
+                          editBoardDialog.open(board);
+                        }}
+                      >
+                        <Fa icon={faCog} />
+                      </sl-button>
+                    </div>
+                  {/each}
                 </div>
-              {/each}
-          </div>
-          <div class="new-type">
-            <h3>Add Game to Library:</h3>
-            <input style="display:none" type="file" accept=".json" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} >
-            <sl-button on:click={()=>newBoardDialog.open()} style="" title="New Game">New <Fa icon={faSquarePlus} size=1x /></sl-button>
-            <sl-button on:click={()=>{fileinput.click();}} title="Import Game">Import <Fa icon={faFileImport} size=1x/></sl-button>
-            {#each DEFAULT_GAMES as g}             
-              {#if !$boardList.boardTypes.find(b=>b.name == g) }
-                <sl-button on:click={()=>{gzStore.addDefaultGames(g)}} title={g}>{g} <Fa icon={faSquarePlus} size=1x/></sl-button>                      
-              {/if}
-            {/each}
+                <div class="new-type">
+                  <h3>Add Game to Library:</h3>
+                  <input
+                    style="display:none"
+                    type="file"
+                    accept=".json"
+                    on:change={(e) => onFileSelected(e)}
+                    bind:this={fileinput}
+                  />
+                  <sl-button
+                    on:click={() => newBoardDialog.open()}
+                    style=""
+                    title="New Game"
+                    >New <Fa icon={faSquarePlus} size="1x" /></sl-button
+                  >
+                  <sl-button
+                    on:click={() => {
+                      fileinput.click();
+                    }}
+                    title="Import Game"
+                    >Import <Fa icon={faFileImport} size="1x" /></sl-button
+                  >
+                  {#each DEFAULT_GAMES as g}
+                    {#if !$boardList.boardTypes.find((b) => b.name == g)}
+                      <sl-button
+                        on:click={() => {
+                          gzStore.addDefaultGames(g);
+                        }}
+                        title={g}
+                        >{g} <Fa icon={faSquarePlus} size="1x" /></sl-button
+                      >
+                    {/if}
+                  {/each}
+                </div>
+              </div>
             </div>
-          </div>
-        </div> 
+          {/if}
         {/if}
+      {:else}
+        <div class="loading"><div class="loader" /></div>
       {/if}
-    {:else}
-      <div class="loading"><div class="loader"></div></div>
-    {/if}
+    </div>
   </div>
+</div>
 
-</div></div>
 <style>
   .app {
     margin: 0;
@@ -166,6 +240,7 @@
     }
   }
   .welcome-text {
+    display: flex;
     border-radius: 5px;
     border: 1px solid #222;
     margin: auto;
@@ -174,6 +249,25 @@
     padding: 26px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     background-color: white;
+  }
+  .games-list {
+    margin-right: 30px;
+    border-right: solid 1px lightgray;
+    padding-right: 40px;
+  }
+  .game {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 10px;
+    border: solid 1px lightgray;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
+  .game:hover {
+    background-color: rgb(240, 249, 2244);
   }
   .loading {
     text-align: center;
@@ -190,12 +284,20 @@
     display: inline-block;
   }
   @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
   }
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
   .flex-scrollable-parent {
     position: relative;

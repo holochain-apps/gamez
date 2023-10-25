@@ -17,7 +17,6 @@
 <div class='toolbar'>
   <div class="left-items">
     <div class="logo" title="About BoardGamez!" on:click={()=>aboutDialog.open()}><LogoIcon /></div>
-    <BoardMenu ></BoardMenu>
   </div>
   <div class="right-items">
     <Folk profilesStore={profilesStore}></Folk>
@@ -43,8 +42,6 @@
     background-color: #eeeeee;
     padding-left: 15px;
     padding-right: 10px;
-    padding-top: 16px;
-    padding-bottom: 16px;
   }
   .logo {
     height: 40px;

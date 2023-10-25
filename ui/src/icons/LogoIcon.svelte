@@ -6,4 +6,4 @@
   }
 </style>
 
-<div style="font-size:40px;font-weight:bold">BoardGamez</div>
+<div style="font-size:20px;font-weight:bold">BoardGamez</div>
