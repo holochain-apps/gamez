@@ -10,12 +10,9 @@
     import { faPlus, faGripVertical, faTrash} from '@fortawesome/free-solid-svg-icons';
     import { cloneDeep } from "lodash";
 
-    import type { GamezStore } from './store';
-    import type { EntryHashB64 } from '@holochain/client';
-
-    const { getStore } :any = getContext('gzStore');
-
-    const store:GamezStore = getStore();
+    // import type { GamezStore } from './store';
+    // const { getStore } :any = getContext('gzStore');
+    // const store:GamezStore = getStore();
 
     export let handleSave
     export let handleDelete = undefined
@@ -101,8 +98,8 @@
       <sl-input label="Name" class='textarea' maxlength="60" bind:this={nameInput}  on:input={e=>text= e.target.value}></sl-input>
     </div>
     <div style="display:flex; flex-direction:row;">
-      <sl-input style="width:90px" label="Min Players" class='textarea' maxlength="2" bind:this={minPlayersInput} on:input={e=>minPlayers= e.target.value}></sl-input>
-      <sl-input style="width:90px" label="Max Players" class='textarea' maxlength="2" bind:this={maxPlayersInput}  on:input={e=>maxPlayers= e.target.value}></sl-input>
+      <sl-input style="width:100px" label="Min Players" class='textarea' maxlength="2" bind:this={minPlayersInput} on:input={e=>minPlayers= e.target.value}></sl-input>
+      <sl-input style="width:100px" label="Max Players" class='textarea' maxlength="2" bind:this={maxPlayersInput}  on:input={e=>maxPlayers= e.target.value}></sl-input>
     </div>
     <div class="edit-piece-defs unselectable">
       <div class="title-text">

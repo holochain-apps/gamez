@@ -1,365 +1,169 @@
-import { RootStore, type Commit, type SynGrammar, type SynStore, type Workspace, type WorkspaceStore } from "@holochain-syn/core";
-import type { Dictionary } from "@holochain-open-dev/core-types";
-import { Board, CommitTypeBoard } from "./board";
-import type { EntryHashMap, EntryRecord } from "@holochain-open-dev/utils";
+import {  type Commit, type SynGrammar, type SynStore, type Workspace, WorkspaceStore, DocumentStore } from "@holochain-syn/core";
+import { Board } from "./board";
+import { LazyHoloHashMap, type EntryHashMap, type EntryRecord } from "@holochain-open-dev/utils";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import { boardGrammar, type BoardDelta, type BoardGrammar, type BoardState } from "./board";
 import { type AgentPubKey, type EntryHash, decodeHashFromBase64, type EntryHashB64, type AgentPubKeyB64, encodeHashToBase64 } from "@holochain/client";
-import {toPromise} from '@holochain-open-dev/stores'
+import {toPromise, type AsyncReadable, pipe, joinAsync, sliceAndJoin, asyncDerived} from '@holochain-open-dev/stores'
 import type { v1 as uuidv1 } from "uuid";
+import type { ProfilesStore } from "@holochain-open-dev/profiles";
 
-export const CommitTypeBoardList :string = "board-list"
-
-export interface BoardRecord {
-    hash: EntryHashB64
-    name: string
-    status: string
+export enum BoardType {
+    active = "active",
+    archived = "archived"
 }
 
-export interface BoardType {
-    id: uuidv1,
-    name: string,
-    board: BoardState
+export interface TypedHash {
+    hash: EntryHash
+    type: BoardType
 }
 
-export interface Avatar {
-    name: string
-    url: string
+export interface BoardAndLatestState {
+    board: Board,
+    latestState: BoardState,
 }
-
-export interface BoardListState {
-    avatars: Dictionary<Avatar>;
-    boards: BoardRecord[];
-    agentBoards: Dictionary<Array<EntryHashB64>>;
-    boardTypes: BoardType[];
-}
-
-
-export type BoardListDelta =
-  | {
-    type: "add-board";
-    hash: EntryHashB64;
-    name: string;
-    status?: string;
-  }
-  | {
-    type: "add-board-type";
-    boardType: BoardType;
-  }
-  | {
-    type: "set-board-type";
-    id: uuidv1;
-    board: BoardState;
-  }
-  | {
-    type: "set-avatar";
-    pubKey: AgentPubKeyB64;
-    avatar: Avatar;
-  }
-  | {
-    type: "set-name";
-    hash: EntryHashB64;
-    name: string;
-  }
-  | {
-    type: "set-status";
-    hash: EntryHashB64;
-    status: string;
-  }
-  | {
-    type: "set-index";
-    hash: EntryHashB64;
-    index: number;
-  }
-//   | {
-//     type: "set-agent-board";
-//     hash: EntryHashB64;
-//     agent: AgentPubKeyB64;
-//     state: boolean;
-//   }
-  ;
-
-export type BoardListGrammar = SynGrammar<
-BoardListDelta,
-BoardListState
->;
-
-export const boardListGrammar: BoardListGrammar = {
-    initState(state)  {
-        state.avatars = {}
-        state.boards = []
-        state.agentBoards = {}
-        state.boardTypes = []
-    },
-    applyDelta( 
-        delta: BoardListDelta,
-        state: BoardListState,
-        _ephemeralState: any,
-        _author: AgentPubKey
-      ) {
-        if (delta.type == "add-board") {
-            const record: BoardRecord = {
-                name: delta.name,
-                hash: delta.hash,
-                status: delta.status,
-            }
-            state.boards.unshift(record)
-        }  
-        if (delta.type == "add-board-type") {
-            state.boardTypes.unshift(delta.boardType)
-        }
-        if (delta.type == "set-board-type") {
-            const index = state.boardTypes.findIndex((type) => type.id === delta.id)
-            if (index >= 0) {
-              state.boardTypes[index].board = delta.board
-              state.boardTypes[index].name = delta.board.name
-            }    
-        }
-        if (delta.type == "set-name") {
-            state.boards.forEach((board, i) => {
-                if (board.hash === delta.hash) {
-                  state.boards[i].name = delta.name;
-                }
-            });
-        }
-        if (delta.type == "set-avatar") {
-            state.avatars[delta.pubKey] = delta.avatar
-        }
-        if (delta.type == "set-status") {
-            state.boards.forEach((board, i) => {
-                if (board.hash === delta.hash) {
-                  state.boards[i].status = delta.status;
-                }
-            });
-        }
-        if (delta.type == "set-index") {
-            const index = state.boards.findIndex((board) => board.hash == delta.hash)
-            if (index >= 0) {
-              const c = state.boards[index]
-              state.boards.splice(index,1)
-              state.boards.splice(index, 0, c)
-            }
-        }
-      }
-    }
 
 
 export class BoardList {
-    public workspace: WorkspaceStore<BoardListGrammar>
-    public boards: Dictionary<Board>
-    activeBoardHash: Writable<EntryHashB64| undefined> = writable(undefined)
+    activeBoardHashes: AsyncReadable<EntryHash[]>
+    archivedBoardHashes: AsyncReadable<EntryHash[]>
+    activeBoard: Writable<Board| undefined> = writable(undefined)
+    allBoards: AsyncReadable<ReadonlyMap<Uint8Array, BoardAndLatestState>>
+    activeBoardHash: Writable<EntryHash| undefined> = writable(undefined)
+    activeBoardHashB64: Readable<string| undefined> = derived(this.activeBoardHash, s=> s ? encodeHashToBase64(s): undefined)
+    boardCount: AsyncReadable<number>
+    documents: LazyHoloHashMap<EntryHash, DocumentStore<BoardGrammar>> = new LazyHoloHashMap( documentHash =>
+         new DocumentStore(this.synStore, boardGrammar, documentHash))
 
-    constructor(public rootStore: RootStore<BoardListGrammar>, public boardsRootStore: RootStore<BoardGrammar>) {
-        this.boards = {}
-    }
+    boardData2 = new LazyHoloHashMap( documentHash => {
+        const docStore = this.documents.get(documentHash)
 
-    public static async Create(synStore: SynStore) {
-        const rootStore = await synStore.createDeterministicRoot(boardListGrammar, {type: CommitTypeBoardList})
-        const boardsRootStore = await synStore.createDeterministicRoot(boardGrammar, {type: CommitTypeBoard})
-        const me = new BoardList(rootStore, boardsRootStore);
-        const workspaceHash = await rootStore.createWorkspace(
-            'main',
-            rootStore.root.entryHash
-           );
-        me.workspace = await rootStore.joinWorkspace(workspaceHash)
-        return me
-    }
-    public static async Join(synStore: SynStore, rootCommit: EntryRecord<Commit>, boardsRootCommit: EntryRecord<Commit>) {
-        const rootStore = new RootStore(
-            synStore,
-            boardListGrammar,
-            rootCommit
-          );
-          const boardsRootStore = new RootStore(
-            synStore,
-            boardGrammar,
-            boardsRootCommit
-          );
-        const me = new BoardList(rootStore, boardsRootStore);
-        console.log("BoardList", me)
-        const workspaces = await toPromise(rootStore.allWorkspaces);
-        console.log("Workspaxces", workspaces)
+        const board = pipe(docStore.allWorkspaces,
+            workspaces => 
+                new Board(docStore,  new WorkspaceStore(docStore, Array.from(workspaces.keys())[0]))
+        )
+        const latestState = pipe(board, 
+            board => board.workspace.latestSnapshot
+            )
+        return pipe(joinAsync([board, latestState]), ([board, latestState]) => {return {board,latestState}})
+    })
 
-        // if there is no workspace then we have a problem!!
-        for (let i=0;i<workspaces.length;i+=1) {
-            try {
-                me.workspace = await rootStore.joinWorkspace(workspaces[0].entryHash);
-                return me
-            } catch(e) {
-                console.log("failed to join workspace ",i, "with error",e, " trying next")
-            }
-        }
-        throw("failed to join any workspace")
-    }
-    hash() : EntryHash {
-        return this.rootStore.root.entryHash
-    }
-    close() {
-        this.workspace.leaveWorkspace()
-    }
-    stateStore() {
-        return this.workspace.state
-    }
-    state() {
-        return get(this.workspace.state)
-    }
-    requestChanges(deltas: Array<BoardListDelta>) {
-        console.log("REQUESTING BOARDLIST CHANGES: ", deltas)
-        this.workspace.requestChanges(deltas)
-    }
-    participants()  {
-        return this.workspace.participants
-    }
-    avatars() {
-        console.log("AVATARS: ",get(this.workspace.state))
-        return derived(this.workspace.state, state => state.avatars)
-    }
-    async commitChanges() {
-        this.workspace.commitChanges()
-    }
+    agentBoardHashes: LazyHoloHashMap<AgentPubKey, AsyncReadable<Array<BoardAndLatestState>>> = new LazyHoloHashMap(agent =>
+        pipe(this.activeBoardHashes,
+            documentHashes => joinAsync(documentHashes.map(documentHash=>this.documents.get(documentHash).allAuthors)),
+            (documentsAuthors, documentHashes) => {
+                const agentBoardHashes: AsyncReadable<BoardAndLatestState>[] = []
+                const b64 = encodeHashToBase64(agent)
+                for (let i = 0; i< documentsAuthors.length; i+=1) {
+                    if (documentsAuthors[i].find(a=>encodeHashToBase64(a) == b64)) {
+                        const hash = documentHashes[i]
+                        //const state = this.boardData2.get(hash).workspace.latestSnapshot
+                        //agentDocuments.push(asyncDerived(state, state=>{return {hash, state}}))
+                        const x = this.boardData2.get(hash)
+                        agentBoardHashes.push(x)
+                    }
+                }
+                return joinAsync(agentBoardHashes)
+            },
+        )
+    )
+        
+    allAgentBoards: AsyncReadable<ReadonlyMap<AgentPubKey, Array<BoardAndLatestState>>>
+       
+    constructor(public profilseStore: ProfilesStore, public synStore: SynStore) {
+        this.allAgentBoards = pipe(this.profilseStore.agentsWithProfile,
+            agents=>sliceAndJoin(this.agentBoardHashes, agents)
+        )
+   
 
-    async requestBoardChanges(hash: EntryHashB64, deltas: BoardDelta[]) {
-        const board = await this.getBoard(hash)
-        if (board) {
-            board.requestChanges(deltas)
-        }
+        const boardHashes = asyncDerived(this.synStore.documentsByTag.get(BoardType.active),x=>Array.from(x.keys()))
+        this.activeBoardHashes = boardHashes
+        const archivedHashes = asyncDerived(this.synStore.documentsByTag.get(BoardType.archived),x=>Array.from(x.keys()))
+        this.archivedBoardHashes = archivedHashes
+
+        // const activeTypedHashes = asyncDerived(boardHashes, hashes=>hashes.map(hash=>{const h:TypedHash = {hash, type:BoardType.active}; return h}))
+        // const archivedTypedHashes = asyncDerived(archivedHashes, hashes=>hashes.map(hash=>{const h:TypedHash = {hash,type:BoardType.archived}; return h}))
+
+        // const joinedTyped = joinAsync([activeTypedHashes, archivedTypedHashes])
+        // this.typedHashes = asyncDerived(joinedTyped, 
+        //     ([active,archived]) => [...active, ...archived]
+        //     )
+
+        const joined = joinAsync([boardHashes, archivedHashes])
+
+        const asyncJoined = asyncDerived(joined, 
+            ([boards,archived]) => [...boards, ...archived]
+            )
+        this.allBoards = pipe(asyncJoined,
+            docHashes => sliceAndJoin(this.boardData2, docHashes)
+        )
+        this.boardCount =  asyncDerived(joined,
+            ([boards,archived]) => boards.length + archived.length
+        )
     }
 
-    async requestAtiveBoardChanges(deltas: BoardDelta[]) {
-        this.requestBoardChanges(get(this.activeBoardHash), deltas)
+    async getBoard(documentHash: EntryHash) : Promise<Board | undefined> {
+        if (!documentHash) return undefined
+        const board = await toPromise(this.boardData2.get(documentHash))
+        return board.board
     }
 
-    getReadableBoardState(hash: EntryHashB64 | undefined) : Readable<BoardState> | undefined {
-        if (hash == undefined) return undefined
-        return this.boards[hash].workspace.state
-    }
-    
-    async getBoard(hash: EntryHashB64) : Promise<Board | undefined> {
-        let board = this.boards[hash]
-        if (!board) {
-            const workspaceHash = decodeHashFromBase64(hash)
-            board = this.boards[hash] = new Board(await this.boardsRootStore.joinWorkspace(workspaceHash));
-        }
-        return board
-    }
-
-    async setActiveBoard(hash: EntryHashB64 | undefined) {
-        let board
+    async setActiveBoard(hash: EntryHash | undefined) {
         if (hash) {
-            board = await this.getBoard(hash)
+            const board = (await toPromise(this.boardData2.get(hash))).board
+
             if (board) {
-                // const myPubKey = encodeHashToBase64(this.rootStore.synStore.client.client.myPubKey)
-                // const myBoards = this.state().agentBoards[myPubKey]
-                // if (myBoards  && myBoards.findIndex(h=>h === hash) < 0) {
-                //     this.requestChanges([
-                //         {type: "set-agent-board",
-                //         state: true,
-                //         agent: myPubKey,
-                //         hash: hash,
-                //         }
-                //     ])
-                // }
-                this.activeBoardHash.update((n) => {return hash} )
+                await board.join()
+                console.log("joined")
+                this.activeBoard.update((n) => {return board} )
+            } else {
+                console.log("NO BOARD")
             }
+        } else {
+            this.activeBoard.update((n) => {return undefined} )
         }
-        if (!board) {
-            this.activeBoardHash.update((n) => {return undefined} )
+        this.activeBoardHash.update((n) => {return hash} )
+    }
+
+    async archiveBoard(documentHash: EntryHash) {
+        await this.synStore.client.removeDocumentTag(documentHash, BoardType.active)
+        await this.synStore.client.tagDocument(documentHash, BoardType.archived)
+        if (encodeHashToBase64(get(this.activeBoardHash)) == encodeHashToBase64(documentHash)) {
+            await this.setActiveBoard(undefined)
         }
     }
 
-    async archiveBoard(hash: EntryHashB64) {
-        this.requestChanges([{type:"set-status", hash ,status:"archived"}])
-        // leave board and delete
-        const board: Board = this.boards[hash]
-        if (board) {
-            board.workspace.leaveWorkspace()
-            delete this.boards[hash]
-        }
-        if (get(this.activeBoardHash) == hash) {
+    async unarchiveBoard(documentHash: EntryHash) {
+        await this.synStore.client.removeDocumentTag(documentHash, BoardType.archived)
+        await this.synStore.client.tagDocument(documentHash, BoardType.active)
+    }
+
+    async closeActiveBoard() {
+        const hash = get(this.activeBoardHash)
+        if (hash) {
+            const board = await this.getBoard(hash)
+            if (board) await board.leave()
             this.setActiveBoard(undefined)
         }
     }
 
-    async unarchiveBoard(hash: EntryHashB64) {
-        let changes : BoardListDelta[] = 
-        [
-            {type:"set-status", hash ,status:""}
-        ]
-
-        this.requestChanges(changes)
-    }
-
-    closeActiveBoard() {
-        this.setActiveBoard(undefined)
-    }
 
     async makeBoard(options: BoardState, fromHash?: EntryHashB64) : Promise<Board> {
-        const board = await Board.Create(this.boardsRootStore)
-        const workspaceStore = board.workspace
-        const boardHash = board.hashB64()
-        this.boards[boardHash] = board 
+        const board = await Board.Create(this.synStore)
+        const sessionStore = board.session
         if (!options.name) {
             options.name = "untitled"
         }
         if (options !== undefined) {
-            // let changes = []
-            // if (options.name) {
-            //     changes.push({
-            //         type: "set-name",
-            //         name: options.name
-            //     })
-            // }
-            // if (options.props) {
-            //     changes.push({
-            //         type: "set-props",
-            //         props: options.props
-            //     })
-            // }
-            // if (options.cards) {
-            //     options.cards.forEach((card)=>{
-            //         changes.push({
-            //             type: "add-card",
-            //             value: card,
-            //             group: UngroupedId
-            //         })
-                        
-            //     })
-            // }
-            // if (options.groups) {
-            //     changes.push({
-            //         type: "set-groups",
-            //         groups: options.groups
-            //     })
-            // }
-            // if (options.pieceDefs) {
-            //     changes.push({
-            //         type: "set-piece-defs",
-            //         pieceDefs: options.pieceDefs
-            //     })
-            // }
-            let changes = [{
+            let changes : BoardDelta[] = [{
                 type: "set-state",
                 state: options
                 },
             ]
             if (changes.length > 0) {
                 board.requestChanges(changes)
-                await workspaceStore.commitChanges()
+                await sessionStore.commitChanges()
             }
-
-            this.requestChanges([{
-                type: 'add-board',
-                name: board.state().name,
-                hash: boardHash,
-                status: ""
-                },
-                // {type: "set-agent-board",
-                //  state: true,
-                //  agent: encodeHashToBase64(this.rootStore.synStore.client.client.myPubKey),
-                //  hash: boardHash,
-                // }
-            ])
-        
         }
         return board
     }

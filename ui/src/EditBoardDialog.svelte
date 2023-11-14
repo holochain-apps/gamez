@@ -3,20 +3,20 @@
     import type { GamezStore } from './store';
     import { getContext, onMount } from 'svelte';
     import { isEqual } from 'lodash'
-    import type { EntryHashB64 } from '@holochain/client';
+    import type { EntryHash } from '@holochain/client';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
     import type { Board, BoardProps, BoardState,  PieceDef } from './board';
 
-    let boardHash:EntryHashB64|undefined = undefined
+    let boardHash:EntryHash|undefined = undefined
 
     let dialog: SlDialog
     onMount(async () => {
 
     })
 
-    export const  open = async (hash: EntryHashB64)=> {
+    export const  open = async (hash: EntryHash)=> {
         boardHash = hash
         const board: Board | undefined = await store.boardList.getBoard(boardHash)
         if (board) {
@@ -30,19 +30,11 @@
     const store:GamezStore = getStore();
 
     const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
-        // ignore board type we don't update that.
         const board: Board | undefined = await store.boardList.getBoard(boardHash)
         if (board) {
         let changes = []
         const state: BoardState = board.state()
         if (state.name != name) {
-            store.boardList.requestChanges([
-            {
-                type: 'set-name',
-                hash: board.hashB64(),
-                name: name
-            }
-            ])
             changes.push(
             {
                 type: 'set-name',
@@ -66,7 +58,7 @@
             })
         }
         if (changes.length > 0) {
-            await store.boardList.requestBoardChanges(boardHash, changes)
+            board.requestChanges(changes)
         }
         }
         close()

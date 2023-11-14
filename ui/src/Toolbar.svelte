@@ -1,13 +1,14 @@
 <script lang="ts">
   import LogoIcon from "./icons/LogoIcon.svelte";
-  import BoardMenu from "./BoardMenu.svelte";
   import Folk from "./Folk.svelte";
   import AboutDialog from "./AboutDialog.svelte";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
   import { faBug } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-
-  export let profilesStore: ProfilesStore|undefined
+  import type { GamezStore } from './store';
+  import { getContext } from "svelte";
+  const { getStore } :any = getContext('gzStore');
+  const store:GamezStore = getStore();
 
   let aboutDialog
   $:bugColor = "color: #5536f9"
@@ -19,7 +20,7 @@
     <div class="logo" title="About BoardGamez!" on:click={()=>aboutDialog.open()}><LogoIcon /></div>
   </div>
   <div class="right-items">
-    <Folk profilesStore={profilesStore}></Folk>
+    <Folk></Folk>
     <a href="https://github.com/holochain-apps/gamez/issues" title="Report a problem in our GitHub repo" target="_blank">
       <div class="nav-button"><Fa icon={faBug} size=2x style={bugColor} /></div>
     </a>

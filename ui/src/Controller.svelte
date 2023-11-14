@@ -15,60 +15,53 @@
   import { cloneDeep } from "lodash";
   import NewBoardDialog from "./NewBoardDialog.svelte";
   import EditGameTypeDialog from "./EditGameTypeDialog.svelte";
+  import { BoardType } from "./boardList";
+  import { CHESS, GO } from './defaultGames';
+  import { v1 as uuidv1 } from "uuid";
+  import BoardMenuItem from "./BoardMenuItem.svelte";
+
+  let defaultGames = [
+    {
+      id: uuidv1(),
+      name: "Chess",
+      board:CHESS
+    },
+    {
+      id: uuidv1(),
+      name: "Go",
+      board:GO
+    }
+  ]
 
   export let roleName = "";
+  export let client: AppAgentClient;
+  export let profilesStore: ProfilesStore;
+
 
   let DEFAULT_GAMES = ["Chess", "Go"];
-  let synStore: SynStore;
-  let gzStore: GamezStore;
+  let store: GamezStore = new GamezStore(
+        profilesStore,
+        client,
+        roleName,
+      );
+  let synStore: SynStore = store.synStore
 
-  export let client: AppAgentClient;
-  export let profilesStore: ProfilesStore | undefined = undefined;
-
-  $: activeBoardHash =
-    gzStore && gzStore.boardList
-      ? gzStore.boardList.activeBoardHash
-      : undefined;
-
-  initialize();
+  $: activeBoardHash = store.boardList.activeBoardHash
 
   setContext("synStore", {
     getStore: () => synStore,
   });
 
   setContext("gzStore", {
-    getStore: () => gzStore,
+    getStore: () => store,
   });
-  const DEFAULT_KD_BG_IMG =
-    "https://images.unsplash.com/photo-1557682250-33bd709cbe85";
-  //const DEFAULT_KD_BG_IMG = "https://img.freepik.com/free-photo/studio-background-concept-abstract-empty-light-gradient-purple-studio-room-background-product-plain-studio-background_1258-54461.jpg"
-  const NO_BOARD_IMG = "https://holochain.org/img/big_logo.png";
-  $: boardList = gzStore ? gzStore.boardList.stateStore() : undefined;
-  $: archivedBoards = boardList
-    ? $boardList.boards.filter((board) => board.status === "archived")
-    : [];
-  $: activeBoards = boardList
-    ? $boardList.boards.filter((board) => board.status !== "archived")
-    : [];
-  $: boardState = gzStore
-    ? gzStore.boardList.getReadableBoardState($activeBoardHash)
-    : undefined;
-  $: myAgentPubKey = gzStore ? gzStore.myAgentPubKey() : undefined;
 
-  async function initialize(): Promise<void> {
-    const store = createStore();
-    synStore = store.synStore;
-    try {
-      await store.loadBoards();
-      gzStore = store;
-    } catch (e) {
-      console.log("Error loading boards:", e);
-    }
-  }
-  function createStore(): GamezStore {
-    const store = new GamezStore(client, roleName);
-    return store;
-  }
+  $: activeBoards = store.boardList.activeBoardHashes
+  $: archivedBoards = store.boardList.archivedBoardHashes
+  $: activeBoard = store.boardList.activeBoard
+  $: myAgentPubKeyB64 = store.myAgentPubKeyB64
+  $: myProfile = store.profilesStore.myProfile
+
   let fileinput;
   const onFileSelected = (e) => {
     let file = e.target.files[0];
@@ -78,7 +71,7 @@
       "load",
       async () => {
         const b = JSON.parse(reader.result as string);
-        await gzStore.makeGameType(b);
+        await store.makeGameType(b);
       },
       false
     );
@@ -97,48 +90,44 @@
 <div class="flex-scrollable-parent">
   <div class="flex-scrollable-container">
     <div class="app">
-      {#if gzStore}
+      {#if store}
         <NewBoardDialog bind:this={newBoardDialog} />
         <EditGameTypeDialog bind:this={editBoardDialog} />
-        <Toolbar {profilesStore} />
-        {#if ($boardList.avatars[myAgentPubKey] && $boardList.avatars[myAgentPubKey].name) || profilesStore}
+        <Toolbar />
           {#if $activeBoardHash !== undefined}
-            <GamezPane
-              on:requestChange={(event) => {
-                gzStore.boardList.requestBoardChanges(
-                  $activeBoardHash,
-                  event.detail
-                );
-              }}
-            />
+            <GamezPane activeBoard={$activeBoard} />
           {:else}
             <div class="welcome-text">
               <div class="games-list">
-                <h3>Active Games</h3>
-                {#each activeBoards as board}
-                  <div class="game"
-                  on:click={() => {
-                    gzStore.boardList.setActiveBoard(board.hash);
-                  }}
-                  >
-                    {board.name}
-                  </div>
-                {/each}
-                <h3>Archived Games</h3>
-                {#each archivedBoards as board}
-                  <div class="game"
-                    on:click={() => {
-                      gzStore.boardList.unarchiveBoard(board.hash);
-                    }}
-                  >
-                  {board.name}
-                  </div>
-                {/each}
+                {#if $activeBoards.status == "complete" && $activeBoards.value.length > 0}
+                  <h3>Active Games</h3>
+                  {#each $activeBoards.value as hash}
+                    <div
+                        on:click={()=>store.boardList.setActiveBoard(hash)}
+                        class="game" >
+                        <BoardMenuItem boardType={BoardType.active} boardHash={hash}></BoardMenuItem>
+                    </div>
+                  {/each}
+                {/if}
+                {#if $archivedBoards.status == "complete" && $archivedBoards.value.length > 0}
+                  <h3>Archived Games</h3>
+                  {#each $archivedBoards.value as hash}
+                    <div class="game"
+                      on:click={() => {
+                        store.boardList.unarchiveBoard(hash);
+                      }}
+                    >
+                      <BoardMenuItem boardType={BoardType.archived} boardHash={hash}></BoardMenuItem>
+                    </div>
+                  {/each}
+                {/if}
               </div>
               <div style="display:flex; flex-direction:column">
+                {#if $myProfile.status == "complete"}
+                  {@const myName = $myProfile.value.entry.nickname}
                 <div style="margin-bottom:10px">
                   <h3>Game Library:</h3>
-                  {#each $boardList.boardTypes as boardType}
+                  {#each defaultGames as boardType}
                     <div
                       style="display:flex; align-items:center;margin-bottom:5px;"
                     >
@@ -148,15 +137,15 @@
                         on:click={async () => {
                           const state = cloneDeep(boardType.board);
                           state.name = `${state.name}: ${
-                            $boardList.avatars[myAgentPubKey].name
+                            myName
                           }- ${new Date().toLocaleDateString("en-US")}`;
                           if (state.min_players) {
-                            state.props.players.push(myAgentPubKey);
+                            state.props.players.push(myAgentPubKeyB64);
                           }
-                          const board = await gzStore.boardList.makeBoard(
+                          const board = await store.boardList.makeBoard(
                             state
                           );
-                          gzStore.boardList.setActiveBoard(board.hashB64());
+                          store.boardList.setActiveBoard(board.hash);
                         }}
                       >
                         Create Game
@@ -173,6 +162,7 @@
                     </div>
                   {/each}
                 </div>
+                {/if}
                 <div class="new-type">
                   <h3>Add Game to Library:</h3>
                   <input
@@ -195,22 +185,21 @@
                     title="Import Game"
                     >Import <Fa icon={faFileImport} size="1x" /></sl-button
                   >
-                  {#each DEFAULT_GAMES as g}
+                  <!-- {#each DEFAULT_GAMES as g}
                     {#if !$boardList.boardTypes.find((b) => b.name == g)}
                       <sl-button
                         on:click={() => {
-                          gzStore.addDefaultGames(g);
+                          store.addDefaultGames(g);
                         }}
                         title={g}
                         >{g} <Fa icon={faSquarePlus} size="1x" /></sl-button
                       >
                     {/if}
-                  {/each}
+                  {/each} -->
                 </div>
               </div>
             </div>
           {/if}
-        {/if}
       {:else}
         <div class="loading"><div class="loader" /></div>
       {/if}

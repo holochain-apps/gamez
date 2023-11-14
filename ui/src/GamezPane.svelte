@@ -1,17 +1,15 @@
 <script lang="ts">
-  import { createEventDispatcher, getContext } from "svelte";
+  import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { Marked, Renderer } from "@ts-stack/markdown";
-  import type { v1 as uuidv1 } from "uuid";
-  import { type BoardState, PieceDef, PieceType} from "./board";
+  import { type BoardState, PieceDef, PieceType, Board} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
-  import AvatarIcon from "./AvatarIcon.svelte";
-  import { decodeHashFromBase64 } from "@holochain/client";
-  import { cloneDeep, isEqual } from "lodash";
+  import Avatar from "./Avatar.svelte"
+  import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
   import Fa from "svelte-fa";
   import { faClose, faCog, faFileExport } from "@fortawesome/free-solid-svg-icons";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+  import { decodeHashFromBase64 } from "@holochain/client";
 
 
   const download = (filename: string, text: string) => {
@@ -33,20 +31,18 @@
         download(fileName, JSON.stringify(state))
         alert(`Your board was exported to your Downloads folder as: '${fileName}'`)
     }
-
-  const dispatch = createEventDispatcher()
-
  
   const { getStore } :any = getContext("gzStore");
-  let gzStore: GamezStore = getStore();
+  let store: GamezStore = getStore();
+  export let activeBoard: Board
 
-  $: activeHash = gzStore.boardList.activeBoardHash;
-  $: state = gzStore.boardList.getReadableBoardState($activeHash);
+  $: activeHash = store.boardList.activeBoardHash;
+  $: state = activeBoard.readableState()
   $: pieces = $state ? Object.values($state.props.pieces) : undefined;
   $: pieceDefs = $state ? getPieceDefs($state.pieceDefs) : undefined;
 
-  $: avatars = gzStore.boardList.avatars()
-  $: myAgentPubKey = gzStore ? gzStore.myAgentPubKey() : undefined
+  $: myAgentPubKeyB64 = store.myAgentPubKeyB64
+  $: myAgentPubKey = store.myAgentPubKey
 
   const getPieceDefs = (defs:Array<PieceDef>) => {
     const pieceDefs: {[key: string]: PieceDef} = {}
@@ -55,7 +51,7 @@
   }
 
   const closeBoard = () => {
-    gzStore.boardList.closeActiveBoard();
+    store.boardList.closeActiveBoard();
   };
   let editBoardDialog
   let draggingHandled = true
@@ -105,7 +101,7 @@
     if (dragType == "move") {    
       const x = (e.clientX - bounds.left)-dragOffsetX ;
       const y = (e.clientY - bounds.top)-dragOffsetY ;
-      dispatch("requestChange", [{ 
+      activeBoard.requestChanges( [{ 
         type: "move-piece", 
         id: draggedItemId,
         x,y
@@ -115,7 +111,7 @@
       const def = pieceDefs[draggedItemId]
       const x = (e.clientX - bounds.left) - def.width/2;
       const y = (e.clientY - bounds.top)-dragOffsetY;
-      dispatch("requestChange", [{ 
+      activeBoard.requestChanges( [{ 
         type: "add-piece", 
         pieceType: draggedItemId,
         imageIdx: 0,
@@ -129,20 +125,18 @@
     draggingHandled = true
     draggedItemId = ""
   }
-  const DEFAULT_KD_BG_IMG = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png"
-    //const DEFAULT_KD_BG_IMG = "https://img.freepik.com/free-photo/studio-background-concept-abstract-empty-light-gradient-purple-studio-room-background-product-plain-studio-background_1258-54461.jpg"
-    const NO_BOARD_IMG = "https://holochain.org/img/big_logo.png"
+  const DEFAULT_BOARD_IMG = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png"
 
-  $: bgUrl = state ?  ($state.props && $state.props.bgUrl) ? $state.props.bgUrl : DEFAULT_KD_BG_IMG : NO_BOARD_IMG
+  $: bgUrl = ($state.props && $state.props.bgUrl) ? $state.props.bgUrl : DEFAULT_BOARD_IMG 
   $: bgImage = `background-image: url("`+ bgUrl+`");`
 
   let img
 
   const canJoin = (state) => {
-    return (state.props.players.length < state.max_players) && !state.props.players.includes(myAgentPubKey)
+    return (state.props.players.length < state.max_players) && !state.props.players.includes(myAgentPubKeyB64)
   }
   const haveJoined = (state) => {
-    return state.props.players.includes(myAgentPubKey)
+    return state.props.players.includes(myAgentPubKeyB64)
   }
 
 </script>
@@ -170,15 +164,15 @@
         Players:
         <div style="display:flex">
           {#each $state.props.players as player}
-          <AvatarIcon avatar={$avatars[player]}></AvatarIcon>
+          <Avatar agentPubKey={decodeHashFromBase64(player)} />
           {/each}
         </div>
         {#if canJoin($state)}
           <sl-button 
             on:click={()=>{
-              dispatch("requestChange", [{ 
+              activeBoard.requestChanges( [{ 
               type: "add-player", 
-              player: myAgentPubKey
+              player: myAgentPubKeyB64
             }]);
 
             }}>
@@ -188,9 +182,9 @@
         {#if haveJoined($state)}
           <sl-button 
             on:click={()=>{
-              dispatch("requestChange", [{ 
+              activeBoard.requestChanges( [{ 
               type: "remove-player", 
-              player: myAgentPubKey
+              player: myAgentPubKeyB64
             }]);
 
             }}>

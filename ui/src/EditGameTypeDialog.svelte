@@ -17,7 +17,7 @@
 
     export const  open = async (type: BoardType)=> {
         boardType = type
-        boardEditor.edit(cloneDeep(type.board))
+        // boardEditor.edit(cloneDeep(type.board))
         dialog.show()
     }
 
@@ -26,19 +26,19 @@
     const store:GamezStore = getStore();
 
     const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
-        store.boardList.requestChanges([
-            {
-                type: 'set-board-type',
-                id: boardType.id,
-                board: {
-                    status: boardType.board.status,
-                    max_players: maxPlayers,
-                    min_players: minPlayers,
-                    name,
-                    pieceDefs,
-                    props
-                }
-            }])
+        // store.boardList.requestChanges([
+        //     {
+        //         type: 'set-board-type',
+        //         id: boardType.id,
+        //         board: {
+        //             status: boardType.board.status,
+        //             max_players: maxPlayers,
+        //             min_players: minPlayers,
+        //             name,
+        //             pieceDefs,
+        //             props
+        //         }
+        //     }])
 
         close()
     }
