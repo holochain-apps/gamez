@@ -3,6 +3,8 @@
     import { getContext, onMount } from 'svelte';
   	import DragDropList, { VerticalDropZone, reorder, type DropEvent } from 'svelte-dnd-list';
     import 'emoji-picker-element';
+    import '@shoelace-style/shoelace/dist/components/select/select.js';
+    import '@shoelace-style/shoelace/dist/components/option/option.js';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import '@shoelace-style/shoelace/dist/components/input/input.js';
@@ -24,6 +26,8 @@
     let props:BoardProps = {bgUrl: "", pieces:{}, players:[]}
     let pieceDefs: Array<PieceDef> = []
     let nameInput
+
+    $: valid = text != ""  && props.bgUrl !=""  && parseInt(minPlayers) >= 1 && (parseInt(maxPlayers) - parseInt(minPlayers) >= 0)
 
     export const reset = () => {
       nameInput.value = ""
@@ -95,7 +99,7 @@
 <svelte:window on:keydown={handleKeydown}/>
   <div class='board-editor'>
     <div class="edit-title">
-      <sl-input label="Name" class='textarea' maxlength="60" bind:this={nameInput}  on:input={e=>text= e.target.value}></sl-input>
+      <sl-input label="Name" required class='textarea' maxlength="60" bind:this={nameInput}  on:input={e=>text= e.target.value}></sl-input>
     </div>
     <div style="display:flex; flex-direction:row;">
       <sl-input style="width:100px" label="Min Players" class='textarea' maxlength="2" bind:this={minPlayersInput} on:input={e=>minPlayers= e.target.value}></sl-input>
@@ -170,8 +174,12 @@
     </div>
    
     <div style="display:flex; flex-direction:row; align-items:flex-end;">
-       <sl-input label="Background Image" class='textarea' maxlength="255" value={props.bgUrl} on:input={e=>props.bgUrl = e.target.value} />
-        <img style="margin-right:20px" src={props.bgUrl} width="40" height="40"/>
+       <sl-input label="Background Image" required class='textarea' maxlength="255" value={props.bgUrl} on:input={e=>props.bgUrl = e.target.value} />
+        {#if props.bgUrl}
+          <img src={props.bgUrl} width="40" height="40"/>
+        {:else}
+          <div style="width:40px;height:40px"></div>
+        {/if}
 
     </div>
 
@@ -184,7 +192,7 @@
       <sl-button on:click={cancelEdit} style="margin-left:10px">
         Cancel
       </sl-button>
-      <sl-button style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers))} variant="primary">
+      <sl-button disabled={!valid} style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers))} variant="primary">
         Save
       </sl-button>
     </div>
@@ -245,12 +253,5 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-}
-.modal {
-  background-color: var(--light-text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

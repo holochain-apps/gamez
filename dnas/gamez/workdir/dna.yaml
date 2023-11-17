@@ -8,6 +8,8 @@ integrity:
     type: "Gamez"
   origin_time: 2023-11-03T00:00:00.0Z
   zomes:
+    - name: gamez_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/gamez_integrity.wasm
     - name: syn_integrity
       bundled: ../../../target/wasm32-unknown-unknown/release/syn_integrity.wasm
     - name: profiles_integrity
@@ -15,6 +17,10 @@ integrity:
 
 coordinator:
   zomes:
+    - name: gamez
+      bundled: ../../../target/wasm32-unknown-unknown/release/gamez.wasm
+      dependencies:
+        - name: profiles_integrity
     - name: syn
       bundled: ../../../target/wasm32-unknown-unknown/release/syn.wasm
       dependencies:

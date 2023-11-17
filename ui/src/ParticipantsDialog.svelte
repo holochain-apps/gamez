@@ -32,7 +32,7 @@
                           style="height: 40px; width: 100%"
                       ></sl-skeleton>
                   {:else}
-                  <h4 style="margin-left:50px">Contributed to:</h4>
+                  <h4 style="margin-left:50px">Played in:</h4>
   
                           {#each $agents.status=="complete" ? Array.from($agents.value) : [] as agentPubKey}
                               <div class="list-item">

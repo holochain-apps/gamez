@@ -19,6 +19,7 @@
   import { CHESS, GO } from './defaultGames';
   import { v1 as uuidv1 } from "uuid";
   import BoardMenuItem from "./BoardMenuItem.svelte";
+  import BoardDefItem from "./BoardDefItem.svelte";
 
   let defaultGames = [
     {
@@ -61,6 +62,8 @@
   $: activeBoard = store.boardList.activeBoard
   $: myAgentPubKeyB64 = store.myAgentPubKeyB64
   $: myProfile = store.profilesStore.myProfile
+  $: defHashes = store.defHashes
+  $: defsList = store.defsList
 
   let fileinput;
   const onFileSelected = (e) => {
@@ -78,7 +81,7 @@
     reader.readAsText(file);
   };
   let newBoardDialog;
-  let editBoardDialog;
+  let editBoarTypeDialog;
 </script>
 
 <svelte:head>
@@ -92,7 +95,7 @@
     <div class="app">
       {#if store}
         <NewBoardDialog bind:this={newBoardDialog} />
-        <EditGameTypeDialog bind:this={editBoardDialog} />
+        <EditGameTypeDialog bind:this={editBoarTypeDialog} />
         <Toolbar />
           {#if $activeBoardHash !== undefined}
             <GamezPane activeBoard={$activeBoard} />
@@ -127,40 +130,37 @@
                   {@const myName = $myProfile.value.entry.nickname}
                 <div style="margin-bottom:10px">
                   <h3>Game Library:</h3>
-                  {#each defaultGames as boardType}
-                    <div
-                      style="display:flex; align-items:center;margin-bottom:5px;"
-                    >
-                      <h3 style="margin-right:5px;">{boardType.name}:</h3>
-                      <sl-button
-                        style="max-width:100px;margin-right:10px"
-                        on:click={async () => {
-                          const state = cloneDeep(boardType.board);
-                          state.name = `${state.name}: ${
-                            myName
-                          }- ${new Date().toLocaleDateString("en-US")}`;
-                          if (state.min_players) {
-                            state.props.players.push(myAgentPubKeyB64);
+                  {#if $defHashes.status == "complete"}
+                    {#each $defHashes.value as hash}
+                      <BoardDefItem 
+                        on:create={ 
+                          async (e) => {
+                            const state = cloneDeep(e.detail.board);
+                            state.name = `${state.name}: ${
+                              myName
+                            }- ${new Date().toLocaleDateString("en-US")}`;
+                            if (state.min_players) {
+                              state.props.players.push(myAgentPubKeyB64);
+                            }
+                            const board = await store.boardList.makeBoard(
+                              state
+                            );
+                            store.boardList.setActiveBoard(board.hash)
                           }
-                          const board = await store.boardList.makeBoard(
-                            state
-                          );
-                          store.boardList.setActiveBoard(board.hash);
-                        }}
-                      >
-                        Create Game
-                      </sl-button>
-                      <sl-button
-                        style="max-width:100px;margin-right:10px"
-                        on:click={async () => {
-                          const board = cloneDeep(boardType);
-                          editBoardDialog.open(board);
-                        }}
-                      >
-                        <Fa icon={faCog} />
-                      </sl-button>
-                    </div>
-                  {/each}
+                        }
+                        on:settings={
+                          (e) => {
+                            editBoarTypeDialog.open(e.detail);
+                          }
+                        }
+                        boardHash={hash}>
+                      </BoardDefItem>
+        
+                    {/each}
+                  {:else if $defHashes.status == "error"}
+                    Error!: {$defHashes.error}
+                  {/if}
+      
                 </div>
                 {/if}
                 <div class="new-type">
@@ -185,17 +185,20 @@
                     title="Import Game"
                     >Import <Fa icon={faFileImport} size="1x" /></sl-button
                   >
-                  <!-- {#each DEFAULT_GAMES as g}
-                    {#if !$boardList.boardTypes.find((b) => b.name == g)}
-                      <sl-button
-                        on:click={() => {
-                          store.addDefaultGames(g);
-                        }}
-                        title={g}
-                        >{g} <Fa icon={faSquarePlus} size="1x" /></sl-button
-                      >
-                    {/if}
-                  {/each} -->
+                  {#if $defsList.status == "complete"}
+                    {@const names = $defsList.value.map(def => def.board.name)}
+                    {#each DEFAULT_GAMES as g}
+                      {#if !names.find((b) => b == g)}
+                        <sl-button
+                          on:click={() => {
+                            store.addDefaultGames(g);
+                          }}
+                          title={g}
+                          >{g} <Fa icon={faSquarePlus} size="1x" /></sl-button
+                        >
+                      {/if}
+                    {/each}
+                  {/if}
                 </div>
               </div>
             </div>

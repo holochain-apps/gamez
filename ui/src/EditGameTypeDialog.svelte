@@ -1,23 +1,25 @@
 <script lang="ts">
     import BoardEditor from './BoardEditor.svelte';
-    import type { GamezStore } from './store';
+    import type { BoardDef, BoardDefData, GamezStore } from './store';
     import { getContext, onMount } from 'svelte';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
-    import type { BoardProps, PieceDef } from './board';
-    import type { BoardType } from './boardList';
+    import type { BoardProps, BoardState, PieceDef } from './board';
     import { cloneDeep } from "lodash";
+    import type { EntryRecord } from '@holochain-open-dev/utils';
 
     let dialog: SlDialog
     onMount(async () => {
 
     })
-    let boardType: BoardType
+    let boardDef: BoardDefData
+    let board: BoardState
 
-    export const  open = async (type: BoardType)=> {
-        boardType = type
-        // boardEditor.edit(cloneDeep(type.board))
+    export const  open = async (def: BoardDefData )=> {
+        boardDef = def   
+        board = cloneDeep(def.board)
+        boardEditor.edit(board)
         dialog.show()
     }
 
@@ -26,19 +28,16 @@
     const store:GamezStore = getStore();
 
     const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
-        // store.boardList.requestChanges([
-        //     {
-        //         type: 'set-board-type',
-        //         id: boardType.id,
-        //         board: {
-        //             status: boardType.board.status,
-        //             max_players: maxPlayers,
-        //             min_players: minPlayers,
-        //             name,
-        //             pieceDefs,
-        //             props
-        //         }
-        //     }])
+        const newBoard = {
+            status: board.status,
+            max_players: maxPlayers,
+            min_players: minPlayers,
+            name,
+            pieceDefs,
+            props
+        };
+        
+        await store.client.updateBoardDef(boardDef.originalHash, boardDef.record.actionHash, newBoard)
 
         close()
     }

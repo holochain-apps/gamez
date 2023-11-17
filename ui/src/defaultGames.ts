@@ -40,7 +40,7 @@ export const CHESS : BoardState =
     "status": "",
     "max_players": 2,
     "min_players": 2,
-    "name": "chess",
+    "name": "Chess",
     "pieceDefs": [
         {
             "type": PieceType.Emoji,

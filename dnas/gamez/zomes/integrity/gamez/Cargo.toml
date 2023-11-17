@@ -1,0 +1,13 @@
+[package]
+edition = "2021"
+name = "gamez_integrity"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "gamez_integrity"
+
+[dependencies]
+hdi = { workspace = true }
+
+serde = { workspace = true }

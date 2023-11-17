@@ -43,6 +43,7 @@
 
   $: myAgentPubKeyB64 = store.myAgentPubKeyB64
   $: myAgentPubKey = store.myAgentPubKey
+  $: participants = activeBoard.participants()
 
   const getPieceDefs = (defs:Array<PieceDef>) => {
     const pieceDefs: {[key: string]: PieceDef} = {}
@@ -147,6 +148,23 @@
       <h5>{$state.name}</h5>
     </div>
     <div class="right-items">
+      Watching:
+      {#if $participants}
+      <div class="participants" style="margin-right:20px">
+        <div style="display:flex; flex-direction: row">
+          <Avatar agentPubKey={store.myAgentPubKey} showNickname={false} size={30} />
+
+          {#each Array.from($participants.entries()) as [agentPubKey, sessionData]}
+          <div class:idle={Date.now()-sessionData.lastSeen >30000}>
+            <Avatar agentPubKey={agentPubKey} showNickname={false} size={20} />
+          </div>
+          {/each}
+
+        </div>
+      </div>
+    {/if}
+
+
       <sl-button circle on:click={()=> editBoardDialog.open(cloneDeep($activeHash))} title="Settings">
         <Fa icon={faCog} size="1x"/>
       </sl-button>
