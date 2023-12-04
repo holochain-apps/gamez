@@ -59,7 +59,7 @@ pub fn delete_board_def(original_board_def_hash: ActionHash) -> ExternResult<Act
 }
 
 #[hdk_extern]
-pub fn get_board_defs(_: ()) -> ExternResult<Vec<ActionHash>> {
+pub fn get_board_defs(_: ()) -> ExternResult<Vec<Link>> {
     let path = Path::from("all_board_defs");
 
     let links = get_links(
@@ -67,9 +67,5 @@ pub fn get_board_defs(_: ()) -> ExternResult<Vec<ActionHash>> {
         LinkTypes::AllBoardDefs,
         None,
     )?;
-    let action_hashes = links
-        .into_iter()
-        .filter_map(|link| link.target.into_action_hash())
-        .collect();
-    Ok(action_hashes)
+    Ok(links)
 }

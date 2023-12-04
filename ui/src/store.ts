@@ -5,6 +5,7 @@ import {
     encodeHashToBase64,
     type AgentPubKey,
     type ActionHash,
+    type Link,
   } from '@holochain/client';
 import { SynStore,  SynClient} from '@holochain-syn/core';
 import type {  BoardState } from './board';
@@ -15,7 +16,7 @@ import { CHESS, GO } from './defaultGames';
 import { v1 as uuidv1 } from "uuid";
 import type { ProfilesStore } from '@holochain-open-dev/profiles';
 import { EntryRecord, LazyHoloHashMap, ZomeClient } from '@holochain-open-dev/utils';
-import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, joinAsync, sliceAndJoin } from '@holochain-open-dev/stores';
+import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, joinAsync, sliceAndJoin, asyncDerived } from '@holochain-open-dev/stores';
 import type { ActionCommittedSignal } from '@holochain-open-dev/utils';
 
 
@@ -54,7 +55,7 @@ export class GamezClient extends ZomeClient<GamezSignal> {
             previous_board_def_hash: prevHash,
             updated_board_def: {board: JSON.stringify(def)}}))
     }
-    async getBoardDefs() : Promise<ActionHash[]> {
+    async getBoardDefs() : Promise<Link[]> {
         const results = await this.callZome('get_board_defs', undefined)
         return results
     }
@@ -74,6 +75,7 @@ export class GamezStore {
     updating = false
     synStore: SynStore;
     client: GamezClient;
+    defLinks: AsyncReadable<Link[]>
     defHashes: AsyncReadable<ActionHash[]>
     defs: LazyHoloHashMap<ActionHash,AsyncReadable<BoardDefData>> = new LazyHoloHashMap(
         (hash: ActionHash) => {
@@ -107,15 +109,18 @@ export class GamezStore {
 
         this.synStore = new SynStore(new SynClient(clientIn,this.roleName,"syn"))
         this.boardList = new BoardList(profilesStore, this.synStore) 
-        this.defHashes = collectionStore(
+        this.defLinks = collectionStore(
             this.client,
             () => this.client.getBoardDefs(),
             'AllBoardDefs'
           );
+        this.defHashes = asyncDerived(this.defLinks,
+            links=> links.map(link=>link.target)
+        )
         this.defsList = pipe(this.defHashes, 
             hashes=> sliceAndJoin(this.defs,hashes),
             map=>Array.from(map.values())
-            )
+        )
     }
 
     async makeGameType(board: BoardState) : Promise<any> {
