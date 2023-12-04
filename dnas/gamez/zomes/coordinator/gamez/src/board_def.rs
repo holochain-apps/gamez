@@ -67,5 +67,6 @@ pub fn get_board_defs(_: ()) -> ExternResult<Vec<Link>> {
         LinkTypes::AllBoardDefs,
         None,
     )?;
+
     Ok(links)
 }

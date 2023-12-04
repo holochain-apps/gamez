@@ -138,11 +138,14 @@ export class BoardList {
         await this.synStore.client.tagDocument(documentHash, BoardType.active)
     }
 
-    async closeActiveBoard() {
+    async closeActiveBoard(leave: boolean) {
         const hash = get(this.activeBoardHash)
         if (hash) {
-            const board = await this.getBoard(hash)
-            if (board) await board.leave()
+            if (leave) {
+                const board = await this.getBoard(hash)
+                if (board) await board.leave()
+                else console.log("Board Not Found!")
+            }
             this.setActiveBoard(undefined)
         }
     }

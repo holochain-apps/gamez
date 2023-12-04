@@ -7,7 +7,7 @@
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
   import Fa from "svelte-fa";
-  import { faClose, faCog, faFileExport } from "@fortawesome/free-solid-svg-icons";
+  import { faArrowTurnDown, faClose, faCog, faFileExport } from "@fortawesome/free-solid-svg-icons";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
 
@@ -52,8 +52,13 @@
   }
 
   const closeBoard = () => {
-    store.boardList.closeActiveBoard();
+    store.boardList.closeActiveBoard(false);
   };
+
+  const leaveBoard = () => {
+    store.boardList.closeActiveBoard(true);
+  };
+
   let editBoardDialog
   let draggingHandled = true
   let draggedItemId = ""
@@ -165,6 +170,9 @@
     {/if}
 
 
+      <sl-button circle on:click={leaveBoard} title="Leave">
+        <Fa icon={faArrowTurnDown} />
+      </sl-button>
       <sl-button circle on:click={()=> editBoardDialog.open(cloneDeep($activeHash))} title="Settings">
         <Fa icon={faCog} size="1x"/>
       </sl-button>
