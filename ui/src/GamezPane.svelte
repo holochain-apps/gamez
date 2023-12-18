@@ -157,11 +157,12 @@
       {#if $participants}
       <div class="participants" style="margin-right:20px">
         <div style="display:flex; flex-direction: row">
-          <Avatar agentPubKey={store.myAgentPubKey} showNickname={false} size={30} />
+          <div style="margin-left:5px;">          <Avatar agentPubKey={store.myAgentPubKey} showNickname={false} size={25} />
+          </div>
 
           {#each Array.from($participants.entries()) as [agentPubKey, sessionData]}
-          <div class:idle={Date.now()-sessionData.lastSeen >30000}>
-            <Avatar agentPubKey={agentPubKey} showNickname={false} size={20} />
+          <div style="margin-left:5px;" class:idle={Date.now()-sessionData.lastSeen >30000}>
+            <Avatar agentPubKey={agentPubKey} showNickname={false} size={25} />
           </div>
           {/each}
 

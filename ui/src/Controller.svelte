@@ -20,6 +20,7 @@
   import { v1 as uuidv1 } from "uuid";
   import BoardMenuItem from "./BoardMenuItem.svelte";
   import BoardDefItem from "./BoardDefItem.svelte";
+  import LogoIcon from "./icons/LogoIcon.svelte";
 
   let defaultGames = [
     {
