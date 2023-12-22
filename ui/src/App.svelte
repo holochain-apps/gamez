@@ -8,6 +8,7 @@
   import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
   import { ProfilesClient, ProfilesStore } from '@holochain-open-dev/profiles';
   import LogoIcon from "./icons/LogoIcon.svelte";
+  import { appletServices } from './we';
 
   const appId = import.meta.env.VITE_APP_ID ? import.meta.env.VITE_APP_ID : 'gamez'
   const roleName = 'gamez'
@@ -15,7 +16,8 @@
   const adminPort = import.meta.env.VITE_ADMIN_PORT
   const url = `ws://localhost:${appPort}`;
 
-  let client: AppAgentWebsocket  
+  let client: AppAgentWebsocket
+  let weClient: WeClient  
   let profilesStore : ProfilesStore|undefined = undefined
 
   let connected = false
@@ -46,7 +48,7 @@
         profilesClient = new ProfilesClient(client, appId);
     } 
     else {
-      const weClient = await WeClient.connect();
+      weClient = await WeClient.connect(appletServices);
 
       if (
         !(weClient.renderInfo.type === "applet-view")
@@ -79,7 +81,7 @@
         ></create-profile>
       </div>
     {:else}
-      <Controller  client={client} profilesStore={profilesStore} roleName={roleName}></Controller>
+      <Controller weClient={weClient}  client={client} profilesStore={profilesStore} roleName={roleName}></Controller>
     {/if}
 
   </profiles-context>

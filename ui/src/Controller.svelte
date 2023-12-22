@@ -21,6 +21,7 @@
   import BoardMenuItem from "./BoardMenuItem.svelte";
   import BoardDefItem from "./BoardDefItem.svelte";
   import LogoIcon from "./icons/LogoIcon.svelte";
+  import type { WeClient } from "@lightningrodlabs/we-applet";
 
   let defaultGames = [
     {
@@ -38,14 +39,15 @@
   export let roleName = "";
   export let client: AppAgentClient;
   export let profilesStore: ProfilesStore;
-
+  export let weClient : WeClient
 
   let DEFAULT_GAMES = ["Chess", "Go"];
   let store: GamezStore = new GamezStore(
-        profilesStore,
-        client,
-        roleName,
-      );
+    weClient,
+    profilesStore,
+    client,
+    roleName,
+  );
   let synStore: SynStore = store.synStore
 
   $: activeBoardHash = store.boardList.activeBoardHash

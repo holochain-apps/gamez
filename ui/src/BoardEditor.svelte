@@ -23,7 +23,7 @@
     let text = ''
     let minPlayers = ""
     let maxPlayers = ""
-    let props:BoardProps = {bgUrl: "", pieces:{}, players:[]}
+    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[]}
     let pieceDefs: Array<PieceDef> = []
     let nameInput
 
@@ -36,7 +36,7 @@
       text = ''
       maxPlayers = ""
       minPlayers = ""
-      props = {bgUrl: "", pieces:{}, players:[]}
+      props = {bgUrl: "", pieces:{}, players:[], attachments:[]}
       pieceDefs = []
     }
 

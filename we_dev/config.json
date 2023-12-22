@@ -52,7 +52,7 @@
         "description": "Let's do it!",
         "icon": {
           "type": "filesystem",
-          "path": "./we_dev/gamez_icon.png"
+          "path": "./we_dev/gamez_icon.svg"
         },
         "source": {
           "type": "localhost",

@@ -1,8 +1,9 @@
-import { DocumentStore, WorkspaceStore, type SessionStore, type SynGrammar, type SynStore } from "@holochain-syn/core";
+import type { DocumentStore, WorkspaceStore, SessionStore, SynStore } from "@holochain-syn/core";
 import { get, type Readable } from "svelte/store";
 import { v1 as uuidv1 } from "uuid";
 import { type AgentPubKey, type EntryHash, type EntryHashB64, encodeHashToBase64, type AgentPubKeyB64, type Timestamp } from "@holochain/client";
 import { BoardType } from "./boardList";
+import type { HrlB64WithContext } from "@lightningrodlabs/we-applet";
 
 export enum PieceType {
   Emoji,
@@ -34,7 +35,10 @@ export type BoardProps = {
   pieces: {[key: string]: Piece},
   bgUrl: string,
   players: Array<AgentPubKeyB64>,
+  attachments: Array<HrlB64WithContext>
 }
+
+export type BoardEphemeralState = { [key: string]: string };
 
 export interface BoardState {
   status: string;
@@ -93,18 +97,15 @@ export interface BoardState {
         y: number;
       }
   
-  export type BoardGrammar = SynGrammar<
-  BoardDelta,
-  BoardState
-  >;
-  
-
-  export const boardGrammar: BoardGrammar = {
-    initState(state)  {
-      state.status = ""
-      state.name = "untitled"
-      state.pieceDefs = []
-      state.props = {bgUrl:"", pieces:{}, players:[]}
+  export const boardGrammar = {
+    initialState()  {
+      const state = {
+        status: "",
+        name: "untitled",
+        pieceDefs: [],
+        props: {bgUrl:"", pieces:{}, players:[], attachments:[]},
+      }
+      return state
     },
     applyDelta( 
       delta: BoardDelta,
@@ -173,28 +174,27 @@ export interface BoardState {
   
 
 export class Board {
-  public session: SessionStore<BoardGrammar> | undefined
+  public session: SessionStore<BoardState, BoardEphemeralState> | undefined
   public hashB64: EntryHashB64
 
-  constructor(public document: DocumentStore<BoardGrammar>, public workspace: WorkspaceStore<BoardGrammar>) {
+  constructor(public document: DocumentStore<BoardState, BoardEphemeralState>, public workspace: WorkspaceStore<BoardState, BoardEphemeralState>) {
     this.hashB64 = encodeHashToBase64(this.document.documentHash)
   }
 
-    public static async Create(synStore: SynStore) {
-      const {documentHash, firstCommitHash} = await synStore.createDocument(boardGrammar)
+  public static async Create(synStore: SynStore) {
+    const initState = boardGrammar.initialState()
+    const documentStore = await synStore.createDocument(initState,{})
 
-      const documentStore =  new DocumentStore(synStore, boardGrammar, documentHash)
-      await synStore.client.tagDocument(documentHash, BoardType.active)
+    await synStore.client.tagDocument(documentStore.documentHash, BoardType.active)
 
-      const workspaceHash = await documentStore.createWorkspace(
-          `${new Date}`,
-          firstCommitHash
-         );
-      const workspaceStore = new WorkspaceStore(documentStore, workspaceHash)
+    const workspaceStore = await documentStore.createWorkspace(
+        `${new Date}`,
+        undefined
+       );
 
-      const me = new Board(documentStore, workspaceStore);
-      await me.join()
-      return me
+    const me = new Board(documentStore, workspaceStore);
+    await me.join()
+    return me
   }
 
   get hash() : EntryHash {
@@ -231,8 +231,12 @@ export class Board {
   }
 
   requestChanges(deltas: Array<BoardDelta>) {
-      console.log("REQUESTING BOARD CHANGES: ", deltas)
-      this.session.requestChanges(deltas)
+    console.log("REQUESTING BOARD CHANGES: ", deltas)
+    this.session.change((state,_eph)=>{
+      for (const delta of deltas) {
+        boardGrammar.applyDelta(delta, state,_eph, undefined)
+      }
+    })
   }
 
   sessionParticipants() {

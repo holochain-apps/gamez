@@ -13,11 +13,11 @@ import { BoardList } from './boardList';
 import TimeAgo from "javascript-time-ago"
 import en from 'javascript-time-ago/locale/en'
 import { CHESS, GO } from './defaultGames';
-import { v1 as uuidv1 } from "uuid";
 import type { ProfilesStore } from '@holochain-open-dev/profiles';
 import { EntryRecord, LazyHoloHashMap, ZomeClient } from '@holochain-open-dev/utils';
 import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, joinAsync, sliceAndJoin, asyncDerived } from '@holochain-open-dev/stores';
 import type { ActionCommittedSignal } from '@holochain-open-dev/utils';
+import type { WeClient } from '@lightningrodlabs/we-applet';
 
 
 TimeAgo.addDefaultLocale(en)
@@ -95,6 +95,7 @@ export class GamezStore {
     }
 
     constructor(
+        public weClient : WeClient,
         public profilesStore: ProfilesStore,
         protected clientIn: AppAgentClient,
         protected roleName: RoleName,

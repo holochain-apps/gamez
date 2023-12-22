@@ -7,9 +7,11 @@
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
   import Fa from "svelte-fa";
-  import { faArrowTurnDown, faClose, faCog, faFileExport } from "@fortawesome/free-solid-svg-icons";
+  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip } from "@fortawesome/free-solid-svg-icons";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
+  import type { HrlB64WithContext, HrlWithContext } from "@lightningrodlabs/we-applet";
+  import { hrlWithContextToB64 } from "./util";
 
 
   const download = (filename: string, text: string) => {
@@ -40,6 +42,7 @@
   $: state = activeBoard.readableState()
   $: pieces = $state ? Object.values($state.props.pieces) : undefined;
   $: pieceDefs = $state ? getPieceDefs($state.pieceDefs) : undefined;
+  $: attachments = $state ? $state.props.attachments : undefined
 
   $: myAgentPubKeyB64 = store.myAgentPubKeyB64
   $: myAgentPubKey = store.myAgentPubKey
@@ -144,7 +147,25 @@
   const haveJoined = (state) => {
     return state.props.players.includes(myAgentPubKeyB64)
   }
-
+  function hrlB64WithContextToRaw(hrlB64: HrlB64WithContext): HrlWithContext {
+    return {
+      hrl: [decodeHashFromBase64(hrlB64.hrl[0]), decodeHashFromBase64(hrlB64.hrl[1])],
+      context: hrlB64.context,
+    };
+  }
+  const addAttachment = async () => {
+    const hrl = await store.weClient.userSelectHrl()
+    if (hrl) {
+      const props = cloneDeep($state.props)
+      console.log("PROGS", props)
+      if (!props.attachments) {
+        props.attachments = []
+      }
+      props.attachments.push(hrlWithContextToB64(hrl))
+      console.log("SET PROPS", props)
+      activeBoard.requestChanges([{type: 'set-props', props }])
+    }
+  }
 </script>
 <div class="board">
     <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
@@ -262,6 +283,35 @@
           on:dragover={handleDragOver}          
           >
       </div>
+      {#if store.weClient}
+        <div class="attachments-area">
+          <button class="control" on:click={()=>addAttachment()} >          
+            <Fa icon={faPaperclip}/>
+          </button>
+
+          {#if attachments}
+            <div style="margin-top:10px; display:flex;flex-direction:row;flex-wrap:wrap">
+              {#each attachments as attachment}
+                {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
+                  <sl-button size="small" loading></sl-button>
+                {:then { entryInfo }}
+                  <sl-button  size="small"
+                    on:click={()=>{
+                        const hrl = hrlB64WithContextToRaw(attachment)
+                        store.weClient.openHrl(hrl.hrl, hrl.context)
+                      }}
+                    style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
+                    {entryInfo.name}
+                  </sl-button> 
+                {:catch error}
+                  Oops. something's wrong.
+                {/await}
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
+
     </div>
   {/if}
 </div>
@@ -279,6 +329,9 @@
     position: relative;
     padding: 0px;
     overflow: auto;
+  }
+  .attachments-area {
+    margin-left:10px;
   }
 
   .piece {
