@@ -7,7 +7,7 @@
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
   import Fa from "svelte-fa";
-  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip } from "@fortawesome/free-solid-svg-icons";
+  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip, faTrash } from "@fortawesome/free-solid-svg-icons";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
   import type { HrlB64WithContext, HrlWithContext } from "@lightningrodlabs/we-applet";
@@ -157,14 +157,17 @@
     const hrl = await store.weClient.userSelectHrl()
     if (hrl) {
       const props = cloneDeep($state.props)
-      console.log("PROGS", props)
       if (!props.attachments) {
         props.attachments = []
       }
       props.attachments.push(hrlWithContextToB64(hrl))
-      console.log("SET PROPS", props)
       activeBoard.requestChanges([{type: 'set-props', props }])
     }
+  }
+  const removeAttachment = async (index: number) => {
+    const props = cloneDeep($state.props)
+    props.attachments.splice(index, 1);
+    activeBoard.requestChanges([{type: 'set-props', props }])
   }
 </script>
 <div class="board">
@@ -291,21 +294,31 @@
 
           {#if attachments}
             <div style="margin-top:10px; display:flex;flex-direction:row;flex-wrap:wrap">
-              {#each attachments as attachment}
-                {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
-                  <sl-button size="small" loading></sl-button>
-                {:then { entryInfo }}
-                  <sl-button  size="small"
-                    on:click={()=>{
-                        const hrl = hrlB64WithContextToRaw(attachment)
-                        store.weClient.openHrl(hrl.hrl, hrl.context)
+              {#each attachments as attachment, index}
+                <div style="border:1px solid #aaa; background-color:rgba(0,255,0,.1); padding:4px;display:flex;margin-right:4px; border-radius:4px;">
+                  {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
+                    <sl-button size="small" loading></sl-button>
+                  {:then { entryInfo }}
+                    <sl-button  size="small"
+                      on:click={()=>{
+                          const hrl = hrlB64WithContextToRaw(attachment)
+                          console.log("HRL", attachment, hrl)
+                          store.weClient.openHrl(hrl.hrl, hrl.context)
+                        }}
+                      style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
+                      {entryInfo.name}
+                    </sl-button> 
+                    <sl-button size="small"
+                      on:click={()=>{
+                        removeAttachment(index)
                       }}
-                    style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
-                    {entryInfo.name}
-                  </sl-button> 
-                {:catch error}
-                  Oops. something's wrong.
-                {/await}
+                    >
+                      <Fa icon={faTrash} />
+                    </sl-button>
+                  {:catch error}
+                    Oops. something's wrong.
+                  {/await}
+                </div>
               {/each}
             </div>
           {/if}
