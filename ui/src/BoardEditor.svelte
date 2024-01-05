@@ -8,6 +8,7 @@
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import '@shoelace-style/shoelace/dist/components/input/input.js';
+    import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
     import Fa from 'svelte-fa'
     import { faPlus, faGripVertical, faTrash} from '@fortawesome/free-solid-svg-icons';
     import { cloneDeep } from "lodash";
@@ -23,9 +24,11 @@
     let text = ''
     let minPlayers = ""
     let maxPlayers = ""
-    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[]}
+    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0}
     let pieceDefs: Array<PieceDef> = []
     let nameInput
+    let turns = false
+    let turnsInput
 
     $: valid = text != ""  && props.bgUrl !=""  && parseInt(minPlayers) >= 1 && (parseInt(maxPlayers) - parseInt(minPlayers) >= 0)
 
@@ -36,8 +39,10 @@
       text = ''
       maxPlayers = ""
       minPlayers = ""
-      props = {bgUrl: "", pieces:{}, players:[], attachments:[]}
+      props = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0}
       pieceDefs = []
+      turns = false
+      turnsInput.value = false
     }
 
     export const  edit = async (state: BoardState)=> {
@@ -49,6 +54,8 @@
       minPlayersInput.value = minPlayers
       pieceDefs = cloneDeep(state.pieceDefs)
       props = state.props ? cloneDeep(state.props) : {bgUrl:""}
+      turns = state.turns
+      turnsInput.checked = turns
     }
 
     const addPieceDef = () => {
@@ -69,7 +76,7 @@
       if (e.key === "Escape") {
         cancelEdit()
       } else if (e.key === "Enter" && e.ctrlKey) {
-        handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers))
+        handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers), turns)
       } else  if (e.key === 'Tab') {
         // trap focus
         const tabbable = Array.from(document.querySelectorAll('input'))
@@ -101,9 +108,10 @@
     <div class="edit-title">
       <sl-input label="Name" required class='textarea' maxlength="60" bind:this={nameInput}  on:input={e=>text= e.target.value}></sl-input>
     </div>
-    <div style="display:flex; flex-direction:row;">
+    <div style="display:flex; flex-direction:row;align-items:center">
       <sl-input style="width:100px" label="Min Players" class='textarea' maxlength="2" bind:this={minPlayersInput} on:input={e=>minPlayers= e.target.value}></sl-input>
       <sl-input style="width:100px" label="Max Players" class='textarea' maxlength="2" bind:this={maxPlayersInput}  on:input={e=>maxPlayers= e.target.value}></sl-input>
+      <sl-checkbox bind:this={turnsInput} on:sl-input={e=>{turns= e.target.checked}}>Enforce Turns</sl-checkbox>
     </div>
     <div class="edit-piece-defs unselectable">
       <div class="title-text">
@@ -115,7 +123,6 @@
       </div>
       <sl-dialog label="Choose Emoji" bind:this={emojiDialog}>
           <emoji-picker on:emoji-click={(e)=>  {
-            console.log("PD", pieceDefs)
             pieceDefs[showEmojiPicker].images[0] = e.detail.unicode
             showEmojiPicker = undefined
             emojiDialog.hide()
@@ -192,7 +199,7 @@
       <sl-button on:click={cancelEdit} style="margin-left:10px">
         Cancel
       </sl-button>
-      <sl-button disabled={!valid} style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers))} variant="primary">
+      <sl-button disabled={!valid} style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers), turns)} variant="primary">
         Save
       </sl-button>
     </div>

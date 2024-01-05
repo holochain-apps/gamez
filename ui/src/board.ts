@@ -35,6 +35,7 @@ export type BoardProps = {
   pieces: {[key: string]: Piece},
   bgUrl: string,
   players: Array<AgentPubKeyB64>,
+  turn: number,
   attachments: Array<HrlB64WithContext>
 }
 
@@ -45,6 +46,7 @@ export interface BoardState {
   name: string;
   max_players: number;
   min_players: number;
+  turns: boolean;
   pieceDefs: PieceDef[];
   props: BoardProps;
 }
@@ -53,6 +55,13 @@ export interface BoardState {
     | {
         type: "set-state";
         state: BoardState;
+      }
+    | {
+        type: "set-turns";
+        turns: boolean;
+        }
+    | {
+        type: "next-turn";
       }
     | {
         type: "set-status";
@@ -117,8 +126,15 @@ export interface BoardState {
         case "set-status":
           state.status = delta.status
           break;
+        case "next-turn":
+          state.props.turn = (state.props.turn+1)%state.props.players.length
+          break;
+        case "set-turns":
+          state.turns = delta.turns
+          break;
         case "set-state":
           if (delta.state.status !== undefined) state.status = delta.state.status
+          if (delta.state.turns !== undefined) state.turns = delta.state.turns
           if (delta.state.name !== undefined) state.name = delta.state.name
           if (delta.state.pieceDefs !== undefined) state.pieceDefs = delta.state.pieceDefs
           if (delta.state.props !== undefined) state.props = delta.state.props

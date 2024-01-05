@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { encodeHashToBase64, type EntryHash } from "@holochain/client";
+  import type { EntryHash } from "@holochain/client";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import Participants from "./Participants.svelte";
   import { BoardType } from "./boardList";

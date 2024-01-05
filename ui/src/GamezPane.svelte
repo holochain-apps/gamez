@@ -149,6 +149,15 @@
   const haveJoined = (state) => {
     return state.props.players.includes(myAgentPubKeyB64)
   }
+
+  const myTurn = (state) => {
+    return state.turns && state.props.players[state.props.turn] == myAgentPubKeyB64
+  }
+
+  const canPlay = (state) => {
+    return myTurn(state) || (!state.turns && haveJoined(state))
+  }
+
   function hrlB64WithContextToRaw(hrlB64: HrlB64WithContext): HrlWithContext {
     return {
       hrl: [decodeHashFromBase64(hrlB64.hrl[0]), decodeHashFromBase64(hrlB64.hrl[1])],
@@ -213,11 +222,19 @@
   </div>
   {#if $state}
     {#if $state.min_players}
-      <div style="display:flex;justify-content:center">
-        Players:
-        <div style="display:flex">
-          {#each $state.props.players as player}
-          <Avatar agentPubKey={decodeHashFromBase64(player)} />
+      <div style="display:flex;justify-content:center;align-items:center">
+
+
+        <h3>Players:</h3>
+        <div style="display:flex; align-items:end; margin-left: 10px;">
+          {#each $state.props.players as player, index}
+            
+            <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px">
+              {#if $state.turns && index == $state.props.turn}
+                <div class="my-turn"></div>
+              {/if}
+              <Avatar agentPubKey={decodeHashFromBase64(player)} />
+            </div>
           {/each}
         </div>
         {#if canJoin($state)}
@@ -232,8 +249,19 @@
           Join Game
           </sl-button>
         {/if}
+        {#if myTurn($state)}
+          <sl-button style="margin-left: 30px"
+            on:click={()=>{
+              activeBoard.requestChanges( [{ 
+              type: "next-turn"
+            }]);
+
+            }}>
+          End Turn
+          </sl-button>
+        {/if}
         {#if haveJoined($state)}
-          <sl-button 
+          <sl-button style="margin-left:20px"
             on:click={()=>{
               activeBoard.requestChanges( [{ 
               type: "remove-player", 
@@ -244,6 +272,7 @@
           Leave Game
           </sl-button>
         {/if}
+
       </div>
     {/if}
 
@@ -253,8 +282,8 @@
         {#each Object.values(pieceDefs) as p}
           <div class="piece-def"
             id={p.id}
-            draggable={haveJoined($state)}
-            class:draggable={haveJoined($state)}
+            draggable={canPlay($state)}
+            class:draggable={canPlay($state)}
             on:dragstart={handleDragStartAdd}
           >
             {#if pieceDefs[p.id].type===PieceType.Emoji}{pieceDefs[p.id].images[0]}{/if}
@@ -267,7 +296,7 @@
       <div class="img-container">
         {#each pieces as piece}
         <div class="piece"
-          draggable={haveJoined($state)}
+          draggable={canPlay($state)}
           on:dragstart={handleDragStartMove}
           on:dragend={handleDragEnd}
           on:drop={handleDragDrop}  
@@ -338,6 +367,13 @@
   {/if}
 </div>
 <style>
+  .my-turn {
+    width: 0; 
+    height: 0; 
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #f00;
+  }
   .board-area {
     margin:auto;
     margin-top: 10px;

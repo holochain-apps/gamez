@@ -5,6 +5,7 @@ export const GO: BoardState =
     "status": "",
     "max_players": 2,
     "min_players": 2,
+    "turns" : true,
     "pieceDefs": [
         {
             "type": PieceType.Emoji,
@@ -31,7 +32,9 @@ export const GO: BoardState =
         "bgUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717",
         "pieces": {
         },
-        "players": []
+        "players": [],
+        "attachments": [],
+        "turn": 0,
     },
 }
 
@@ -40,6 +43,7 @@ export const CHESS : BoardState =
     "status": "",
     "max_players": 2,
     "min_players": 2,
+    "turns": true,
     "name": "Chess",
     "pieceDefs": [
         {
@@ -164,7 +168,9 @@ export const CHESS : BoardState =
         }
     ],
     "props": {
+        "attachments": [],
         "players": [],
+        "turn": 0,
         "bgUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png",
         "pieces": {
             "01d98160-272c-11ee-b38c-d589530c7a77": {

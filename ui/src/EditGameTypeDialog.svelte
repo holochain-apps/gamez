@@ -27,11 +27,12 @@
 
     const store:GamezStore = getStore();
 
-    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
+    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number, turns: boolean) => {
         const newBoard = {
             status: board.status,
             max_players: maxPlayers,
             min_players: minPlayers,
+            turns,
             name,
             pieceDefs,
             props
