@@ -1,16 +1,16 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { type BoardState, PieceDef, PieceType, Board} from "./board";
+  import { type BoardState, PieceDef, PieceType, Board, boardGrammar} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
   import Avatar from "./Avatar.svelte"
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
   import Fa from "svelte-fa";
-  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip, faTrash } from "@fortawesome/free-solid-svg-icons";
+  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
-  import type { HrlB64WithContext, HrlWithContext } from "@lightningrodlabs/we-applet";
+  import type { HrlB64WithContext, HrlWithContext, WeClient } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
 
 
@@ -54,12 +54,14 @@
     return pieceDefs
   }
 
-  const closeBoard = () => {
-    store.boardList.closeActiveBoard(false);
+  const closeBoard = async () => {
+    await store.boardList.closeActiveBoard(false);
+    store.updateTip(activeBoard.hash)
   };
 
-  const leaveBoard = () => {
-    store.boardList.closeActiveBoard(true);
+  const leaveBoard = async () => {
+    await store.boardList.closeActiveBoard(true);
+    store.updateTip(activeBoard.hash)
   };
 
   let editBoardDialog
@@ -291,6 +293,13 @@
           <button class="control" on:click={()=>addAttachment()} >          
             <Fa icon={faPaperclip}/>
           </button>
+          <!-- {JSON.stringify(store.weClient.attachmentTypes)} -->
+          {#each Array.from(store.weClient.attachmentTypes.entries()) as [hash, record]}
+            {record.key} {record.value}
+            <button class="control" on:click={()=>addAttachment()} >          
+              <Fa icon={faPlus}/>
+            </button>
+          {/each}
 
           {#if attachments}
             <div style="margin-top:10px; display:flex;flex-direction:row;flex-wrap:wrap">
