@@ -56,12 +56,10 @@
 
   const closeBoard = async () => {
     await store.boardList.closeActiveBoard(false);
-    store.updateTip(activeBoard.hash)
   };
 
   const leaveBoard = async () => {
     await store.boardList.closeActiveBoard(true);
-    store.updateTip(activeBoard.hash)
   };
 
   let editBoardDialog

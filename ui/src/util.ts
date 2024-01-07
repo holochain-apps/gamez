@@ -1,4 +1,4 @@
-import { decodeHashFromBase64, encodeHashToBase64 } from "@holochain/client";
+import { decodeHashFromBase64, encodeHashToBase64, type EntryHash } from "@holochain/client";
 import type { HrlB64WithContext, HrlWithContext } from "@lightningrodlabs/we-applet";
 
 export function hrlWithContextToB64(hrl: HrlWithContext): HrlB64WithContext {
@@ -13,4 +13,14 @@ export function hrlB64WithContextToRaw(hrlB64: HrlB64WithContext): HrlWithContex
     hrl: [decodeHashFromBase64(hrlB64.hrl[0]), decodeHashFromBase64(hrlB64.hrl[1])],
     context: hrlB64.context,
   };
+}
+
+export const hashEqual = (a:EntryHash, b:EntryHash) : boolean => {
+  if (!a || !b) {
+    return !a && !b
+  }
+  for (let i = a.length; -1 < i; i -= 1) {
+    if ((a[i] !== b[i])) return false;
+  }
+  return true;
 }

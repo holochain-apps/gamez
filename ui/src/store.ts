@@ -18,7 +18,7 @@ import en from 'javascript-time-ago/locale/en'
 import { CHESS, GO } from './defaultGames';
 import type { ProfilesStore } from '@holochain-open-dev/profiles';
 import { EntryRecord, LazyHoloHashMap, ZomeClient } from '@holochain-open-dev/utils';
-import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, joinAsync, sliceAndJoin, asyncDerived, type Writable, writable, get } from '@holochain-open-dev/stores';
+import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, joinAsync, sliceAndJoin, asyncDerived, type Writable, writable, get, type Unsubscriber } from '@holochain-open-dev/stores';
 import type { ActionCommittedSignal } from '@holochain-open-dev/utils';
 import type { WeClient } from '@lightningrodlabs/we-applet';
 import { HoloHashMap } from '@holochain-open-dev/utils/dist/holo-hash-map';
@@ -72,6 +72,10 @@ export class GamezClient extends ZomeClient<GamezSignal> {
     }
 }
 
+export enum SeenType {
+    Tip="t",
+}
+
 export interface UIProps {
     tips: HoloHashMap<EntryHash,EntryHash>
 }
@@ -98,32 +102,7 @@ export class GamezStore {
     )
     defsList: AsyncReadable<BoardDefData[]>
     uiProps: Writable<UIProps> 
-
-    updateTip(boardHash: EntryHash) {
-        const boardData = get(this.boardList.boardData2.get(boardHash))
-        if (boardData.status == "complete") {
-            localStorage.setItem(encodeHashToBase64(boardHash), encodeHashToBase64(boardData.value.tip))
-            this.setTip(boardHash, boardData.value.tip)
-        }
-    }
-
-    setTip(boardHash:EntryHash, tip: EntryHash) {
-        this.uiProps.update((n) => {
-            n.tips.set(boardHash,tip)
-            return n
-        })
-    }
-    setUIprops(props:{}) {
-        this.uiProps.update((n) => {
-            Object.keys(props).forEach(key=>n[key] = props[key])
-            return n
-        })
-    }
-
-   
-    get myAgentPubKey(): AgentPubKey {
-        return this.client.client.myPubKey;
-    }
+    unsub: Unsubscriber
 
     constructor(
         public weClient : WeClient,
@@ -153,14 +132,55 @@ export class GamezStore {
             hashes=> sliceAndJoin(this.defs,hashes),
             map=>Array.from(map.values())
         )
+        this.boardList.activeBoard.subscribe((board)=>{
+            if (this.unsub) {
+                this.unsub()
+                this.unsub = undefined
+            }
+            if (board != undefined) {
+                this.unsub = board.workspace.tip.subscribe((tip)=>{
+                    if (tip.status == "complete") {
+                        this.updateSeenTip(board.hash, tip.value.entryHash)
+                    }
+                })
+            }
+        })
+
         this.uiProps = writable({
             tips: new HoloHashMap,
         })
-        for (let i = 0; i < localStorage.length; i++){
-            const boardHashB64 = localStorage.key(i)
-            const tipB64 = localStorage.getItem(boardHashB64)
-            this.setTip(decodeHashFromBase64(boardHashB64), decodeHashFromBase64(tipB64))
+        for (let i = 0; i < localStorage.length; i+=1){
+            const key = localStorage.key(i)
+            const [type, boardHashB64, cardId] = key.split(":")
+            if (type == SeenType.Tip) {
+                const tipB64 = localStorage.getItem(key)
+                this.setSeenTip(decodeHashFromBase64(boardHashB64), decodeHashFromBase64(tipB64))
+            }
         }
+    }
+
+    updateSeenTip(boardHash: EntryHash, tip:EntryHash) {
+        localStorage.setItem(`${SeenType.Tip}:${encodeHashToBase64(boardHash)}`, encodeHashToBase64(tip))
+        this.setSeenTip(boardHash, tip)
+    }
+
+    setSeenTip(boardHash:EntryHash, tip: EntryHash) {
+        this.uiProps.update((n) => {
+            n.tips.set(boardHash,tip)
+            return n
+        })
+    }
+
+    setUIprops(props:{}) {
+        this.uiProps.update((n) => {
+            Object.keys(props).forEach(key=>n[key] = props[key])
+            return n
+        })
+    }
+
+   
+    get myAgentPubKey(): AgentPubKey {
+        return this.client.client.myPubKey;
     }
 
     async makeGameType(board: BoardState) : Promise<any> {

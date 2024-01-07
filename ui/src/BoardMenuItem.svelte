@@ -6,6 +6,7 @@
   import Participants from "./Participants.svelte";
   import { BoardType } from "./boardList";
   import { asyncDerived, get } from "@holochain-open-dev/stores";
+  import { hashEqual } from "./util";
 
   const dispatch = createEventDispatcher()
   const { getStore } :any = getContext("gzStore");
@@ -20,11 +21,10 @@
  
 </script>
 <div class="wrapper" on:click={()=>{
-      store.updateTip(boardHash)
       dispatch("select")
       }}>
     {#if $boardData.status == "complete"}
-      {#if $uiProps.tips.get(boardHash) != $boardData.value.tip}
+      {#if !hashEqual($uiProps.tips.get(boardHash), $boardData.value.tip)}
         <div class="unread"></div>
       {/if}
       <div class="board-name">{$boardData.value.latestState.name}</div>

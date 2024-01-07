@@ -14,8 +14,8 @@
 
     const store:GamezStore = getStore();
 
-    const addBoard = async (name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number) => {
-        const result = await store.makeGameType({status:"", max_players:maxPlayers, min_players:minPlayers, name, pieceDefs, props})
+    const addBoard = async (name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number, turns: boolean) => {
+        const result = await store.makeGameType({status:"", max_players:maxPlayers, min_players:minPlayers, turns, name, pieceDefs, props})
         dialog.hide()
     }
     export const open = ()=> {
