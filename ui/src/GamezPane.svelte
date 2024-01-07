@@ -149,7 +149,8 @@
   }
 
   const myTurn = (state) => {
-    return state.turns && state.props.players[state.props.turn] == myAgentPubKeyB64
+    console.log("PROPS TUR", state.props.turn)
+    return state.turns && state.props.players[state.props.turn | 0] == myAgentPubKeyB64
   }
 
   const canPlay = (state) => {
@@ -228,7 +229,7 @@
           {#each $state.props.players as player, index}
             
             <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px">
-              {#if $state.turns && index == $state.props.turn}
+              {#if $state.turns && index == ($state.props.turn | 0)}
                 <div class="my-turn"></div>
               {/if}
               <Avatar agentPubKey={decodeHashFromBase64(player)} />
