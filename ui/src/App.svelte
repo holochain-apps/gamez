@@ -1,8 +1,9 @@
 <script lang="ts">
   import Controller from './Controller.svelte'
+  import ControllerBoard from './ControllerBoard.svelte'
   import { AppAgentWebsocket, AdminWebsocket } from '@holochain/client';
   import '@shoelace-style/shoelace/dist/themes/light.css';
-  import { WeClient, isWeContext, initializeHotReload } from '@lightningrodlabs/we-applet';
+  import { WeClient, isWeContext, initializeHotReload, type Hrl } from '@lightningrodlabs/we-applet';
   import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
   import "@holochain-open-dev/profiles/dist/elements/profile-prompt.js";
   import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
@@ -21,6 +22,15 @@
   let profilesStore : ProfilesStore|undefined = undefined
 
   let connected = false
+
+  enum RenderType {
+    App,
+    Board
+  }
+
+  let renderType = RenderType.App
+  let hrl: Hrl
+
   initialize()
 
   async function initialize() : Promise<void> {
@@ -50,10 +60,59 @@
     else {
       weClient = await WeClient.connect(appletServices);
 
-      if (
-        !(weClient.renderInfo.type === "applet-view")
-        && !(weClient.renderInfo.view.type === "main")
-      ) throw new Error("This Applet only implements the applet main view.");
+      switch (weClient.renderInfo.type) {
+        case "applet-view":
+          switch (weClient.renderInfo.view.type) {
+            case "main":
+              // here comes your rendering logic for the main view
+              break;
+            case "block":
+              switch(weClient.renderInfo.view.block) {
+                default:
+                  throw new Error("Unknown applet-view block type:"+weClient.renderInfo.view.block);
+              }
+            case "entry":
+              switch (weClient.renderInfo.view.roleName) {
+                case "gamez":
+                  switch (weClient.renderInfo.view.integrityZomeName) {
+                    case "syn_integrity":
+                      switch (weClient.renderInfo.view.entryType) {
+                        case "document":
+                          renderType = RenderType.Board
+                          hrl = weClient.renderInfo.view.hrl
+                          break;
+                        default:
+                          throw new Error("Unknown entry type:"+weClient.renderInfo.view.entryType);
+                      }
+                      break;
+                    default:
+                      throw new Error("Unknown integrity zome:"+weClient.renderInfo.view.integrityZomeName);
+                  }
+                  break;
+                default:
+                  throw new Error("Unknown role name:"+weClient.renderInfo.view.roleName);
+              }
+              break;
+            default:
+              throw new Error("Unsupported applet-view type");
+          }
+          break;
+        case "cross-applet-view":
+          switch (this.weClient.renderInfo.view.type) {
+            case "main":
+              // here comes your rendering logic for the cross-applet main view
+              //break;
+            case "block":
+              //
+              //break;
+            default:
+              throw new Error("Unknown cross-applet-view render type.")
+          }
+          break;
+        default:
+          throw new Error("Unknown render view type");
+
+      }
 
       //@ts-ignore
       client = weClient.renderInfo.appletClient;
@@ -81,7 +140,11 @@
         ></create-profile>
       </div>
     {:else}
-      <Controller weClient={weClient}  client={client} profilesStore={profilesStore} roleName={roleName}></Controller>
+      {#if renderType== RenderType.App}
+        <Controller  client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></Controller>
+      {:else if  renderType== RenderType.Board}
+        <ControllerBoard  board={hrl[1]} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerBoard>
+      {/if}
     {/if}
 
   </profiles-context>

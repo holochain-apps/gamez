@@ -3,7 +3,7 @@
   import GamezPane from "./GamezPane.svelte";
   import { GamezStore } from "./store";
   import { setContext } from "svelte";
-  import type { AppAgentClient } from "@holochain/client";
+  import type { AppAgentClient, EntryHash } from "@holochain/client";
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
   import Fa from "svelte-fa";
@@ -20,7 +20,6 @@
   import { v1 as uuidv1 } from "uuid";
   import BoardMenuItem from "./BoardMenuItem.svelte";
   import BoardDefItem from "./BoardDefItem.svelte";
-  import LogoIcon from "./icons/LogoIcon.svelte";
   import type { WeClient } from "@lightningrodlabs/we-applet";
 
   let defaultGames = [
@@ -40,6 +39,7 @@
   export let client: AppAgentClient;
   export let profilesStore: ProfilesStore;
   export let weClient : WeClient
+  export let board : EntryHash | undefined
 
   let DEFAULT_GAMES = ["Chess", "Go"];
   let store: GamezStore = new GamezStore(
@@ -50,6 +50,7 @@
   );
   let synStore: SynStore = store.synStore
 
+  store.boardList.setActiveBoard(board)
   $: activeBoardHash = store.boardList.activeBoardHash
 
   setContext("synStore", {

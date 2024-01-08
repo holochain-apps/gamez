@@ -37,6 +37,7 @@
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
   export let activeBoard: Board
+  export let standAlone = false
 
   $: activeHash = store.boardList.activeBoardHash;
   $: state = activeBoard.readableState()
@@ -149,7 +150,6 @@
   }
 
   const myTurn = (state) => {
-    console.log("PROPS TUR", state.props.turn)
     return state.turns && state.props.players[state.props.turn | 0] == myAgentPubKeyB64
   }
 
@@ -204,7 +204,7 @@
       </div>
     {/if}
 
-
+    {#if !standAlone}
       <sl-button circle on:click={leaveBoard} title="Leave">
         <Fa icon={faArrowTurnDown} />
       </sl-button>
@@ -217,6 +217,7 @@
       <sl-button circle on:click={closeBoard} title="Close">
         <Fa icon={faClose} />
       </sl-button>
+    {/if}
     </div>
   </div>
   {#if $state}
@@ -271,7 +272,50 @@
           Leave Game
           </sl-button>
         {/if}
+        {#if store.weClient}
+          <div class="attachments-area">
+            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>addAttachment()} >          
+              <Fa icon={faPaperclip}/>
+            </sl-button>
+            <!-- {JSON.stringify(store.weClient.attachmentTypes)} -->
+            {#each Array.from(store.weClient.attachmentTypes.entries()) as [hash, record]}
+              {record.key} {record.value}
+              <button class="control" on:click={()=>addAttachment()} >          
+                <Fa icon={faPlus}/>
+              </button>
+            {/each}
 
+            {#if attachments}
+              <div class="attachments-list">
+                {#each attachments as attachment, index}
+                  <div class="attachment-item">
+                    {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
+                      <sl-button size="small" loading></sl-button>
+                    {:then { entryInfo }}
+                      <sl-button  size="small"
+                        on:click={()=>{
+                            const hrl = hrlB64WithContextToRaw(attachment)
+                            store.weClient.openHrl(hrl.hrl, hrl.context)
+                          }}
+                        style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
+                        {entryInfo.name}
+                      </sl-button> 
+                      <sl-button size="small"
+                        on:click={()=>{
+                          removeAttachment(index)
+                        }}
+                      >
+                        <Fa icon={faTrash} />
+                      </sl-button>
+                    {:catch error}
+                      Oops. something's wrong.
+                    {/await}
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
       </div>
     {/if}
 
@@ -316,51 +360,6 @@
           on:dragover={handleDragOver}          
           >
       </div>
-      {#if store.weClient}
-        <div class="attachments-area">
-          <button class="control" on:click={()=>addAttachment()} >          
-            <Fa icon={faPaperclip}/>
-          </button>
-          <!-- {JSON.stringify(store.weClient.attachmentTypes)} -->
-          {#each Array.from(store.weClient.attachmentTypes.entries()) as [hash, record]}
-            {record.key} {record.value}
-            <button class="control" on:click={()=>addAttachment()} >          
-              <Fa icon={faPlus}/>
-            </button>
-          {/each}
-
-          {#if attachments}
-            <div style="margin-top:10px; display:flex;flex-direction:row;flex-wrap:wrap">
-              {#each attachments as attachment, index}
-                <div style="border:1px solid #aaa; background-color:rgba(0,255,0,.1); padding:4px;display:flex;margin-right:4px; border-radius:4px;">
-                  {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
-                    <sl-button size="small" loading></sl-button>
-                  {:then { entryInfo }}
-                    <sl-button  size="small"
-                      on:click={()=>{
-                          const hrl = hrlB64WithContextToRaw(attachment)
-                          console.log("HRL", attachment, hrl)
-                          store.weClient.openHrl(hrl.hrl, hrl.context)
-                        }}
-                      style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
-                      {entryInfo.name}
-                    </sl-button> 
-                    <sl-button size="small"
-                      on:click={()=>{
-                        removeAttachment(index)
-                      }}
-                    >
-                      <Fa icon={faTrash} />
-                    </sl-button>
-                  {:catch error}
-                    Oops. something's wrong.
-                  {/await}
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      {/if}
 
     </div>
   {/if}
@@ -386,9 +385,6 @@
     position: relative;
     padding: 0px;
     overflow: auto;
-  }
-  .attachments-area {
-    margin-left:10px;
   }
 
   .piece {
@@ -432,5 +428,25 @@
   .right-items {
     display: flex;
     align-items: center;
+  }
+  .attachments-area {
+    display:flex;
+    flex-direction:row;
+    margin-left:20px;
+  }
+  .attachments-list {
+    margin-top:5px; 
+    display:flex;
+    flex-direction:row;
+    flex-wrap: wrap;
+
+  }
+  .attachment-item {
+    border:1px solid #aaa; 
+    background-color:rgba(0,255,0,.1); 
+    padding:4px;
+    display:flex;
+    margin-right:4px;
+    border-radius:4px;
   }
 </style>
