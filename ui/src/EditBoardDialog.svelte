@@ -29,7 +29,7 @@
 
     const store:GamezStore = getStore();
 
-    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number, turns: boolean) => {
+    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number, turns: boolean, playerPieces: boolean) => {
         const board: Board | undefined = await store.boardList.getBoard(boardHash)
         if (board) {
         let changes = []
@@ -46,6 +46,13 @@
             {
                 type: 'set-turns',
                 turns: turns
+            })
+        }
+        if (state.playerPieces != playerPieces) {
+            changes.push(
+            {
+                type: 'set-player-pieces',
+                playerPieces: playerPieces
             })
         }
         if (minPlayers != state.min_players || maxPlayers != state.max_players) {

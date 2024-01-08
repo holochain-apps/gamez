@@ -29,6 +29,8 @@
     let nameInput
     let turns = false
     let turnsInput
+    let playerPieces = false
+    let playerPiecesInput
 
     $: valid = text != ""  && props.bgUrl !=""  && parseInt(minPlayers) >= 1 && (parseInt(maxPlayers) - parseInt(minPlayers) >= 0)
 
@@ -43,6 +45,8 @@
       pieceDefs = []
       turns = false
       turnsInput.value = false
+      playerPieces = false
+      playerPiecesInput.value = false
     }
 
     export const  edit = async (state: BoardState)=> {
@@ -56,6 +60,8 @@
       props = state.props ? cloneDeep(state.props) : {bgUrl:""}
       turns = state.turns
       turnsInput.checked = turns
+      playerPieces = state.playerPieces
+      playerPiecesInput.checked = playerPieces
     }
 
     const addPieceDef = () => {
@@ -76,7 +82,7 @@
       if (e.key === "Escape") {
         cancelEdit()
       } else if (e.key === "Enter" && e.ctrlKey) {
-        handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers), turns)
+        handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers), turns, playerPieces)
       } else  if (e.key === 'Tab') {
         // trap focus
         const tabbable = Array.from(document.querySelectorAll('input'))
@@ -114,6 +120,8 @@
       <sl-checkbox bind:this={turnsInput} on:sl-input={e=>{turns= e.target.checked}}>Enforce Turns</sl-checkbox>
     </div>
     <div class="edit-piece-defs unselectable">
+      <sl-checkbox bind:this={playerPiecesInput} on:sl-input={e=>{playerPieces= e.target.checked}}>Players Are Pieces</sl-checkbox>
+
       <div class="title-text">
         Pieces:
 
@@ -199,7 +207,7 @@
       <sl-button on:click={cancelEdit} style="margin-left:10px">
         Cancel
       </sl-button>
-      <sl-button disabled={!valid} style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers), turns)} variant="primary">
+      <sl-button disabled={!valid} style="margin-left:10px" on:click={() => handleSave(text, pieceDefs, props, parseIntPlayers(minPlayers), parseIntPlayers(maxPlayers), turns, playerPieces)} variant="primary">
         Save
       </sl-button>
     </div>

@@ -47,6 +47,7 @@ export interface BoardState {
   max_players: number;
   min_players: number;
   turns: boolean;
+  playerPieces: boolean;
   pieceDefs: PieceDef[];
   props: BoardProps;
 }
@@ -60,6 +61,10 @@ export interface BoardState {
         type: "set-turns";
         turns: boolean;
         }
+    | {
+        type: "set-player-pieces";
+        playerPieces: boolean;
+      }
     | {
         type: "next-turn";
       }
@@ -132,9 +137,13 @@ export interface BoardState {
         case "set-turns":
           state.turns = delta.turns
           break;
+        case "set-player-pieces":
+          state.playerPieces = delta.playerPieces
+          break;
         case "set-state":
           if (delta.state.status !== undefined) state.status = delta.state.status
           if (delta.state.turns !== undefined) state.turns = delta.state.turns
+          if (delta.state.playerPieces !== undefined) state.playerPieces = delta.state.playerPieces
           if (delta.state.name !== undefined) state.name = delta.state.name
           if (delta.state.pieceDefs !== undefined) state.pieceDefs = delta.state.pieceDefs
           if (delta.state.props !== undefined) state.props = delta.state.props

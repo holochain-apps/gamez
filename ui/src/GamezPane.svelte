@@ -118,8 +118,14 @@
       }]);
     }
     else {
-      const def = pieceDefs[draggedItemId]
-      const x = (e.clientX - bounds.left) - def.width/2;
+      let pieceWidth
+      if (draggedItemId.startsWith("uhCA")) {
+        pieceWidth=30
+      } else {
+        const def = pieceDefs[draggedItemId]
+        pieceWidth = def.width
+      }
+      const x = (e.clientX - bounds.left) - pieceWidth/2;
       const y = (e.clientY - bounds.top)-dragOffsetY;
       activeBoard.requestChanges( [{ 
         type: "add-piece", 
@@ -335,9 +341,24 @@
 
           </div>
         {/each}
+        {#if $state.playerPieces}
+          {#each $state.props.players as player, index}
+              
+            <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px"
+              id={player}
+              draggable={canPlay($state)}
+              class:draggable={canPlay($state)}
+              on:dragstart={handleDragStartAdd}
+
+            >
+              <Avatar agentPubKey={decodeHashFromBase64(player)} />
+            </div>
+          {/each}
+        {/if}
       </div>
-      <div class="img-container">
+        <div class="img-container">
         {#each pieces as piece}
+        {@const pieceIsPlayer = piece.typeId.startsWith("uhCA")}
         <div class="piece"
           draggable={canPlay($state)}
           on:dragstart={handleDragStartMove}
@@ -346,11 +367,14 @@
           on:dragover={handleDragOver}          
 
           id={piece.id}
-          style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceDefs[piece.typeId].height}px`}
+          style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
           >
-          {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
-          {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
-
+          {#if pieceIsPlayer}
+            <Avatar agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
+          {:else}
+            {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
+            {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
+          {/if}
         </div>
         {/each}
         <img draggable={false} bind:this={img} src={bgUrl}

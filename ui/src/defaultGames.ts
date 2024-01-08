@@ -6,6 +6,7 @@ export const GO: BoardState =
     "max_players": 2,
     "min_players": 2,
     "turns" : true,
+    "playerPieces" : false,
     "pieceDefs": [
         {
             "type": PieceType.Emoji,
@@ -44,6 +45,7 @@ export const CHESS : BoardState =
     "max_players": 2,
     "min_players": 2,
     "turns": true,
+    "playerPieces" : false,
     "name": "Chess",
     "pieceDefs": [
         {
