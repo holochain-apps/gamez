@@ -1,6 +1,7 @@
 <script lang="ts">
   import { encodeHashToBase64, type AgentPubKey } from "@holochain/client";
   import "@holochain-open-dev/profiles/dist/elements/agent-avatar.js";
+  import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
   import { faUser } from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +16,7 @@
   export let showAvatar = true
   export let showNickname = true
   export let placeholder = false
+  export let draggable = true
 
   $: agentPubKey
   $: agentPubKeyB64 = encodeHashToBase64(agentPubKey)
@@ -23,10 +25,13 @@
   
 </script>
 
-<div class="avatar-{namePosition}"
+<div class:draggable={draggable} class="avatar-{namePosition}"
     >
     {#if $profile.status == "pending"}
-    ( ? )
+        <sl-skeleton
+        effect="pulse"
+        style={`height: ${size}px; width: ${size}px;`}
+        ></sl-skeleton>
     {:else if $profile.status == "complete"}
 
         {#if showAvatar}
@@ -34,7 +39,7 @@
                 <Fa icon={faUser} size=2x style="margin-left:5px;margin-right:5px"></Fa>
             {:else}
             <!-- <div title={nickname}> -->
-                <agent-avatar title={nickname} disable-tooltip={true} disable-copy={true} size={size} agent-pub-key="{agentPubKeyB64}"></agent-avatar>
+                <agent-avatar draggable={draggable} title={nickname} disable-tooltip={true} disable-copy={true} size={size} agent-pub-key="{agentPubKeyB64}"></agent-avatar>
             <!-- </div> -->
             {/if}
         {/if}
@@ -60,5 +65,8 @@
     }
     .avatar-row .nickname{
         margin-left: 0.5em;
+    }
+    .draggable {
+        pointer-events: none;
     }
 </style>

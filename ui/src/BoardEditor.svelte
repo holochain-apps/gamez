@@ -24,7 +24,7 @@
     let text = ''
     let minPlayers = ""
     let maxPlayers = ""
-    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0}
+    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgMaxHeight: "", bgMaxWidth: "100%"}
     let pieceDefs: Array<PieceDef> = []
     let nameInput
     let turns = false
@@ -41,7 +41,7 @@
       text = ''
       maxPlayers = ""
       minPlayers = ""
-      props = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0}
+      props = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgMaxHeight: "", bgMaxWidth: "100%"}
       pieceDefs = []
       turns = false
       turnsInput.value = false
@@ -197,6 +197,14 @@
         {/if}
 
     </div>
+
+    <div style="display:flex; flex-direction:row; align-items:flex-end;">
+      <sl-input label="Board Max-Width" style="width:170px;" class='textarea' value={props.bgMaxWidth}
+      on:input={e=>props.bgMaxWidth= e.target.value}> </sl-input>
+      <sl-input label="Board Max-Height" style="width:170px;" class='textarea' value={props.bgMaxHeight}
+      on:input={e=>props.bgMaxHeight = e.target.value}> </sl-input>
+    </div>
+
 
     <div class='controls'>
       {#if handleDelete}

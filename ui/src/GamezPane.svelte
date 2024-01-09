@@ -119,6 +119,7 @@
     }
     else {
       let pieceWidth
+      console.log("Drop", draggedItemId)
       if (draggedItemId.startsWith("uhCA")) {
         pieceWidth=30
       } else {
@@ -162,6 +163,7 @@
   const canPlay = (state) => {
     return myTurn(state) || (!state.turns && haveJoined(state))
   }
+  $: iCanPlay = canPlay($state)
 
   function hrlB64WithContextToRaw(hrlB64: HrlB64WithContext): HrlWithContext {
     return {
@@ -327,12 +329,12 @@
 
     <div class="board-area">
       <div class="piece-source">
-        <h3>Add:</h3>
+        <h3>{iCanPlay ? "Add Piece:" : "Pieces:"}</h3>
         {#each Object.values(pieceDefs) as p}
           <div class="piece-def"
             id={p.id}
-            draggable={canPlay($state)}
-            class:draggable={canPlay($state)}
+            draggable={iCanPlay}
+            class:draggable={iCanPlay}
             on:dragstart={handleDragStartAdd}
           >
             {#if pieceDefs[p.id].type===PieceType.Emoji}{pieceDefs[p.id].images[0]}{/if}
@@ -346,38 +348,39 @@
               
             <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px"
               id={player}
-              draggable={canPlay($state)}
-              class:draggable={canPlay($state)}
+              draggable={iCanPlay}
+              class:draggable={iCanPlay}
               on:dragstart={handleDragStartAdd}
 
             >
-              <Avatar agentPubKey={decodeHashFromBase64(player)} />
+              <Avatar draggable={false} agentPubKey={decodeHashFromBase64(player)} />
             </div>
           {/each}
         {/if}
       </div>
         <div class="img-container">
         {#each pieces as piece}
-        {@const pieceIsPlayer = piece.typeId.startsWith("uhCA")}
-        <div class="piece"
-          draggable={canPlay($state)}
-          on:dragstart={handleDragStartMove}
-          on:dragend={handleDragEnd}
-          on:drop={handleDragDrop}  
-          on:dragover={handleDragOver}          
+          {@const pieceIsPlayer = piece.typeId.startsWith("uhCA")}
+          <div class="piece"
+            draggable={iCanPlay}
+            class:draggable={iCanPlay}
+            on:dragstart={handleDragStartMove}
+            on:dragend={handleDragEnd}
+            on:drop={handleDragDrop}  
+            on:dragover={handleDragOver}          
 
-          id={piece.id}
-          style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
-          >
-          {#if pieceIsPlayer}
-            <Avatar agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
-          {:else}
-            {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
-            {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
-          {/if}
-        </div>
+            id={piece.id}
+            style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
+            >
+            {#if pieceIsPlayer}
+              <Avatar agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
+            {:else}
+              {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
+              {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
+            {/if}
+          </div>
         {/each}
-        <img draggable={false} bind:this={img} src={bgUrl}
+        <img width={$state.props.bgMaxWidth} height={$state.props.bgMaxHeight} draggable={false} bind:this={img} src={bgUrl}
           
           style="padding:100px; background-color:lightgray; border:1px solid; flex: 1; object-fit: cover; overflow: hidden"
           on:drop={handleDragDrop}  
@@ -400,6 +403,7 @@
     margin:auto;
     margin-top: 10px;
     display: flex;
+    overflow:auto;
   }
   .piece-source {
     max-width: 100px;

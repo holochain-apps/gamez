@@ -5,7 +5,7 @@
         "networkSeed": "098rc1m-09384u-crm-29384u-cmkj",
         "icon": {
           "type": "filesystem",
-          "path": "./we_dev/lrl-icon.png"
+          "path": "/home/eric/code/metacurrency/holochain/gamez/we_dev/lrl-icon.png"
         },
         "creatingAgent": {
           "agentNum": 1,
@@ -13,7 +13,7 @@
             "nickname": "Zippy",
             "avatar": {
               "type": "filesystem",
-              "path": "./we_dev/zippy.jpg"
+              "path": "/home/eric/code/metacurrency/holochain/gamez/we_dev/zippy.jpg"
             }
           }
         },
@@ -58,11 +58,11 @@
         "description": "Let's do it!",
         "icon": {
           "type": "filesystem",
-          "path": "./we_dev/gamez_icon.svg"
+          "path": "/home/eric/code/metacurrency/holochain/gamez/we_dev/gamez_icon.svg"
         },
         "source": {
           "type": "localhost",
-          "happPath": "./workdir/gamez.happ",
+          "happPath": "/home/eric/code/metacurrency/holochain/gamez/workdir/gamez.happ",
           "uiPort": 8888
         }
       },

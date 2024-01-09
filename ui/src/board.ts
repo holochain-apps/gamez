@@ -34,6 +34,8 @@ export class  PieceDef {
 export type BoardProps = {
   pieces: {[key: string]: Piece},
   bgUrl: string,
+  bgMaxHeight: string,
+  bgMaxWidth: string,
   players: Array<AgentPubKeyB64>,
   turn: number,
   attachments: Array<HrlB64WithContext>
