@@ -9,5 +9,4 @@ name = "gamez_integrity"
 
 [dependencies]
 hdi = { workspace = true }
-
 serde = { workspace = true }
