@@ -39,7 +39,6 @@
   export let client: AppAgentClient;
   export let profilesStore: ProfilesStore;
   export let weClient : WeClient
-  export let board : EntryHash | undefined
 
   let DEFAULT_GAMES = ["Chess", "Go"];
   let store: GamezStore = new GamezStore(
@@ -50,7 +49,6 @@
   );
   let synStore: SynStore = store.synStore
 
-  store.boardList.setActiveBoard(board)
   $: activeBoardHash = store.boardList.activeBoardHash
 
   setContext("synStore", {

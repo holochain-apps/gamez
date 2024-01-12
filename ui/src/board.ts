@@ -16,6 +16,7 @@ export interface Piece {
   x: number,
   y: number,
   imageIdx: number,
+  attachments: Array<HrlB64WithContext>
 }
 
 export class  PieceDef {
@@ -105,12 +106,18 @@ export interface BoardState {
         imageIdx: number;
         x: number;
         y: number;
+        attachments: Array<HrlB64WithContext>
       }
     | {
         type: "move-piece";
         id: uuidv1;
         x: number;
         y: number;
+      }
+    | {
+        type: "set-piece-attachments";
+        id: uuidv1;
+        attachments: Array<HrlB64WithContext>
       }
   
   export const boardGrammar = {
@@ -183,12 +190,18 @@ export interface BoardState {
             x: delta.x,
             y: delta.y,
             imageIdx: delta.imageIdx,
+            attachments: delta.attachments
           }
           state.props.pieces[id]=piece
           break;
         case "move-piece":
           state.props.pieces[delta.id].x = delta.x
           state.props.pieces[delta.id].y = delta.y
+          break;
+        case "set-piece-attachments":
+          console.log("PICE", state.props.pieces)
+          console.log("sett", state.props.pieces[delta.id], delta.attachments)
+          state.props.pieces[delta.id].attachments = delta.attachments
           break;
         }
     },

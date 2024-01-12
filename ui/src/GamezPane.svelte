@@ -1,16 +1,17 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { type BoardState, PieceDef, PieceType, Board, boardGrammar} from "./board";
+  import { type BoardState, PieceDef, PieceType, Board, type Piece} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
   import Avatar from "./Avatar.svelte"
+  import AttachmentsDialog from "./AttachmentsDialog.svelte"
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
   import Fa from "svelte-fa";
   import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
-  import type { HrlB64WithContext, HrlWithContext, WeClient } from "@lightningrodlabs/we-applet";
+  import { isWeContext, type HrlB64WithContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
 
 
@@ -68,6 +69,12 @@
   let draggedItemId = ""
   let dragOffsetX, dragOffsetY
   let dragType
+
+  let attachmentsDialog : AttachmentsDialog
+  function editPieceAttachments(piece: Piece) {
+    if (isWeContext())  
+      attachmentsDialog.open(piece)
+  }
 
   function handleDragStartAdd(e) {
     dragType = "add"
@@ -132,7 +139,7 @@
         type: "add-piece", 
         pieceType: draggedItemId,
         imageIdx: 0,
-        x,y
+        x,y,attachments:[]
       }]);
     }
     clearDrag()
@@ -359,9 +366,11 @@
         {/if}
       </div>
         <div class="img-container">
+        <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
         {#each pieces as piece}
           {@const pieceIsPlayer = piece.typeId.startsWith("uhCA")}
           <div class="piece"
+            on:dblclick={()=>editPieceAttachments(piece)}
             draggable={iCanPlay}
             class:draggable={iCanPlay}
             on:dragstart={handleDragStartMove}
@@ -372,6 +381,9 @@
             id={piece.id}
             style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
             >
+            {#if piece.attachments && piece.attachments.length > 0}
+            <div class="piece-has-attachment"></div>
+            {/if}
             {#if pieceIsPlayer}
               <Avatar agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
             {:else}
@@ -476,5 +488,14 @@
     display:flex;
     margin-right:4px;
     border-radius:4px;
+  }
+  .piece-has-attachment {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
   }
 </style>

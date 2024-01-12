@@ -12,7 +12,7 @@
 
 <svelte:window on:keydown={handleKeydown}/>
 
-<sl-dialog label="Gamez!: UI v0.3.3 for DNA v0.2.x" bind:this={dialog} width={600} >
+<sl-dialog label="Gamez!: UI v0.3.4 for DNA v0.2.x" bind:this={dialog} width={600} >
     <div class="about">
         <p>Gamez! is a demonstration Holochain app built by the Holochain Foundation.</p>
         <p> <b>Developers:</b>
