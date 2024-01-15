@@ -273,7 +273,9 @@
           Join Game
           </sl-button>
         {/if}
-        {#if myTurn($state)}
+        {#if $state.props.players.length < $state.min_players}
+          Waiting for {$state.min_players- $state.props.players.length} player{$state.min_players- $state.props.players.length>1?"s":""} to join
+        {:else if myTurn($state)}
           <sl-button style="margin-left: 30px"
             on:click={()=>{
               activeBoard.requestChanges( [{ 
@@ -369,7 +371,7 @@
               on:dragstart={handleDragStartAdd}
 
             >
-              <Avatar draggable={iCanPlay} agentPubKey={decodeHashFromBase64(player)} />
+              <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(player)} />
             </div>
           {/each}
         {/if}
@@ -394,7 +396,7 @@
             <div class="piece-has-attachment">{piece.attachments.length}</div>
             {/if}
             {#if pieceIsPlayer}
-              <Avatar agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
+              <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
             {:else}
               {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
               {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
