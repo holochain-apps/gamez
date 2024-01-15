@@ -127,7 +127,7 @@
     else {
       let pieceWidth
       console.log("Drop", draggedItemId)
-      if (draggedItemId.startsWith("uhCA")) {
+      if (isPlayer(draggedItemId)) {
         pieceWidth=30
       } else {
         const def = pieceDefs[draggedItemId]
@@ -193,6 +193,15 @@
     const props = cloneDeep($state.props)
     props.attachments.splice(index, 1);
     activeBoard.requestChanges([{type: 'set-props', props }])
+  }
+  const pieceName = (piece: Piece) => {
+    if (isPlayer(piece.typeId)) {
+      return "player"
+    }
+    return pieceDefs[piece.typeId].name
+  }
+  const isPlayer = (id: string) => {
+    return id.startsWith("uhCA")
   }
 </script>
 <div class="board">
@@ -360,7 +369,7 @@
               on:dragstart={handleDragStartAdd}
 
             >
-              <Avatar draggable={false} agentPubKey={decodeHashFromBase64(player)} />
+              <Avatar draggable={iCanPlay} agentPubKey={decodeHashFromBase64(player)} />
             </div>
           {/each}
         {/if}
@@ -368,7 +377,7 @@
         <div class="img-container">
         <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
         {#each pieces as piece}
-          {@const pieceIsPlayer = piece.typeId.startsWith("uhCA")}
+          {@const pieceIsPlayer = isPlayer(piece.typeId)}
           <div class="piece"
             on:dblclick={()=>editPieceAttachments(piece)}
             draggable={iCanPlay}
@@ -377,12 +386,12 @@
             on:dragend={handleDragEnd}
             on:drop={handleDragDrop}  
             on:dragover={handleDragOver}          
-
+            title={piece.attachments && piece.attachments.length > 0 ? `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`: pieceName(piece)}
             id={piece.id}
             style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
             >
             {#if piece.attachments && piece.attachments.length > 0}
-            <div class="piece-has-attachment"></div>
+            <div class="piece-has-attachment">{piece.attachments.length}</div>
             {/if}
             {#if pieceIsPlayer}
               <Avatar agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
@@ -491,11 +500,15 @@
   }
   .piece-has-attachment {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 10px;
-    height: 10px;
-    background-color: red;
-    border-radius: 50%;
+    bottom: 0px;
+    right: 0px;
+    z-index: 1000;
+    font-size: 12px;
+    font-weight: bold;
+    color: blue;
+    padding-right: 5px;
+    padding-left: 5px;
+    border-radius: 5px;
+    background-color: rgba(0,255,0,.5);
   }
 </style>
