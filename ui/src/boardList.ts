@@ -152,24 +152,11 @@ export class BoardList {
         }
     }
 
-
-    async makeBoard(options: BoardState, fromHash?: EntryHashB64) : Promise<Board> {
-        const board = await Board.Create(this.synStore)
-        const sessionStore = board.session
+    async makeBoard(options: BoardState) : Promise<Board> {
         if (!options.name) {
             options.name = "untitled"
         }
-        if (options !== undefined) {
-            let changes : BoardDelta[] = [{
-                type: "set-state",
-                state: options
-                },
-            ]
-            if (changes.length > 0) {
-                board.requestChanges(changes)
-                await sessionStore.commitChanges()
-            }
-        }
+        const board = await Board.Create(this.synStore, options)
         return board
     }
 }

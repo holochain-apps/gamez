@@ -7,6 +7,7 @@ export const GO: BoardState =
     "min_players": 2,
     "turns" : true,
     "playerPieces" : false,
+    "boundTo": [],
     "pieceDefs": [
         {
             "type": PieceType.Emoji,
@@ -49,6 +50,7 @@ export const CHESS : BoardState =
     "turns": true,
     "playerPieces" : false,
     "name": "Chess",
+    "boundTo": [],
     "pieceDefs": [
         {
             "type": PieceType.Emoji,

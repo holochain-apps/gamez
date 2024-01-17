@@ -8,11 +8,12 @@
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
   import Fa from "svelte-fa";
-  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip } from "@fortawesome/free-solid-svg-icons";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
   import { isWeContext, type HrlB64WithContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
+  import AttachmentsList from "./AttachmentsList.svelte";
 
   const download = (filename: string, text: string) => {
     var element = document.createElement('a');
@@ -171,12 +172,6 @@
   }
   $: iCanPlay = canPlay($state)
 
-  function hrlB64WithContextToRaw(hrlB64: HrlB64WithContext): HrlWithContext {
-    return {
-      hrl: [decodeHashFromBase64(hrlB64.hrl[0]), decodeHashFromBase64(hrlB64.hrl[1])],
-      context: hrlB64.context,
-    };
-  }
   const addAttachment = async () => {
     const hrl = await store.weClient.userSelectHrl()
     if (hrl) {
@@ -233,12 +228,14 @@
       <sl-button circle on:click={leaveBoard} title="Leave">
         <Fa icon={faArrowTurnDown} />
       </sl-button>
+    {/if}
       <sl-button circle on:click={()=> editBoardDialog.open(cloneDeep($activeHash))} title="Settings">
         <Fa icon={faCog} size="1x"/>
       </sl-button>
       <sl-button circle on:click={() => exportBoard($state)} title="Export">
         <Fa icon={faFileExport} />
       </sl-button>
+    {#if !standAlone}
       <sl-button circle on:click={closeBoard} title="Close">
         <Fa icon={faClose} />
       </sl-button>
@@ -301,46 +298,14 @@
         {/if}
         {#if store.weClient}
           <div class="attachments-area">
-            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>addAttachment()} >          
+            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>attachmentsDialog.open()} >          
               <Fa icon={faPaperclip}/>
             </sl-button>
-            <!-- {JSON.stringify(store.weClient.attachmentTypes)} -->
-            {#each Array.from(store.weClient.attachmentTypes.entries()) as [hash, record]}
-              {record.key} {record.value}
-              <button class="control" on:click={()=>addAttachment()} >          
-                <Fa icon={faPlus}/>
-              </button>
-            {/each}
-
             {#if attachments}
-              <div class="attachments-list">
-                {#each attachments as attachment, index}
-                  <div class="attachment-item">
-                    {#await store.weClient.attachableInfo(hrlB64WithContextToRaw(attachment))}
-                      <sl-button size="small" loading></sl-button>
-                    {:then { attachableInfo }}
-                      <sl-button  size="small"
-                        on:click={()=>{
-                            const hrlWithContext = hrlB64WithContextToRaw(attachment)
-                            store.weClient.openHrl(hrlWithContext)
-                          }}
-                        style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={attachableInfo.icon_src} slot="prefix"></sl-icon>
-                        {attachableInfo.name}
-                      </sl-button> 
-                      <sl-button size="small"
-                        on:click={()=>{
-                          removeAttachment(index)
-                        }}
-                      >
-                        <Fa icon={faTrash} />
-                      </sl-button>
-                    {:catch error}
-                      Oops. something's wrong.
-                    {/await}
-                  </div>
-                {/each}
-              </div>
+              <AttachmentsList attachments={attachments}
+              on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
             {/if}
+             
           </div>
         {/if}
       </div>
@@ -492,21 +457,6 @@
     display:flex;
     flex-direction:row;
     margin-left:20px;
-  }
-  .attachments-list {
-    margin-top:5px; 
-    display:flex;
-    flex-direction:row;
-    flex-wrap: wrap;
-
-  }
-  .attachment-item {
-    border:1px solid #aaa; 
-    background-color:rgba(0,255,0,.1); 
-    padding:4px;
-    display:flex;
-    margin-right:4px;
-    border-radius:4px;
   }
   .piece-has-attachment {
     position: absolute;

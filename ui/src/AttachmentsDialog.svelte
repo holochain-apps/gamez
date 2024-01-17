@@ -1,25 +1,33 @@
 <script lang="ts">
-  import { type HrlB64WithContext, isWeContext } from "@lightningrodlabs/we-applet";
+  import { type HrlB64WithContext, isWeContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
   import { cloneDeep } from "lodash";
   import type { Board, Piece } from "./board";
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { hrlB64WithContextToRaw, hrlWithContextToB64} from "./util";
-  import { faPaperclip, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+  import { hrlWithContextToB64} from "./util";
+  import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+  import AttachmentsList from "./AttachmentsList.svelte";
+  import Bind from "./Bind.svelte";
 
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
-  let piece
+  let piece: Piece | undefined
   let attachments: Array<HrlB64WithContext> = []
  
+  $:attachments = attachments
+
   export let activeBoard: Board
   export const close=()=>{dialog.hide()}
   export const open=(p: Piece)=>{
     piece = p
-    attachments = piece.attachments ? cloneDeep(piece.attachments): []
+    if (piece) {
+      attachments = piece.attachments ? cloneDeep(piece.attachments): []
+    } else {
+      attachments = activeBoard.state().props.attachments
+    }
     dialog.show()
   }
   let dialog
@@ -28,97 +36,59 @@
   function removeAttachment(index: number) {
     attachments.splice(index, 1);
     attachments = attachments
+    handleSave()
   }
 
   const addAttachment = async () => {
     const hrl = await store.weClient.userSelectHrl()
     if (hrl) {
-      console.log("hrl",hrl)
-      attachments.push(hrlWithContextToB64(hrl))
-      attachments = attachments
+      _addAttachment(hrl)
     }
   }
 
+  const _addAttachment = (hrl: HrlWithContext) => {
+    attachments.push(hrlWithContextToB64(hrl))
+    attachments = attachments
+    handleSave()
+  }
+
   const handleSave = async () => {
-    activeBoard.requestChanges([{
-      type: 'set-piece-attachments', 
-      id: piece.id,
-      attachments
-    }])
-    close()
+    if (piece) {
+      activeBoard.requestChanges([{
+        type: 'set-piece-attachments', 
+        id: piece.id,
+        attachments
+      }])
+    } else {
+      const props = cloneDeep(activeBoard.state().props)
+      props.attachments = cloneDeep(attachments)
+      activeBoard.requestChanges([{type: 'set-props', props }])
+    }
   }
 </script>
 
-<sl-dialog label="Attachments" bind:this={dialog}>
+<sl-dialog label={piece? "Piece Attachments":"Board Attachments"} bind:this={dialog}>
   {#if isWeContext()}
-  
-  <!-- {JSON.stringify(store.weClient.attachmentTypes)} -->
-  {#each Array.from(store.weClient.attachmentTypes.entries()) as [hash, record]}
-    {record.key} {record.value}
-    <button class="control" on:click={()=>addAttachment()} >          
-      <Fa icon={faPlus}/>
-    </button>
-  {/each}
+  <AttachmentsList attachments={attachments}
+      on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
 
-  <div class="attachments-list">
-    {#each attachments as attachment, index}
-      <div class="attachment-item">
-        {#await store.weClient.attachableInfo(hrlB64WithContextToRaw(attachment))}
-          <sl-button size="small" loading></sl-button>
-        {:then { attachableInfo }}
-          <sl-button  size="small"
-            on:click={()=>{
-                const hrlWithContext = hrlB64WithContextToRaw(attachment)
-                store.weClient.openHrl(hrlWithContext)
-              }}
-            style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={attachableInfo.icon_src} slot="prefix"></sl-icon>
-            {attachableInfo.name}
-          </sl-button> 
-          <sl-button size="small"
-            on:click={()=>{
-              removeAttachment(index)
-            }}
-          >
-            <Fa icon={faTrash} />
-          </sl-button>
-        {:catch error}
-          Oops. something's wrong.
-        {/await}
-      </div>
-    {/each}
-  </div>
-  <div style="margin-top:30px; display:flex; justify-content: space-between">
-    <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>addAttachment()} >          
-      <Fa icon={faPaperclip}/>
-    </sl-button>
-    <div>
-      <sl-button on:click={()=>close()} style="margin-left:10px">
-        Cancel
-      </sl-button>
-      <sl-button style="margin-left:10px" on:click={() => handleSave()} variant="primary">
-        Save
-      </sl-button>
-    </div>
-  </div>
+  <div>
+      <h3>Search for Attachment:</h3> 
+  </div> 
+  <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>addAttachment()} >
+        <Fa icon={faPaperclip}/>
+  </sl-button>
+
+  <Bind
+      activeBoard={activeBoard}
+      on:add-binding={(e)=>_addAttachment(e.detail)} 
+      />
+  
   {/if}
 </sl-dialog>
 
 <style>
-  .attachments-list {
-    margin-top:5px; 
-    display:flex;
-    flex-direction:row;
-    flex-wrap: wrap;
 
-  }
-  .attachment-item {
-    border:1px solid #aaa; 
-    background-color:rgba(0,255,0,.1); 
-    padding:4px;
-    display:flex;
-    margin-right:4px;
-    border-radius:4px;
-  }
 
   sl-dialog::part(panel) {
       background: #FFFFFF;

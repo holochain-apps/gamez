@@ -9,6 +9,7 @@ import {
     type EntryHashB64,
     type EntryHash,
     decodeHashFromBase64,
+    type DnaHash,
   } from '@holochain/client';
 import { SynStore,  SynClient} from '@holochain-syn/core';
 import type {  BoardState } from './board';
@@ -22,6 +23,7 @@ import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, j
 import type { ActionCommittedSignal } from '@holochain-open-dev/utils';
 import type { WeClient } from '@lightningrodlabs/we-applet';
 import { HoloHashMap } from '@holochain-open-dev/utils/dist/holo-hash-map';
+import { getMyDna } from './util';
 
 
 TimeAgo.addDefaultLocale(en)
@@ -103,6 +105,7 @@ export class GamezStore {
     defsList: AsyncReadable<BoardDefData[]>
     uiProps: Writable<UIProps> 
     unsub: Unsubscriber
+    dnaHash: DnaHash
 
     constructor(
         public weClient : WeClient,
@@ -116,6 +119,9 @@ export class GamezStore {
             this.roleName,
             this.zomeName
           );
+        getMyDna(roleName, clientIn).then(res=>{
+            this.dnaHash = res
+          })
         this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
 
         this.synStore = new SynStore(new SynClient(clientIn,this.roleName,"syn"))
