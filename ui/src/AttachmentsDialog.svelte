@@ -63,16 +63,16 @@
   <div class="attachments-list">
     {#each attachments as attachment, index}
       <div class="attachment-item">
-        {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
+        {#await store.weClient.attachableInfo(hrlB64WithContextToRaw(attachment))}
           <sl-button size="small" loading></sl-button>
-        {:then { entryInfo }}
+        {:then { attachableInfo }}
           <sl-button  size="small"
             on:click={()=>{
-                const hrl = hrlB64WithContextToRaw(attachment)
-                store.weClient.openHrl(hrl.hrl, hrl.context)
+                const hrlWithContext = hrlB64WithContextToRaw(attachment)
+                store.weClient.openHrl(hrlWithContext)
               }}
-            style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
-            {entryInfo.name}
+            style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={attachableInfo.icon_src} slot="prefix"></sl-icon>
+            {attachableInfo.name}
           </sl-button> 
           <sl-button size="small"
             on:click={()=>{

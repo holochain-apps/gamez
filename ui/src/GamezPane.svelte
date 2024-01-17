@@ -14,7 +14,6 @@
   import { isWeContext, type HrlB64WithContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
 
-
   const download = (filename: string, text: string) => {
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text));
@@ -203,6 +202,8 @@
   const isPlayer = (id: string) => {
     return id.startsWith("uhCA")
   }
+
+  let selectedCommitHash
 </script>
 <div class="board">
     <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
@@ -315,16 +316,16 @@
               <div class="attachments-list">
                 {#each attachments as attachment, index}
                   <div class="attachment-item">
-                    {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
+                    {#await store.weClient.attachableInfo(hrlB64WithContextToRaw(attachment))}
                       <sl-button size="small" loading></sl-button>
-                    {:then { entryInfo }}
+                    {:then { attachableInfo }}
                       <sl-button  size="small"
                         on:click={()=>{
-                            const hrl = hrlB64WithContextToRaw(attachment)
-                            store.weClient.openHrl(hrl.hrl, hrl.context)
+                            const hrlWithContext = hrlB64WithContextToRaw(attachment)
+                            store.weClient.openHrl(hrlWithContext)
                           }}
-                        style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
-                        {entryInfo.name}
+                        style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={attachableInfo.icon_src} slot="prefix"></sl-icon>
+                        {attachableInfo.name}
                       </sl-button> 
                       <sl-button size="small"
                         on:click={()=>{
@@ -403,7 +404,7 @@
             {/if}
           </div>
         {/each}
-        <img width={$state.props.bgMaxWidth} height={$state.props.bgMaxHeight} draggable={false} bind:this={img} src={bgUrl}
+        <img width={$state.props.bgWidth} height={$state.props.bgHeight} draggable={false} bind:this={img} src={bgUrl}
           
           style="padding:100px; background-color:lightgray; border:1px solid; flex: 1; object-fit: cover; overflow: hidden"
           on:drop={handleDragDrop}  
@@ -412,6 +413,13 @@
       </div>
 
     </div>
+    <commit-history
+          style="flex: 1"
+          selectedCommitHash={selectedCommitHash}
+          on:commit-selected={(e) => {
+            selectedCommitHash = e.detail.commitHash;
+          }}
+        ></commit-history>
   {/if}
 </div>
 <style>
@@ -504,7 +512,7 @@
     position: absolute;
     bottom: 0px;
     right: 0px;
-    z-index: 1000;
+    z-index: 10;
     font-size: 12px;
     font-weight: bold;
     color: blue;

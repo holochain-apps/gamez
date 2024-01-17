@@ -3,7 +3,7 @@
   import ControllerBoard from './ControllerBoard.svelte'
   import { AppAgentWebsocket, AdminWebsocket } from '@holochain/client';
   import '@shoelace-style/shoelace/dist/themes/light.css';
-  import { WeClient, isWeContext, initializeHotReload, type Hrl } from '@lightningrodlabs/we-applet';
+  import { WeClient, isWeContext, initializeHotReload, type Hrl, type HrlWithContext } from '@lightningrodlabs/we-applet';
   import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
   import "@holochain-open-dev/profiles/dist/elements/profile-prompt.js";
   import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
@@ -29,7 +29,7 @@
   }
 
   let renderType = RenderType.App
-  let hrl: Hrl
+  let hrlWithContext: HrlWithContext
 
   initialize()
 
@@ -71,7 +71,7 @@
                 default:
                   throw new Error("Unknown applet-view block type:"+weClient.renderInfo.view.block);
               }
-            case "entry":
+            case "attachable":
               switch (weClient.renderInfo.view.roleName) {
                 case "gamez":
                   switch (weClient.renderInfo.view.integrityZomeName) {
@@ -79,7 +79,7 @@
                       switch (weClient.renderInfo.view.entryType) {
                         case "document":
                           renderType = RenderType.Board
-                          hrl = weClient.renderInfo.view.hrl
+                          hrlWithContext = weClient.renderInfo.view.hrlWithContext
                           break;
                         default:
                           throw new Error("Unknown entry type:"+weClient.renderInfo.view.entryType);
@@ -143,7 +143,7 @@
       {#if renderType== RenderType.App}
         <Controller  client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></Controller>
       {:else if  renderType== RenderType.Board}
-        <ControllerBoard  board={hrl[1]} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerBoard>
+        <ControllerBoard  board={hrlWithContext.hrl[1]} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerBoard>
       {/if}
     {/if}
 
