@@ -11,14 +11,15 @@
   const dispatch = createEventDispatcher()
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
-
-
-  
+  let attachmentTypes = Array.from(store.weClient.attachmentTypes.entries())
+  export const refresh = () => {
+    attachmentTypes = Array.from(store.weClient.attachmentTypes.entries())
+  }  
 </script>
 
 <div>
     <h3>Create Attachment From:</h3>
-    {#each Array.from(store.weClient.attachmentTypes.entries()) as [hash, record]}
+    {#each attachmentTypes as [hash, record]}
         <div>
         {#await store.weClient.appletInfo(hash)}
         ...

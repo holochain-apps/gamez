@@ -28,10 +28,12 @@
     } else {
       attachments = activeBoard.state().props.attachments
     }
+    bind.refresh()
     dialog.show()
   }
   let dialog
   $: attachments
+  let bind
 
   function removeAttachment(index: number) {
     attachments.splice(index, 1);
@@ -80,6 +82,7 @@
   </sl-button>
 
   <Bind
+      bind:this = {bind}
       activeBoard={activeBoard}
       on:add-binding={(e)=>_addAttachment(e.detail)} 
       />
