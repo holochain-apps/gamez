@@ -408,3 +408,24 @@ export const CHESS : BoardState =
         }
     },
 }
+
+export const WORLD: BoardState = {
+    "boundTo": [],
+    "max_players": 99,
+    "min_players": 1,
+    "name": "World: Zippy- 1/18/2024",
+    "pieceDefs": [],
+    "playerPieces": true,
+    "props": {
+        "attachments": [],
+        "bgHeight": "",
+        "bgUrl": "https://h5pstudio.ecampusontario.ca/sites/default/files/h5p/content/9451/images/image-5f6645b4ef14e.jpg",
+        "bgWidth": "1500",
+        "pieces": {},
+        "players": [
+        ],
+        "turn": 0
+    },
+    "status": "",
+    "turns": false
+}

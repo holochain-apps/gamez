@@ -6,7 +6,6 @@ import {
     type AgentPubKey,
     type ActionHash,
     type Link,
-    type EntryHashB64,
     type EntryHash,
     decodeHashFromBase64,
     type DnaHash,
@@ -16,7 +15,7 @@ import type {  BoardState } from './board';
 import { BoardList } from './boardList';
 import TimeAgo from "javascript-time-ago"
 import en from 'javascript-time-ago/locale/en'
-import { CHESS, GO } from './defaultGames';
+import { CHESS, GO, WORLD } from './defaultGames';
 import type { ProfilesStore } from '@holochain-open-dev/profiles';
 import { EntryRecord, LazyHoloHashMap, ZomeClient } from '@holochain-open-dev/utils';
 import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, joinAsync, sliceAndJoin, asyncDerived, type Writable, writable, get, type Unsubscriber } from '@holochain-open-dev/stores';
@@ -201,7 +200,9 @@ export class GamezStore {
                 break;
             case "Go" :
                 board = GO
-
+                break;
+            case "World":
+                board = WORLD
                 break;
         }
         if (board) {

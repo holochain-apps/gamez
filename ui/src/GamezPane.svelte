@@ -205,6 +205,14 @@
   <div class="top-bar">
     <div class="left-items">
       <h5>{$state.name}</h5>
+      {#if store.weClient}
+        {#if $state.boundTo.length>0}
+          <div style="margin-left:20px;display:flex; align-items: center">
+            Bound To:
+            <AttachmentsList allowDelete={false} attachments={$state.boundTo} />
+          </div>
+        {/if}
+      {/if}
     </div>
     <div class="right-items">
       Watching:
@@ -298,11 +306,11 @@
         {/if}
         {#if store.weClient}
           <div class="attachments-area">
-            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>attachmentsDialog.open()} >          
+            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>attachmentsDialog.open(undefined)} >
               <Fa icon={faPaperclip}/>
             </sl-button>
             {#if attachments}
-              <AttachmentsList attachments={attachments}
+              <AttachmentsList attachments={attachments} allowDelete={false}
               on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
             {/if}
              
@@ -457,6 +465,7 @@
     display:flex;
     flex-direction:row;
     margin-left:20px;
+    align-items: center;
   }
   .piece-has-attachment {
     position: absolute;

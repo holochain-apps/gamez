@@ -40,7 +40,7 @@
   export let profilesStore: ProfilesStore;
   export let weClient : WeClient
 
-  let DEFAULT_GAMES = ["Chess", "Go"];
+  let DEFAULT_GAMES = ["Chess", "Go", "World"];
   let store: GamezStore = new GamezStore(
     weClient,
     profilesStore,
