@@ -6,7 +6,7 @@
   import type { AppAgentClient, EntryHash } from "@holochain/client";
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
   import {
     faCog,
     faFileImport,
@@ -178,14 +178,14 @@
                     on:click={() => newBoardDialog.open()}
                     style=""
                     title="New Game"
-                    >New <Fa icon={faSquarePlus} size="1x" /></sl-button
+                    >New <SvgIcon icon=faSquarePlus size="16" /></sl-button
                   >
                   <sl-button
                     on:click={() => {
                       fileinput.click();
                     }}
                     title="Import Game"
-                    >Import <Fa icon={faFileImport} size="1x" /></sl-button
+                    >Import <SvgIcon icon=faFileImport size="16" /></sl-button
                   >
                   {#if $defsList.status == "complete"}
                     {@const names = $defsList.value.map(def => def.board.name)}
@@ -196,7 +196,7 @@
                             store.addDefaultGames(g);
                           }}
                           title={g}
-                          >{g} <Fa icon={faSquarePlus} size="1x" /></sl-button
+                          >{g} <SvgIcon icon=faSquarePlus size="16" /></sl-button
                         >
                       {/if}
                     {/each}

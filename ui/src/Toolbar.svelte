@@ -3,8 +3,7 @@
   import Folk from "./Folk.svelte";
   import AboutDialog from "./AboutDialog.svelte";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
-  import { faBug } from "@fortawesome/free-solid-svg-icons";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
   import type { GamezStore } from './store';
   import { getContext } from "svelte";
   const { getStore } :any = getContext('gzStore');
@@ -22,7 +21,7 @@
   <div class="right-items">
     <Folk></Folk>
     <a href="https://github.com/holochain-apps/gamez/issues" title="Report a problem in our GitHub repo" target="_blank">
-      <div class="nav-button"><Fa icon={faBug} size=2x style={bugColor} /></div>
+      <div class="nav-button"><SvgIcon icon=faBug size=16 /></div>
     </a>
   </div>
 </div>

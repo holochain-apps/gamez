@@ -3,7 +3,7 @@
   import { createEventDispatcher, getContext } from "svelte";
   import type { GamezStore } from "./store";
   import { faTrash } from "@fortawesome/free-solid-svg-icons";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
   import { hrlB64WithContextToRaw } from "./util";
   import type { HrlB64WithContext } from "@lightningrodlabs/we-applet";
 
@@ -39,7 +39,7 @@
               dispatch("remove-attachment",index)
             }}
           >
-            <Fa icon={faTrash} />
+            <SvgIcon icon=faTrash />
           </sl-button>
         {/if}
       {:catch error}

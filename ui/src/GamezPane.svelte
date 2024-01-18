@@ -7,11 +7,10 @@
   import AttachmentsDialog from "./AttachmentsDialog.svelte"
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
-  import Fa from "svelte-fa";
-  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip } from "@fortawesome/free-solid-svg-icons";
+  import SvgIcon from "./SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
-  import { isWeContext, type HrlB64WithContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
+  import { isWeContext } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
   import AttachmentsList from "./AttachmentsList.svelte";
 
@@ -208,7 +207,7 @@
       {#if store.weClient}
         {#if $state.boundTo.length>0}
           <div style="margin-left:20px;display:flex; align-items: center">
-            Bound To:
+            <span style="margin-right: 5px;">Bound To:</span>
             <AttachmentsList allowDelete={false} attachments={$state.boundTo} />
           </div>
         {/if}
@@ -234,18 +233,18 @@
 
     {#if !standAlone}
       <sl-button circle on:click={leaveBoard} title="Leave">
-        <Fa icon={faArrowTurnDown} />
+        <SvgIcon size=12 icon=faArrowTurnDown />
       </sl-button>
     {/if}
       <sl-button circle on:click={()=> editBoardDialog.open(cloneDeep($activeHash))} title="Settings">
-        <Fa icon={faCog} size="1x"/>
+        <SvgIcon icon=faCog size=12/>
       </sl-button>
       <sl-button circle on:click={() => exportBoard($state)} title="Export">
-        <Fa icon={faFileExport} />
+        <SvgIcon icon=faFileExport size=12 />
       </sl-button>
     {#if !standAlone}
       <sl-button circle on:click={closeBoard} title="Close">
-        <Fa icon={faClose} />
+        <SvgIcon icon=faClose size=12 />
       </sl-button>
     {/if}
     </div>
@@ -307,7 +306,7 @@
         {#if store.weClient}
           <div class="attachments-area">
             <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>attachmentsDialog.open(undefined)} >
-              <Fa icon={faPaperclip}/>
+              <SvgIcon icon=link/>
             </sl-button>
             {#if attachments}
               <AttachmentsList attachments={attachments} allowDelete={false}
@@ -404,7 +403,7 @@
     border-top: 15px solid #f00;
   }
   .board-area {
-    margin:auto;
+    justify-content:center;
     margin-top: 10px;
     display: flex;
     overflow:auto;

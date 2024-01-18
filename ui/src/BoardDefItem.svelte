@@ -3,7 +3,7 @@
   import type { GamezStore } from "./store";
   import type { EntryHash } from "@holochain/client";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
   import { faCog } from "@fortawesome/free-solid-svg-icons";
 
   const dispatch = createEventDispatcher()
@@ -29,7 +29,7 @@
         style="max-width:100px;margin-right:10px"
         on:click={dispatch("settings", boardData)}
       >
-        <Fa icon={faCog} />
+        <SvgIcon icon=faCog size=16 />
       </sl-button>
 
     {:else if $def.status == "pending"}

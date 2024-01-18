@@ -4,8 +4,7 @@
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { faUser } from "@fortawesome/free-solid-svg-icons";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
 
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
@@ -36,7 +35,7 @@
 
         {#if showAvatar}
             {#if placeholder && !$profile.value.entry.fields.avatar}
-                <Fa icon={faUser} size=2x style="margin-left:5px;margin-right:5px"></Fa>
+                <SvgIcon icon=faUser size={`${size}`} style="margin-left:5px;margin-right:5px"/>
             {:else}
                 <agent-avatar class:disable-ptr-events={disableAvatarPointerEvents} disable-tooltip={true} disable-copy={true} size={size} agent-pub-key="{agentPubKeyB64}"></agent-avatar>
             {/if}

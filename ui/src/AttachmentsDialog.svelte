@@ -5,8 +5,7 @@
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
   import { hrlWithContextToB64} from "./util";
-  import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
   import AttachmentsList from "./AttachmentsList.svelte";
@@ -69,16 +68,16 @@
   }
 </script>
 
-<sl-dialog label={piece? "Piece Attachments":"Board Attachments"} bind:this={dialog}>
+<sl-dialog label={piece? "Piece Links":"Board Links"} bind:this={dialog}>
   {#if isWeContext()}
   <AttachmentsList attachments={attachments}
       on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
 
   <div>
-      <h3>Search for Attachment:</h3> 
+      <h3>Search Linkables:</h3> 
   </div> 
   <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>addAttachment()} >
-        <Fa icon={faPaperclip}/>
+        <SvgIcon icon=link size=16/>
   </sl-button>
 
   <Bind

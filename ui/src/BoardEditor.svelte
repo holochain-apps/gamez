@@ -9,8 +9,7 @@
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import '@shoelace-style/shoelace/dist/components/input/input.js';
     import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
-    import Fa from 'svelte-fa'
-    import { faPlus, faGripVertical, faTrash} from '@fortawesome/free-solid-svg-icons';
+    import SvgIcon from './SvgIcon.svelte';
     import { cloneDeep } from "lodash";
 
     // import type { GamezStore } from './store';
@@ -126,7 +125,7 @@
         Pieces:
 
         <sl-button circle size="small"  on:click={() => addPieceDef()}>
-          <Fa icon={faPlus}/>
+          <SvgIcon size=12 icon=faPlus/>
         </sl-button>
       </div>
       <sl-dialog label="Choose Emoji" bind:this={emojiDialog}>
@@ -148,7 +147,7 @@
         itemClass="unselectable"
         >
         <div class="piece-def">
-          <div class="grip" ><Fa icon={faGripVertical}/></div>
+          <div class="grip" ><SvgIcon size=12 icon=faGripVertical/></div>
           <div style="display:flex; flex-direction:column; ">
             <div style="display:flex; flex-direction:row; align-items:flex-end;">
               <sl-select
@@ -182,7 +181,7 @@
             </div>
           </div>
           <sl-button style="margin-left:25px" size="small"  on:click={deletePieceDef(index)} >
-            <Fa icon={faTrash}/>
+            <SvgIcon size=12 icon=faTrash/>
           </sl-button>
     </div>
       </DragDropList> 

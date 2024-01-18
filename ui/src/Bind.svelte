@@ -2,7 +2,7 @@
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import { createEventDispatcher, getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
   import type { Board } from "./board";
   import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
@@ -34,7 +34,7 @@
             const hrl = await aType.create({hrl:[store.dnaHash,activeBoard.hash],context:""})
             dispatch("add-binding",hrl)
             }} >          
-            <Fa icon={faPlus}/>
+            <SvgIcon icon=faPlus  size=16/>
         </button>
         {/each}
         </div>
