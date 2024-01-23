@@ -46,7 +46,6 @@ export class BoardList {
                 if (this.weClient) {
                     board.workspace.tip.subscribe((tip)=>{
                         if (tip.status=="complete") {
-                            console.log("FISH")
                             const tipRecord = tip.value
                             const tipB64 = encodeHashToBase64(tipRecord.entryHash)
                             const key = `${SeenType.Tip}:${board.hashB64}`

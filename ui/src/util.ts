@@ -9,11 +9,18 @@ export function hrlWithContextToB64(hrl: HrlWithContext): HrlB64WithContext {
 }
   
 export function hrlB64WithContextToRaw(hrlB64: HrlB64WithContext): HrlWithContext {
+  let context: any
+  try {
+    context = JSON.parse(hrlB64.context)
+  } catch (e) {
+
+  }
   return {
     hrl: [decodeHashFromBase64(hrlB64.hrl[0]), decodeHashFromBase64(hrlB64.hrl[1])],
-    context: JSON.parse(hrlB64.context),
+    context,
   };
 }
+
 
 export const hashEqual = (a:EntryHash, b:EntryHash) : boolean => {
   if (!a || !b) {
