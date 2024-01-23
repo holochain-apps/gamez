@@ -124,7 +124,7 @@ export class GamezStore {
         this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
 
         this.synStore = new SynStore(new SynClient(clientIn,this.roleName,"syn"))
-        this.boardList = new BoardList(profilesStore, this.synStore) 
+        this.boardList = new BoardList(profilesStore, this.synStore, weClient) 
         this.defLinks = collectionStore(
             this.client,
             () => this.client.getBoardDefs(),

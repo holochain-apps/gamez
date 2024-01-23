@@ -1,4 +1,10 @@
-import { PieceType, type BoardState } from "./board";
+import type { BoardState } from "./board";
+
+enum PieceType {
+    Emoji,
+    Image,
+  }
+  
 export const GO: BoardState = 
 {
     "name": "Go",
