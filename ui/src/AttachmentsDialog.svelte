@@ -9,7 +9,7 @@
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
   import AttachmentsList from "./AttachmentsList.svelte";
-  import Bind from "./Bind.svelte";
+  import AttachmentsBind from "./AttachmentsBind.svelte";
 
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
@@ -80,7 +80,7 @@
         <SvgIcon icon=link size=16/>
   </sl-button>
 
-  <Bind
+  <AttachmentsBind
       bind:this = {bind}
       activeBoard={activeBoard}
       on:add-binding={(e)=>_addAttachment(e.detail)} 

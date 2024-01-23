@@ -1,11 +1,11 @@
 import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
-import { Board, type BoardEphemeralState, type BoardState } from './board';
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
 import { BoardType } from './boardList';
 import { LazyHoloHashMap } from '@holochain-open-dev/utils';
 import type { AppletHash, AppletServices, AttachableInfo, Hrl, HrlWithContext, WeServices } from '@lightningrodlabs/we-applet';
 import type { AppAgentClient, RoleName, ZomeName } from '@holochain/client';
 import { getMyDna, hrlWithContextToB64 } from './util';
+import type { BoardEphemeralState, BoardState } from './board';
 
 const ROLE_NAME = "gamez"
 const ZOME_NAME = "syn"
@@ -19,19 +19,20 @@ export const appletServices: AppletServices = {
       appletHash: AppletHash,
       weServices: WeServices
     ) => ({
-      board: {
-        label: "Board",
-        icon_src: `data:image/svg+xml;charset=utf-8,${ICON}`,
-        async create(attachToHrlWithContext: HrlWithContext) {
-          const synStore = new SynStore(new SynClient(appletClient, ROLE_NAME));
-          const board = await Board.Create(synStore,{boundTo:[hrlWithContextToB64(attachToHrlWithContext)]})
-          const dnaHash = await getMyDna(ROLE_NAME, appletClient)
-          return {
-            hrl: [dnaHash, board.hash],
-            context: {},
-          };
-        },
-      },
+      // No way to specify the context so we can't create a board.
+      // board: {
+      //   label: "Board",
+      //   icon_src: `data:image/svg+xml;charset=utf-8,${ICON}`,
+      //   async create(attachToHrlWithContext: HrlWithContext) {
+      //     const synStore = new SynStore(new SynClient(appletClient, ROLE_NAME));
+      //     const board = await Board.Create(synStore,{boundTo:[hrlWithContextToB64(attachToHrlWithContext)]})
+      //     const dnaHash = await getMyDna(ROLE_NAME, appletClient)
+      //     return {
+      //       hrl: [dnaHash, board.hash],
+      //       context: {},
+      //     };
+      //   },
+      // },
     }),
     // Types of UI widgets/blocks that this Applet supports
     blockTypes: {},

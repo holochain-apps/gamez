@@ -7,11 +7,6 @@
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
   import SvgIcon from "./SvgIcon.svelte";
-  import {
-    faCog,
-    faFileImport,
-    faSquarePlus,
-  } from "@fortawesome/free-solid-svg-icons";
   import { cloneDeep } from "lodash";
   import NewBoardDialog from "./NewBoardDialog.svelte";
   import EditGameTypeDialog from "./EditGameTypeDialog.svelte";

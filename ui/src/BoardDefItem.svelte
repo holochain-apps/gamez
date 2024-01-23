@@ -4,7 +4,6 @@
   import type { EntryHash } from "@holochain/client";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import SvgIcon from "./SvgIcon.svelte";
-  import { faCog } from "@fortawesome/free-solid-svg-icons";
 
   const dispatch = createEventDispatcher()
   const { getStore } :any = getContext("gzStore");

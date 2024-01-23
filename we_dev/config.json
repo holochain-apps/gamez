@@ -54,7 +54,7 @@
     "applets": [
       {
         "name": "Gamez Hot Reload",
-        "subtitle": "Real-tiem stickies boards",
+        "subtitle": "Real-time stickies boards",
         "description": "Let's do it!",
         "icon": {
           "type": "filesystem",
@@ -76,7 +76,7 @@
         },
         "source": {
           "type": "https",
-          "url": "https://github.com/lightningrodlabs/notebooks/releases/download/v0.0.13/notebooks.webhapp"
+          "url": "https://github.com/lightningrodlabs/notebooks/releases/download/v0.0.14/notebooks.webhapp"
         }
       },
       {
@@ -89,7 +89,7 @@
         },
         "source": {
           "type": "https",
-          "url": "https://github.com/holochain-apps/kando/releases/download/v0.8.12/kando.webhapp"
+          "url": "https://github.com/holochain-apps/kando/releases/download/v0.8.16/kando.webhapp"
         }
       }
     ]

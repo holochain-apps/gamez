@@ -2,7 +2,6 @@
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import { createEventDispatcher, getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { faTrash } from "@fortawesome/free-solid-svg-icons";
   import SvgIcon from "./SvgIcon.svelte";
   import { hrlB64WithContextToRaw } from "./util";
   import type { HrlB64WithContext } from "@lightningrodlabs/we-applet";
@@ -26,7 +25,8 @@
         <sl-button size="small" loading></sl-button>
       {:then { attachableInfo }}
         <sl-button  size="small"
-          on:click={()=>{
+          on:click={(e)=>{
+              e.stopPropagation()
               const hrlWithContext = hrlB64WithContextToRaw(attachment)
               store.weClient.openHrl(hrlWithContext)
             }}
@@ -39,7 +39,7 @@
               dispatch("remove-attachment",index)
             }}
           >
-            <SvgIcon icon=faTrash />
+            <SvgIcon icon=faTrash size=12 />
           </sl-button>
         {/if}
       {:catch error}
