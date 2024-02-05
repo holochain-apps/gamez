@@ -243,20 +243,6 @@ export class Board {
        );
 
     const me = new Board(documentStore, workspaceStore);
-    await me.join()
-    if (initState !== undefined) {
-      let changes : BoardDelta[] = [{
-          type: "set-state",
-          state: initState
-          },
-      ]
-      if (changes.length > 0) {
-          me.requestChanges(changes)
-          await me.session.commitChanges()
-      }
-    }
-
-    await me.session.commitChanges()
     return me
   }
 

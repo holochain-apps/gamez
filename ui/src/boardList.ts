@@ -45,7 +45,7 @@ export class BoardList {
                 // TODO: fix once we know if our applet is in front or not.
                 if (this.weClient) {
                     board.workspace.tip.subscribe((tip)=>{
-                        if (tip.status=="complete") {
+                        if (tip.status=="complete" && tip.value) {
                             const tipRecord = tip.value
                             const tipB64 = encodeHashToBase64(tipRecord.entryHash)
                             const key = `${SeenType.Tip}:${board.hashB64}`
@@ -75,7 +75,7 @@ export class BoardList {
         const tip = pipe(board,
             board => board.workspace.tip
             )
-        return alwaysSubscribed(pipe(joinAsync([board, latestState, tip]), ([board, latestState, tip]) => {return {board,latestState, tip: tip.entryHash}}))
+        return alwaysSubscribed(pipe(joinAsync([board, latestState, tip]), ([board, latestState, tip]) => {return {board,latestState, tip: tip ? tip.entryHash: undefined}}))
     })
 
     agentBoardHashes: LazyHoloHashMap<AgentPubKey, AsyncReadable<Array<BoardAndLatestState>>> = new LazyHoloHashMap(agent =>

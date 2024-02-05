@@ -144,7 +144,7 @@ export class GamezStore {
             }
             if (board != undefined) {
                 this.unsub = board.workspace.tip.subscribe((tip)=>{
-                    if (tip.status == "complete") {
+                    if (tip.status == "complete" && tip.value) {
                         this.updateSeenTip(board.hash, tip.value.entryHash)
                     }
                 })

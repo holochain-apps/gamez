@@ -142,6 +142,8 @@
                             const board = await store.boardList.makeBoard(
                               state
                             );
+                            await board.join()        
+
                             store.boardList.setActiveBoard(board.hash)
                           }
                         }
