@@ -10,7 +10,7 @@
   import SvgIcon from "./SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
-  import { isWeContext } from "@lightningrodlabs/we-applet";
+  import { isWeContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
   import AttachmentsList from "./AttachmentsList.svelte";
 
@@ -196,6 +196,10 @@
   const isPlayer = (id: string) => {
     return id.startsWith("uhCA")
   }
+  const copyHrlToClipboard = () => {
+    const attachment: HrlWithContext = { hrl: [store.dnaHash, activeBoard.hash], context: {} }
+    store.weClient?.hrlToClipboard(attachment)
+  }
 
   let selectedCommitHash
 </script>
@@ -205,6 +209,10 @@
     <div class="left-items">
       <h5>{$state.name}</h5>
       {#if store.weClient}
+        <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyHrlToClipboard()} >          
+          <SvgIcon icon="addToPocket" size="20px"/>
+        </sl-button>
+
         {#if $state.boundTo.length>0}
           <div style="margin-left:20px;display:flex; align-items: center">
             <span style="margin-right: 5px;">Bound To:</span>
@@ -214,7 +222,7 @@
       {/if}
     </div>
     <div class="right-items">
-      Watching:
+      In the room:
       {#if $participants}
       <div class="participants" style="margin-right:20px">
         <div style="display:flex; flex-direction: row">
@@ -232,15 +240,15 @@
     {/if}
 
     {#if !standAlone}
-      <sl-button circle on:click={leaveBoard} title="Leave">
-        <SvgIcon size=12 icon=faArrowTurnDown />
+      <sl-button circle on:click={leaveBoard} title="Exit Game Room">
+        <SvgIcon size=18 icon=exit />
       </sl-button>
     {/if}
       <sl-button circle on:click={()=> editBoardDialog.open(cloneDeep($activeHash))} title="Settings">
-        <SvgIcon icon=faCog size=12/>
+        <SvgIcon icon=faCog size=15/>
       </sl-button>
       <sl-button circle on:click={() => exportBoard($state)} title="Export">
-        <SvgIcon icon=faFileExport size=12 />
+        <SvgIcon icon=faFileExport size=15 />
       </sl-button>
     {#if !standAlone}
       <sl-button circle on:click={closeBoard} title="Close">
@@ -251,9 +259,7 @@
   </div>
   {#if $state}
     {#if $state.min_players}
-      <div style="display:flex;justify-content:center;align-items:center">
-
-
+      <div class="board-header">
         <h3>Players:</h3>
         <div style="display:flex; align-items:end; margin-left: 10px;">
           {#each $state.props.players as player, index}
@@ -279,7 +285,7 @@
           </sl-button>
         {/if}
         {#if $state.props.players.length < $state.min_players}
-          Waiting for {$state.min_players- $state.props.players.length} player{$state.min_players- $state.props.players.length>1?"s":""} to join
+          <span style="margin-left:10px">Waiting for {$state.min_players- $state.props.players.length} player{$state.min_players- $state.props.players.length>1?"s":""} to join</span>
         {:else if myTurn($state)}
           <sl-button style="margin-left: 30px"
             on:click={()=>{
@@ -292,7 +298,7 @@
           </sl-button>
         {/if}
         {#if haveJoined($state)}
-          <sl-button style="margin-left:20px"
+          <sl-button style="margin-left:10px"
             on:click={()=>{
               activeBoard.requestChanges( [{ 
               type: "remove-player", 
@@ -440,6 +446,7 @@
     margin-top: 15px;
     min-height: 0;
     padding-bottom: 10px;
+    border: solid 1px lightgray;
   }
   .top-bar {
     display: flex;
@@ -460,7 +467,16 @@
     display: flex;
     align-items: center;
   }
+  .board-header {
+    display:flex;
+    justify-content:center;
+    align-items:center; 
+    border-bottom: solid 1px lightgray;
+  }
   .attachments-area {
+    border-left: solid 1px lightgray;
+    padding-left: 10px;
+    padding-bottom: 5px;
     display:flex;
     flex-direction:row;
     margin-left:20px;
