@@ -343,7 +343,7 @@
         {#if $state.playerPieces}
           {#each $state.props.players as player, index}
               
-            <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px"
+            <div class="piece-def"
               id={player}
               draggable={iCanPlay}
               class:draggable={iCanPlay}
