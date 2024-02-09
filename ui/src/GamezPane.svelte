@@ -495,4 +495,7 @@
     border-radius: 5px;
     background-color: rgba(0,255,0,.5);
   }
+  .idle {
+    opacity: 0.5;
+  }
 </style>
