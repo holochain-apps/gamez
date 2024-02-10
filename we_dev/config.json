@@ -5,7 +5,7 @@
         "networkSeed": "098rc1m-09384u-crm-29384u-cmkj",
         "icon": {
           "type": "filesystem",
-          "path": "/home/eric/code/metacurrency/holochain/gamez/we_dev/lrl-icon.png"
+          "path": "./we_dev/lrl-icon.png"
         },
         "creatingAgent": {
           "agentNum": 1,
@@ -13,7 +13,7 @@
             "nickname": "Zippy",
             "avatar": {
               "type": "filesystem",
-              "path": "/home/eric/code/metacurrency/holochain/gamez/we_dev/zippy.jpg"
+              "path": "./we_dev/zippy.jpg"
             }
           }
         },
@@ -57,12 +57,12 @@
         "subtitle": "Real-time game boards!",
         "description": "Let's play!",
         "icon": {
-          "type": "https",
-          "url": "https://raw.githubusercontent.com/holochain-apps/gamez/main/we_dev/gamez_icon.svg"
+          "type": "filesystem",
+          "path": "./we_dev/gamez_icon.svg"
         },
         "source": {
           "type": "localhost",
-          "happPath": "/home/eric/code/metacurrency/holochain/gamez/workdir/gamez.happ",
+          "happPath": "./workdir/gamez.happ",
           "uiPort": 8888
         }
       },
@@ -84,8 +84,8 @@
         "subtitle": "kanban boards",
         "description": "Real-time kanban boards based on syn",
         "icon": {
-          "type": "filesystem",
-          "path": "/home/eric/code/metacurrency/holochain/kando/we_dev/kando_icon.png"
+          "type": "https",
+          "url": "https://raw.githubusercontent.com/holochain-apps/kando/main/we_dev/kando_icon.png"
         },
         "source": {
           "type": "https",
