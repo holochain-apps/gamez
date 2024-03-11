@@ -1,5 +1,6 @@
 <script lang="ts">
   import Controller from './Controller.svelte'
+  import ControllerCreate from './ControllerCreate.svelte'
   import ControllerBoard from './ControllerBoard.svelte'
   import { AppAgentWebsocket, AdminWebsocket } from '@holochain/client';
   import '@shoelace-style/shoelace/dist/themes/light.css';
@@ -23,9 +24,11 @@
 
   let connected = false
 
+  let createView
   enum RenderType {
     App,
-    Board
+    Board,
+    CreateBoard,
   }
 
   let renderType = RenderType.App
@@ -93,6 +96,13 @@
                   throw new Error("Unknown role name:"+weClient.renderInfo.view.roleName);
               }
               break;
+            case "creatable":
+              switch (weClient.renderInfo.view.name) {
+                case "game":
+                  renderType = RenderType.CreateBoard
+                  createView = weClient.renderInfo.view
+              }              
+              break;
             default:
               throw new Error("Unsupported applet-view type");
           }
@@ -140,7 +150,9 @@
         ></create-profile>
       </div>
     {:else}
-      {#if renderType== RenderType.App}
+      {#if renderType== RenderType.CreateBoard}
+        <ControllerCreate  view={createView} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerCreate>
+      {:else if renderType== RenderType.App}
         <Controller  client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></Controller>
       {:else if  renderType== RenderType.Board}
         <ControllerBoard  board={hrlWithContext.hrl[1]} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerBoard>
