@@ -2,7 +2,7 @@
     import BoardEditor from './BoardEditor.svelte';
     import type { GamezStore } from './store';
     import { getContext } from 'svelte';
-    import type { BoardProps, PieceDef } from './board';
+    import type { BoardProps, BoardState, PieceDef } from './board';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
@@ -15,7 +15,8 @@
     const store:GamezStore = getStore();
 
     const addBoard = async (name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number, turns: boolean, playerPieces:boolean) => {
-        const result = await store.makeGameType({status:"", max_players:maxPlayers, min_players:minPlayers, turns, name, pieceDefs, props, playerPieces})
+        const state:BoardState = {status:"", max_players:maxPlayers, min_players:minPlayers, turns, name, pieceDefs, props, playerPieces, boundTo:[]}
+        const result = await store.makeGameType(state)
         dialog.hide()
     }
     export const open = ()=> {

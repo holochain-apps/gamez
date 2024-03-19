@@ -1,18 +1,18 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { type BoardState, PieceDef, PieceType, Board, boardGrammar} from "./board";
+  import { type BoardState, PieceDef, PieceType, Board, type Piece} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
   import Avatar from "./Avatar.svelte"
+  import AttachmentsDialog from "./AttachmentsDialog.svelte"
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
-  import Fa from "svelte-fa";
-  import { faArrowTurnDown, faClose, faCog, faFileExport, faPaperclip, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+  import SvgIcon from "./SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
-  import type { HrlB64WithContext, HrlWithContext, WeClient } from "@lightningrodlabs/we-applet";
+  import { isWeContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
-
+  import AttachmentsList from "./AttachmentsList.svelte";
 
   const download = (filename: string, text: string) => {
     var element = document.createElement('a');
@@ -69,6 +69,12 @@
   let dragOffsetX, dragOffsetY
   let dragType
 
+  let attachmentsDialog : AttachmentsDialog
+  function editPieceAttachments(piece: Piece) {
+    if (isWeContext())  
+      attachmentsDialog.open(piece)
+  }
+
   function handleDragStartAdd(e) {
     dragType = "add"
     handleDragStart(e)
@@ -120,7 +126,7 @@
     else {
       let pieceWidth
       console.log("Drop", draggedItemId)
-      if (draggedItemId.startsWith("uhCA")) {
+      if (isPlayer(draggedItemId)) {
         pieceWidth=30
       } else {
         const def = pieceDefs[draggedItemId]
@@ -132,7 +138,7 @@
         type: "add-piece", 
         pieceType: draggedItemId,
         imageIdx: 0,
-        x,y
+        x,y,attachments:[]
       }]);
     }
     clearDrag()
@@ -165,12 +171,6 @@
   }
   $: iCanPlay = canPlay($state)
 
-  function hrlB64WithContextToRaw(hrlB64: HrlB64WithContext): HrlWithContext {
-    return {
-      hrl: [decodeHashFromBase64(hrlB64.hrl[0]), decodeHashFromBase64(hrlB64.hrl[1])],
-      context: hrlB64.context,
-    };
-  }
   const addAttachment = async () => {
     const hrl = await store.weClient.userSelectHrl()
     if (hrl) {
@@ -187,15 +187,42 @@
     props.attachments.splice(index, 1);
     activeBoard.requestChanges([{type: 'set-props', props }])
   }
+  const pieceName = (piece: Piece) => {
+    if (isPlayer(piece.typeId)) {
+      return "player"
+    }
+    return pieceDefs[piece.typeId].name
+  }
+  const isPlayer = (id: string) => {
+    return id.startsWith("uhCA")
+  }
+  const copyHrlToClipboard = () => {
+    const attachment: HrlWithContext = { hrl: [store.dnaHash, activeBoard.hash], context: {} }
+    store.weClient?.hrlToClipboard(attachment)
+  }
+
+  let selectedCommitHash
 </script>
 <div class="board">
     <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
   <div class="top-bar">
     <div class="left-items">
       <h5>{$state.name}</h5>
+      {#if store.weClient}
+        <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyHrlToClipboard()} >          
+          <SvgIcon icon="addToPocket" size="20px"/>
+        </sl-button>
+
+        {#if $state.boundTo.length>0}
+          <div style="margin-left:20px;display:flex; align-items: center">
+            <span style="margin-right: 5px;">Bound To:</span>
+            <AttachmentsList allowDelete={false} attachments={$state.boundTo} />
+          </div>
+        {/if}
+      {/if}
     </div>
     <div class="right-items">
-      Watching:
+      In the room:
       {#if $participants}
       <div class="participants" style="margin-right:20px">
         <div style="display:flex; flex-direction: row">
@@ -213,26 +240,26 @@
     {/if}
 
     {#if !standAlone}
-      <sl-button circle on:click={leaveBoard} title="Leave">
-        <Fa icon={faArrowTurnDown} />
+      <sl-button circle on:click={leaveBoard} title="Exit Game Room">
+        <SvgIcon size=18 icon=exit />
       </sl-button>
+    {/if}
       <sl-button circle on:click={()=> editBoardDialog.open(cloneDeep($activeHash))} title="Settings">
-        <Fa icon={faCog} size="1x"/>
+        <SvgIcon icon=faCog size=15/>
       </sl-button>
       <sl-button circle on:click={() => exportBoard($state)} title="Export">
-        <Fa icon={faFileExport} />
+        <SvgIcon icon=faFileExport size=15 />
       </sl-button>
+    {#if !standAlone}
       <sl-button circle on:click={closeBoard} title="Close">
-        <Fa icon={faClose} />
+        <SvgIcon icon=faClose size=12 />
       </sl-button>
     {/if}
     </div>
   </div>
   {#if $state}
     {#if $state.min_players}
-      <div style="display:flex;justify-content:center;align-items:center">
-
-
+      <div class="board-header">
         <h3>Players:</h3>
         <div style="display:flex; align-items:end; margin-left: 10px;">
           {#each $state.props.players as player, index}
@@ -257,7 +284,9 @@
           Join Game
           </sl-button>
         {/if}
-        {#if myTurn($state)}
+        {#if $state.props.players.length < $state.min_players}
+          <span style="margin-left:10px">Waiting for {$state.min_players- $state.props.players.length} player{$state.min_players- $state.props.players.length>1?"s":""} to join</span>
+        {:else if myTurn($state)}
           <sl-button style="margin-left: 30px"
             on:click={()=>{
               activeBoard.requestChanges( [{ 
@@ -269,7 +298,7 @@
           </sl-button>
         {/if}
         {#if haveJoined($state)}
-          <sl-button style="margin-left:20px"
+          <sl-button style="margin-left:10px"
             on:click={()=>{
               activeBoard.requestChanges( [{ 
               type: "remove-player", 
@@ -282,46 +311,14 @@
         {/if}
         {#if store.weClient}
           <div class="attachments-area">
-            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>addAttachment()} >          
-              <Fa icon={faPaperclip}/>
+            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>attachmentsDialog.open(undefined)} >
+              <SvgIcon icon=link/>
             </sl-button>
-            <!-- {JSON.stringify(store.weClient.attachmentTypes)} -->
-            {#each Array.from(store.weClient.attachmentTypes.entries()) as [hash, record]}
-              {record.key} {record.value}
-              <button class="control" on:click={()=>addAttachment()} >          
-                <Fa icon={faPlus}/>
-              </button>
-            {/each}
-
             {#if attachments}
-              <div class="attachments-list">
-                {#each attachments as attachment, index}
-                  <div class="attachment-item">
-                    {#await store.weClient.entryInfo(hrlB64WithContextToRaw(attachment).hrl)}
-                      <sl-button size="small" loading></sl-button>
-                    {:then { entryInfo }}
-                      <sl-button  size="small"
-                        on:click={()=>{
-                            const hrl = hrlB64WithContextToRaw(attachment)
-                            store.weClient.openHrl(hrl.hrl, hrl.context)
-                          }}
-                        style="display:flex;flex-direction:row;margin-right:5px"><sl-icon src={entryInfo.icon_src} slot="prefix"></sl-icon>
-                        {entryInfo.name}
-                      </sl-button> 
-                      <sl-button size="small"
-                        on:click={()=>{
-                          removeAttachment(index)
-                        }}
-                      >
-                        <Fa icon={faTrash} />
-                      </sl-button>
-                    {:catch error}
-                      Oops. something's wrong.
-                    {/await}
-                  </div>
-                {/each}
-              </div>
+              <AttachmentsList attachments={attachments} allowDelete={false}
+              on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
             {/if}
+             
           </div>
         {/if}
       </div>
@@ -346,41 +343,46 @@
         {#if $state.playerPieces}
           {#each $state.props.players as player, index}
               
-            <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px"
+            <div class="piece-def"
               id={player}
               draggable={iCanPlay}
               class:draggable={iCanPlay}
               on:dragstart={handleDragStartAdd}
 
             >
-              <Avatar draggable={false} agentPubKey={decodeHashFromBase64(player)} />
+              <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(player)} />
             </div>
           {/each}
         {/if}
       </div>
         <div class="img-container">
+        <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
         {#each pieces as piece}
-          {@const pieceIsPlayer = piece.typeId.startsWith("uhCA")}
+          {@const pieceIsPlayer = isPlayer(piece.typeId)}
           <div class="piece"
+            on:dblclick={()=>editPieceAttachments(piece)}
             draggable={iCanPlay}
             class:draggable={iCanPlay}
             on:dragstart={handleDragStartMove}
             on:dragend={handleDragEnd}
             on:drop={handleDragDrop}  
             on:dragover={handleDragOver}          
-
+            title={piece.attachments && piece.attachments.length > 0 ? `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`: pieceName(piece)}
             id={piece.id}
             style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
             >
+            {#if piece.attachments && piece.attachments.length > 0}
+            <div class="piece-has-attachment">{piece.attachments.length}</div>
+            {/if}
             {#if pieceIsPlayer}
-              <Avatar agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
+              <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
             {:else}
               {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
               {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
             {/if}
           </div>
         {/each}
-        <img width={$state.props.bgMaxWidth} height={$state.props.bgMaxHeight} draggable={false} bind:this={img} src={bgUrl}
+        <img width={$state.props.bgWidth} height={$state.props.bgHeight} draggable={false} bind:this={img} src={bgUrl}
           
           style="padding:100px; background-color:lightgray; border:1px solid; flex: 1; object-fit: cover; overflow: hidden"
           on:drop={handleDragDrop}  
@@ -389,6 +391,13 @@
       </div>
 
     </div>
+    <commit-history
+          style="flex: 1"
+          selectedCommitHash={selectedCommitHash}
+          on:commit-selected={(e) => {
+            selectedCommitHash = e.detail.commitHash;
+          }}
+        ></commit-history>
   {/if}
 </div>
 <style>
@@ -400,7 +409,7 @@
     border-top: 15px solid #f00;
   }
   .board-area {
-    margin:auto;
+    justify-content:center;
     margin-top: 10px;
     display: flex;
     overflow:auto;
@@ -437,6 +446,7 @@
     margin-top: 15px;
     min-height: 0;
     padding-bottom: 10px;
+    border: solid 1px lightgray;
   }
   .top-bar {
     display: flex;
@@ -457,24 +467,35 @@
     display: flex;
     align-items: center;
   }
+  .board-header {
+    display:flex;
+    justify-content:center;
+    align-items:center; 
+    border-bottom: solid 1px lightgray;
+  }
   .attachments-area {
+    border-left: solid 1px lightgray;
+    padding-left: 10px;
+    padding-bottom: 5px;
     display:flex;
     flex-direction:row;
     margin-left:20px;
+    align-items: center;
   }
-  .attachments-list {
-    margin-top:5px; 
-    display:flex;
-    flex-direction:row;
-    flex-wrap: wrap;
-
+  .piece-has-attachment {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    z-index: 10;
+    font-size: 12px;
+    font-weight: bold;
+    color: blue;
+    padding-right: 5px;
+    padding-left: 5px;
+    border-radius: 5px;
+    background-color: rgba(0,255,0,.5);
   }
-  .attachment-item {
-    border:1px solid #aaa; 
-    background-color:rgba(0,255,0,.1); 
-    padding:4px;
-    display:flex;
-    margin-right:4px;
-    border-radius:4px;
+  .idle {
+    opacity: 0.5;
   }
 </style>

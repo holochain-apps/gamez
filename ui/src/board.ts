@@ -16,6 +16,7 @@ export interface Piece {
   x: number,
   y: number,
   imageIdx: number,
+  attachments: Array<HrlB64WithContext>
 }
 
 export class  PieceDef {
@@ -34,8 +35,8 @@ export class  PieceDef {
 export type BoardProps = {
   pieces: {[key: string]: Piece},
   bgUrl: string,
-  bgMaxHeight: string,
-  bgMaxWidth: string,
+  bgHeight: string,
+  bgWidth: string,
   players: Array<AgentPubKeyB64>,
   turn: number,
   attachments: Array<HrlB64WithContext>
@@ -52,6 +53,7 @@ export interface BoardState {
   playerPieces: boolean;
   pieceDefs: PieceDef[];
   props: BoardProps;
+  boundTo: Array<HrlB64WithContext>
 }
   
   export type BoardDelta =
@@ -105,6 +107,7 @@ export interface BoardState {
         imageIdx: number;
         x: number;
         y: number;
+        attachments: Array<HrlB64WithContext>
       }
     | {
         type: "move-piece";
@@ -112,14 +115,24 @@ export interface BoardState {
         x: number;
         y: number;
       }
+    | {
+        type: "set-piece-attachments";
+        id: uuidv1;
+        attachments: Array<HrlB64WithContext>
+      }
   
   export const boardGrammar = {
     initialState()  {
-      const state = {
+      const state: BoardState = {
         status: "",
         name: "untitled",
         pieceDefs: [],
-        props: {bgUrl:"", pieces:{}, players:[], attachments:[]},
+        max_players: 99,
+        min_players: 1,
+        props: {bgUrl:"", pieces:{}, players:[], attachments:[], bgHeight: "", bgWidth: "", turn:0},
+        turns: false,
+        boundTo: [],
+        playerPieces: true,
       }
       return state
     },
@@ -151,6 +164,8 @@ export interface BoardState {
           if (delta.state.props !== undefined) state.props = delta.state.props
           if (delta.state.max_players !== undefined) state.max_players = delta.state.max_players
           if (delta.state.min_players !== undefined) state.min_players = delta.state.min_players
+          if (delta.state.boundTo !== undefined) state.boundTo = delta.state.boundTo
+          
           break;
         case "set-name":
           state.name = delta.name
@@ -183,12 +198,16 @@ export interface BoardState {
             x: delta.x,
             y: delta.y,
             imageIdx: delta.imageIdx,
+            attachments: delta.attachments
           }
           state.props.pieces[id]=piece
           break;
         case "move-piece":
           state.props.pieces[delta.id].x = delta.x
           state.props.pieces[delta.id].y = delta.y
+          break;
+        case "set-piece-attachments":
+          state.props.pieces[delta.id].attachments = delta.attachments
           break;
         }
     },
@@ -208,8 +227,12 @@ export class Board {
     this.hashB64 = encodeHashToBase64(this.document.documentHash)
   }
 
-  public static async Create(synStore: SynStore) {
+  public static async Create(synStore: SynStore, init: Partial<BoardState>|undefined = undefined) {
     const initState = boardGrammar.initialState()
+    if (init) {
+      Object.assign(initState, init);
+    }
+
     const documentStore = await synStore.createDocument(initState,{})
 
     await synStore.client.tagDocument(documentStore.documentHash, BoardType.active)
@@ -220,7 +243,6 @@ export class Board {
        );
 
     const me = new Board(documentStore, workspaceStore);
-    await me.join()
     return me
   }
 

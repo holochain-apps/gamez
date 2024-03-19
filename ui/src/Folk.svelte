@@ -5,10 +5,9 @@
     import { getContext, onMount } from "svelte";
     import Avatar from './Avatar.svelte';
     import { get } from 'svelte/store';    
-    import Fa from 'svelte-fa'
-    import { faUserGroup } from '@fortawesome/free-solid-svg-icons';
-  import { isWeContext } from '@lightningrodlabs/we-applet';
-  import type { GamezStore } from "./store";
+    import SvgIcon from "./SvgIcon.svelte";
+    import { isWeContext } from '@lightningrodlabs/we-applet';
+    import type { GamezStore } from "./store";
 
     const { getStore } :any = getContext('gzStore');
     const store:GamezStore = getStore();
@@ -30,10 +29,10 @@
 
 </script>
 <div class="nav-button" on:click={()=>{participantsDialog.open()}} title="Show Participants">
-    <Fa color="#555" icon={faUserGroup} size=2x/></div>
+    <SvgIcon icon=faUserGroup size=20/></div>
 {#if !isWeContext()}
     <div class="nav-button " on:click={editAvatar} title={myName ? myName:"Edit Avatar"}>
-        <Avatar size={28} agentPubKey={store.myAgentPubKey} placeholder={true} showNickname={false}/>
+        <Avatar size={16} agentPubKey={store.myAgentPubKey} placeholder={true} showNickname={false}/>
     </div>
 {/if}
 

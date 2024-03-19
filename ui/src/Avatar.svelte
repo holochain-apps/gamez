@@ -4,8 +4,7 @@
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { faUser } from "@fortawesome/free-solid-svg-icons";
-  import Fa from "svelte-fa";
+  import SvgIcon from "./SvgIcon.svelte";
 
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
@@ -16,7 +15,7 @@
   export let showAvatar = true
   export let showNickname = true
   export let placeholder = false
-  export let draggable = true
+  export let disableAvatarPointerEvents = false
 
   $: agentPubKey
   $: agentPubKeyB64 = encodeHashToBase64(agentPubKey)
@@ -24,8 +23,8 @@
   $: nickname = $profile.status=="complete" && $profile.value ? $profile.value.entry.nickname : agentPubKeyB64.slice(5,9)+"..."
   
 </script>
-
-<div class:draggable={draggable} class="avatar-{namePosition}"
+<div  class="avatar-{namePosition}"
+    title={showNickname ? "" : nickname}
     >
     {#if $profile.status == "pending"}
         <sl-skeleton
@@ -36,11 +35,9 @@
 
         {#if showAvatar}
             {#if placeholder && !$profile.value.entry.fields.avatar}
-                <Fa icon={faUser} size=2x style="margin-left:5px;margin-right:5px"></Fa>
+                <SvgIcon icon=faUser size={`${size}`} style="margin-left:5px;margin-right:5px"/>
             {:else}
-            <!-- <div title={nickname}> -->
-                <agent-avatar draggable={draggable} title={nickname} disable-tooltip={true} disable-copy={true} size={size} agent-pub-key="{agentPubKeyB64}"></agent-avatar>
-            <!-- </div> -->
+                <agent-avatar class:disable-ptr-events={disableAvatarPointerEvents} disable-tooltip={true} disable-copy={true} size={size} agent-pub-key="{agentPubKeyB64}"></agent-avatar>
             {/if}
         {/if}
         {#if showNickname}
@@ -48,7 +45,6 @@
         {/if}
     {/if}
 </div>
-
 <style>
     .avatar-column {
         align-items: center;
@@ -66,7 +62,7 @@
     .avatar-row .nickname{
         margin-left: 0.5em;
     }
-    .draggable {
-        pointer-events: none;
+    .disable-ptr-events {
+        pointer-events:none;
     }
 </style>

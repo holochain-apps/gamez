@@ -9,8 +9,7 @@
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import '@shoelace-style/shoelace/dist/components/input/input.js';
     import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
-    import Fa from 'svelte-fa'
-    import { faPlus, faGripVertical, faTrash} from '@fortawesome/free-solid-svg-icons';
+    import SvgIcon from './SvgIcon.svelte';
     import { cloneDeep } from "lodash";
 
     // import type { GamezStore } from './store';
@@ -24,7 +23,7 @@
     let text = ''
     let minPlayers = ""
     let maxPlayers = ""
-    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgMaxHeight: "", bgMaxWidth: "100%"}
+    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgHeight: "", bgWidth: ""}
     let pieceDefs: Array<PieceDef> = []
     let nameInput
     let turns = false
@@ -41,7 +40,7 @@
       text = ''
       maxPlayers = ""
       minPlayers = ""
-      props = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgMaxHeight: "", bgMaxWidth: "100%"}
+      props = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgHeight: "", bgWidth: ""}
       pieceDefs = []
       turns = false
       turnsInput.value = false
@@ -126,7 +125,7 @@
         Pieces:
 
         <sl-button circle size="small"  on:click={() => addPieceDef()}>
-          <Fa icon={faPlus}/>
+          <SvgIcon size=12 icon=faPlus/>
         </sl-button>
       </div>
       <sl-dialog label="Choose Emoji" bind:this={emojiDialog}>
@@ -148,7 +147,7 @@
         itemClass="unselectable"
         >
         <div class="piece-def">
-          <div class="grip" ><Fa icon={faGripVertical}/></div>
+          <div class="grip" ><SvgIcon size=12 icon=faGripVertical/></div>
           <div style="display:flex; flex-direction:column; ">
             <div style="display:flex; flex-direction:row; align-items:flex-end;">
               <sl-select
@@ -182,7 +181,7 @@
             </div>
           </div>
           <sl-button style="margin-left:25px" size="small"  on:click={deletePieceDef(index)} >
-            <Fa icon={faTrash}/>
+            <SvgIcon size=12 icon=faTrash/>
           </sl-button>
     </div>
       </DragDropList> 
@@ -199,10 +198,10 @@
     </div>
 
     <div style="display:flex; flex-direction:row; align-items:flex-end;">
-      <sl-input label="Board Max-Width" style="width:170px;" class='textarea' value={props.bgMaxWidth}
-      on:input={e=>props.bgMaxWidth= e.target.value}> </sl-input>
-      <sl-input label="Board Max-Height" style="width:170px;" class='textarea' value={props.bgMaxHeight}
-      on:input={e=>props.bgMaxHeight = e.target.value}> </sl-input>
+      <sl-input label="Board Width" style="width:170px;" class='textarea' value={props.bgWidth}
+      on:input={e=>props.bgWidth= e.target.value}> </sl-input>
+      <sl-input label="Board Height" style="width:170px;" class='textarea' value={props.bgHeight}
+      on:input={e=>props.bgHeight = e.target.value}> </sl-input>
     </div>
 
 

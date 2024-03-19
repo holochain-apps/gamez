@@ -6,12 +6,7 @@
   import type { AppAgentClient, EntryHash } from "@holochain/client";
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
-  import Fa from "svelte-fa";
-  import {
-    faCog,
-    faFileImport,
-    faSquarePlus,
-  } from "@fortawesome/free-solid-svg-icons";
+  import SvgIcon from "./SvgIcon.svelte";
   import { cloneDeep } from "lodash";
   import NewBoardDialog from "./NewBoardDialog.svelte";
   import EditGameTypeDialog from "./EditGameTypeDialog.svelte";
@@ -39,9 +34,8 @@
   export let client: AppAgentClient;
   export let profilesStore: ProfilesStore;
   export let weClient : WeClient
-  export let board : EntryHash | undefined
 
-  let DEFAULT_GAMES = ["Chess", "Go"];
+  let DEFAULT_GAMES = ["Chess", "Go", "World"];
   let store: GamezStore = new GamezStore(
     weClient,
     profilesStore,
@@ -50,7 +44,6 @@
   );
   let synStore: SynStore = store.synStore
 
-  store.boardList.setActiveBoard(board)
   $: activeBoardHash = store.boardList.activeBoardHash
 
   setContext("synStore", {
@@ -149,6 +142,8 @@
                             const board = await store.boardList.makeBoard(
                               state
                             );
+                            await board.join()        
+
                             store.boardList.setActiveBoard(board.hash)
                           }
                         }
@@ -180,14 +175,14 @@
                     on:click={() => newBoardDialog.open()}
                     style=""
                     title="New Game"
-                    >New <Fa icon={faSquarePlus} size="1x" /></sl-button
+                    >New <SvgIcon icon=faSquarePlus size="16" /></sl-button
                   >
                   <sl-button
                     on:click={() => {
                       fileinput.click();
                     }}
                     title="Import Game"
-                    >Import <Fa icon={faFileImport} size="1x" /></sl-button
+                    >Import <SvgIcon icon=faFileImport size="16" /></sl-button
                   >
                   {#if $defsList.status == "complete"}
                     {@const names = $defsList.value.map(def => def.board.name)}
@@ -198,7 +193,7 @@
                             store.addDefaultGames(g);
                           }}
                           title={g}
-                          >{g} <Fa icon={faSquarePlus} size="1x" /></sl-button
+                          >{g} <SvgIcon icon=faSquarePlus size="16" /></sl-button
                         >
                       {/if}
                     {/each}

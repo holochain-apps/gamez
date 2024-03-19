@@ -1,9 +1,10 @@
 <script lang="ts">
   import Controller from './Controller.svelte'
+  import ControllerCreate from './ControllerCreate.svelte'
   import ControllerBoard from './ControllerBoard.svelte'
   import { AppAgentWebsocket, AdminWebsocket } from '@holochain/client';
   import '@shoelace-style/shoelace/dist/themes/light.css';
-  import { WeClient, isWeContext, initializeHotReload, type Hrl } from '@lightningrodlabs/we-applet';
+  import { WeClient, isWeContext, initializeHotReload, type Hrl, type HrlWithContext } from '@lightningrodlabs/we-applet';
   import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
   import "@holochain-open-dev/profiles/dist/elements/profile-prompt.js";
   import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
@@ -23,13 +24,15 @@
 
   let connected = false
 
+  let createView
   enum RenderType {
     App,
-    Board
+    Board,
+    CreateBoard,
   }
 
   let renderType = RenderType.App
-  let hrl: Hrl
+  let hrlWithContext: HrlWithContext
 
   initialize()
 
@@ -46,7 +49,9 @@
     if (!isWeContext()) {
         console.log("adminPort is", adminPort)
         if (adminPort) {
-          const adminWebsocket = await AdminWebsocket.connect(new URL(`ws://localhost:${adminPort}`))
+          const url = `ws://localhost:${adminPort}`
+
+          const adminWebsocket = await AdminWebsocket.connect({url})
           const x = await adminWebsocket.listApps({})
           console.log("apps", x)
           const cellIds = await adminWebsocket.listCellIds()
@@ -54,7 +59,7 @@
           await adminWebsocket.authorizeSigningCredentials(cellIds[0])
         }
         console.log("appPort and Id is", appPort, appId)
-        client = await AppAgentWebsocket.connect(new URL(url), appId)
+        client = await AppAgentWebsocket.connect(appId, {url})
         profilesClient = new ProfilesClient(client, appId);
     } 
     else {
@@ -71,7 +76,7 @@
                 default:
                   throw new Error("Unknown applet-view block type:"+weClient.renderInfo.view.block);
               }
-            case "entry":
+            case "attachable":
               switch (weClient.renderInfo.view.roleName) {
                 case "gamez":
                   switch (weClient.renderInfo.view.integrityZomeName) {
@@ -79,7 +84,7 @@
                       switch (weClient.renderInfo.view.entryType) {
                         case "document":
                           renderType = RenderType.Board
-                          hrl = weClient.renderInfo.view.hrl
+                          hrlWithContext = weClient.renderInfo.view.hrlWithContext
                           break;
                         default:
                           throw new Error("Unknown entry type:"+weClient.renderInfo.view.entryType);
@@ -92,6 +97,13 @@
                 default:
                   throw new Error("Unknown role name:"+weClient.renderInfo.view.roleName);
               }
+              break;
+            case "creatable":
+              switch (weClient.renderInfo.view.name) {
+                case "game":
+                  renderType = RenderType.CreateBoard
+                  createView = weClient.renderInfo.view
+              }              
               break;
             default:
               throw new Error("Unsupported applet-view type");
@@ -140,10 +152,12 @@
         ></create-profile>
       </div>
     {:else}
-      {#if renderType== RenderType.App}
+      {#if renderType== RenderType.CreateBoard}
+        <ControllerCreate  view={createView} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerCreate>
+      {:else if renderType== RenderType.App}
         <Controller  client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></Controller>
       {:else if  renderType== RenderType.Board}
-        <ControllerBoard  board={hrl[1]} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerBoard>
+        <ControllerBoard  board={hrlWithContext.hrl[1]} client={client} weClient={weClient} profilesStore={profilesStore} roleName={roleName}></ControllerBoard>
       {/if}
     {/if}
 
