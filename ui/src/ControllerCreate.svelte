@@ -2,7 +2,7 @@
     import { GamezStore } from './store'
     import { setContext } from 'svelte';
     import { encodeHashToBase64, type AppAgentClient } from '@holochain/client';
-    import { SynStore } from '@holochain-syn/store';
+    import type { SynStore } from '@holochain-syn/store';
     import type { ProfilesStore } from "@holochain-open-dev/profiles";
     import type { WeClient } from '@lightningrodlabs/we-applet';
     import { SynClient } from '@holochain-syn/core';

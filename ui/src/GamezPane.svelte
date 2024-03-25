@@ -10,8 +10,7 @@
   import SvgIcon from "./SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
-  import { isWeContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
-  import { hrlWithContextToB64 } from "./util";
+  import { isWeContext, weaveUrlFromWal, type WAL } from "@lightningrodlabs/we-applet";
   import AttachmentsList from "./AttachmentsList.svelte";
 
   const download = (filename: string, text: string) => {
@@ -172,13 +171,13 @@
   $: iCanPlay = canPlay($state)
 
   const addAttachment = async () => {
-    const hrl = await store.weClient.userSelectHrl()
-    if (hrl) {
+    const wal = await store.weClient.userSelectWal()
+    if (wal) {
       const props = cloneDeep($state.props)
       if (!props.attachments) {
         props.attachments = []
       }
-      props.attachments.push(hrlWithContextToB64(hrl))
+      props.attachments.push(weaveUrlFromWal(wal))
       activeBoard.requestChanges([{type: 'set-props', props }])
     }
   }
@@ -196,9 +195,9 @@
   const isPlayer = (id: string) => {
     return id.startsWith("uhCA")
   }
-  const copyHrlToClipboard = () => {
-    const attachment: HrlWithContext = { hrl: [store.dnaHash, activeBoard.hash], context: {} }
-    store.weClient?.hrlToClipboard(attachment)
+  const copyWALToClipboard = () => {
+    const attachment: WAL = { hrl: [store.dnaHash, activeBoard.hash], context: {} }
+    store.weClient?.walToPocket(attachment)
   }
 
   let selectedCommitHash
@@ -209,7 +208,7 @@
     <div class="left-items">
       <h5>{$state.name}</h5>
       {#if store.weClient}
-        <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyHrlToClipboard()} >          
+        <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyWALToClipboard()} >          
           <SvgIcon icon="addToPocket" size="20px"/>
         </sl-button>
 
