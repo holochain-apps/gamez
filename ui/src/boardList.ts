@@ -53,7 +53,7 @@ export class BoardList {
                             const activeBoard = get (this.activeBoard)
 
                             if ((tipB64 != seenTipB64) && (!activeBoard || (encodeHashToBase64(activeBoard.hash) != board.hashB64))) {
-                                this.weClient.notifyWe([{
+                                this.weClient.notifyFrame([{
                                     title: `Board updated`,
                                     body: "",
                                     notification_type: "change",

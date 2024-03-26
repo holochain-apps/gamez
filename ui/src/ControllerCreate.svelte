@@ -78,18 +78,21 @@
               variant="primary"
               disabled={disabled}
               on:click={async ()=>{
-              try {
-                const defHashB64 = gameTypeElement.value
-                const defBoard = Array.from($defsList.value).find(def=>encodeHashToBase64(def.originalHash)==defHashB64)
-                //const hrlB64 = hrlWithContextToB64(attachToHrlWithContext)
-                const state = cloneDeep(defBoard.board);
-                state.name = inputElement.value
-                const board = await store.boardList.makeBoard(state);
-                const dnaHash = await getMyDna(roleName, client)
-                view.resolve({hrl:[dnaHash, board.hash]})
-              } catch(e) {
-                console.log("ERR",e)
-                view.reject(e)
+              if ($defsList.status == "complete") {
+                try {
+                  const defHashB64 = gameTypeElement.value
+                  const defBoard = Array.from($defsList.value).find(def=>encodeHashToBase64(def.originalHash)==defHashB64)
+                  const state = cloneDeep(defBoard.board);
+                  state.name = inputElement.value
+                  const board = await store.boardList.makeBoard(state);
+                  const dnaHash = await getMyDna(roleName, client)
+                  view.resolve({hrl:[dnaHash, board.hash]})
+                } catch(e) {
+                  console.log("ERR",e)
+                  view.reject(e)
+                }
+              } else {
+                console.log("click before defs loaded")
               }
             }}>Create</sl-button>
           </div>
