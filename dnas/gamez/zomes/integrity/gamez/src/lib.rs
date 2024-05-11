@@ -57,18 +57,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         FlatOp::RegisterUpdate(update_entry) => {
             match update_entry {
                 OpUpdate::Entry {
-                    original_action,
-                    original_app_entry,
                     app_entry,
                     action,
                 } => {
-                    match (app_entry, original_app_entry) {
-                        (EntryTypes::BoardDef(space), EntryTypes::BoardDef(original_board_def)) => {
+                    match app_entry {
+                        EntryTypes::BoardDef(space) => {
                             validate_update_board_def(
                                 action,
                                 space,
-                                original_action,
-                                original_board_def,
                             )
                         }
 
@@ -87,12 +83,8 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         }
         FlatOp::RegisterDelete(delete_entry) => {
             match delete_entry {
-                OpDelete::Entry { original_action, original_app_entry, action } => {
-                    match original_app_entry {
-                        EntryTypes::BoardDef(space) => {
-                            validate_delete_board_def(action, original_action, space)
-                        }
-                    }
+                OpDelete{ action } => {
+                    validate_delete_board_def(action)
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
             }
@@ -209,8 +201,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 validate_update_board_def(
                                     action,
                                     space,
-                                    original_action,
-                                    original_board_def,
                                 )
                             } else {
                                 Ok(result)
@@ -269,15 +259,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             );
                         }
                     };
-                    match original_app_entry {
-                        EntryTypes::BoardDef(original_board_def) => {
-                            validate_delete_board_def(
-                                action,
-                                original_action,
-                                original_board_def,
-                            )
-                        }
-                    }
+                    validate_delete_board_def(
+                        action,
+                    )
                 }
                 OpRecord::CreateLink {
                     base_address,

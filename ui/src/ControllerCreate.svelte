@@ -1,7 +1,7 @@
 <script lang="ts">
     import { GamezStore } from './store'
     import { setContext } from 'svelte';
-    import { encodeHashToBase64, type AppAgentClient } from '@holochain/client';
+    import { encodeHashToBase64, type AppClient } from '@holochain/client';
     import type { SynStore } from '@holochain-syn/store';
     import type { ProfilesStore } from "@holochain-open-dev/profiles";
     import type { WeClient } from '@lightningrodlabs/we-applet';
@@ -13,7 +13,7 @@
     import { cloneDeep } from "lodash";
 
     export let roleName = ""
-    export let client : AppAgentClient
+    export let client : AppClient
     export let weClient : WeClient
     export let profilesStore : ProfilesStore
     export let view

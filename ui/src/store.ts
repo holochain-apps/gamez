@@ -1,5 +1,5 @@
 import {
-    type AppAgentClient,
+    type AppClient,
     type AgentPubKeyB64,
     type RoleName,
     encodeHashToBase64,
@@ -47,7 +47,7 @@ export type EntryTypes =
 export type GamezSignal = ActionCommittedSignal<EntryTypes, any>;
 
 export class GamezClient extends ZomeClient<GamezSignal> {
-    constructor(public client: AppAgentClient, public roleName, public zomeName = ZOME_NAME) {
+    constructor(public client: AppClient, public roleName, public zomeName = ZOME_NAME) {
         super(client, roleName, zomeName);
     }
 
@@ -109,7 +109,7 @@ export class GamezStore {
     constructor(
         public weClient : WeClient,
         public profilesStore: ProfilesStore,
-        protected clientIn: AppAgentClient,
+        protected clientIn: AppClient,
         protected roleName: RoleName,
         protected zomeName: string = ZOME_NAME
     ) {
