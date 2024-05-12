@@ -3,6 +3,8 @@
   import type { GamezStore } from "./store";
   import type { EntryHash } from "@holochain/client";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
+  import "@shoelace-style/shoelace/dist/components/card/card.js";
+  import "@shoelace-style/shoelace/dist/components/relative-time/relative-time.js";
   import Participants from "./Participants.svelte";
   import { BoardType } from "./boardList";
   import { asyncDerived, get } from "@holochain-open-dev/stores";
@@ -18,18 +20,24 @@
 
   $: uiProps = store.uiProps
   $: boardData = store.boardList.boardData2.get(boardHash)
- 
 </script>
-<div class="wrapper" on:click={()=>{
+<sl-card on:click={()=>{
       dispatch("select")
       }}>
     {#if $boardData.status == "complete"}
-      {#if !hashEqual($uiProps.tips.get(boardHash), $boardData.value.tip)}
+      {@const latestDate = $boardData.value.tip ? new Date($boardData.value.tip.action.timestamp) : undefined}
+      {@const createdDate = new Date($boardData.value.document.action.timestamp)}
+      {#if $boardData.value.tip && !hashEqual($uiProps.tips.get(boardHash), $boardData.value.tip.entryHash)}
         <div class="unread"></div>
       {/if}
-      <div class="board-name">{$boardData.value.latestState.name}</div>
+      <div slot="header" class="board-name">{$boardData.value.latestState.name}</div>
+      {#if latestDate}
+        <div class="item"><span class="item-title">Last Action:</span>  <sl-relative-time format="short" date={latestDate}></sl-relative-time></div>
+      {/if}
+      <div class="item"><span class="item-title">Started:</span>  <sl-relative-time format="short" date={createdDate}></sl-relative-time></div>
+
       {#if boardType == BoardType.active}
-        <Participants board={$boardData.value.board}></Participants>
+        <div class="item"><span class="item-title">Participants:</span> <Participants board={$boardData.value.board}></Participants></div>
       {/if}
     {:else if $boardData.status == "pending"}
       <sl-skeleton
@@ -39,8 +47,31 @@
     {:else if $boardData.status == "error"}
       {$boardData.error}
     {/if}
-</div>
+    </sl-card>
 <style>
+  sl-card {
+    cursor: pointer;
+    margin: 5px;
+    transition: all .25s ease;
+    transform: scale(1);
+  }
+  sl-card:hover {
+    transition: all .25s ease;
+    transform: scale(1.05);
+    box-shadow: 0px 5px 5px rgba(63, 57, 130, 0.35);
+  }
+  .item {
+    display: flex;
+    align-items: center;
+  }
+  .item-title {
+    width: 100px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content:flex-end;
+    margin-right:5px;
+  }
   .unread {
     position: relative;
     top: 0px;
@@ -51,17 +82,8 @@
     background-color: blue;
     border-radius: 50%;
   }
-  .wrapper {
-    width: 100%;
-    border-radius: 50%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
   .board-name {
         font-size: 16px;
         font-weight: bold;
-        margin-right: 10px;
     }
 </style>

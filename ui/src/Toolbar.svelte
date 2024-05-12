@@ -16,7 +16,8 @@
   <AboutDialog bind:this={aboutDialog} />
 <div class='toolbar'>
   <div class="left-items">
-    <div class="logo" title="About BoardGamez!" on:click={()=>aboutDialog.open()}><LogoIcon /></div>
+    <div class="logo"><LogoIcon /></div>
+    <div style="margin-left:10px" title="About BoardGamez!" on:click={()=>aboutDialog.open()}><SvgIcon icon=info ></SvgIcon></div>
   </div>
   <div class="right-items">
     <Folk></Folk>

@@ -22,7 +22,7 @@
         style="max-width:100px;margin-right:10px"
         on:click={()=>{dispatch("create", boardData)}}
       >
-        Create Game
+        Start New Game
       </sl-button>
       <sl-button
         style="max-width:100px;margin-right:10px"
