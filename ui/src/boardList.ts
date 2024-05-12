@@ -3,12 +3,13 @@ import { Board } from "./board";
 import { EntryRecord, LazyHoloHashMap, } from "@holochain-open-dev/utils";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import type { BoardDelta, BoardState } from "./board";
-import { type AgentPubKey, type EntryHash, decodeHashFromBase64, type EntryHashB64, type AgentPubKeyB64, encodeHashToBase64 } from "@holochain/client";
+import { type AgentPubKey, type EntryHash, decodeHashFromBase64, type EntryHashB64, type AgentPubKeyB64, encodeHashToBase64, type Timestamp } from "@holochain/client";
 import {toPromise, type AsyncReadable, pipe, joinAsync, sliceAndJoin, asyncDerived, alwaysSubscribed} from '@holochain-open-dev/stores'
 import type { v1 as uuidv1 } from "uuid";
 import type { ProfilesStore } from "@holochain-open-dev/profiles";
 import type { WeClient } from "@lightningrodlabs/we-applet";
 import { SeenType } from "./store";
+import type { AsyncStatus } from "@holochain-open-dev/stores";
 
 export enum BoardType {
     active = "active",
@@ -23,9 +24,9 @@ export interface TypedHash {
 export interface BoardAndLatestState {
     board: Board,
     latestState: BoardState,
-    tip: EntryHash,
+    tip: EntryRecord<Commit>|undefined,
+    document: EntryRecord<Document>
 }
-
 
 export class BoardList {
     activeBoardHashes: AsyncReadable<EntryHash[]>
@@ -75,7 +76,11 @@ export class BoardList {
         const tip = pipe(board,
             board => board.workspace.tip
             )
-        return alwaysSubscribed(pipe(joinAsync([board, latestState, tip]), ([board, latestState, tip]) => {return {board,latestState, tip: tip ? tip.entryHash: undefined}}))
+        const document = pipe(docStore.record,
+            document => document
+                )
+          
+        return alwaysSubscribed(pipe(joinAsync([board, latestState, tip, document]), ([board, latestState, tip, document]) => {return {board,latestState, tip: tip ? tip: undefined, document}}))
     })
 
     agentBoardHashes: LazyHoloHashMap<AgentPubKey, AsyncReadable<Array<BoardAndLatestState>>> = new LazyHoloHashMap(agent =>
@@ -89,7 +94,7 @@ export class BoardList {
                         const hash = documentHashes[i]
                         //const state = this.boardData2.get(hash).workspace.latestSnapshot
                         //agentDocuments.push(asyncDerived(state, state=>{return {hash, state}}))
-                        const x = this.boardData2.get(hash)
+                        const x: Readable<AsyncStatus<BoardAndLatestState>> = this.boardData2.get(hash)
                         agentBoardHashes.push(x)
                     }
                 }
