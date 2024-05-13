@@ -3,7 +3,7 @@
   import GamezPane from "./GamezPane.svelte";
   import { GamezStore } from "./store";
   import { setContext } from "svelte";
-  import type { AppAgentClient, EntryHash } from "@holochain/client";
+  import type { AppAgentClient } from "@holochain/client";
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
   import SvgIcon from "./SvgIcon.svelte";
@@ -16,6 +16,7 @@
   import BoardMenuItem from "./BoardMenuItem.svelte";
   import BoardDefItem from "./BoardDefItem.svelte";
   import type { WeClient } from "@lightningrodlabs/we-applet";
+  import StartGameDialog from "./StartGameDialog.svelte";
 
   let defaultGames = [
     {
@@ -78,7 +79,8 @@
     reader.readAsText(file);
   };
   let newBoardDialog;
-  let editBoarTypeDialog;
+  let editBoardTypeDialog;
+  let startGameDialog;
 </script>
 
 <svelte:head>
@@ -92,7 +94,19 @@
     <div class="app">
       {#if store}
         <NewBoardDialog bind:this={newBoardDialog} />
-        <EditGameTypeDialog bind:this={editBoarTypeDialog} />
+        <EditGameTypeDialog bind:this={editBoardTypeDialog} />
+        <StartGameDialog bind:this={startGameDialog} 
+          on:start-game={async (e) => {
+            const state = cloneDeep(e.detail.boardDef.board);
+            state.name = e.detail.name;
+            if (state.min_players) {
+              state.props.players.push(myAgentPubKeyB64);
+            }
+            const board = await store.boardList.makeBoard(state);
+            await board.join();
+
+            store.boardList.setActiveBoard(board.hash);
+          }}/>
         <Toolbar />
         {#if $activeBoardHash !== undefined}
           <GamezPane activeBoard={$activeBoard} />
@@ -154,19 +168,9 @@
                     {#each $defHashes.value as hash}
                       <div class="game-type">
                         <BoardDefItem
-                          on:create={async (e) => {
-                            const state = cloneDeep(e.detail.board);
-                            state.name = `${state.name}: ${myName}`;
-                            if (state.min_players) {
-                              state.props.players.push(myAgentPubKeyB64);
-                            }
-                            const board = await store.boardList.makeBoard(state);
-                            await board.join();
-
-                            store.boardList.setActiveBoard(board.hash);
-                          }}
+                          on:create={(e)=> startGameDialog.open(e.detail)}
                           on:settings={(e) => {
-                            editBoarTypeDialog.open(e.detail);
+                            editBoardTypeDialog.open(e.detail);
                           }}
                           boardHash={hash}
                         ></BoardDefItem>
