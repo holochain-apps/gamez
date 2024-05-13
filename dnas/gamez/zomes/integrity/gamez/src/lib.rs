@@ -71,6 +71,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_board_def,
                             )
                         }
+
+                        _ => {
+                            Ok(
+                                ValidateCallbackResult::Invalid(
+                                    "Original and updated entry types must be the same"
+                                        .to_string(),
+                                ),
+                            )
+                        }
                     }
                 }
                 _ => Ok(ValidateCallbackResult::Valid),
@@ -85,6 +94,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                     }
                 }
+                _ => Ok(ValidateCallbackResult::Valid),
             }
         }
         FlatOp::RegisterCreateLink {
@@ -162,7 +172,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 } => {
                     let original_record = must_get_valid_record(original_action_hash)?;
                     let original_action = original_record.action().clone();
-                    let _original_action = match original_action {
+                    let original_action = match original_action {
                         Action::Create(create) => EntryCreationAction::Create(create),
                         Action::Update(update) => EntryCreationAction::Update(update),
                         _ => {
@@ -185,7 +195,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                     .entry()
                                     .to_app_option()
                                     .map_err(|e| wasm_error!(e))?;
-                                let _original_board_def = match original_board_def {
+                                let original_board_def = match original_board_def {
                                     Some(space) => space,
                                     None => {
                                         return Ok(
@@ -244,7 +254,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             }
                         }
                     };
-                    let _original_app_entry = match EntryTypes::deserialize_from_type(
+                    let original_app_entry = match EntryTypes::deserialize_from_type(
                         app_entry_type.zome_index.clone(),
                         app_entry_type.entry_index.clone(),
                         &entry,
