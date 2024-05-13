@@ -27,10 +27,12 @@
     {#if $boardData.status == "complete"}
       {@const latestDate = $boardData.value.tip ? new Date($boardData.value.tip.action.timestamp) : undefined}
       {@const createdDate = new Date($boardData.value.document.action.timestamp)}
-      {#if $boardData.value.tip && !hashEqual($uiProps.tips.get(boardHash), $boardData.value.tip.entryHash)}
-        <div class="unread"></div>
-      {/if}
-      <div slot="header" class="board-name">{$boardData.value.latestState.name}</div>
+      <div slot="header" style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="board-name">{$boardData.value.latestState.name}</span>
+        {#if $boardData.value.tip && !hashEqual($uiProps.tips.get(boardHash), $boardData.value.tip.entryHash)}
+          <span class="unread" title="New Activity"></span>
+        {/if}
+      </div>
       {#if latestDate}
         <div class="item"><span class="item-title">Last Action:</span>  <sl-relative-time format="short" date={latestDate}></sl-relative-time></div>
       {/if}
@@ -73,14 +75,14 @@
     margin-right:5px;
   }
   .unread {
-    position: relative;
-    top: 0px;
-    right: 10px;
-    width: 10px;
-    height: 10px;
-    display: inline;
-    background-color: blue;
+    margin-left: 5px;
+    justify-self: end;
+    background-color: rgb(122, 213, 83);
     border-radius: 50%;
+    padding: 2px 5px;
+    font-size: 80%;
+    height: 20px;
+    width: 20px;
   }
   .board-name {
         font-size: 16px;
