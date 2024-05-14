@@ -78,7 +78,7 @@ export default defineConfig({
         },
         source: {
           type: "https",
-          url: "https://github.com/holochain-apps/kando/releases/download/v0.9.2/kando.webhapp"
+          url: "https://github.com/holochain-apps/kando/releases/download/v0.9.8/kando.webhapp"
         },
       },
       {
@@ -87,11 +87,11 @@ export default defineConfig({
       description: 'Real-time notetaking based on syn',
       icon: {
         type: 'https',
-        url: 'https://lightningrodlabs.org/projects/notebooks.png',
+        url: 'https://lightningrodlabs.org/projects/notebooks_logo.svg',
       },
       source: {
         type: 'https',
-        url: 'https://github.com/lightningrodlabs/notebooks/releases/download/v0.2.2/notebooks.webhapp',
+        url: 'https://github.com/lightningrodlabs/notebooks/releases/download/v0.2.10/notebooks.webhapp',
       },
     },
   ],
