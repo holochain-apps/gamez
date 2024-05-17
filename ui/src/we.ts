@@ -2,7 +2,7 @@ import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-s
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
 import { BoardType } from './boardList';
 import { LazyHoloHashMap } from '@holochain-open-dev/utils';
-import type { AppletHash, AppletServices, AssetInfo, WAL, WeServices } from '@lightningrodlabs/we-applet';
+import type { AppletHash, AppletServices, AssetInfo, WAL, WeaveServices } from '@lightningrodlabs/we-applet';
 import type { AppClient, RoleName, ZomeName } from '@holochain/client';
 import { getMyDna } from './util';
 import type { BoardEphemeralState, BoardState } from './board';
@@ -51,7 +51,7 @@ export const appletServices: AppletServices = {
     search: async (
       appletClient: AppClient,
       appletHash: AppletHash,
-      weServices: WeServices,
+      weaveServices: WeaveServices,
       searchFilter: string
     ): Promise<Array<WAL>> => {
         const synClient = new SynClient(appletClient, ROLE_NAME, ZOME_NAME);

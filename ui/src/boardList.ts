@@ -44,7 +44,7 @@ export class BoardList {
             workspaces => {
                 const board = new Board(docStore,  new WorkspaceStore(docStore, Array.from(workspaces.keys())[0]))
                 // TODO: fix once we know if our applet is in front or not.
-                if (this.weClient) {
+                if (this.weaveClient) {
                     board.workspace.tip.subscribe((tip)=>{
                         if (tip.status=="complete" && tip.value) {
                             const tipRecord = tip.value
@@ -54,7 +54,7 @@ export class BoardList {
                             const activeBoard = get (this.activeBoard)
 
                             if ((tipB64 != seenTipB64) && (!activeBoard || (encodeHashToBase64(activeBoard.hash) != board.hashB64))) {
-                                this.weClient.notifyFrame([{
+                                this.weaveClient.notifyFrame([{
                                     title: `Board updated`,
                                     body: "",
                                     notification_type: "change",
@@ -105,7 +105,7 @@ export class BoardList {
         
     allAgentBoards: AsyncReadable<ReadonlyMap<AgentPubKey, Array<BoardAndLatestState>>>
        
-    constructor(public profilseStore: ProfilesStore, public synStore: SynStore, public weClient : WeClient) {
+    constructor(public profilseStore: ProfilesStore, public synStore: SynStore, public weaveClient : WeClient) {
         this.allAgentBoards = pipe(this.profilseStore.agentsWithProfile,
             agents=>sliceAndJoin(this.agentBoardHashes, agents)
         )

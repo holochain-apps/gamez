@@ -107,7 +107,7 @@ export class GamezStore {
     dnaHash: DnaHash
 
     constructor(
-        public weClient : WeClient,
+        public weaveClient : WeClient,
         public profilesStore: ProfilesStore,
         protected clientIn: AppClient,
         protected roleName: RoleName,
@@ -124,7 +124,7 @@ export class GamezStore {
         this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
 
         this.synStore = new SynStore(new SynClient(clientIn,this.roleName,"syn"))
-        this.boardList = new BoardList(profilesStore, this.synStore, weClient) 
+        this.boardList = new BoardList(profilesStore, this.synStore, weaveClient) 
         this.defLinks = collectionStore(
             this.client,
             () => this.client.getBoardDefs(),

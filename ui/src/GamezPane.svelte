@@ -171,7 +171,7 @@
   $: iCanPlay = canPlay($state)
 
   const addAttachment = async () => {
-    const wal = await store.weClient.userSelectWal()
+    const wal = await store.weaveClient.userSelectWal()
     if (wal) {
       const props = cloneDeep($state.props)
       if (!props.attachments) {
@@ -197,7 +197,7 @@
   }
   const copyWALToClipboard = () => {
     const attachment: WAL = { hrl: [store.dnaHash, activeBoard.hash], context: {} }
-    store.weClient?.walToPocket(attachment)
+    store.weaveClient?.walToPocket(attachment)
   }
 
   let selectedCommitHash
@@ -207,7 +207,7 @@
   <div class="top-bar">
     <div class="left-items">
       <h5>{$state.name}</h5>
-      {#if store.weClient}
+      {#if store.weaveClient}
         <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyWALToClipboard()} >          
           <SvgIcon icon="addToPocket" size="20px"/>
         </sl-button>
@@ -308,7 +308,7 @@
           Leave Game
           </sl-button>
         {/if}
-        {#if store.weClient}
+        {#if store.weaveClient}
           <div class="attachments-area">
             <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>attachmentsDialog.open(undefined)} >
               <SvgIcon icon=link/>

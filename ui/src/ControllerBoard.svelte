@@ -11,11 +11,11 @@
   export let roleName = "";
   export let client: AppClient;
   export let profilesStore: ProfilesStore;
-  export let weClient : WeClient
+  export let weaveClient : WeClient
   export let board : EntryHash
 
   let store: GamezStore = new GamezStore(
-    weClient,
+    weaveClient,
     profilesStore,
     client,
     roleName,

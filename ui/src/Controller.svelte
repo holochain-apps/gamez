@@ -34,11 +34,11 @@
   export let roleName = "";
   export let client: AppClient;
   export let profilesStore: ProfilesStore;
-  export let weClient: WeClient;
+  export let weaveClient: WeClient;
 
   let DEFAULT_GAMES = ["Chess", "Go", "World"];
   let store: GamezStore = new GamezStore(
-    weClient,
+    weaveClient,
     profilesStore,
     client,
     roleName

@@ -14,12 +14,12 @@
 
     export let roleName = ""
     export let client : AppClient
-    export let weClient : WeClient
+    export let weaveClient : WeClient
     export let profilesStore : ProfilesStore
     export let view
 
     let store: GamezStore = new GamezStore (
-      weClient,
+      weaveClient,
       profilesStore,
       client,
       roleName,
