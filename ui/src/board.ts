@@ -3,7 +3,7 @@ import { get, type Readable } from "svelte/store";
 import { v1 as uuidv1 } from "uuid";
 import { type AgentPubKey, type EntryHash, type EntryHashB64, encodeHashToBase64, type AgentPubKeyB64, type Timestamp } from "@holochain/client";
 import { BoardType } from "./boardList";
-import type { HrlB64WithContext } from "@lightningrodlabs/we-applet";
+import type { WALUrl } from "./util";
 
 export enum PieceType {
   Emoji,
@@ -16,7 +16,7 @@ export interface Piece {
   x: number,
   y: number,
   imageIdx: number,
-  attachments: Array<HrlB64WithContext>
+  attachments: Array<WALUrl>
 }
 
 export class  PieceDef {
@@ -39,7 +39,7 @@ export type BoardProps = {
   bgWidth: string,
   players: Array<AgentPubKeyB64>,
   turn: number,
-  attachments: Array<HrlB64WithContext>
+  attachments: Array<WALUrl>
 }
 
 export type BoardEphemeralState = { [key: string]: string };
@@ -53,7 +53,8 @@ export interface BoardState {
   playerPieces: boolean;
   pieceDefs: PieceDef[];
   props: BoardProps;
-  boundTo: Array<HrlB64WithContext>
+  boundTo: Array<WALUrl>
+  creator: AgentPubKeyB64
 }
   
   export type BoardDelta =
@@ -107,7 +108,7 @@ export interface BoardState {
         imageIdx: number;
         x: number;
         y: number;
-        attachments: Array<HrlB64WithContext>
+        attachments: Array<WALUrl>
       }
     | {
         type: "move-piece";
@@ -118,7 +119,7 @@ export interface BoardState {
     | {
         type: "set-piece-attachments";
         id: uuidv1;
-        attachments: Array<HrlB64WithContext>
+        attachments: Array<WALUrl>
       }
   
   export const boardGrammar = {
@@ -133,6 +134,7 @@ export interface BoardState {
         turns: false,
         boundTo: [],
         playerPieces: true,
+        creator: ""
       }
       return state
     },
@@ -232,7 +234,9 @@ export class Board {
     if (init) {
       Object.assign(initState, init);
     }
-
+    if (!initState.creator) {
+      initState.creator = encodeHashToBase64(synStore.client.client.myPubKey)
+    }
     const documentStore = await synStore.createDocument(initState,{})
 
     await synStore.client.tagDocument(documentStore.documentHash, BoardType.active)

@@ -11,3 +11,4 @@ name = "gamez"
 hdk = { workspace = true }
 serde = { workspace = true }
 gamez_integrity = { workspace = true } 
+holochain_integrity_types = {workspace = true}

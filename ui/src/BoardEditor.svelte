@@ -11,6 +11,7 @@
     import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
     import SvgIcon from './SvgIcon.svelte';
     import { cloneDeep } from "lodash";
+  import { BoardType } from './boardList';
 
     // import type { GamezStore } from './store';
     // const { getStore } :any = getContext('gzStore');
@@ -18,6 +19,7 @@
 
     export let handleSave
     export let handleDelete = undefined
+    export let canDelete = false
     export let cancelEdit
 
     let text = ''
@@ -207,7 +209,12 @@
 
     <div class='controls'>
       {#if handleDelete}
-        <sl-button on:click={handleDelete}>
+        {#if canDelete}
+          <sl-button on:click={()=>handleDelete(BoardType.deleted)}  variant="warning">
+            Delete
+          </sl-button>
+        {/if}
+        <sl-button style="margin-left:10px" on:click={()=>handleDelete(BoardType.archived)}>
           Archive
         </sl-button>
       {/if}

@@ -46,6 +46,7 @@
   let synStore: SynStore = store.synStore;
 
   $: activeBoardHash = store.boardList.activeBoardHash;
+  $: uiProps = store.uiProps
 
   setContext("synStore", {
     getStore: () => synStore,
@@ -62,6 +63,8 @@
   $: myProfile = store.profilesStore.myProfile;
   $: defHashes = store.defHashes;
   $: defsList = store.defsList;
+
+  let showArchived
 
   let fileinput;
   const onFileSelected = (e) => {
@@ -97,11 +100,13 @@
         <EditGameTypeDialog bind:this={editBoardTypeDialog} />
         <StartGameDialog bind:this={startGameDialog} 
           on:start-game={async (e) => {
+
             const state = cloneDeep(e.detail.boardDef.board);
             state.name = e.detail.name;
             if (state.min_players) {
               state.props.players.push(myAgentPubKeyB64);
             }
+            console.log("FISh1")
             const board = await store.boardList.makeBoard(state);
             await board.join();
 
@@ -137,26 +142,35 @@
                   </div>
                 </div>
                 <div class="games-list">
-                  <h3>Archived Games</h3>
-                  <div class="games-list-items">
-                    {#if $archivedBoards.status == "complete" && $archivedBoards.value.length > 0}
-                      {#each $archivedBoards.value as hash}
-                        <div
-                          class="game"
-                          on:click={() => {
-                            store.boardList.unarchiveBoard(hash);
-                          }}
-                        >
-                          <BoardMenuItem
-                            boardType={BoardType.archived}
-                            boardHash={hash}
-                          ></BoardMenuItem>
-                        </div>
-                      {/each}
-                    {:else}
-                      (no archived games)
-                    {/if}
-                  </div>
+                  <div style="display:flex; align-items:center;"><h3>Archived Games</h3>
+                  <sl-checkbox
+                    style="margin-left:10px;"
+                    checked={$uiProps.showArchived}
+                    on:sl-input={(e)=>store.setUIprops({showArchived:e.target.checked})}
+                  >
+                    Show
+                  </sl-checkbox></div>
+                  {#if $uiProps.showArchived}
+                    <div class="games-list-items">
+                      {#if $archivedBoards.status == "complete" && $archivedBoards.value.length > 0}
+                        {#each $archivedBoards.value as hash}
+                          <div
+                            class="game"
+                            on:click={() => {
+                              store.boardList.unarchiveBoard(hash);
+                            }}
+                          >
+                            <BoardMenuItem
+                              boardType={BoardType.archived}
+                              boardHash={hash}
+                            ></BoardMenuItem>
+                          </div>
+                        {/each}
+                      {:else}
+                        (no archived games)
+                      {/if}
+                    </div>
+                  {/if}
                 </div>
               </div>
             <div class="game-types">
