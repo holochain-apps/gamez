@@ -5,7 +5,6 @@ import { derived, get, writable, type Readable, type Writable } from "svelte/sto
 import type { BoardDelta, BoardState } from "./board";
 import { type AgentPubKey, type EntryHash, decodeHashFromBase64, type EntryHashB64, type AgentPubKeyB64, encodeHashToBase64, type Timestamp } from "@holochain/client";
 import {toPromise, type AsyncReadable, pipe, joinAsync, sliceAndJoin, asyncDerived, alwaysSubscribed} from '@holochain-open-dev/stores'
-import type { v1 as uuidv1 } from "uuid";
 import type { ProfilesStore } from "@holochain-open-dev/profiles";
 import type { WeClient } from "@lightningrodlabs/we-applet";
 import { SeenType } from "./store";
