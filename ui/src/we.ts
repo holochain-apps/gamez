@@ -2,7 +2,7 @@ import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-s
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
 import { BoardType } from './boardList';
 import { LazyHoloHashMap } from '@holochain-open-dev/utils';
-import type { AppletHash, AppletServices, AssetInfo, WAL, WeaveServices } from '@lightningrodlabs/we-applet';
+import type { AppletHash, AppletServices, AssetInfo, RecordInfo, WAL, WeaveServices } from '@lightningrodlabs/we-applet';
 import type { AppClient, RoleName, ZomeName } from '@holochain/client';
 import { getMyDna } from './util';
 import type { BoardEphemeralState, BoardState } from './board';
@@ -29,24 +29,34 @@ export const appletServices: AppletServices = {
 
     getAssetInfo: async (
       appletClient: AppClient,
-      roleName: RoleName,
-      integrityZomeName: ZomeName,
-      entryType: string,
-      wal: WAL
+      wal: WAL,
+      recordInfo: RecordInfo,
     ): Promise<AssetInfo | undefined> => {
+      if (recordInfo) {
+        const roleName: RoleName = recordInfo.roleName
+        // const integrityZomeName: ZomeName = recordInfo.integrityZomeName
+        const entryType: string = recordInfo.entryType
 
-        const synClient = new SynClient(appletClient, roleName, ZOME_NAME);
-        const synStore = new SynStore(synClient);
-        const documentHash = wal.hrl[1]
-        const docStore = new DocumentStore<BoardState, BoardEphemeralState> (synStore, documentHash)
-        const workspaces = await toPromise(docStore.allWorkspaces)
-        const workspace = new WorkspaceStore(docStore, Array.from(workspaces.keys())[0])
-        const latestSnapshot = await toPromise(workspace.latestSnapshot)
+        if (entryType == "document") {
 
-        return {
-          icon_src: `data:image/svg+xml;utf8,${ICON}`,
-          name: latestSnapshot.name,
-        };
+          const synClient = new SynClient(appletClient, roleName, ZOME_NAME);
+          const synStore = new SynStore(synClient);
+          const documentHash = wal.hrl[1]
+          const docStore = new DocumentStore<BoardState, BoardEphemeralState> (synStore, documentHash)
+          const workspaces = await toPromise(docStore.allWorkspaces)
+          const workspace = new WorkspaceStore(docStore, Array.from(workspaces.keys())[0])
+          const latestSnapshot = await toPromise(workspace.latestSnapshot)
+
+          return {
+            icon_src: `data:image/svg+xml;utf8,${ICON}`,
+            name: latestSnapshot.name,
+          };
+        } else {
+          throw new Error("Gamez doesn't know about entry type:"+ entryType)
+        }
+      } else {
+        throw new Error("Null WAL not supported, must supply a recordInfo")
+      }
     },
     search: async (
       appletClient: AppClient,

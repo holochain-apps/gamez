@@ -34,7 +34,7 @@
   export let roleName = "";
   export let client: AppClient;
   export let profilesStore: ProfilesStore;
-  export let weaveClient: WeClient;
+  export let weaveClient: WeaveClient;
 
   let DEFAULT_GAMES = ["Chess", "Go", "World"];
   let store: GamezStore = new GamezStore(
@@ -46,6 +46,7 @@
   let synStore: SynStore = store.synStore;
 
   $: activeBoardHash = store.boardList.activeBoardHash;
+  $: uiProps = store.uiProps
 
   setContext("synStore", {
     getStore: () => synStore,
@@ -62,6 +63,8 @@
   $: myProfile = store.profilesStore.myProfile;
   $: defHashes = store.defHashes;
   $: defsList = store.defsList;
+
+  let showArchived
 
   let fileinput;
   const onFileSelected = (e) => {
@@ -137,26 +140,35 @@
                   </div>
                 </div>
                 <div class="games-list">
-                  <h3>Archived Games</h3>
-                  <div class="games-list-items">
-                    {#if $archivedBoards.status == "complete" && $archivedBoards.value.length > 0}
-                      {#each $archivedBoards.value as hash}
-                        <div
-                          class="game"
-                          on:click={() => {
-                            store.boardList.unarchiveBoard(hash);
-                          }}
-                        >
-                          <BoardMenuItem
-                            boardType={BoardType.archived}
-                            boardHash={hash}
-                          ></BoardMenuItem>
-                        </div>
-                      {/each}
-                    {:else}
-                      (no archived games)
-                    {/if}
-                  </div>
+                  <div style="display:flex; align-items:center;"><h3>Archived Games</h3>
+                  <sl-checkbox
+                    style="margin-left:10px;"
+                    checked={$uiProps.showArchived}
+                    on:sl-input={(e)=>store.setUIprops({showArchived:e.target.checked})}
+                  >
+                    Show
+                  </sl-checkbox></div>
+                  {#if $uiProps.showArchived}
+                    <div class="games-list-items">
+                      {#if $archivedBoards.status == "complete" && $archivedBoards.value.length > 0}
+                        {#each $archivedBoards.value as hash}
+                          <div
+                            class="game"
+                            on:click={() => {
+                              store.boardList.unarchiveBoard(hash);
+                            }}
+                          >
+                            <BoardMenuItem
+                              boardType={BoardType.archived}
+                              boardHash={hash}
+                            ></BoardMenuItem>
+                          </div>
+                        {/each}
+                      {:else}
+                        (no archived games)
+                      {/if}
+                    </div>
+                  {/if}
                 </div>
               </div>
             <div class="game-types">

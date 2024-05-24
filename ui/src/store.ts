@@ -79,6 +79,7 @@ export enum SeenType {
 
 export interface UIProps {
     tips: HoloHashMap<EntryHash,EntryHash>
+    showArchived: boolean
 }
 
 export class GamezStore {
@@ -153,6 +154,7 @@ export class GamezStore {
 
         this.uiProps = writable({
             tips: new HoloHashMap,
+            showArchived: false,
         })
         for (let i = 0; i < localStorage.length; i+=1){
             const key = localStorage.key(i)

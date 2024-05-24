@@ -1,14 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher, getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import type { EntryHash } from "@holochain/client";
+  import { decodeHashFromBase64, type EntryHash } from "@holochain/client";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import "@shoelace-style/shoelace/dist/components/card/card.js";
   import "@shoelace-style/shoelace/dist/components/relative-time/relative-time.js";
   import Participants from "./Participants.svelte";
   import { BoardType } from "./boardList";
-  import { asyncDerived, get } from "@holochain-open-dev/stores";
   import { hashEqual } from "./util";
+  import Avatar from "./Avatar.svelte";
 
   const dispatch = createEventDispatcher()
   const { getStore } :any = getContext("gzStore");
@@ -37,6 +37,9 @@
         <div class="item"><span class="item-title">Last Action:</span>  <sl-relative-time format="short" date={latestDate}></sl-relative-time></div>
       {/if}
       <div class="item"><span class="item-title">Started:</span>  <sl-relative-time format="short" date={createdDate}></sl-relative-time></div>
+      {#if $boardData.value.latestState.creator}
+      <div class="item"><span class="item-title">Created by:</span> <Avatar size={18} agentPubKey={decodeHashFromBase64($boardData.value.latestState.creator)} showNickname={true} /></div>
+      {/if}
 
       {#if boardType == BoardType.active}
         <div class="item"><span class="item-title">Participants:</span> <Participants board={$boardData.value.board}></Participants></div>

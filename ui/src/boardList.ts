@@ -5,7 +5,6 @@ import { derived, get, writable, type Readable, type Writable } from "svelte/sto
 import type { BoardDelta, BoardState } from "./board";
 import { type AgentPubKey, type EntryHash, decodeHashFromBase64, type EntryHashB64, type AgentPubKeyB64, encodeHashToBase64, type Timestamp } from "@holochain/client";
 import {toPromise, type AsyncReadable, pipe, joinAsync, sliceAndJoin, asyncDerived, alwaysSubscribed} from '@holochain-open-dev/stores'
-import type { v1 as uuidv1 } from "uuid";
 import type { ProfilesStore } from "@holochain-open-dev/profiles";
 import type { WeClient } from "@lightningrodlabs/we-applet";
 import { SeenType } from "./store";
@@ -13,7 +12,8 @@ import type { AsyncStatus } from "@holochain-open-dev/stores";
 
 export enum BoardType {
     active = "active",
-    archived = "archived"
+    archived = "archived",
+    deleted = "deleted"
 }
 
 export interface TypedHash {
@@ -163,6 +163,15 @@ export class BoardList {
     async archiveBoard(documentHash: EntryHash) {
         await this.synStore.client.removeDocumentTag(documentHash, BoardType.active)
         await this.synStore.client.tagDocument(documentHash, BoardType.archived)
+        if (encodeHashToBase64(get(this.activeBoardHash)) == encodeHashToBase64(documentHash)) {
+            await this.setActiveBoard(undefined)
+        }
+    }
+
+    async deleteBoard(documentHash: EntryHash) {
+        await this.synStore.client.removeDocumentTag(documentHash, BoardType.active)
+        await this.synStore.client.removeDocumentTag(documentHash, BoardType.archived)
+        await this.synStore.client.tagDocument(documentHash, BoardType.deleted)
         if (encodeHashToBase64(get(this.activeBoardHash)) == encodeHashToBase64(documentHash)) {
             await this.setActiveBoard(undefined)
         }

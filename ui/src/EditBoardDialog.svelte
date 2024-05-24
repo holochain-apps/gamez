@@ -3,11 +3,12 @@
     import type { GamezStore } from './store';
     import { getContext, onMount } from 'svelte';
     import { isEqual } from 'lodash'
-    import type { EntryHash } from '@holochain/client';
+    import { encodeHashToBase64, type EntryHash } from '@holochain/client';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
     import type { Board, BoardProps, BoardState,  PieceDef } from './board';
+    import { BoardType } from './boardList';
 
     let boardHash:EntryHash|undefined = undefined
 
@@ -16,11 +17,15 @@
 
     })
 
+    let canDelete
+
     export const  open = async (hash: EntryHash)=> {
         boardHash = hash
         const board: Board | undefined = await store.boardList.getBoard(boardHash)
         if (board) {
-            boardEditor.edit(board.state())
+            const state = board.state()
+            canDelete = state.creator === encodeHashToBase64(store.client.client.myPubKey)
+            boardEditor.edit(state)
             dialog.show()
         }
     }
@@ -77,8 +82,12 @@
         }
         close()
     }
-    const archiveBoard = () => {
-        store.boardList.archiveBoard(boardHash)
+    const archiveBoard = (type: BoardType) => {
+        if (type == BoardType.archived)
+            store.boardList.archiveBoard(boardHash)
+        else if (type == BoardType.deleted) 
+            store.boardList.deleteBoard(boardHash)
+
         close()
     }
     const close = ()=>{
@@ -92,5 +101,5 @@ on:sl-request-close={(event)=>{
     if (event.detail.source === 'overlay') {
     event.preventDefault();    
 }}}>
-    <BoardEditor bind:this={boardEditor} handleSave={updateBoard} handleDelete={archiveBoard} cancelEdit={close}/>
+    <BoardEditor bind:this={boardEditor} handleSave={updateBoard} handleDelete={archiveBoard} {canDelete} cancelEdit={close}/>
 </sl-dialog>

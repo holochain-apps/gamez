@@ -2,7 +2,7 @@
   import Controller from './Controller.svelte'
   import ControllerCreate from './ControllerCreate.svelte'
   import ControllerBoard from './ControllerBoard.svelte'
-  import { AppWebsocket, AdminWebsocket } from '@holochain/client';
+  import { AppWebsocket, AdminWebsocket, type AppWebsocketConnectionOptions } from '@holochain/client';
   import '@shoelace-style/shoelace/dist/themes/light.css';
   import { WeaveClient, isWeContext, initializeHotReload, type Hrl, type WAL } from '@lightningrodlabs/we-applet';
   import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
@@ -45,13 +45,16 @@
         console.warn("Could not initialize applet hot-reloading. This is only expected to work in a We context in dev mode.")
       }
     }
-
+    let tokenResp;
     if (!isWeContext()) {
         console.log("adminPort is", adminPort)
         if (adminPort) {
           const url = `ws://localhost:${adminPort}`
 
           const adminWebsocket = await AdminWebsocket.connect({url: new URL(url)})
+          tokenResp = await adminWebsocket.issueAppAuthenticationToken({
+            installed_app_id: appId,
+          });
           const x = await adminWebsocket.listApps({})
           console.log("apps", x)
           const cellIds = await adminWebsocket.listCellIds()
@@ -59,7 +62,9 @@
           await adminWebsocket.authorizeSigningCredentials(cellIds[0])
         }
         console.log("appPort and Id is", appPort, appId)
-        client = await AppWebsocket.connect({url: new URL(url)})
+        const params: AppWebsocketConnectionOptions = { url: new URL(url) };
+        if (tokenResp) params.token = tokenResp.token;
+        client = await AppWebsocket.connect(params);
         profilesClient = new ProfilesClient(client, appId);
     } 
     else {
@@ -76,25 +81,31 @@
                   throw new Error("Unknown applet-view block type:"+weaveClient.renderInfo.view.block);
               }
             case "asset":
-              switch (weaveClient.renderInfo.view.roleName) {
-                case "gamez":
-                  switch (weaveClient.renderInfo.view.integrityZomeName) {
-                    case "syn_integrity":
-                      switch (weaveClient.renderInfo.view.entryType) {
-                        case "document":
-                          renderType = RenderType.Board
-                          wal = weaveClient.renderInfo.view.wal
-                          break;
-                        default:
-                          throw new Error("Unknown entry type:"+weaveClient.renderInfo.view.entryType);
-                      }
-                      break;
-                    default:
-                      throw new Error("Unknown integrity zome:"+weaveClient.renderInfo.view.integrityZomeName);
-                  }
-                  break;
-                default:
-                  throw new Error("Unknown role name:"+weaveClient.renderInfo.view.roleName);
+              if (!weaveClient.renderInfo.view.recordInfo) {
+                  throw new Error(
+                    "KanDo does not implement asset views pointing to DNAs instead of Records."
+                  );
+              } else {
+                switch (weaveClient.renderInfo.view.recordInfo.roleName) {
+                  case "gamez":
+                    switch (weaveClient.renderInfo.view.recordInfo.integrityZomeName) {
+                      case "syn_integrity":
+                        switch (weaveClient.renderInfo.view.recordInfo.entryType) {
+                          case "document":
+                            renderType = RenderType.Board
+                            wal = weaveClient.renderInfo.view.wal
+                            break;
+                          default:
+                            throw new Error("Unknown entry type:"+weaveClient.renderInfo.view.recordInfo.entryType);
+                        }
+                        break;
+                      default:
+                        throw new Error("Unknown integrity zome:"+weaveClient.renderInfo.view.recordInfo.integrityZomeName);
+                    }
+                    break;
+                  default:
+                    throw new Error("Unknown role name:"+weaveClient.renderInfo.view.recordInfo.roleName);
+                }
               }
               break;
             case "creatable":

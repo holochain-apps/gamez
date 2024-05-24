@@ -44,7 +44,7 @@
                                               <div class="board" on:click={()=>{
                                                   store.boardList.setActiveBoard(board.board.hash)
                                                   close()
-                                              }}>{board.latestState.name}x</div>
+                                              }}>{board.latestState.name}</div>
                                           {/each}
                                       </div>
                                       {/if}

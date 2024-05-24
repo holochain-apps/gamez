@@ -11,11 +11,11 @@
     "x": "hc s clean &&  npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run start:happ\" \"hc run-local-services -b $BOOTSTRAP_PORT -s $SIGNAL_PORT\"",
     "tool-dev": " UI_PORT=8888 npm run tool-devy",
     "tool-devy": "concurrently \"npm start -w ui\" \"sleep 1 && we-dev-cli --agent-idx 1 --dev-config we_dev/config.ts\" \"sleep 10 && we-dev-cli --agent-idx 2 --dev-config we_dev/config.ts\"",
-    "applet-devx": "BPORT=46263 SPORT=46262; concurrently \"hc run-local-services -b $BPORT -s $SPORT\" \"npm start -w ui\" \"./we_dev/we.AppImage  --dev-config we_dev/config.json --agent-num 1 -b http://127.0.0.1:$BPORT -s ws://127.0.0.1:$SPORT\" \"sleep 10 && ./we_dev/we.AppImage --dev-config we_dev/config.json --agent-num 2 -b http://127.0.0.1:$BPORT -s ws://127.0.0.1:$SPORT\"",
     "network": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ\" \"holochain-playground\"",
     "test": "npm run build:zomes && hc app pack workdir --recursive && npm t -w tests",
     "package": "npm run build:happ && npm run package -w ui && hc web-app pack workdir --recursive",
     "launch:happ": "hc-spin -n $AGENTS workdir/gamez.happ --ui-port $UI_PORT ",
+    "start:happ": "echo \"starting with admin $VITE_ADMIN_PORT\" && RUST_LOG=warn echo \"pass\" | hc s -f=$VITE_ADMIN_PORT --piped generate workdir/gamez.happ --run=$VITE_APP_PORT -a gamez network -b \"http://127.0.0.1:$BOOTSTRAP_PORT\"  webrtc \"ws://127.0.0.1:$SIGNAL_PORT\"",
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
     "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown"
   },
