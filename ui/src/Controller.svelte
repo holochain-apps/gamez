@@ -2,7 +2,7 @@
   import Toolbar from "./Toolbar.svelte";
   import GamezPane from "./GamezPane.svelte";
   import { GamezStore } from "./store";
-  import { setContext } from "svelte";
+  import { onMount, setContext } from "svelte";
   import type { AppClient } from "@holochain/client";
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
@@ -15,7 +15,7 @@
   import { v1 as uuidv1 } from "uuid";
   import BoardMenuItem from "./BoardMenuItem.svelte";
   import BoardDefItem from "./BoardDefItem.svelte";
-  import type { WeClient } from "@lightningrodlabs/we-applet";
+  import { isWeContext, type WeaveClient } from "@lightningrodlabs/we-applet";
   import StartGameDialog from "./StartGameDialog.svelte";
 
   let defaultGames = [
@@ -81,6 +81,13 @@
     );
     reader.readAsText(file);
   };
+  let amWeaveSteward = false
+
+  onMount(async () => {
+    if (isWeContext() && (await weaveClient.myGroupPermissionType()).type === "Steward")
+      amWeaveSteward = true
+  })
+
   let newBoardDialog;
   let editBoardTypeDialog;
   let startGameDialog;
@@ -118,7 +125,9 @@
             <div class="welcome-text">
               <h3>Welcome to Board Gamez!</h3>
               <p>If you have just joined and you don't see any game types, or games, please be patient and allow the network to sync with your peers. </p>
-              <p style="font-size:80%;">If you created this instance you may want to click on Chess, Go and World in "Create Game Types" or add your own game types.</p>
+              {#if (!isWeContext() || amWeaveSteward) }
+              <p style="font-size:90%;">If you created this instance you may want to click on Chess, Go and World in "Create Game Types" or add your own game types.</p>
+              {/if}
             </div>
           {/if}
           <div style="display:flex">
@@ -215,7 +224,7 @@
                   title="Import Game"
                   >Import <SvgIcon icon="faFileImport" size="16" /></sl-button
                 >
-                {#if $defsList.status == "complete"}
+                {#if (!isWeContext() || amWeaveSteward) && $defsList.status == "complete"}
                   {@const names = $defsList.value.map((def) => def.board.name)}
                   {#each DEFAULT_GAMES as g}
                     {#if !names.find((b) => b == g)}
