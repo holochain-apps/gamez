@@ -13,6 +13,8 @@
   import { isWeContext, weaveUrlFromWal, type WAL } from "@lightningrodlabs/we-applet";
   import AttachmentsList from "./AttachmentsList.svelte";
 
+  const MAX_PLAYERS_IN_HEADER = 5
+
   const download = (filename: string, text: string) => {
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text));
@@ -225,13 +227,16 @@
       {#if $participants}
       <div class="participants" style="margin-right:20px">
         <div style="display:flex; flex-direction: row">
-          <div style="margin-left:5px;">          <Avatar agentPubKey={store.myAgentPubKey} showNickname={false} size={25} />
+          <div style="margin-left:5px;">          
+            <Avatar agentPubKey={store.myAgentPubKey} showNickname={false} size={25} />
           </div>
 
           {#each Array.from($participants.entries()) as [agentPubKey, sessionData]}
-          <div style="margin-left:5px;" class:idle={Date.now()-sessionData.lastSeen >30000}>
-            <Avatar agentPubKey={agentPubKey} showNickname={false} size={25} />
-          </div>
+            {#if Date.now()-sessionData.lastSeen < 30000}
+              <div style="margin-left:5px;">
+                <Avatar agentPubKey={agentPubKey} showNickname={false} size={25} />
+              </div>
+            {/if}
           {/each}
 
         </div>
@@ -258,19 +263,22 @@
   </div>
   {#if $state}
     {#if $state.min_players}
+      {@const playerCount = $state.props.players.length}
       <div class="board-header">
-        <h3>Players:</h3>
-        <div style="display:flex; align-items:end; margin-left: 10px;">
-          {#each $state.props.players as player, index}
-            
-            <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px">
-              {#if $state.turns && index == ($state.props.turn | 0)}
-                <div class="my-turn"></div>
-              {/if}
-              <Avatar agentPubKey={decodeHashFromBase64(player)} />
-            </div>
-          {/each}
-        </div>
+        {#if !$state.playerPieces ||  $state.turns }
+          <h3>Players:</h3>
+          <div style="display:flex; align-items:end; margin-left: 10px;">
+            {#each $state.props.players as player, index}
+              {@const thisPlayersTurn = $state.turns && index == ($state.props.turn | 0)}
+              <div title={thisPlayersTurn ? "This players turn!" : ""} style="display:flex;align-items:center;flex-direction:column;margin-right:10px">
+                {#if thisPlayersTurn}
+                  <div class="my-turn"></div>
+                {/if}
+                <Avatar agentPubKey={decodeHashFromBase64(player)} namePosition="column" size={25} showNickname={playerCount < MAX_PLAYERS_IN_HEADER} tooltip={playerCount < MAX_PLAYERS_IN_HEADER}/>
+              </div>
+            {/each}
+          </div>
+        {/if}
         {#if canJoin($state)}
           <sl-button 
             on:click={()=>{
@@ -401,11 +409,13 @@
 </div>
 <style>
   .my-turn {
-    width: 0; 
-    height: 0; 
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-top: 15px solid #f00;
+    z-index: 100;
+    margin-right: 18px;
+    margin-bottom: -10px;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    background-color: rgb(139, 212, 30);
   }
   .board-area {
     justify-content:center;
@@ -414,7 +424,6 @@
     overflow:auto;
   }
   .piece-source {
-    max-width: 100px;
     margin-right: 20px;
   }
   .img-container {
@@ -467,6 +476,7 @@
     align-items: center;
   }
   .board-header {
+    padding-top: 5px;
     display:flex;
     justify-content:center;
     align-items:center; 

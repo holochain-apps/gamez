@@ -16,6 +16,8 @@
   export let showNickname = true
   export let placeholder = false
   export let disableAvatarPointerEvents = false
+  export let copyable = false
+  export let tooltip = false
 
   $: agentPubKey
   $: agentPubKeyB64 = encodeHashToBase64(agentPubKey)
@@ -37,7 +39,7 @@
             {#if placeholder && !$profile.value.entry.fields.avatar}
                 <SvgIcon icon=faUser size={`${size}`} style="margin-left:5px;margin-right:5px"/>
             {:else}
-                <agent-avatar class:disable-ptr-events={disableAvatarPointerEvents} disable-tooltip={true} disable-copy={true} size={size} agent-pub-key="{agentPubKeyB64}"></agent-avatar>
+                <agent-avatar class:disable-ptr-events={disableAvatarPointerEvents} disable-tooltip={!tooltip} disable-copy={!copyable} size={size} agent-pub-key="{agentPubKeyB64}"></agent-avatar>
             {/if}
         {/if}
         {#if showNickname}

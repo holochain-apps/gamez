@@ -37,12 +37,12 @@
         <div class="item"><span class="item-title">Last Action:</span>  <sl-relative-time format="short" date={latestDate}></sl-relative-time></div>
       {/if}
       <div class="item"><span class="item-title">Started:</span>  <sl-relative-time format="short" date={createdDate}></sl-relative-time></div>
-      {#if $boardData.value.latestState.creator}
-      <div class="item"><span class="item-title">Created by:</span> <Avatar size={18} agentPubKey={decodeHashFromBase64($boardData.value.latestState.creator)} showNickname={true} /></div>
-      {/if}
 
       {#if boardType == BoardType.active}
-        <div class="item"><span class="item-title">Participants:</span> <Participants board={$boardData.value.board}></Participants></div>
+        <div class="item"><span class="item-title">Players:</span> <Participants moreAfter={3} showPlayers={true} board={$boardData.value.board}></Participants></div>
+      {/if}
+      {#if $boardData.value.latestState.creator}
+        <div class="item"><span class="item-title">Created by:</span> <Avatar size={18} agentPubKey={decodeHashFromBase64($boardData.value.latestState.creator)} showNickname={true} /></div>
       {/if}
     {:else if $boardData.status == "pending"}
       <sl-skeleton
@@ -68,6 +68,7 @@
   .item {
     display: flex;
     align-items: center;
+    padding: 2px;
   }
   .item-title {
     width: 100px;

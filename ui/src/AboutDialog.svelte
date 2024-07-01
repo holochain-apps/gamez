@@ -12,9 +12,10 @@
 
 <svelte:window on:keydown={handleKeydown}/>
 
-<sl-dialog label="Gamez!: UI v0.5.1 for DNA v0.5.0" bind:this={dialog} width={600} >
+<sl-dialog label="Gamez!" bind:this={dialog} width={600} >
     <div class="about">
-        <p>Gamez! is a demonstration Holochain app built by the Holochain Foundation.</p>
+        <p>Gamez is a demonstration Holochain app built by the Holochain Foundation.</p>
+        <p><b>Version:</b> UI {__APP_VERSION__}; DNA {__DNA_VERSION__}</p>
         <p> <b>Developers:</b>
             Check out this hApp's source-code <a href="https://github.com/holochain-apps/gamez">in our github repo</a>.
             This project's real-time syncronization is powered by <a href="https://github.com/holochain/syn">Syn</a>, 
@@ -34,6 +35,9 @@
      }
      .small {
         font-size: 80%;
+    }
+    a {
+        text-decoration:underline
     }
 </style>
   
