@@ -33,7 +33,7 @@
         download(fileName, JSON.stringify(state))
         alert(`Your board was exported to your Downloads folder as: '${fileName}'`)
     }
- 
+
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
   export let activeBoard: Board
@@ -71,7 +71,7 @@
 
   let attachmentsDialog : AttachmentsDialog
   function editPieceAttachments(piece: Piece) {
-    if (isWeContext())  
+    if (isWeContext())
       attachmentsDialog.open(piece)
   }
 
@@ -105,7 +105,7 @@
   }
   function handleDragOver(e) {
     e.preventDefault()
-  
+
   }
   function handleDragDrop(e:DragEvent) {
     e.preventDefault();
@@ -114,11 +114,11 @@
     }
     const bounds = img.getBoundingClientRect()
 
-    if (dragType == "move") {    
+    if (dragType == "move") {
       const x = (e.clientX - bounds.left)-dragOffsetX ;
       const y = (e.clientY - bounds.top)-dragOffsetY ;
-      activeBoard.requestChanges( [{ 
-        type: "move-piece", 
+      activeBoard.requestChanges( [{
+        type: "move-piece",
         id: draggedItemId,
         x,y
       }]);
@@ -134,8 +134,8 @@
       }
       const x = (e.clientX - bounds.left) - pieceWidth/2;
       const y = (e.clientY - bounds.top)-dragOffsetY;
-      activeBoard.requestChanges( [{ 
-        type: "add-piece", 
+      activeBoard.requestChanges( [{
+        type: "add-piece",
         pieceType: draggedItemId,
         imageIdx: 0,
         x,y,attachments:[]
@@ -150,7 +150,7 @@
   }
   const DEFAULT_BOARD_IMG = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png"
 
-  $: bgUrl = ($state.props && $state.props.bgUrl) ? $state.props.bgUrl : DEFAULT_BOARD_IMG 
+  $: bgUrl = ($state.props && $state.props.bgUrl) ? $state.props.bgUrl : DEFAULT_BOARD_IMG
   $: bgImage = `background-image: url("`+ bgUrl+`");`
 
   let img
@@ -202,6 +202,60 @@
   }
 
   let selectedCommitHash
+
+  const getScreenPos = (ev: MouseEvent) => {
+    const imgBox = boardContainer.getBoundingClientRect();
+    const relativeX = ev.clientX - imgBox.left;
+    const relativeY = ev.clientY - imgBox.top;
+    return [relativeX, relativeY] as [number, number];
+  }
+
+  let boardContainer: HTMLDivElement;
+  const maxZoom = 4; // x4 the original size
+  const zoomStep = 0.001; // % zoomed for each deltaY
+  let zoom = 1; // From 1 to maxZoom
+  const handleZoomInOut = (ev: WheelEvent) => {
+    const prevZoom = zoom;
+    zoom += ev.deltaY * zoomStep;
+    if (zoom < 1) zoom = 1;
+    if (zoom > maxZoom) zoom = maxZoom;
+    const zoomDelta = 1 - (zoom / prevZoom)
+    if (zoomDelta !== 0) {
+      const screenPos = getScreenPos(ev);
+      panX += (screenPos[0] * zoomDelta) / zoom;
+      panY += (screenPos[1] * zoomDelta) / zoom;
+    }
+  }
+
+  let panX = 0;
+  let panY = 0;
+  let isPanning = false;
+  const handlePanningStart = (ev: MouseEvent) => {
+    if (ev.target === img) {
+      isPanning = true;
+      const [panInitialX, panInitialY] = [panX, panY];
+      const [panStartX, panStartY] = getScreenPos(ev);
+
+      window.document.addEventListener('mousemove', handleMouseMove);
+      window.document.addEventListener('mouseup', handleMouseUp);
+
+      function handleMouseMove(ev: MouseEvent) {
+        const [currentX, currentY] = getScreenPos(ev);
+
+        const deltaX = currentX - panStartX;
+        const deltaY = currentY - panStartY;
+
+        panX = panInitialX + deltaX / zoom;
+        panY = panInitialY + deltaY / zoom;
+      }
+
+      function handleMouseUp() {
+        isPanning = false;
+        window.document.removeEventListener('mousemove', handleMouseMove);
+        window.document.removeEventListener('mouseup', handleMouseUp);
+      }
+    }
+  }
 </script>
 <div class="board">
     <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
@@ -209,7 +263,7 @@
     <div class="left-items">
       <h5>{$state.name}</h5>
       {#if store.weClient}
-        <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyHrlToClipboard()} >          
+        <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyHrlToClipboard()} >
           <SvgIcon icon="addToPocket" size="20px"/>
         </sl-button>
 
@@ -263,7 +317,7 @@
         <h3>Players:</h3>
         <div style="display:flex; align-items:end; margin-left: 10px;">
           {#each $state.props.players as player, index}
-            
+
             <div style="display:flex;align-items:center;flex-direction:column;margin-right:10px">
               {#if $state.turns && index == ($state.props.turn | 0)}
                 <div class="my-turn"></div>
@@ -273,10 +327,10 @@
           {/each}
         </div>
         {#if canJoin($state)}
-          <sl-button 
+          <sl-button
             on:click={()=>{
-              activeBoard.requestChanges( [{ 
-              type: "add-player", 
+              activeBoard.requestChanges( [{
+              type: "add-player",
               player: myAgentPubKeyB64
             }]);
 
@@ -289,7 +343,7 @@
         {:else if myTurn($state)}
           <sl-button style="margin-left: 30px"
             on:click={()=>{
-              activeBoard.requestChanges( [{ 
+              activeBoard.requestChanges( [{
               type: "next-turn"
             }]);
 
@@ -300,8 +354,8 @@
         {#if haveJoined($state)}
           <sl-button style="margin-left:10px"
             on:click={()=>{
-              activeBoard.requestChanges( [{ 
-              type: "remove-player", 
+              activeBoard.requestChanges( [{
+              type: "remove-player",
               player: myAgentPubKeyB64
             }]);
 
@@ -318,7 +372,7 @@
               <AttachmentsList attachments={attachments} allowDelete={false}
               on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
             {/if}
-             
+
           </div>
         {/if}
       </div>
@@ -342,7 +396,7 @@
         {/each}
         {#if $state.playerPieces}
           {#each $state.props.players as player, index}
-              
+
             <div class="piece-def"
               id={player}
               draggable={iCanPlay}
@@ -355,39 +409,46 @@
           {/each}
         {/if}
       </div>
-        <div class="img-container">
-        <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
-        {#each pieces as piece}
-          {@const pieceIsPlayer = isPlayer(piece.typeId)}
-          <div class="piece"
-            on:dblclick={()=>editPieceAttachments(piece)}
-            draggable={iCanPlay}
-            class:draggable={iCanPlay}
-            on:dragstart={handleDragStartMove}
-            on:dragend={handleDragEnd}
-            on:drop={handleDragDrop}  
-            on:dragover={handleDragOver}          
-            title={piece.attachments && piece.attachments.length > 0 ? `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`: pieceName(piece)}
-            id={piece.id}
-            style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
+      <!-- Zoom wrapper -->
+      <div class="img-container" bind:this={boardContainer} on:wheel={handleZoomInOut} on:mousedown={handlePanningStart}>
+        <!-- Board inner shadow -->
+        <div style="position: absolute; inset: 0; z-index: 20; red; box-shadow: inset 0 0 6px rgba(0,0,0,0.25); pointer-events: none;"></div>
+        <div style={`${isPanning ? 'cursor: move;' : ''} height: 100%; width: 100%; transform:scale(${zoom}) translate(${panX}px, ${panY}px); transform-origin: top left;`}>
+          <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
+          {#each pieces as piece}
+            {@const pieceIsPlayer = isPlayer(piece.typeId)}
+            <div class="piece"
+              on:dblclick={()=>editPieceAttachments(piece)}
+              draggable={iCanPlay}
+              class:draggable={iCanPlay}
+              on:dragstart={handleDragStartMove}
+              on:dragend={handleDragEnd}
+              on:drop={handleDragDrop}
+              on:dragover={handleDragOver}
+              title={piece.attachments && piece.attachments.length > 0 ? `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`: pieceName(piece)}
+              id={piece.id}
+              style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
+              >
+              {#if piece.attachments && piece.attachments.length > 0}
+              <div class="piece-has-attachment">{piece.attachments.length}</div>
+              {/if}
+              {#if pieceIsPlayer}
+                <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
+              {:else}
+                {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
+                {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
+              {/if}
+            </div>
+          {/each}
+          <img
+            width={$state.props.bgWidth}
+            height={$state.props.bgHeight}
+            draggable={false} bind:this={img} src={bgUrl}
+            style="display: block; padding:80px; background-color:lightgray; border:1px solid transparent; object-fit: cover;"
+            on:drop={handleDragDrop}
+            on:dragover={handleDragOver}
             >
-            {#if piece.attachments && piece.attachments.length > 0}
-            <div class="piece-has-attachment">{piece.attachments.length}</div>
-            {/if}
-            {#if pieceIsPlayer}
-              <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
-            {:else}
-              {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
-              {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
-            {/if}
-          </div>
-        {/each}
-        <img width={$state.props.bgWidth} height={$state.props.bgHeight} draggable={false} bind:this={img} src={bgUrl}
-          
-          style="padding:100px; background-color:lightgray; border:1px solid; flex: 1; object-fit: cover; overflow: hidden"
-          on:drop={handleDragDrop}  
-          on:dragover={handleDragOver}          
-          >
+        </div>
       </div>
 
     </div>
@@ -402,8 +463,8 @@
 </div>
 <style>
   .my-turn {
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 15px solid transparent;
     border-right: 15px solid transparent;
     border-top: 15px solid #f00;
@@ -419,9 +480,11 @@
     margin-right: 20px;
   }
   .img-container {
+    border: solid 1px rgba(0,0,0,.25);
     position: relative;
     padding: 0px;
-    overflow: auto;
+    overflow: hidden;
+    border-radius: 4px;
   }
 
   .piece {
@@ -470,7 +533,7 @@
   .board-header {
     display:flex;
     justify-content:center;
-    align-items:center; 
+    align-items:center;
     border-bottom: solid 1px lightgray;
   }
   .attachments-area {
