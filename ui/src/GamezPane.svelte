@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getContext } from "svelte";
+  import type { DragEventHandler } from 'svelte/elements';
   import type { GamezStore } from "./store";
   import { type BoardState, PieceDef, PieceType, Board, type Piece} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
@@ -13,6 +14,13 @@
   import { isWeContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
   import { hrlWithContextToB64 } from "./util";
   import AttachmentsList from "./AttachmentsList.svelte";
+
+  // There is 3 coordinates systems
+  // - Screen coordinates, relative to top left of document
+  // - Canvas coordinates, relative to board container
+  // - Board coordinates, relative to board adjusted with pan and zoom
+
+
 
   const download = (filename: string, text: string) => {
     var element = document.createElement('a');
@@ -66,7 +74,7 @@
   let editBoardDialog
   let draggingHandled = true
   let draggedItemId = ""
-  let dragOffsetX, dragOffsetY
+  let dragOffsetX, dragOffsetY; // The difference between mouse grab position and piece top-left
   let dragType
 
   let attachmentsDialog : AttachmentsDialog
@@ -85,17 +93,23 @@
     handleDragStart(e)
   }
 
-  function handleDragStart(e) {
-    draggingHandled = false
-    //console.log("handleDragStart", e)
-    e.dataTransfer.dropEffect = "move";
-//    e.dataTransfer.setDragImage(e.target)
-    draggedItemId = e.target.getAttribute('id')
-    e.dataTransfer
-      .setData("text", e.target.getAttribute('id'));
-    const bounds = e.target.getBoundingClientRect()
-    dragOffsetX = (e.clientX - bounds.left) ;
-    dragOffsetY = (e.clientY - bounds.top) ;
+  type DragEventHandler = DragEvent & {
+      currentTarget: EventTarget & HTMLDivElement;
+  }
+  function handleDragStart(e: DragEventHandler) {
+    draggingHandled = false;
+    draggedItemId = e.currentTarget.getAttribute('id');
+    e.dataTransfer.setDragImage
+    e.dataTransfer.setData("text", e.currentTarget.getAttribute('id'));
+    const bounds = e.currentTarget.getBoundingClientRect()
+    if (dragType === 'move') {
+      dragOffsetX = (e.clientX - bounds.left);
+      dragOffsetY = (e.clientY - bounds.top);
+    } else {
+      const {w, h} = pieceSize(draggedItemId);
+      dragOffsetX = w / 2;
+      dragOffsetY = h / 2;
+    }
 
   }
 
@@ -107,38 +121,40 @@
     e.preventDefault()
 
   }
+
+  function pieceSize(pieceId: string) {
+    if (isPlayer(pieceId)) {
+      return {w: 30, h: 30}
+    } else {
+      return {w: pieceDefs[pieceId].width, h: pieceDefs[pieceId].height}
+    }
+  }
+
   function handleDragDrop(e:DragEvent) {
     e.preventDefault();
     if (draggingHandled) {
       return
     }
-    const bounds = img.getBoundingClientRect()
+
+    const [canvasX, canvasY] = screenToCanvasPos(e);
+    const [boardX, boardY] = canvasToBoardPos([canvasX - dragOffsetX, canvasY - dragOffsetY]);
 
     if (dragType == "move") {
-      const x = (e.clientX - bounds.left)-dragOffsetX ;
-      const y = (e.clientY - bounds.top)-dragOffsetY ;
       activeBoard.requestChanges( [{
         type: "move-piece",
         id: draggedItemId,
-        x,y
+        x: boardX,
+        y: boardY
       }]);
     }
     else {
-      let pieceWidth
-      console.log("Drop", draggedItemId)
-      if (isPlayer(draggedItemId)) {
-        pieceWidth=30
-      } else {
-        const def = pieceDefs[draggedItemId]
-        pieceWidth = def.width
-      }
-      const x = (e.clientX - bounds.left) - pieceWidth/2;
-      const y = (e.clientY - bounds.top)-dragOffsetY;
       activeBoard.requestChanges( [{
         type: "add-piece",
         pieceType: draggedItemId,
         imageIdx: 0,
-        x,y,attachments:[]
+        x: boardX,
+        y: boardY,
+        attachments:[]
       }]);
     }
     clearDrag()
@@ -203,44 +219,47 @@
 
   let selectedCommitHash
 
-  const getScreenPos = (ev: MouseEvent) => {
-    const imgBox = boardContainer.getBoundingClientRect();
-    const relativeX = ev.clientX - imgBox.left;
-    const relativeY = ev.clientY - imgBox.top;
-    return [relativeX, relativeY] as [number, number];
-  }
+  // ███████╗ ██████╗  ██████╗ ███╗   ███╗     █████╗ ███╗   ██╗██████╗     ██████╗  █████╗ ███╗   ██╗
+  // ╚══███╔╝██╔═══██╗██╔═══██╗████╗ ████║    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗████╗  ██║
+  //   ███╔╝ ██║   ██║██║   ██║██╔████╔██║    ███████║██╔██╗ ██║██║  ██║    ██████╔╝███████║██╔██╗ ██║
+  //  ███╔╝  ██║   ██║██║   ██║██║╚██╔╝██║    ██╔══██║██║╚██╗██║██║  ██║    ██╔═══╝ ██╔══██║██║╚██╗██║
+  // ███████╗╚██████╔╝╚██████╔╝██║ ╚═╝ ██║    ██║  ██║██║ ╚████║██████╔╝    ██║     ██║  ██║██║ ╚████║
+  // ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝     ╚═╝    ╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝     ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝
 
-  let boardContainer: HTMLDivElement;
   const maxZoom = 4; // x4 the original size
+  const minZoom = 0.5;
   const zoomStep = 0.001; // % zoomed for each deltaY
+  let boardContainer: HTMLDivElement;
   let zoom = 1; // From 1 to maxZoom
+  let panX = 0;
+  let panY = 0;
+  let isPanning = false;
+
   const handleZoomInOut = (ev: WheelEvent) => {
     const prevZoom = zoom;
     zoom += ev.deltaY * zoomStep;
-    if (zoom < 1) zoom = 1;
+    if (zoom < minZoom) zoom = minZoom;
     if (zoom > maxZoom) zoom = maxZoom;
     const zoomDelta = 1 - (zoom / prevZoom)
     if (zoomDelta !== 0) {
-      const screenPos = getScreenPos(ev);
+      const screenPos = screenToCanvasPos(ev);
       panX += (screenPos[0] * zoomDelta) / zoom;
       panY += (screenPos[1] * zoomDelta) / zoom;
     }
   }
 
-  let panX = 0;
-  let panY = 0;
-  let isPanning = false;
+
   const handlePanningStart = (ev: MouseEvent) => {
-    if (ev.target === img) {
+    if (shouldHandlePanning(ev.target as HTMLElement)) {
       isPanning = true;
       const [panInitialX, panInitialY] = [panX, panY];
-      const [panStartX, panStartY] = getScreenPos(ev);
+      const [panStartX, panStartY] = screenToCanvasPos(ev);
 
       window.document.addEventListener('mousemove', handleMouseMove);
       window.document.addEventListener('mouseup', handleMouseUp);
 
       function handleMouseMove(ev: MouseEvent) {
-        const [currentX, currentY] = getScreenPos(ev);
+        const [currentX, currentY] = screenToCanvasPos(ev);
 
         const deltaX = currentX - panStartX;
         const deltaY = currentY - panStartY;
@@ -255,6 +274,31 @@
         window.document.removeEventListener('mouseup', handleMouseUp);
       }
     }
+  }
+
+  function shouldHandlePanning(mouseDownTarget: HTMLElement): boolean {
+    if (mouseDownTarget === boardContainer) return true;
+
+    if (mouseDownTarget.draggable) {
+      return false
+    } else {
+      if (mouseDownTarget.parentElement) {
+        return shouldHandlePanning(mouseDownTarget.parentElement);
+      } else {
+        return false;
+      }
+    }
+  }
+
+  function screenToCanvasPos (ev: {clientX: number; clientY: number}) {
+    const imgBox = boardContainer.getBoundingClientRect();
+    const relativeX = ev.clientX - imgBox.left;
+    const relativeY = ev.clientY - imgBox.top;
+    return [relativeX, relativeY] as [number, number];
+  }
+
+  function canvasToBoardPos ([x, y]: [number, number]) {
+    return [x / zoom - panX, y / zoom - panY] as [number, number];
   }
 </script>
 <div class="board">
@@ -409,14 +453,23 @@
           {/each}
         {/if}
       </div>
-      <!-- Zoom wrapper -->
-      <div class="img-container" bind:this={boardContainer} on:wheel={handleZoomInOut} on:mousedown={handlePanningStart}>
-        <!-- Board inner shadow -->
-        <div style="position: absolute; inset: 0; z-index: 20; red; box-shadow: inset 0 0 6px rgba(0,0,0,0.25); pointer-events: none;"></div>
-        <div style={`${isPanning ? 'cursor: move;' : ''} height: 100%; width: 100%; transform:scale(${zoom}) translate(${panX}px, ${panY}px); transform-origin: top left;`}>
+      <div
+        class="img-container"
+        bind:this={boardContainer}
+        on:wheel={handleZoomInOut}
+        on:mousedown={handlePanningStart}
+        style={`${isPanning ? 'cursor: move;' : ''}`}
+        >
+        <div style={`
+          height: 100%;
+          width: 100%;
+          transform:scale(${zoom}) translate(${panX}px, ${panY}px);
+          transform-origin: top left;`
+        }>
           <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
           {#each pieces as piece}
             {@const pieceIsPlayer = isPlayer(piece.typeId)}
+            {@const pieceWH = pieceSize(piece.typeId)}
             <div class="piece"
               on:dblclick={()=>editPieceAttachments(piece)}
               draggable={iCanPlay}
@@ -427,7 +480,13 @@
               on:dragover={handleDragOver}
               title={piece.attachments && piece.attachments.length > 0 ? `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`: pieceName(piece)}
               id={piece.id}
-              style={`top:${piece.y}px;left:${piece.x}px;font-size:${pieceIsPlayer ? 30 : pieceDefs[piece.typeId].height}px`}
+              style={`
+                top:${piece.y}px;
+                left:${piece.x}px;
+                font-size:${pieceWH.h - 2}px;
+                width: ${pieceWH.w}px;
+                height: ${pieceWH.h}px;
+              `}
               >
               {#if piece.attachments && piece.attachments.length > 0}
               <div class="piece-has-attachment">{piece.attachments.length}</div>
@@ -435,7 +494,7 @@
               {#if pieceIsPlayer}
                 <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
               {:else}
-                {#if pieceDefs[piece.typeId].type===PieceType.Emoji}{pieceDefs[piece.typeId].images[piece.imageIdx]}{/if}
+                {#if pieceDefs[piece.typeId].type===PieceType.Emoji}<span style="margin-top: 1px;">{pieceDefs[piece.typeId].images[piece.imageIdx]}</span>{/if}
                 {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
               {/if}
             </div>
@@ -444,7 +503,7 @@
             width={$state.props.bgWidth}
             height={$state.props.bgHeight}
             draggable={false} bind:this={img} src={bgUrl}
-            style="display: block; padding:80px; background-color:lightgray; border:1px solid transparent; object-fit: cover;"
+            style="display: block; padding:80px; background-color: transparent; border:1px solid transparent; object-fit: cover;"
             on:drop={handleDragDrop}
             on:dragover={handleDragOver}
             >
@@ -485,10 +544,26 @@
     padding: 0px;
     overflow: hidden;
     border-radius: 4px;
+    background: rgba(0,0,0,0.1);
+  }
+  .img-container:before {
+    content: ' ';
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.25);
+    pointer-events: none;
   }
 
   .piece {
     position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0; /* Fixes avatar element extra spacing */
+  }
+  .piece:hover {
+    background: rgba(0,0,0,0);
   }
   .piece-def {
     border: solid 1px;
