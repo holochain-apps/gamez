@@ -20,8 +20,6 @@
   // - Canvas coordinates, relative to board container
   // - Board coordinates, relative to board adjusted with pan and zoom
 
-
-
   const download = (filename: string, text: string) => {
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text));
@@ -71,109 +69,150 @@
     await store.boardList.closeActiveBoard(true);
   };
 
-  let editBoardDialog
-  let draggingHandled = true
-  let draggedItemId = ""
-  let dragOffsetX, dragOffsetY; // The difference between mouse grab position and piece top-left
-  let dragType
-
   let attachmentsDialog : AttachmentsDialog
   function editPieceAttachments(piece: Piece) {
     if (isWeContext())
       attachmentsDialog.open(piece)
   }
 
-  function handleDragStartAdd(e) {
-    dragType = "add"
-    handleDragStart(e)
+
+  let editBoardDialog;
+  let dragState: null | {
+    type: "add",
+    offsetX: number,
+    offsetY: number,
+    pieceTypeId: string
+  } | {
+    type: "move",
+    offsetX: number,
+    offsetY: number,
+    pieceId: string
   }
 
-  function handleDragStartMove(e) {
-    dragType = "move"
-    handleDragStart(e)
-  }
+  // let draggingHandled = true;
+  // let draggedItemId = ""; // pieceTypeId if dragType = add || pieceId if dragType = move
+  // let dragOffsetX, dragOffsetY; // The difference between mouse grab position and piece top-left
+  // let dragType: "add" | "move";
+
+
+  // function handleDragStartAdd(e, pieceTypeId: string) {
+  //   dragType = "add"
+  //   handleDragStart(e)
+  // }
+
+  // function handleDragStartMove(e, pieceId: string) {
+  //   dragType = "move"
+  //   handleDragStart(e)
+  // }
 
   type DragEventHandler = DragEvent & {
       currentTarget: EventTarget & HTMLDivElement;
   }
-  function handleDragStart(e: DragEventHandler) {
-    draggingHandled = false;
-    draggedItemId = e.currentTarget.getAttribute('id');
-    e.dataTransfer.setDragImage
-    e.dataTransfer.setData("text", e.currentTarget.getAttribute('id'));
-    const bounds = e.currentTarget.getBoundingClientRect()
+
+  function handleDragStart(e: DragEventHandler, dragType: "add" | "move", id: string) {
+    console.log('Drag start');
+    // dragState = {
+    //   type: dragType,
+    //   offsetX: 0,
+    //   offsetY: 0,
+    //   ...((dragType === "add") ? {pieceTypeId: id} : {pieceId: id})
+    // }
+
+    // draggingHandled = false;
+
+    // const dragImageEl = document.createElement('div');
+    // const {w, h} = pieceTypeSize(draggedItemId);
+
+    // dragImageEl.style.width = `${w}px`;
+    // dragImageEl.style.height = `${h}px`;
+    // const clone = e.currentTarget.cloneNode(true);
+    // dragImageEl.appendChild(clone);
+    // e.dataTransfer.setDragImage(dragImageEl, 0, 0);
+
+    // e.dataTransfer.setDragImage(e.currentTarget, 0, 0);
+
+
     if (dragType === 'move') {
-      dragOffsetX = (e.clientX - bounds.left);
-      dragOffsetY = (e.clientY - bounds.top);
-    } else {
-      const {w, h} = pieceSize(draggedItemId);
-      dragOffsetX = w / 2;
-      dragOffsetY = h / 2;
+      const bounds = e.currentTarget.getBoundingClientRect()
+      dragState = {
+        type: "move",
+        offsetX: (e.clientX - bounds.left),
+        offsetY: (e.clientY - bounds.top),
+        pieceId: id
+      }
+    } else if (dragType === 'add') {
+      const {w, h} = pieceTypeSize(id);
+      dragState = {
+        type: "add",
+        offsetX: w / 2,
+        offsetY: h / 2,
+        pieceTypeId: id
+      }
     }
-
   }
 
-  function handleDragEnd(e) {
-    clearDrag()
-    //console.log("handleDragEnd",e )
-  }
+
   function handleDragOver(e) {
-    e.preventDefault()
-
+    e.preventDefault();
   }
 
-  function pieceSize(pieceId: string) {
-    if (isPlayer(pieceId)) {
+  function pieceTypeSize(pieceTypeId: string) {
+    if (isPlayer(pieceTypeId)) {
       return {w: 30, h: 30}
     } else {
-      return {w: pieceDefs[pieceId].width, h: pieceDefs[pieceId].height}
+      return {w: pieceDefs[pieceTypeId].width, h: pieceDefs[pieceTypeId].height}
     }
   }
 
   function handleDragDrop(e:DragEvent) {
+    console.log('DragDrop');
     e.preventDefault();
-    if (draggingHandled) {
+    if (!dragState) {
       return
     }
 
     const [canvasX, canvasY] = screenToCanvasPos(e);
-    const [boardX, boardY] = canvasToBoardPos([canvasX - dragOffsetX, canvasY - dragOffsetY]);
+    const [boardX, boardY] = canvasToBoardPos([
+      canvasX - dragState.offsetX,
+      canvasY - dragState.offsetY
+    ]);
 
-    if (dragType == "move") {
+    if (dragState.type === "move") {
       activeBoard.requestChanges( [{
         type: "move-piece",
-        id: draggedItemId,
+        id: dragState.pieceId,
         x: boardX,
         y: boardY
       }]);
     }
-    else {
+    else if (dragState.type === "add") {
       activeBoard.requestChanges( [{
         type: "add-piece",
-        pieceType: draggedItemId,
+        pieceType: dragState.pieceTypeId,
         imageIdx: 0,
         x: boardX,
         y: boardY,
         attachments:[]
       }]);
     }
-    clearDrag()
-    //console.log("handleDragDropColumn",e, column )
+
+    dragState = null;
   }
-  const clearDrag = () => {
-    draggingHandled = true
-    draggedItemId = ""
+
+  function handleDragEnd(e) {
+    console.log('DragEnd');
+    dragState = null;
   }
+
+
   const DEFAULT_BOARD_IMG = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png"
 
   $: bgUrl = ($state.props && $state.props.bgUrl) ? $state.props.bgUrl : DEFAULT_BOARD_IMG
-  $: bgImage = `background-image: url("`+ bgUrl+`");`
-
-  let img
 
   const canJoin = (state) => {
     return (state.props.players.length < state.max_players) && !state.props.players.includes(myAgentPubKeyB64)
   }
+
   const haveJoined = (state) => {
     return state.props.players.includes(myAgentPubKeyB64)
   }
@@ -185,6 +224,7 @@
   const canPlay = (state) => {
     return myTurn(state) || (!state.turns && haveJoined(state))
   }
+
   $: iCanPlay = canPlay($state)
 
   const addAttachment = async () => {
@@ -198,20 +238,24 @@
       activeBoard.requestChanges([{type: 'set-props', props }])
     }
   }
+
   const removeAttachment = async (index: number) => {
     const props = cloneDeep($state.props)
     props.attachments.splice(index, 1);
     activeBoard.requestChanges([{type: 'set-props', props }])
   }
+
   const pieceName = (piece: Piece) => {
     if (isPlayer(piece.typeId)) {
       return "player"
     }
     return pieceDefs[piece.typeId].name
   }
-  const isPlayer = (id: string) => {
-    return id.startsWith("uhCA")
+
+  const isPlayer = (typeId: string) => {
+    return typeId.startsWith("uhCA")
   }
+
   const copyHrlToClipboard = () => {
     const attachment: HrlWithContext = { hrl: [store.dnaHash, activeBoard.hash], context: {} }
     store.weClient?.hrlToClipboard(attachment)
@@ -247,7 +291,6 @@
       panY += (screenPos[1] * zoomDelta) / zoom;
     }
   }
-
 
   const handlePanningStart = (ev: MouseEvent) => {
     if (shouldHandlePanning(ev.target as HTMLElement)) {
@@ -301,13 +344,26 @@
     return [x / zoom - panX, y / zoom - panY] as [number, number];
   }
 </script>
+
+
+<!--
+████████╗███████╗███╗   ███╗██████╗ ██╗      █████╗ ████████╗███████╗
+╚══██╔══╝██╔════╝████╗ ████║██╔══██╗██║     ██╔══██╗╚══██╔══╝██╔════╝
+   ██║   █████╗  ██╔████╔██║██████╔╝██║     ███████║   ██║   █████╗
+   ██║   ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██╔══██║   ██║   ██╔══╝
+   ██║   ███████╗██║ ╚═╝ ██║██║     ███████╗██║  ██║   ██║   ███████╗
+   ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
+-->
+
 <div class="board">
-    <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
+  <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
   <div class="top-bar">
     <div class="left-items">
       <h5>{$state.name}</h5>
       {#if store.weClient}
-        <sl-button circle title="Add Board to Pocket" class="attachment-button" style="margin-left:10px" on:click={()=>copyHrlToClipboard()} >
+        <sl-button
+          circle title="Add Board to Pocket" class="attachment-button"
+          style="margin-left:10px" on:click={()=> copyHrlToClipboard()} >
           <SvgIcon icon="addToPocket" size="20px"/>
         </sl-button>
 
@@ -430,23 +486,32 @@
             id={p.id}
             draggable={iCanPlay}
             class:draggable={iCanPlay}
-            on:dragstart={handleDragStartAdd}
+            on:dragstart={(e) => handleDragStart(e, "add", p.id)}
+            on:dragend={handleDragEnd}
+            on:drop={handleDragEnd}
           >
-            {#if pieceDefs[p.id].type===PieceType.Emoji}{pieceDefs[p.id].images[0]}{/if}
-            {#if pieceDefs[p.id].type===PieceType.Image}<img draggable={false} src={pieceDefs[p.id].images[0]} width={pieceDefs[p.id].width} height={pieceDefs[p.id].height}/>{/if}
+            {#if pieceDefs[p.id].type===PieceType.Emoji}
+              {pieceDefs[p.id].images[0]}
+            {/if}
+            {#if pieceDefs[p.id].type===PieceType.Image}
+              <img
+                alt={pieceDefs[p.id].name}
+                draggable={false}
+                src={pieceDefs[p.id].images[0]}
+                width={pieceDefs[p.id].width}
+                height={pieceDefs[p.id].height}/>
+            {/if}
             {pieceDefs[p.id].name}
-
           </div>
         {/each}
         {#if $state.playerPieces}
           {#each $state.props.players as player, index}
 
             <div class="piece-def"
-              id={player}
               draggable={iCanPlay}
               class:draggable={iCanPlay}
-              on:dragstart={handleDragStartAdd}
-
+              on:dragstart={(e) => handleDragStart(e, "add", player)}
+              on:dragend={handleDragEnd}
             >
               <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(player)} />
             </div>
@@ -469,17 +534,20 @@
           <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
           {#each pieces as piece}
             {@const pieceIsPlayer = isPlayer(piece.typeId)}
-            {@const pieceWH = pieceSize(piece.typeId)}
+            {@const pieceWH = pieceTypeSize(piece.typeId)}
             <div class="piece"
               on:dblclick={()=>editPieceAttachments(piece)}
               draggable={iCanPlay}
               class:draggable={iCanPlay}
-              on:dragstart={handleDragStartMove}
+              on:dragstart={(e) => handleDragStart(e, "move", piece.id)}
               on:dragend={handleDragEnd}
               on:drop={handleDragDrop}
               on:dragover={handleDragOver}
-              title={piece.attachments && piece.attachments.length > 0 ? `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`: pieceName(piece)}
-              id={piece.id}
+              title={
+                piece.attachments && piece.attachments.length > 0 ?
+                  `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`
+                  : pieceName(piece)
+                }
               style={`
                 top:${piece.y}px;
                 left:${piece.x}px;
@@ -489,20 +557,34 @@
               `}
               >
               {#if piece.attachments && piece.attachments.length > 0}
-              <div class="piece-has-attachment">{piece.attachments.length}</div>
+                <div class="piece-has-attachment">{piece.attachments.length}</div>
               {/if}
               {#if pieceIsPlayer}
-                <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(piece.typeId)} showNickname={false} size={30} />
+                <Avatar
+                  disableAvatarPointerEvents={iCanPlay}
+                  agentPubKey={decodeHashFromBase64(piece.typeId)}
+                  showNickname={false}
+                  size={30} />
               {:else}
-                {#if pieceDefs[piece.typeId].type===PieceType.Emoji}<span style="margin-top: 1px;">{pieceDefs[piece.typeId].images[piece.imageIdx]}</span>{/if}
-                {#if pieceDefs[piece.typeId].type===PieceType.Image}<img draggable={false} src={pieceDefs[piece.typeId].images[piece.imageIdx]} width={pieceDefs[piece.typeId].width} height={pieceDefs[piece.typeId].height}/>{/if}
+                {#if pieceDefs[piece.typeId].type===PieceType.Emoji}
+                  <span style="margin-top: 1px;">{pieceDefs[piece.typeId].images[piece.imageIdx]}</span>
+                {/if}
+                {#if pieceDefs[piece.typeId].type===PieceType.Image}
+                  <img
+                    alt={pieceDefs[piece.typeId].name}
+                    draggable={false}
+                    src={pieceDefs[piece.typeId].images[piece.imageIdx]}
+                    width={pieceDefs[piece.typeId].width}
+                    height={pieceDefs[piece.typeId].height}/>
+                  {/if}
               {/if}
             </div>
           {/each}
           <img
+            alt="Board"
             width={$state.props.bgWidth}
             height={$state.props.bgHeight}
-            draggable={false} bind:this={img} src={bgUrl}
+            draggable={false} src={bgUrl}
             style="display: block; padding:80px; background-color: transparent; border:1px solid transparent; object-fit: cover;"
             on:drop={handleDragDrop}
             on:dragover={handleDragOver}
@@ -520,6 +602,17 @@
         ></commit-history>
   {/if}
 </div>
+
+
+<!--
+███████╗████████╗██╗   ██╗██╗     ███████╗
+██╔════╝╚══██╔══╝╚██╗ ██╔╝██║     ██╔════╝
+███████╗   ██║    ╚████╔╝ ██║     █████╗
+╚════██║   ██║     ╚██╔╝  ██║     ██╔══╝
+███████║   ██║      ██║   ███████╗███████╗
+╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝
+-->
+
 <style>
   .my-turn {
     width: 0;
