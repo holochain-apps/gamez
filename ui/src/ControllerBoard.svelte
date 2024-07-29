@@ -1,5 +1,5 @@
 <script lang="ts">
-  import GamezPane from "./GamezPane.svelte";
+  import GamezPane from "./GamezPane";
   import { GamezStore } from "./store";
   import { setContext } from "svelte";
   import type { AppAgentClient, EntryHash } from "@holochain/client";

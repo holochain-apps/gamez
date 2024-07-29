@@ -1,6 +1,6 @@
 <script lang="ts">
   import Toolbar from "./Toolbar.svelte";
-  import GamezPane from "./GamezPane.svelte";
+  import GamezPane from "./GamezPane";
   import { GamezStore } from "./store";
   import { setContext } from "svelte";
   import type { AppAgentClient, EntryHash } from "@holochain/client";
@@ -129,8 +129,8 @@
                   <h3>Game Library:</h3>
                   {#if $defHashes.status == "complete"}
                     {#each $defHashes.value as hash}
-                      <BoardDefItem 
-                        on:create={ 
+                      <BoardDefItem
+                        on:create={
                           async (e) => {
                             const state = cloneDeep(e.detail.board);
                             state.name = `${state.name}: ${
@@ -142,7 +142,7 @@
                             const board = await store.boardList.makeBoard(
                               state
                             );
-                            await board.join()        
+                            await board.join()
 
                             store.boardList.setActiveBoard(board.hash)
                           }
@@ -154,12 +154,12 @@
                         }
                         boardHash={hash}>
                       </BoardDefItem>
-        
+
                     {/each}
                   {:else if $defHashes.status == "error"}
                     Error!: {$defHashes.error}
                   {/if}
-      
+
                 </div>
                 {/if}
                 <div class="new-type">

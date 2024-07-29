@@ -1,19 +1,21 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import type { DragEventHandler } from 'svelte/elements';
-  import type { GamezStore } from "./store";
-  import { type BoardState, PieceDef, PieceType, Board, type Piece} from "./board";
-  import EditBoardDialog from "./EditBoardDialog.svelte";
-  import Avatar from "./Avatar.svelte"
-  import AttachmentsDialog from "./AttachmentsDialog.svelte"
+  import type { GamezStore } from "../store";
+  import { type BoardState, PieceDef, PieceType, Board, type Piece} from "../board";
+  import EditBoardDialog from "../EditBoardDialog.svelte";
+  import Avatar from "../Avatar.svelte"
+  import AttachmentsDialog from "../AttachmentsDialog.svelte"
   import { cloneDeep } from "lodash";
   import sanitize from "sanitize-filename";
-  import SvgIcon from "./SvgIcon.svelte";
+  import SvgIcon from "../SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
   import { decodeHashFromBase64 } from "@holochain/client";
   import { isWeContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
-  import { hrlWithContextToB64 } from "./util";
-  import AttachmentsList from "./AttachmentsList.svelte";
+  import { hrlWithContextToB64 } from "../util";
+  import AttachmentsList from "../AttachmentsList.svelte";
+  import PieceEl from './Piece.svelte';
+  import PlayerName from "../PlayerName.svelte";
 
   // There is 3 coordinates systems
   // - Screen coordinates, relative to top left of document
@@ -49,11 +51,12 @@
   $: state = activeBoard.readableState()
   $: pieces = $state ? Object.values($state.props.pieces) : undefined;
   $: pieceDefs = $state ? getPieceDefs($state.pieceDefs) : undefined;
+  $: piecesById = $state ? pieces.reduce((acc, p) => ({...acc, [p.id]: p}), {} as {[key: string]: Piece}) : undefined
   $: attachments = $state ? $state.props.attachments : undefined
 
-  $: myAgentPubKeyB64 = store.myAgentPubKeyB64
-  $: myAgentPubKey = store.myAgentPubKey
-  $: participants = activeBoard.participants()
+  $: myAgentPubKeyB64 = store.myAgentPubKeyB64;
+  $: myAgentPubKey = store.myAgentPubKey;
+  $: participants = activeBoard.participants();
 
   const getPieceDefs = (defs:Array<PieceDef>) => {
     const pieceDefs: {[key: string]: PieceDef} = {}
@@ -75,7 +78,6 @@
       attachmentsDialog.open(piece)
   }
 
-
   let editBoardDialog;
   let dragState: null | {
     type: "add",
@@ -89,51 +91,15 @@
     pieceId: string
   }
 
-  // let draggingHandled = true;
-  // let draggedItemId = ""; // pieceTypeId if dragType = add || pieceId if dragType = move
-  // let dragOffsetX, dragOffsetY; // The difference between mouse grab position and piece top-left
-  // let dragType: "add" | "move";
-
-
-  // function handleDragStartAdd(e, pieceTypeId: string) {
-  //   dragType = "add"
-  //   handleDragStart(e)
-  // }
-
-  // function handleDragStartMove(e, pieceId: string) {
-  //   dragType = "move"
-  //   handleDragStart(e)
-  // }
-
-  type DragEventHandler = DragEvent & {
-      currentTarget: EventTarget & HTMLDivElement;
-  }
-
-  function handleDragStart(e: DragEventHandler, dragType: "add" | "move", id: string) {
+  function handleDragStart(e: DragEvent, dragType: "add" | "move", id: string) {
     console.log('Drag start');
-    // dragState = {
-    //   type: dragType,
-    //   offsetX: 0,
-    //   offsetY: 0,
-    //   ...((dragType === "add") ? {pieceTypeId: id} : {pieceId: id})
-    // }
+    const currentTarget = e.currentTarget as HTMLDivElement;
 
-    // draggingHandled = false;
-
-    // const dragImageEl = document.createElement('div');
-    // const {w, h} = pieceTypeSize(draggedItemId);
-
-    // dragImageEl.style.width = `${w}px`;
-    // dragImageEl.style.height = `${h}px`;
-    // const clone = e.currentTarget.cloneNode(true);
-    // dragImageEl.appendChild(clone);
-    // e.dataTransfer.setDragImage(dragImageEl, 0, 0);
-
-    // e.dataTransfer.setDragImage(e.currentTarget, 0, 0);
-
-
+    let width, height: number;
     if (dragType === 'move') {
-      const bounds = e.currentTarget.getBoundingClientRect()
+      const bounds = currentTarget.getBoundingClientRect();
+      width = bounds.width;
+      height = bounds.height;
       dragState = {
         type: "move",
         offsetX: (e.clientX - bounds.left),
@@ -142,6 +108,8 @@
       }
     } else if (dragType === 'add') {
       const {w, h} = pieceTypeSize(id);
+      width = w;
+      height = h;
       dragState = {
         type: "add",
         offsetX: w / 2,
@@ -149,6 +117,29 @@
         pieceTypeId: id
       }
     }
+
+    // if (dragType === 'move') {
+    //   const dragImageEl = document.createElement('div');
+    //   dragImageEl.id = "drag-image";
+    //   dragImageEl.style.position = 'absolute';
+    //   dragImageEl.style.top = '0';
+    //   dragImageEl.style.left = '0';
+    //   dragImageEl.style.width = `${width}px`;
+    //   dragImageEl.style.height = `${height}px`;
+    //   dragImageEl.style.backgroundColor = "white";
+    //   dragImageEl.style.display = 'none';
+    //   const dragPreviewImage = new Image();
+    //   dragPreviewImage.src = "";
+    //   const clone = currentTarget.cloneNode(true) as HTMLDivElement;
+    //   clone.style.top = '0';
+    //   clone.style.left = '0';
+
+    //   dragImageEl.appendChild(clone);
+    //   document.body.appendChild(dragImageEl);
+    //   console.log(dragImageEl);
+
+    //   // e.dataTransfer.setDragImage(dragImageEl, dragState.offsetX, dragState.offsetY);
+    // }
   }
 
 
@@ -164,7 +155,7 @@
     }
   }
 
-  function handleDragDrop(e:DragEvent) {
+  function handleDragDrop(e: DragEvent) {
     console.log('DragDrop');
     e.preventDefault();
     if (!dragState) {
@@ -196,12 +187,14 @@
       }]);
     }
 
-    dragState = null;
+    handleDragEnd();
   }
 
-  function handleDragEnd(e) {
+  function handleDragEnd() {
     console.log('DragEnd');
     dragState = null;
+    const dragImage = document.getElementById('drag-image');
+    if (dragImage) dragImage.remove();
   }
 
 
@@ -482,38 +475,28 @@
       <div class="piece-source">
         <h3>{iCanPlay ? "Add Piece:" : "Pieces:"}</h3>
         {#each Object.values(pieceDefs) as p}
-          <div class="piece-def"
-            id={p.id}
-            draggable={iCanPlay}
-            class:draggable={iCanPlay}
-            on:dragstart={(e) => handleDragStart(e, "add", p.id)}
-            on:dragend={handleDragEnd}
-            on:drop={handleDragEnd}
-          >
-            {#if pieceDefs[p.id].type===PieceType.Emoji}
-              {pieceDefs[p.id].images[0]}
-            {/if}
-            {#if pieceDefs[p.id].type===PieceType.Image}
-              <img
-                alt={pieceDefs[p.id].name}
-                draggable={false}
-                src={pieceDefs[p.id].images[0]}
-                width={pieceDefs[p.id].width}
-                height={pieceDefs[p.id].height}/>
-            {/if}
-            {pieceDefs[p.id].name}
+          <div style="display: flex; place-items: center end;">
+            <div style="margin-right: 4px; flex-grow: 1; text-align: right;">{pieceDefs[p.id].name}</div>
+            <PieceEl
+              displayPiece={{type: "pieceDefPiece", pieceDef: p}}
+              on:dragstart={(e) => handleDragStart(e, "add", p.id)}
+              on:dragend={handleDragEnd}
+              on:drop={handleDragEnd}
+              dragEnabled={iCanPlay}/>
           </div>
         {/each}
         {#if $state.playerPieces}
           {#each $state.props.players as player, index}
-
-            <div class="piece-def"
-              draggable={iCanPlay}
-              class:draggable={iCanPlay}
+          <div style="display: flex; place-items: center end;">
+            <div style="margin-right: 4px; flex-grow: 1; text-align: right;">
+              <PlayerName agentPubKey={decodeHashFromBase64(player)}/>
+            </div>
+            <PieceEl
+              displayPiece={{type: "pieceDefPlayer", id: player}}
               on:dragstart={(e) => handleDragStart(e, "add", player)}
               on:dragend={handleDragEnd}
-            >
-              <Avatar disableAvatarPointerEvents={iCanPlay} agentPubKey={decodeHashFromBase64(player)} />
+              on:drop={handleDragEnd}
+              dragEnabled={iCanPlay}/>
             </div>
           {/each}
         {/if}
@@ -533,52 +516,14 @@
         }>
           <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
           {#each pieces as piece}
-            {@const pieceIsPlayer = isPlayer(piece.typeId)}
-            {@const pieceWH = pieceTypeSize(piece.typeId)}
-            <div class="piece"
-              on:dblclick={()=>editPieceAttachments(piece)}
-              draggable={iCanPlay}
-              class:draggable={iCanPlay}
+            <PieceEl
               on:dragstart={(e) => handleDragStart(e, "move", piece.id)}
               on:dragend={handleDragEnd}
               on:drop={handleDragDrop}
               on:dragover={handleDragOver}
-              title={
-                piece.attachments && piece.attachments.length > 0 ?
-                  `This ${pieceName(piece)} piece has ${piece.attachments.length} attachment(s)`
-                  : pieceName(piece)
-                }
-              style={`
-                top:${piece.y}px;
-                left:${piece.x}px;
-                font-size:${pieceWH.h - 2}px;
-                width: ${pieceWH.w}px;
-                height: ${pieceWH.h}px;
-              `}
-              >
-              {#if piece.attachments && piece.attachments.length > 0}
-                <div class="piece-has-attachment">{piece.attachments.length}</div>
-              {/if}
-              {#if pieceIsPlayer}
-                <Avatar
-                  disableAvatarPointerEvents={iCanPlay}
-                  agentPubKey={decodeHashFromBase64(piece.typeId)}
-                  showNickname={false}
-                  size={30} />
-              {:else}
-                {#if pieceDefs[piece.typeId].type===PieceType.Emoji}
-                  <span style="margin-top: 1px;">{pieceDefs[piece.typeId].images[piece.imageIdx]}</span>
-                {/if}
-                {#if pieceDefs[piece.typeId].type===PieceType.Image}
-                  <img
-                    alt={pieceDefs[piece.typeId].name}
-                    draggable={false}
-                    src={pieceDefs[piece.typeId].images[piece.imageIdx]}
-                    width={pieceDefs[piece.typeId].width}
-                    height={pieceDefs[piece.typeId].height}/>
-                  {/if}
-              {/if}
-            </div>
+              displayPiece={{type: "piece", piece}}
+              pieceDefs={pieceDefs}
+              dragEnabled={iCanPlay}/>
           {/each}
           <img
             alt="Board"
