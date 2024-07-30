@@ -19,7 +19,7 @@
   const url = `ws://localhost:${appPort}`;
 
   let client: AppAgentWebsocket
-  let weClient: WeClient  
+  let weClient: WeClient
   let profilesStore : ProfilesStore|undefined = undefined
 
   let connected = false
@@ -59,7 +59,7 @@
         console.log("appPort and Id is", appPort, appId)
         client = await AppAgentWebsocket.connect(new URL(url), appId)
         profilesClient = new ProfilesClient(client, appId);
-    } 
+    }
     else {
       weClient = await WeClient.connect(appletServices);
 
@@ -101,7 +101,7 @@
                 case "game":
                   renderType = RenderType.CreateBoard
                   createView = weClient.renderInfo.view
-              }              
+              }
               break;
             default:
               throw new Error("Unsupported applet-view type");
@@ -139,7 +139,7 @@
 <svelte:head>
 </svelte:head>
 {#if connected}
-  <profiles-context store={profilesStore}>
+  <profiles-context store={profilesStore} id="root">
     {#if $prof.status=="pending"}
       <div class="loading"><div class="loader"></div></div>
     {:else if $prof.status=="complete" && $prof.value == undefined}
@@ -161,7 +161,7 @@
 
   </profiles-context>
 {:else}
-  <div class="loading"><div class="loader"></div></div> 
+  <div class="loading"><div class="loader"></div></div>
 {/if}
 
 <style>

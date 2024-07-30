@@ -1,10 +1,13 @@
+<script context="module">
+  export const PLAYER_PIECE_SIZE = 32;
+</script>
+
 <script lang="ts">
   import { decodeHashFromBase64 } from "@holochain/client";
   import { type Piece, PieceDef, PieceType } from "../board";
   import Avatar from "../Avatar.svelte";
 
   const PLAYER_PIECE_ID_STARTS = "uhCA";
-  const PLAYER_PIECE_SIZE = 30;
 
   type PieceDisplayType =
     | {
@@ -17,6 +20,7 @@
   export let displayPiece: PieceDisplayType;
   export let pieceDefs: { [key: string]: PieceDef } = null;
   export let dragEnabled: boolean;
+  export let hidden: boolean = false;
 
   let piece: Piece;
   let pieceDef: PieceDef;
@@ -63,6 +67,7 @@
   on:dblclick
   draggable={dragEnabled}
   class:draggable={dragEnabled}
+  class:hidden={hidden}
   on:dragstart
   on:dragend
   on:drop
@@ -109,6 +114,14 @@
     align-items: center;
     justify-content: center;
     line-height: 0; /* Fixes avatar element extra spacing */
+  }
+
+  .piece.hidden {
+    opacity: 0;
+  }
+
+  .piece:hover {
+    filter: brightness(1.25) saturate(1.25);
   }
 
   .draggable {

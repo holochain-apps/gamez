@@ -17,6 +17,9 @@
   import PieceEl from './Piece.svelte';
   import PlayerName from "../PlayerName.svelte";
 
+  const EMPTY_IMAGE = new Image(1, 1);
+  EMPTY_IMAGE.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+
   // There is 3 coordinates systems
   // - Screen coordinates, relative to top left of document
   // - Canvas coordinates, relative to board container
@@ -89,74 +92,73 @@
     offsetX: number,
     offsetY: number,
     pieceId: string
-  }
+  } = null;
 
+  let dragImageEl: HTMLDivElement;
+  const root = document.getElementById("root");
   function handleDragStart(e: DragEvent, dragType: "add" | "move", id: string) {
-    console.log('Drag start');
     const currentTarget = e.currentTarget as HTMLDivElement;
+    const bounds = currentTarget.getBoundingClientRect();
+    const offsetX = (e.clientX - bounds.left);
+    const offsetY = (e.clientY - bounds.top);
 
-    let width, height: number;
+    let dragOffsetX, dragOffsetY: number;
+    let dragImageZoom: number;
     if (dragType === 'move') {
-      const bounds = currentTarget.getBoundingClientRect();
-      width = bounds.width;
-      height = bounds.height;
       dragState = {
         type: "move",
-        offsetX: (e.clientX - bounds.left),
-        offsetY: (e.clientY - bounds.top),
+        offsetX,
+        offsetY,
         pieceId: id
       }
+      dragOffsetX = dragState.offsetX / zoom;
+      dragOffsetY = dragState.offsetY / zoom;
+      dragImageZoom = zoom;
     } else if (dragType === 'add') {
-      const {w, h} = pieceTypeSize(id);
-      width = w;
-      height = h;
       dragState = {
         type: "add",
-        offsetX: w / 2,
-        offsetY: h / 2,
+        offsetX,
+        offsetY,
         pieceTypeId: id
       }
+      dragOffsetX = dragState.offsetX / zoom;
+      dragOffsetY = dragState.offsetY / zoom;
+      dragImageZoom = 1;
     }
 
-    // if (dragType === 'move') {
-    //   const dragImageEl = document.createElement('div');
-    //   dragImageEl.id = "drag-image";
-    //   dragImageEl.style.position = 'absolute';
-    //   dragImageEl.style.top = '0';
-    //   dragImageEl.style.left = '0';
-    //   dragImageEl.style.width = `${width}px`;
-    //   dragImageEl.style.height = `${height}px`;
-    //   dragImageEl.style.backgroundColor = "white";
-    //   dragImageEl.style.display = 'none';
-    //   const dragPreviewImage = new Image();
-    //   dragPreviewImage.src = "";
-    //   const clone = currentTarget.cloneNode(true) as HTMLDivElement;
-    //   clone.style.top = '0';
-    //   clone.style.left = '0';
+    dragImageEl = currentTarget.cloneNode(true) as HTMLDivElement;
+    dragImageEl.style.top = '0';
+    dragImageEl.style.left = '0';
+    dragImageEl.style.zIndex = '9999';
+    dragImageEl.style.position = 'absolute';
+    dragImageEl.style.pointerEvents = 'none';
+    dragImageEl.style.transform = `translate(-${dragOffsetX + e.clientX}px, -${dragOffsetY + e.clientY}px) scale(${zoom})`;
+    dragImageEl.style.transformOrigin = `${dragOffsetX}px ${dragOffsetY}px`;
 
-    //   dragImageEl.appendChild(clone);
-    //   document.body.appendChild(dragImageEl);
-    //   console.log(dragImageEl);
+    // Fixes Svelte not setting non-string custom properties on the element
+    const agentAvatarEl = dragImageEl.querySelector('agent-avatar');
+    // @ts-ignore
+    if (agentAvatarEl) agentAvatarEl.setAttribute('size', PieceEl.PLAYER_PIECE_SIZE);
 
-    //   // e.dataTransfer.setDragImage(dragImageEl, dragState.offsetX, dragState.offsetY);
-    // }
+    root.appendChild(dragImageEl);
+
+    e.dataTransfer.setDragImage(EMPTY_IMAGE, 0, 0);
+    e.dataTransfer.effectAllowed = 'move'
   }
 
 
-  function handleDragOver(e) {
+  function handleDragOver(e: DragEvent, el: 'source' | 'board') {
     e.preventDefault();
-  }
+    if (!dragState) return;
+    const resolvedOffsetX = dragState.offsetX / zoom;
+    const resolvedOffsetY = dragState.offsetY / zoom;
+    const resolvedZoom = el === 'source' ? 1 : zoom;
+    dragImageEl.style.transform = `translate(${-resolvedOffsetX + e.clientX}px, ${-resolvedOffsetY + e.clientY}px) scale(${resolvedZoom})`;
+    dragImageEl.style.transformOrigin = `${resolvedOffsetX}px ${resolvedOffsetY}px`;
 
-  function pieceTypeSize(pieceTypeId: string) {
-    if (isPlayer(pieceTypeId)) {
-      return {w: 30, h: 30}
-    } else {
-      return {w: pieceDefs[pieceTypeId].width, h: pieceDefs[pieceTypeId].height}
-    }
   }
 
   function handleDragDrop(e: DragEvent) {
-    console.log('DragDrop');
     e.preventDefault();
     if (!dragState) {
       return
@@ -191,10 +193,12 @@
   }
 
   function handleDragEnd() {
-    console.log('DragEnd');
     dragState = null;
-    const dragImage = document.getElementById('drag-image');
-    if (dragImage) dragImage.remove();
+    // const dragImage = document.getElementById('drag-image');
+    if (dragImageEl) {
+      dragImageEl.remove();
+      dragImageEl = null;
+    }
   }
 
 
@@ -472,7 +476,7 @@
     {/if}
 
     <div class="board-area">
-      <div class="piece-source">
+      <div class="piece-source" on:dragover={(ev) => handleDragOver(ev, "source")}>
         <h3>{iCanPlay ? "Add Piece:" : "Pieces:"}</h3>
         {#each Object.values(pieceDefs) as p}
           <div style="display: flex; place-items: center end;">
@@ -506,6 +510,8 @@
         bind:this={boardContainer}
         on:wheel={handleZoomInOut}
         on:mousedown={handlePanningStart}
+        on:drop={handleDragDrop}
+        on:dragover={(ev) => handleDragOver(ev, "board")}
         style={`${isPanning ? 'cursor: move;' : ''}`}
         >
         <div style={`
@@ -514,13 +520,24 @@
           transform:scale(${zoom}) translate(${panX}px, ${panY}px);
           transform-origin: top left;`
         }>
+          <!-- <div style="pointer-events: none;">
+            <PieceEl
+              on:dragstart={(e) => handleDragStart(e, "move", piece.id)}
+              on:dragend={handleDragEnd}
+              on:drop={handleDragDrop}
+              on:dragover={handleDragOver}
+              displayPiece={{type: "piece", piece}}
+              pieceDefs={pieceDefs}
+              dragEnabled={iCanPlay}/>
+          </div> -->
           <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
           {#each pieces as piece}
             <PieceEl
               on:dragstart={(e) => handleDragStart(e, "move", piece.id)}
               on:dragend={handleDragEnd}
               on:drop={handleDragDrop}
-              on:dragover={handleDragOver}
+              on:dragover={(ev) => handleDragOver(ev, "board")}
+              hidden={!!(dragState && dragState.type === "move" && dragState.pieceId === piece.id)}
               displayPiece={{type: "piece", piece}}
               pieceDefs={pieceDefs}
               dragEnabled={iCanPlay}/>
@@ -531,8 +548,6 @@
             height={$state.props.bgHeight}
             draggable={false} src={bgUrl}
             style="display: block; padding:80px; background-color: transparent; border:1px solid transparent; object-fit: cover;"
-            on:drop={handleDragDrop}
-            on:dragover={handleDragOver}
             >
         </div>
       </div>
@@ -574,7 +589,7 @@
   }
   .piece-source {
     max-width: 100px;
-    margin-right: 20px;
+    padding-right: 10px;
   }
   .img-container {
     border: solid 1px rgba(0,0,0,.25);
@@ -593,25 +608,6 @@
     pointer-events: none;
   }
 
-  .piece {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0; /* Fixes avatar element extra spacing */
-  }
-  .piece:hover {
-    background: rgba(0,0,0,0);
-  }
-  .piece-def {
-    border: solid 1px;
-    padding: 5px;
-    border-radius: 3px;
-    margin-bottom: 5px;
-  }
-  .draggable {
-    cursor: pointer;
-  }
   .board {
     display: flex;
     flex-direction: column;
@@ -657,19 +653,6 @@
     flex-direction:row;
     margin-left:20px;
     align-items: center;
-  }
-  .piece-has-attachment {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    z-index: 10;
-    font-size: 12px;
-    font-weight: bold;
-    color: blue;
-    padding-right: 5px;
-    padding-left: 5px;
-    border-radius: 5px;
-    background-color: rgba(0,255,0,.5);
   }
   .idle {
     opacity: 0.5;
