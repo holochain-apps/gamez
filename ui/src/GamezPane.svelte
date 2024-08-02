@@ -80,15 +80,20 @@
   }
 
   const toggleShowEmbed = () => {
-
-    // backward compatibility check for when attachments were just strings
-    if ($state.props.attachments && $state.props.attachments.length>0 && typeof $state.props.attachments[0] == "string" ){
-      const assetSpecs = []
-      $state.props.attachments.forEach((a,count) =>
-        assetSpecs.push( {embed: true, weaveUrl: a, position: { x:  50*count, y: 20*count }, size:{width:100,height:100}}))
-      $state.props.attachments = assetSpecs
-    }
     showEmbed = !showEmbed
+    $state.props.attachments=fixAttachments($state.props.attachments)
+  }
+
+  const fixAttachments = (attachments: any) => {
+    // backward compatibility check for when attachments were just strings
+    if (attachments && attachments.length>0 && typeof attachments[0] == "string" ){
+      const assetSpecs = []
+
+      attachments.forEach((a,count) =>
+        assetSpecs.push( {embed: true, weaveUrl: a, position: { x:  50*count, y: 20*count }, size:{width:100,height:100}}))
+      return assetSpecs 
+    }
+    return attachments 
   }
 
   let attachmentsDialog : AttachmentsDialog
@@ -354,7 +359,7 @@
             </sl-tooltip>
            
             {#if attachments && attachments.length>0}
-              <AttachmentsList attachments={attachments.map(a=>a.weaveUrl)} allowDelete={true}
+              <AttachmentsList attachments={fixAttachments(attachments).map(a=>a.weaveUrl)} allowDelete={true}
               on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
               <sl-tooltip content={showEmbed ? "Hide Asset Pane" : "Show Asset Pane"}>
                 <sl-button  size=small variant="text" on:click={toggleShowEmbed}><SvgIcon icon={showEmbed?"hide":"show"} color=white></SvgIcon></sl-button>
