@@ -3,13 +3,12 @@
   import { createEventDispatcher, getContext } from "svelte";
   import type { GamezStore } from "./store";
   import SvgIcon from "./SvgIcon.svelte";
-  import type {  WALUrl } from "./util";
-  import { weaveUrlToWAL } from "@lightningrodlabs/we-applet";
+  import { weaveUrlToWAL, type WeaveUrl } from "@lightningrodlabs/we-applet";
   import { hrlToString } from "@holochain-open-dev/utils";
 
   const dispatch = createEventDispatcher()
 
-  export let attachments: Array<WALUrl>
+  export let attachments: Array<WeaveUrl>
   export let allowDelete = true
 
   const { getStore } :any = getContext("gzStore");

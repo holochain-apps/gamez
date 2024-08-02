@@ -1,6 +1,5 @@
 import { type AppClient, type EntryHash, type DnaHash, CellType } from "@holochain/client";
-
-export type WALUrl = string
+import type { WeaveUrl } from "@lightningrodlabs/we-applet";
 
 export const hashEqual = (a:EntryHash, b:EntryHash) : boolean => {
   if (!a || !b) {
@@ -19,3 +18,18 @@ export const getMyDna = async (role:string, client: AppClient) : Promise<DnaHash
   ].cell_id[0];
   return dnaHash
 } 
+
+export type Position = {
+  x: number,
+  y:number
+}
+export type Size = {
+  width: number,
+  height:number
+}
+export type AssetSpec = {
+  embed: boolean,
+  position: Position,
+  size: Size,
+  weaveUrl: WeaveUrl
+}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { type BoardState, PieceDef, PieceType, Board, type Piece} from "./board";
+  import { type BoardState, PieceDef, PieceType, Board, type Piece, type BoardProps} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
   import Avatar from "./Avatar.svelte"
   import AttachmentsDialog from "./AttachmentsDialog.svelte"
@@ -12,6 +12,8 @@
   import { decodeHashFromBase64 } from "@holochain/client";
   import { isWeContext, weaveUrlFromWal, type WAL } from "@lightningrodlabs/we-applet";
   import AttachmentsList from "./AttachmentsList.svelte";
+  import WalSpace from "./WalSpace.svelte";
+  import { type AssetSpec } from "./util";
 
   const MAX_PLAYERS_IN_HEADER = 5
 
@@ -69,6 +71,25 @@
   let draggedItemId = ""
   let dragOffsetX, dragOffsetY
   let dragType
+  let showEmbed = false
+  let embedsEditable = false
+
+  const toggleEmbedsEditable = () => {
+    embedsEditable = !embedsEditable
+    walSpace.setEditable(embedsEditable)
+  }
+
+  const toggleShowEmbed = () => {
+
+    // backward compatibility check for when attachments were just strings
+    if ($state.props.attachments && $state.props.attachments.length>0 && typeof $state.props.attachments[0] == "string" ){
+      const assetSpecs = []
+      $state.props.attachments.forEach((a,count) =>
+        assetSpecs.push( {embed: true, weaveUrl: a, position: { x:  50*count, y: 20*count }, size:{width:100,height:100}}))
+      $state.props.attachments = assetSpecs
+    }
+    showEmbed = !showEmbed
+  }
 
   let attachmentsDialog : AttachmentsDialog
   function editPieceAttachments(piece: Piece) {
@@ -172,17 +193,27 @@
   }
   $: iCanPlay = canPlay($state)
 
+  let walSpace:WalSpace
   const addAttachment = async () => {
     const wal = await store.weaveClient.userSelectWal()
     if (wal) {
-      const props = cloneDeep($state.props)
+      const props = cloneDeep($state.props) as BoardProps
       if (!props.attachments) {
         props.attachments = []
       }
-      props.attachments.push(weaveUrlFromWal(wal))
+      const count = props.attachments.length
+      const asset:AssetSpec = {embed: true, weaveUrl: weaveUrlFromWal(wal), position: { x:  50*count, y: 20*count }, size:{width:100,height:100}}
+      props.attachments.push(asset)
       activeBoard.requestChanges([{type: 'set-props', props }])
     }
   }
+
+  const saveAttachments = async (assets:AssetSpec[]) => {
+    const props = cloneDeep($state.props) as BoardProps
+    props.attachments = assets
+    activeBoard.requestChanges([{type: 'set-props', props }])
+  }
+
   const removeAttachment = async (index: number) => {
     const props = cloneDeep($state.props)
     props.attachments.splice(index, 1);
@@ -318,14 +349,22 @@
         {/if}
         {#if store.weaveClient}
           <div class="attachments-area">
-            <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>attachmentsDialog.open(undefined)} >
-              <SvgIcon icon=link/>
-            </sl-button>
-            {#if attachments}
-              <AttachmentsList attachments={attachments} allowDelete={false}
+            <sl-tooltip content="Attach assets">
+              <sl-button  size=small variant="text" on:click={addAttachment}><SvgIcon icon=addAsset color=white></SvgIcon></sl-button>
+            </sl-tooltip>
+           
+            {#if attachments && attachments.length>0}
+              <AttachmentsList attachments={attachments.map(a=>a.weaveUrl)} allowDelete={true}
               on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
+              <sl-tooltip content={showEmbed ? "Hide Asset Pane" : "Show Asset Pane"}>
+                <sl-button  size=small variant="text" on:click={toggleShowEmbed}><SvgIcon icon={showEmbed?"hide":"show"} color=white></SvgIcon></sl-button>
+              </sl-tooltip>
+              {#if showEmbed}
+              <sl-tooltip content={embedsEditable ? "Save Changes" : "Edit Asset Pane"}>
+                <sl-button  variant="text" on:click={toggleEmbedsEditable}><SvgIcon icon={embedsEditable?'faCheck':'faEdit'} color=black></SvgIcon></sl-button>
+              </sl-tooltip>
+              {/if}
             {/if}
-             
           </div>
         {/if}
       </div>
@@ -362,7 +401,7 @@
           {/each}
         {/if}
       </div>
-        <div class="img-container">
+      <div class="img-container">
         <AttachmentsDialog activeBoard={activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
         {#each pieces as piece}
           {@const pieceIsPlayer = isPlayer(piece.typeId)}
@@ -396,7 +435,13 @@
           on:dragover={handleDragOver}          
           >
       </div>
-
+      {#if showEmbed}
+      <div class="wal-space">
+        <WalSpace items={$state.props.attachments? cloneDeep($state.props.attachments) : []} bind:this={walSpace}
+          on:assets-edited={(e)=> saveAttachments(e.detail)}
+        ></WalSpace>
+      </div>
+      {/if}
     </div>
     <commit-history
           style="flex: 1"
@@ -418,6 +463,7 @@
     background-color: rgb(139, 212, 30);
   }
   .board-area {
+    display:flex;
     justify-content:center;
     margin-top: 10px;
     display: flex;
@@ -425,13 +471,20 @@
   }
   .piece-source {
     margin-right: 20px;
+    margin-left: 10px;
   }
   .img-container {
+    justify-content: center;
     position: relative;
     padding: 0px;
     overflow: auto;
   }
-
+  .wal-space {
+    margin-left:20px;
+    margin-right:10px;
+    margin-bottom:5px;
+    flex-grow: 1;
+  }
   .piece {
     position: absolute;
   }

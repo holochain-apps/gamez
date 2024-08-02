@@ -3,7 +3,8 @@ import { get, type Readable } from "svelte/store";
 import { v1 as uuidv1 } from "uuid";
 import { type AgentPubKey, type EntryHash, type EntryHashB64, encodeHashToBase64, type AgentPubKeyB64, type Timestamp } from "@holochain/client";
 import { BoardType } from "./boardList";
-import type { WALUrl } from "./util";
+import type { WeaveUrl } from "@lightningrodlabs/we-applet";
+import type { AssetSpec } from "./util";
 
 export enum PieceType {
   Emoji,
@@ -16,7 +17,7 @@ export interface Piece {
   x: number,
   y: number,
   imageIdx: number,
-  attachments: Array<WALUrl>
+  attachments: Array<WeaveUrl>
 }
 
 export class  PieceDef {
@@ -39,7 +40,7 @@ export type BoardProps = {
   bgWidth: string,
   players: Array<AgentPubKeyB64>,
   turn: number,
-  attachments: Array<WALUrl>
+  attachments: Array<AssetSpec>
 }
 
 export type BoardEphemeralState = { [key: string]: string };
@@ -53,7 +54,7 @@ export interface BoardState {
   playerPieces: boolean;
   pieceDefs: PieceDef[];
   props: BoardProps;
-  boundTo: Array<WALUrl>
+  boundTo: Array<WeaveUrl>
   creator: AgentPubKeyB64
 }
   
@@ -108,7 +109,7 @@ export interface BoardState {
         imageIdx: number;
         x: number;
         y: number;
-        attachments: Array<WALUrl>
+        attachments: Array<WeaveUrl>
       }
     | {
         type: "move-piece";
@@ -119,7 +120,7 @@ export interface BoardState {
     | {
         type: "set-piece-attachments";
         id: uuidv1;
-        attachments: Array<WALUrl>
+        attachments: Array<WeaveUrl>
       }
   
   export const boardGrammar = {
