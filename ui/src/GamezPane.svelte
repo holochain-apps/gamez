@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
   import type { GamezStore } from "./store";
   import { type BoardState, PieceDef, PieceType, Board, type Piece, type BoardProps} from "./board";
   import EditBoardDialog from "./EditBoardDialog.svelte";
@@ -52,6 +52,23 @@
   $: myAgentPubKey = store.myAgentPubKey
   $: participants = activeBoard.participants()
 
+  onMount(async () => {
+    const props = cloneDeep($state.props) as BoardProps
+
+    const attachments = props.attachments
+
+    // backward compatibility check for when attachments were just strings
+    if (attachments && attachments.length>0 && typeof attachments[0] == "string" ){
+      const assetSpecs = []
+
+      attachments.forEach((a,count) =>
+        assetSpecs.push( {embed: true, weaveUrl: a, position: { x:  50*count, y: 20*count }, size:{width:100,height:100}}))
+      
+      props.attachments = assetSpecs
+      activeBoard.requestChanges([{type: 'set-props', props }])
+    }
+  })
+
   const getPieceDefs = (defs:Array<PieceDef>) => {
     const pieceDefs: {[key: string]: PieceDef} = {}
     defs.forEach(d=>pieceDefs[d.id]=d)
@@ -81,19 +98,6 @@
 
   const toggleShowEmbed = () => {
     showEmbed = !showEmbed
-    $state.props.attachments=fixAttachments($state.props.attachments)
-  }
-
-  const fixAttachments = (attachments: any) => {
-    // backward compatibility check for when attachments were just strings
-    if (attachments && attachments.length>0 && typeof attachments[0] == "string" ){
-      const assetSpecs = []
-
-      attachments.forEach((a,count) =>
-        assetSpecs.push( {embed: true, weaveUrl: a, position: { x:  50*count, y: 20*count }, size:{width:100,height:100}}))
-      return assetSpecs 
-    }
-    return attachments 
   }
 
   let attachmentsDialog : AttachmentsDialog
@@ -358,8 +362,8 @@
               <sl-button  size=small variant="text" on:click={addAttachment}><SvgIcon icon=addAsset color=white></SvgIcon></sl-button>
             </sl-tooltip>
            
-            {#if attachments && attachments.length>0}
-              <AttachmentsList attachments={fixAttachments(attachments).map(a=>a.weaveUrl)} allowDelete={true}
+            {#if attachments && attachments.length>0 && typeof attachments[0]!="string"}
+              <AttachmentsList attachments={attachments.map(a=>a.weaveUrl)} allowDelete={true}
               on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
               <sl-tooltip content={showEmbed ? "Hide Asset Pane" : "Show Asset Pane"}>
                 <sl-button  size=small variant="text" on:click={toggleShowEmbed}><SvgIcon icon={showEmbed?"hide":"show"} color=white></SvgIcon></sl-button>
