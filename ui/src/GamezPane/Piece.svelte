@@ -61,6 +61,18 @@
     ? `position: absolute; top: ${piece.y}px; left: ${piece.x}px;`
     : "";
   $: attachmentsLength = piece?.attachments?.length;
+
+  function title() {
+    function pluralize(word: string, count: number) {
+      return count === 1
+        ? word
+        : `${word}s`;
+    }
+
+    return attachmentsLength
+      ? `This ${pieceName} piece has ${attachmentsLength} ${pluralize("attachment", attachmentsLength)}`
+      : pieceName;
+  }
 </script>
 
 <div
@@ -73,9 +85,7 @@
   on:dragend
   on:drop
   on:dragover
-  title={attachmentsLength
-    ? `This ${pieceName} piece has ${attachmentsLength} attachment(s)`
-    : pieceName}
+  title={title()}
   style={`
     ${stylePosition}
     font-size:${pieceWH.h - 2}px;
@@ -84,7 +94,7 @@
   `}
 >
   {#if attachmentsLength}
-    <div class="piece-has-attachment">{attachmentsLength}</div>
+    <div class="piece-attachment-count">{attachmentsLength}</div>
   {/if}
   {#if playerPieceId}
     <Avatar
@@ -129,17 +139,23 @@
     cursor: move;
   }
 
-  .piece-has-attachment {
+  .piece-attachment-count {
     position: absolute;
-    bottom: 0px;
-    right: 0px;
+    height: 14px;
+    display: flex;
+    padding: 0 4px;
+    align-items: center;
+    justify-content: center;
+    bottom: -2px;
+    right: -2px;
     z-index: 10;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
-    color: blue;
-    padding-right: 5px;
-    padding-left: 5px;
-    border-radius: 5px;
-    background-color: rgba(0, 255, 0, 0.5);
+
+    border-radius: 2px;
+    color: white;
+    background-color: rgba(200, 0, 0, 1);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.5);
   }
 </style>
