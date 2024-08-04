@@ -19,7 +19,7 @@
   const url = `ws://localhost:${appPort}`;
 
   let client: AppWebsocket
-  let weaveClient: WeaveClient  
+  let weaveClient: WeaveClient
   let profilesStore : ProfilesStore|undefined = undefined
 
   let connected = false
@@ -66,7 +66,7 @@
         if (tokenResp) params.token = tokenResp.token;
         client = await AppWebsocket.connect(params);
         profilesClient = new ProfilesClient(client, appId);
-    } 
+    }
     else {
       weaveClient = await WeaveClient.connect(appletServices);
       switch (weaveClient.renderInfo ?  weaveClient.renderInfo.type : "applet-view") {
@@ -113,7 +113,7 @@
                 case "game":
                   renderType = RenderType.CreateBoard
                   createView = weaveClient.renderInfo.view
-              }              
+              }
               break;
             default:
               throw new Error("Unsupported applet-view type");
@@ -151,7 +151,7 @@
 <svelte:head>
 </svelte:head>
 {#if connected}
-  <profiles-context store={profilesStore}>
+  <profiles-context store={profilesStore} id="root">
     {#if $prof.status=="pending"}
       <div class="loading"><div class="loader"></div></div>
     {:else if $prof.status=="complete" && $prof.value == undefined}
@@ -173,7 +173,7 @@
 
   </profiles-context>
 {:else}
-  <div class="loading"><div class="loader"></div></div> 
+  <div class="loading"><div class="loader"></div></div>
 {/if}
 
 <style>

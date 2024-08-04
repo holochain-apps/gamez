@@ -1,6 +1,6 @@
 <script lang="ts">
   import Toolbar from "./Toolbar.svelte";
-  import GamezPane from "./GamezPane.svelte";
+  import GamezPane from "./GamezPane";
   import { GamezStore } from "./store";
   import { onMount, setContext } from "svelte";
   import type { AppClient } from "@holochain/client";
@@ -105,7 +105,7 @@
       {#if store}
         <NewBoardDialog bind:this={newBoardDialog} />
         <EditGameTypeDialog bind:this={editBoardTypeDialog} />
-        <StartGameDialog bind:this={startGameDialog} 
+        <StartGameDialog bind:this={startGameDialog}
           on:start-game={async (e) => {
             const state = cloneDeep(e.detail.boardDef.board);
             state.name = e.detail.name;
@@ -239,7 +239,7 @@
                   {/each}
                 {/if}
               </div>
-  
+
             </div>
           </div>
 
