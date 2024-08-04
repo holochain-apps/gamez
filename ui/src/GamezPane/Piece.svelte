@@ -1,5 +1,6 @@
 <script context="module">
-  export const PLAYER_PIECE_SIZE = 32;
+  export const
+  PLAYER_PIECE_SIZE = 32;
 </script>
 
 <script lang="ts">

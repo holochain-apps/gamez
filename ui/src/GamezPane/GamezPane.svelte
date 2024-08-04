@@ -33,6 +33,32 @@
   EMPTY_IMAGE.src =
     "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
 
+
+
+  const { getStore }: any = getContext("gzStore");
+  let store: GamezStore = getStore();
+  export let activeBoard: Board;
+  export let standAlone = false;
+  let selectedCommitHash;
+  let editBoardDialog;
+
+  $: activeHash = store.boardList.activeBoardHash;
+  $: state = activeBoard.readableState();
+  $: pieces = $state ? Object.values($state.props.pieces) : undefined;
+  $: pieceDefs = $state ? getPieceDefs($state.pieceDefs) : undefined;
+  $: attachments = $state ? $state.props.attachments : undefined;
+  $: myAgentPubKeyB64 = store.myAgentPubKeyB64;
+  $: participants = activeBoard.participants();
+
+
+
+  // ██╗   ██╗████████╗██╗██╗     ███████╗
+  // ██║   ██║╚══██╔══╝██║██║     ██╔════╝
+  // ██║   ██║   ██║   ██║██║     ███████╗
+  // ██║   ██║   ██║   ██║██║     ╚════██║
+  // ╚██████╔╝   ██║   ██║███████╗███████║
+  //  ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝
+
   const download = (filename: string, text: string) => {
     var element = document.createElement("a");
     element.setAttribute(
@@ -56,20 +82,51 @@
     alert(`Your board was exported to your Downloads folder as: '${fileName}'`);
   };
 
-  const { getStore }: any = getContext("gzStore");
-  let store: GamezStore = getStore();
-  export let activeBoard: Board;
-  export let standAlone = false;
+  const canJoin = (state) => {
+    return (
+      state.props.players.length < state.max_players &&
+      !state.props.players.includes(myAgentPubKeyB64)
+    );
+  };
 
-  $: activeHash = store.boardList.activeBoardHash;
-  $: state = activeBoard.readableState();
-  $: pieces = $state ? Object.values($state.props.pieces) : undefined;
-  $: pieceDefs = $state ? getPieceDefs($state.pieceDefs) : undefined;
-  $: attachments = $state ? $state.props.attachments : undefined;
+  const haveJoined = (state) => {
+    return state.props.players.includes(myAgentPubKeyB64);
+  };
 
-  $: myAgentPubKeyB64 = store.myAgentPubKeyB64;
-  $: myAgentPubKey = store.myAgentPubKey;
-  $: participants = activeBoard.participants();
+  const myTurn = (state) => {
+    return (
+      state.turns &&
+      state.props.players[state.props.turn | 0] == myAgentPubKeyB64
+    );
+  };
+
+  const canPlay = (state) => {
+    return myTurn(state) || (!state.turns && haveJoined(state));
+  };
+
+  $: iCanPlay = canPlay($state);
+
+  const getPieceDefs = (defs: Array<PieceDef>) => {
+    const pieceDefs: { [key: string]: PieceDef } = {};
+    defs.forEach((d) => (pieceDefs[d.id] = d));
+    return pieceDefs;
+  };
+
+  const closeBoard = async () => {
+    await store.boardList.closeActiveBoard(false);
+  };
+
+  const leaveBoard = async () => {
+    await store.boardList.closeActiveBoard(true);
+  };
+
+  //  █████╗ ████████╗████████╗ █████╗  ██████╗██╗  ██╗███╗   ███╗███████╗███╗   ██╗████████╗███████╗
+  // ██╔══██╗╚══██╔══╝╚══██╔══╝██╔══██╗██╔════╝██║  ██║████╗ ████║██╔════╝████╗  ██║╚══██╔══╝██╔════╝
+  // ███████║   ██║      ██║   ███████║██║     ███████║██╔████╔██║█████╗  ██╔██╗ ██║   ██║   ███████╗
+  // ██╔══██║   ██║      ██║   ██╔══██║██║     ██╔══██║██║╚██╔╝██║██╔══╝  ██║╚██╗██║   ██║   ╚════██║
+  // ██║  ██║   ██║      ██║   ██║  ██║╚██████╗██║  ██║██║ ╚═╝ ██║███████╗██║ ╚████║   ██║   ███████║
+  // ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
+
 
   onMount(async () => {
     const props = cloneDeep($state.props) as BoardProps;
@@ -98,21 +155,7 @@
     }
   });
 
-  const getPieceDefs = (defs: Array<PieceDef>) => {
-    const pieceDefs: { [key: string]: PieceDef } = {};
-    defs.forEach((d) => (pieceDefs[d.id] = d));
-    return pieceDefs;
-  };
 
-  const closeBoard = async () => {
-    await store.boardList.closeActiveBoard(false);
-  };
-
-  const leaveBoard = async () => {
-    await store.boardList.closeActiveBoard(true);
-  };
-
-  let editBoardDialog;
   let showEmbed = false;
   let embedsEditable = false;
 
@@ -129,6 +172,48 @@
   function editPieceAttachments(piece: Piece) {
     if (isWeContext()) attachmentsDialog.open(piece);
   }
+
+  let walSpace: WalSpace;
+  const addAttachment = async () => {
+    const wal = await store.weaveClient.userSelectWal();
+    if (wal) {
+      const props = cloneDeep($state.props) as BoardProps;
+      if (!props.attachments) {
+        props.attachments = [];
+      }
+      const count = props.attachments.length;
+      const asset: AssetSpec = {
+        embed: true,
+        weaveUrl: weaveUrlFromWal(wal),
+        position: { x: 50 * count, y: 20 * count },
+        size: { width: 100, height: 100 },
+      };
+      props.attachments.push(asset);
+      activeBoard.requestChanges([{ type: "set-props", props }]);
+    }
+  };
+
+  const saveAttachments = async (assets: AssetSpec[]) => {
+    const props = cloneDeep($state.props) as BoardProps;
+    props.attachments = assets;
+    activeBoard.requestChanges([{ type: "set-props", props }]);
+  };
+
+  const removeAttachment = async (index: number) => {
+    const props = cloneDeep($state.props);
+    props.attachments.splice(index, 1);
+    activeBoard.requestChanges([{ type: "set-props", props }]);
+  };
+
+  const copyWALToClipboard = () => {
+    const attachment: WAL = {
+      hrl: [store.dnaHash, activeBoard.hash],
+      context: {},
+    };
+    store.weaveClient?.walToPocket(attachment);
+  };
+
+
 
   // ██████╗ ██████╗  █████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
   // ██╔══██╗██╔══██╗██╔══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝
@@ -254,7 +339,6 @@
 
   function handleDragEnd() {
     dragState = null;
-    // const dragImage = document.getElementById('drag-image');
     if (dragImageEl) {
       dragImageEl.remove();
       dragImageEl = null;
@@ -264,82 +348,10 @@
   const DEFAULT_BOARD_IMG =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png";
 
-  $: bgUrl =
-    $state.props && $state.props.bgUrl ? $state.props.bgUrl : DEFAULT_BOARD_IMG;
+  $: bgUrl = $state.props && $state.props.bgUrl ? $state.props.bgUrl : DEFAULT_BOARD_IMG;
 
-  let img;
 
-  const canJoin = (state) => {
-    return (
-      state.props.players.length < state.max_players &&
-      !state.props.players.includes(myAgentPubKeyB64)
-    );
-  };
-  const haveJoined = (state) => {
-    return state.props.players.includes(myAgentPubKeyB64);
-  };
 
-  const myTurn = (state) => {
-    return (
-      state.turns &&
-      state.props.players[state.props.turn | 0] == myAgentPubKeyB64
-    );
-  };
-
-  const canPlay = (state) => {
-    return myTurn(state) || (!state.turns && haveJoined(state));
-  };
-  $: iCanPlay = canPlay($state);
-
-  let walSpace: WalSpace;
-  const addAttachment = async () => {
-    const wal = await store.weaveClient.userSelectWal();
-    if (wal) {
-      const props = cloneDeep($state.props) as BoardProps;
-      if (!props.attachments) {
-        props.attachments = [];
-      }
-      const count = props.attachments.length;
-      const asset: AssetSpec = {
-        embed: true,
-        weaveUrl: weaveUrlFromWal(wal),
-        position: { x: 50 * count, y: 20 * count },
-        size: { width: 100, height: 100 },
-      };
-      props.attachments.push(asset);
-      activeBoard.requestChanges([{ type: "set-props", props }]);
-    }
-  };
-
-  const saveAttachments = async (assets: AssetSpec[]) => {
-    const props = cloneDeep($state.props) as BoardProps;
-    props.attachments = assets;
-    activeBoard.requestChanges([{ type: "set-props", props }]);
-  };
-
-  const removeAttachment = async (index: number) => {
-    const props = cloneDeep($state.props);
-    props.attachments.splice(index, 1);
-    activeBoard.requestChanges([{ type: "set-props", props }]);
-  };
-  const pieceName = (piece: Piece) => {
-    if (isPlayer(piece.typeId)) {
-      return "player";
-    }
-    return pieceDefs[piece.typeId].name;
-  };
-  const isPlayer = (id: string) => {
-    return id.startsWith("uhCA");
-  };
-  const copyWALToClipboard = () => {
-    const attachment: WAL = {
-      hrl: [store.dnaHash, activeBoard.hash],
-      context: {},
-    };
-    store.weaveClient?.walToPocket(attachment);
-  };
-
-  let selectedCommitHash;
 
   // ███████╗ ██████╗  ██████╗ ███╗   ███╗     █████╗ ███╗   ██╗██████╗     ██████╗  █████╗ ███╗   ██╗
   // ╚══███╔╝██╔═══██╗██╔═══██╗████╗ ████║    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗████╗  ██║
@@ -672,6 +684,7 @@
         >
           {#each pieces as piece}
             <PieceEl
+              on:dblclick={()=>editPieceAttachments(piece)}
               on:dragstart={(e) => handleDragStart(e, "move", piece.id)}
               on:dragend={handleDragEnd}
               on:drop={handleDragDrop}
