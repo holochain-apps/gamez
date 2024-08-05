@@ -1,9 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher, getContext } from "svelte";
-  import type { GamezStore } from "./store";
+  import type { GamezStore } from "../store";
   import type { EntryHash } from "@holochain/client";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
-  import SvgIcon from "./SvgIcon.svelte";
+  import SvgIcon from "../SvgIcon.svelte";
 
   const dispatch = createEventDispatcher()
   const { getStore } :any = getContext("gzStore");

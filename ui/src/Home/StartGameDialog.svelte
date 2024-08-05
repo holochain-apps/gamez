@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {  BoardDefData } from "./store";
+  import type {  BoardDefData } from "../store";
   import { createEventDispatcher, onMount } from "svelte";
   import "@shoelace-style/shoelace/dist/components/dialog/dialog.js";
   import "@shoelace-style/shoelace/dist/components/button/button.js";
@@ -77,7 +77,7 @@
   <sl-button slot="footer" on:click={() => close()} style="margin-left:10px">
     Cancel
   </sl-button>
-  <sl-button slot="footer" 
+  <sl-button slot="footer"
     disabled={!valid}
     style="margin-left:10px"
     on:click={() => startGame()}

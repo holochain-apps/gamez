@@ -9,7 +9,7 @@
     type Piece,
     type BoardProps,
   } from "../board";
-  import EditBoardDialog from "../EditBoardDialog.svelte";
+  import EditBoardDialog from "../Home/EditBoardDialog.svelte";
   import Avatar from "../Avatar.svelte";
   import AttachmentsDialog from "../AttachmentsDialog.svelte";
   import { cloneDeep } from "lodash";

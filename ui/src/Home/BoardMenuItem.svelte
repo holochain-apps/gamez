@@ -1,14 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher, getContext } from "svelte";
-  import type { GamezStore } from "./store";
+  import type { GamezStore } from "../store";
   import { decodeHashFromBase64, type EntryHash } from "@holochain/client";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import "@shoelace-style/shoelace/dist/components/card/card.js";
   import "@shoelace-style/shoelace/dist/components/relative-time/relative-time.js";
-  import Participants from "./Participants.svelte";
-  import { BoardType } from "./boardList";
-  import { hashEqual } from "./util";
-  import Avatar from "./Avatar.svelte";
+  import Participants from "../Participants.svelte";
+  import { BoardType } from "../boardList";
+  import { hashEqual } from "../util";
+  import Avatar from "../Avatar.svelte";
 
   const dispatch = createEventDispatcher()
   const { getStore } :any = getContext("gzStore");
