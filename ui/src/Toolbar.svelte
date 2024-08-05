@@ -1,67 +1,87 @@
 <script lang="ts">
-  import LogoIcon from "./icons/LogoIcon.svelte";
-  import Folk from "./Folk.svelte";
-  import AboutDialog from "./AboutDialog.svelte";
-  import type { ProfilesStore } from "@holochain-open-dev/profiles";
-  import SvgIcon from "./SvgIcon.svelte";
-  import type { GamezStore } from './store';
   import { getContext } from "svelte";
-  const { getStore } :any = getContext('gzStore');
-  const store:GamezStore = getStore();
+  import { get } from 'svelte/store';
+  import CircleInfoIcon from "~icons/fa6-solid/circle-info";
+  import BugIcon from "~icons/fa6-solid/bug";
+  import ArrowLeftIcon from "~icons/fa6-solid/arrow-left";
+  import UserGroupIcon from "~icons/fa6-solid/user-group"
 
-  let aboutDialog
-  $:bugColor = "color: #5536f9"
+  import type { ProfilesStore } from "@holochain-open-dev/profiles";
+  import { isWeContext } from '@lightningrodlabs/we-applet';
+
+  import type { GamezStore } from "./store";
+  import Avatar from './Avatar.svelte';
+  import AboutDialog from "./AboutDialog.svelte";
+  import AvatarDialog from './AvatarDialog.svelte';
+  import ParticipantsDialog from "./ParticipantsDialog.svelte";
+
+  const { getStore }: any = getContext("gzStore");
+  const store: GamezStore = getStore();
+
+
+  let aboutDialog;
+  let editAvatarDialog;
+  let participantsDialog;
+  $: activeBoardHash = store.boardList.activeBoardHash;
+  //@ts-ignore
+  $: myProfile = get(store.profilesStore.myProfile).value
+  $: myName =  myProfile ? myProfile.nickname  : ""
+
+  const closeBoard = async () => {
+    await store.boardList.closeActiveBoard(false);
+  };
+
+  const editAvatar = () => {
+      editAvatarDialog.open()
+  }
+
 </script>
 
-  <AboutDialog bind:this={aboutDialog} />
-<div class='toolbar'>
-  <div class="left-items">
-    <div class="logo"><LogoIcon /></div>
-    <div style="margin-left:10px" title="About BoardGamez!" on:click={()=>aboutDialog.open()}><SvgIcon icon=info ></SvgIcon></div>
-  </div>
-  <div class="right-items">
-    <Folk></Folk>
-    <a href="https://github.com/holochain-apps/gamez/issues" title="Report a problem in our GitHub repo" target="_blank">
-      <div class="nav-button"><SvgIcon icon=faBug size=16 /></div>
-    </a>
-  </div>
-</div>
+<AboutDialog bind:this={aboutDialog} />
+<AvatarDialog bind:this={editAvatarDialog} />
+<ParticipantsDialog bind:this={participantsDialog} />
 
-<style>
-  .bug-link {
-    padding: 8px 8px;
-    display: flex;
-    border-radius: 50%;
-  }
-  a:hover.bug-link {
-    background-color: #ddd;
-  }
-  .toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #eeeeee;
-    padding-left: 15px;
-    padding-right: 10px;
-  }
-  .logo {
-    height: 40px;
-    margin-right: 10px;
-    display: contents;
-    cursor: pointer;
-  }
-  .logo-text {
-    padding-bottom: 5px;
-    margin-left: 15px;
-  }
-  .right-items {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-  }
-  .left-items {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-  }
-</style>
+<div class="flexcc flex-shrink-0 bg-main-300 b-black/10 0 b text-white/80 px6 h-16 space-x-2">
+  {#if $activeBoardHash !== undefined }
+  <button class="h12 w12 flexcc hover:bg-main-400 rounded-full" on:click={closeBoard}>
+    <ArrowLeftIcon/>
+  </button>
+  {/if}
+  <button
+    on:click={closeBoard}
+    class="font-bold text-2xl"
+    style="text-shadow: 0 1px 0 rgba(0,0,0,.5)">
+      BoardGamez
+  </button>
+
+  <div class="flex-grow"></div>
+  <button
+    title="About BoardGamez!"
+    class="h12 w12 flexcc rounded-full hover:(bg-main-400 text-white)"
+    on:click={() => aboutDialog.open()}
+  >
+    <CircleInfoIcon class="block" />
+  </button>
+
+  <a
+    class="h12 w12 flexcc rounded-full hover:(bg-main-400 text-white)"
+    href="https://github.com/holochain-apps/gamez/issues"
+    title="Report a problem in our GitHub repo"
+    target="_blank"
+  >
+    <BugIcon />
+  </a>
+
+  <button
+    class="h12 w12 flexcc rounded-full hover:(bg-main-400 text-white)"
+    on:click={()=>{participantsDialog.open()}}
+    title="Show Participants">
+    <UserGroupIcon/>
+  </button>
+
+  {#if !isWeContext()}
+      <button on:click={editAvatar} title={myName ? myName:"Edit Avatar"} class="ml4! hover:brightness-120">
+          <Avatar size={38} agentPubKey={store.myAgentPubKey} placeholder={true} showNickname={false}/>
+      </button>
+  {/if}
+</div>

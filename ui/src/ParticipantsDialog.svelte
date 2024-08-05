@@ -1,98 +1,65 @@
 <script lang="ts">
-    import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
-    import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-    import { getContext } from "svelte";
-    import type { GamezStore } from "./store";
-    import Avatar from './Avatar.svelte';
-    import "@holochain-open-dev/stores/dist/debug-store.js"
-  
-    const { getStore } :any = getContext('gzStore');
-    const store:GamezStore = getStore();
-  
-    $: agents = store.profilesStore.agentsWithProfile
-    $: agentBoards = store.boardList.allAgentBoards
-    
-    //__debugStore(store.boardList.allAgentBoards)
-    //.status=="complete" ? sliceAndJoin( store.boardList.boardParticipants, $agents.value): undefined
-  
-    export const close=()=>{dialog.hide()}
-    export const open=()=>{
-      dialog.show()
-      }
-    let dialog
-  
-  </script>
-  
-      <sl-dialog label="Participants" bind:this={dialog}>
-          <div class="participants">
-              <div class="list">
-                  {#if $agents.status == "pending"}
-                      <sl-skeleton
-                          effect="pulse"
-                          style="height: 40px; width: 100%"
-                      ></sl-skeleton>
-                  {:else}
-                  <h4 style="margin-left:50px">Played in:</h4>
-  
-                          {#each $agents.status=="complete" ? Array.from($agents.value) : [] as agentPubKey}
-                              <div class="list-item">
-                                  <Avatar agentPubKey={agentPubKey} size={40} namePosition="column"/>
-                                  <div style="margin-left:10px; font-size:120%">
-                                      {#if $agentBoards.status=="complete"}
-                                      <div class="boards">
-                                          {#each $agentBoards.value.get(agentPubKey) as board}
-                                              <div class="board" on:click={()=>{
-                                                  store.boardList.setActiveBoard(board.board.hash)
-                                                  close()
-                                              }}>{board.latestState.name}</div>
-                                          {/each}
-                                      </div>
-                                      {/if}
-                                  </div>
-                              </div>
-                          {/each}
-                      {/if}
-              </div>
+  import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
+  import "@shoelace-style/shoelace/dist/components/dialog/dialog.js";
+  import GamepadIcon from "~icons/fa6-solid/gamepad";
+  import { getContext } from "svelte";
+  import type { GamezStore } from "./store";
+  import Avatar from "./Avatar.svelte";
+  import "@holochain-open-dev/stores/dist/debug-store.js";
+
+  const { getStore }: any = getContext("gzStore");
+  const store: GamezStore = getStore();
+
+  $: agents = store.profilesStore.agentsWithProfile;
+  $: agentBoards = store.boardList.allAgentBoards;
+
+  //__debugStore(store.boardList.allAgentBoards)
+  //.status=="complete" ? sliceAndJoin( store.boardList.boardParticipants, $agents.value): undefined
+
+  export const close = () => {
+    dialog.hide();
+  };
+  export const open = () => {
+    dialog.show();
+  };
+  let dialog;
+</script>
+
+<sl-dialog label="Participants"  bind:this={dialog}>
+  <div>
+    <div class="overflow-hidden rounded-md -mt5 b b-main-700">
+      {#if $agents.status == "pending"}
+        <sl-skeleton effect="pulse" class="h-14 w-full"></sl-skeleton>
+      {:else}
+        {#each $agents.status == "complete" ? Array.from($agents.value) : [] as agentPubKey}
+          <div class="b-b-2 b-main-700 last:b-0">
+            <div class="bg-main-900  p2">
+              <Avatar {agentPubKey} size={40} namePosition="row" />
+            </div>
+              {#if $agentBoards.status == "complete" && $agentBoards.value.get(agentPubKey).length}
+                <div class="relative p2 py4 flex flexcc flex-wrap bg-main-600 text-white">
+                    <div class="absolute top-0 right-2 -translate-y-1/2 text-xl bg-main-700 px2 py1 rounded-md b b-main-600" title="Games played">
+                        <GamepadIcon/>
+                    </div>
+                    {#each $agentBoards.value.get(agentPubKey) as board}
+                    <button
+                        class="bg-black/10 hover:bg-black/20 px1 pb0.5 pt1 rounded-md mr2" style="box-shadow: 0 1px 0 rgba(0,0,0,.3)"
+                        on:click={() => {
+                            store.boardList.setActiveBoard(board.board.hash);
+                            close();
+                        }}
+                    >
+                        {board.latestState.name}
+                    </button>
+                  {/each}
+                </div>
+              {/if}
           </div>
-      </sl-dialog>
-  
-  <style>
-      .boards {
-          display: flex;
-          flex-direction: row;
-          flex-wrap: wrap;
-      }
-      .board {
-          border-radius: 5px;
-          border: 2px solid rgb(166 115 55 / 26%);
-          font-size: 90%;
-          font-weight: bold;
-          padding: 2px;
-          justify-content: center;
-          display: flex;
-          cursor: pointer;
-          margin-right: 5px;
-      }
-      .board:hover {
-          box-shadow: 0px 10px 35px rgb(130 107 58 / 25%);
-          transform: scale(1.1);
-      }
-      .list {
-          display: flex;
-          flex-direction: column;
-      }
-      .list-item {
-          display: flex;
-          align-items: center;
-      }
-  
-      sl-dialog::part(panel) {
-          background: #FFFFFF;
-          border: 2px solid rgb(166 115 55 / 26%);
-          border-bottom: 2px solid rgb(84 54 19 / 50%);
-          border-top: 2px solid rgb(166 115 55 / 5%);
-          box-shadow: 0px 15px 40px rgb(130 107 58 / 35%);
-          border-radius: 10px;
-      }
-  </style>
-  
+        {/each}
+      {/if}
+    </div>
+  </div>
+</sl-dialog>
+
+<style>
+</style>
