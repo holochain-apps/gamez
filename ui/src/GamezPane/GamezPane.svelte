@@ -409,8 +409,6 @@
   function canvasToBoardPos([x, y]: [number, number]) {
     return [x / zoom - panX, y / zoom - panY] as [number, number];
   }
-
-  $: console.log('PARTICIPANTS', Array.from($participants));
 </script>
 
 <div>
@@ -419,7 +417,7 @@
     showAddToPocket={!!store.weaveClient}
     attachments={$state.boundTo}
     {standAlone}
-    participants={$participants ? Array.from($participants.entries()) : []}
+    participants={$participants ? Array.from($participants.entries()) : null}
     myAgentPubKey={store.myAgentPubKey}
     on:pocket={() => copyWALToClipboard()}
     on:export={() => exportBoard($state)}

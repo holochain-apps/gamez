@@ -20,10 +20,8 @@
   export let attachments: string[];
   export let showAddToPocket: boolean;
   export let standAlone: boolean;
-  export let participants: [Uint8Array, SessionParticipant][];
+  export let participants: [Uint8Array, SessionParticipant][] | null;
   export let myAgentPubKey: Uint8Array;
-
-  console.log('PARTICIPANTS', participants);
 </script>
 
 <div class="h-16 flexcc px2 bg-main-500 @dark:bg-main-400 space-x-4 text-white/80!">
@@ -47,7 +45,7 @@
   {/if}
   <div class="flex-grow flexcs bg-main-300 b b-black/10 h-12 rounded-md shadow-inner">
     <div class="ml4 opacity-50 text-white/80! mr2">In the room</div>
-    {#if participants.length}
+    {#if participants}
       <div class="participants" style="margin-right:20px">
         <div style="display:flex; flex-direction: row">
           <div style="margin-left:5px;">
