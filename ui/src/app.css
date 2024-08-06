@@ -27,7 +27,7 @@
   --mdc-theme-primary: #7B1FA2;
   --mdc-theme-secondary: #FF5722;
   --main-saturation: 25%;
-  --main-hue: 100;
+  --main-hue: 130;
   --primary-color: #536DFE;
   --secondary-color: #FF9800;
   --bg-color: #F5F5F5;
@@ -51,7 +51,6 @@ html, body {
   padding: 0px;
   height: 100%;
   overflow: hidden; /* In general, it's a good idea to have the body take up the full viewport height and have a fixed layout with no scrollbar. Then, you can have a scrollable inner container like .pane-content to handle the overflow of the content. This approach helps keep the page structure clean and allows you to control the scrolling behavior more effectively. */
-  background-image: url('/images/noise.png');
 }
 
 a {

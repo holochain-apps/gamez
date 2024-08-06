@@ -58,6 +58,7 @@
   style="--width:600px"
   bind:this={dialog}
   label="Start New Game"
+  class="text-black/60!"
   on:sl-initial-focus={(e)=>{
     e.preventDefault()
     nameInput.focus()

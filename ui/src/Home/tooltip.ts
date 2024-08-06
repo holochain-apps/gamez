@@ -10,20 +10,33 @@ export function tooltip(node: HTMLElement, content: string) {
 
   let show: boolean = false;
 
-  const el = document.createElement("div");
-  el.className =
-    "absolute pointer-events-none px4 py2 rounded bg-black text-white";
+  const el = document.createElement('div');
+  el.className = 'absolute pointer-events-none px4 py2 rounded bg-black text-white';
   el.innerHTML = content;
 
+  let timeout = 0;
   function handleMouseOver() {
     show = true;
+    el.style.opacity = '0';
     document.body.appendChild(el);
+    timeout = setTimeout(() => {
+      el.style.opacity = '1';
+    }, 200);
   }
 
   function handleMouseMove(ev: MouseEvent) {
     if (show) {
-      el.style.top = ev.clientY + "px";
-      el.style.left = ev.clientX + 15 + "px";
+      el.style.top = ev.clientY + 'px';
+      el.style.left = ev.clientX + 15 + 'px';
+      const { width, left } = el.getBoundingClientRect();
+      const docWidth = document.documentElement.clientWidth;
+      const overflow = left + width - docWidth;
+      const moveLeft = overflow > 0 ? overflow : 0;
+
+      // const moveLeft = overflow > 0 ? left - width : 0;
+      el.style.left = ev.clientX + 15 - moveLeft + 'px';
+      // console.log(width, left, docWidth);
+      // el.style.transform = 'translateX(' + moveLeft + 'px)';
     }
   }
 
@@ -32,15 +45,16 @@ export function tooltip(node: HTMLElement, content: string) {
     el.remove();
   }
 
-  node.addEventListener("mouseover", handleMouseOver);
-  node.addEventListener("mousemove", handleMouseMove);
-  node.addEventListener("mouseout", handleMouseOut);
+  node.addEventListener('mouseover', handleMouseOver);
+  node.addEventListener('mousemove', handleMouseMove);
+  node.addEventListener('mouseout', handleMouseOut);
 
   return {
     destroy() {
-      node.removeEventListener("mouseover", handleMouseOver);
-      node.removeEventListener("mousemove", handleMouseMove);
-      node.removeEventListener("mouseout", handleMouseOut);
+      clearTimeout(timeout);
+      node.removeEventListener('mouseover', handleMouseOver);
+      node.removeEventListener('mousemove', handleMouseMove);
+      node.removeEventListener('mouseout', handleMouseOut);
       el.remove();
     },
   };

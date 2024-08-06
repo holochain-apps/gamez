@@ -52,7 +52,7 @@
     }
     let boardEditor
 </script>
-<sl-dialog style="--width:600px" bind:this={dialog} label="Edit Game Type"
+<sl-dialog style="--width:600px" bind:this={dialog} class="text-black/60!" label="Edit Game Type"
 on:sl-request-close={(event)=>{
     if (event.detail.source === 'overlay') {
     event.preventDefault();

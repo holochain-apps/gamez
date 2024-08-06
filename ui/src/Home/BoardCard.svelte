@@ -1,21 +1,22 @@
 <script lang="ts">
-  import { createEventDispatcher, getContext } from "svelte";
-  import UserIcon from "~icons/fa6-solid/user";
-  import cx from "classnames";
-  import { type EntryHash, decodeHashFromBase64 } from "@holochain/client";
-  import { pipe } from "@holochain-open-dev/stores";
-  import { GamezStore } from "../store";
-  import Avatar from "../Avatar.svelte";
-  import { hashEqual, isComplete } from "../util";
-  import { Board } from "../board";
-  import { tooltip } from "./tooltip";
+  import { createEventDispatcher, getContext } from 'svelte';
+  import UserIcon from '~icons/fa6-solid/user';
+  import ShrinkIcon from '~icons/fa6-solid/down-left-and-up-right-to-center';
+  import cx from 'classnames';
+  import { type EntryHash, decodeHashFromBase64 } from '@holochain/client';
+  import { pipe } from '@holochain-open-dev/stores';
+  import { GamezStore } from '../store';
+  import Avatar from '../Avatar.svelte';
+  import { hashEqual, isComplete } from '../util';
+  import { Board } from '../board';
+  import { tooltip } from './tooltip';
 
   const dispatch = createEventDispatcher();
 
   export let boardHash: EntryHash;
   export let isArchived: boolean = false;
 
-  const { getStore }: any = getContext("gzStore");
+  const { getStore }: any = getContext('gzStore');
   let store: GamezStore = getStore();
 
   $: uiProps = store.uiProps;
@@ -23,7 +24,7 @@
   $: latestSnapshot = pipe(
     boardData,
     async (boardData) => boardData.board.workspace.latestSnapshot,
-    (latestSnapshot) => latestSnapshot
+    (latestSnapshot) => latestSnapshot,
   );
 
   type State = {
@@ -55,13 +56,8 @@
         players: v.latestState.props.players,
         hasNewActivity:
           $boardData.value.tip &&
-          !hashEqual(
-            $uiProps.tips.get(boardHash),
-            $boardData.value.tip.entryHash
-          ),
-        turnPlayerIndex: v.latestState.turns
-          ? v.latestState.props.turn || 0
-          : undefined,
+          !hashEqual($uiProps.tips.get(boardHash), $boardData.value.tip.entryHash),
+        turnPlayerIndex: v.latestState.turns ? v.latestState.props.turn || 0 : undefined,
       };
       // I am not getting what's the difference between latestSnapshot
       // and latestState; but seemed important on the previous implementation
@@ -98,42 +94,39 @@
     windowResized++;
   }
 
-  $: playersThatCanJoinLeft = state
-    ? state.maxPlayers - state.players.length
-    : 0;
+  $: playersThatCanJoinLeft = state ? state.maxPlayers - state.players.length : 0;
   $: slotsAvailableInfo = state
     ? playersThatCanJoinLeft === 0
-      ? "No slots available"
+      ? 'No slots available'
       : `${playersThatCanJoinLeft} slots available.`
-    : "";
+    : '';
   $: playersMinMaxInfo = state
     ? state.minPlayers === state.maxPlayers
       ? `Requires ${state.maxPlayers} players. ${slotsAvailableInfo}`
       : `Requires ${state.minPlayers}-${state.maxPlayers} players. ${slotsAvailableInfo}`
-    : "";
+    : '';
 
-  $: canJoin =
-    playersThatCanJoinLeft > 0 &&
-    !state.players.includes(store.myAgentPubKeyB64);
+  $: canJoin = playersThatCanJoinLeft > 0 && !state.players.includes(store.myAgentPubKeyB64);
+
+  // $: extraPlayers = state ? Math.max(state.players.length - maxPlayersSlotCount, 0) : 0;
+  // $: extraSlots = state ? maxPlayersSlotCount - state.players.length : 0;
 </script>
 
 <svelte:window on:resize={recalculateMaxPlayersThatFitOnContainer} />
 
 <div
-  class="bg-main-900 @dark:bg-main-400 b b-main-600 overflow-hidden rounded-md shadow-md"
+  class="flex flex-col bg-main-900 @dark:bg-main-400 b b-main-600 overflow-hidden rounded-md shadow-md"
 >
   {#if state}
-    <!-- Header -->
-    <div
-      class="flex bg-main-700 @dark:bg-main-500 text-white/80 overflow-hidden"
-    >
+    <!-- HEADER -->
+    <div class="flex bg-main-700 @dark:bg-main-500 text-white/80 overflow-hidden">
       <div
         class="flex-grow flexcs text-left px2 py2 text-lg"
         style="text-shadow: 0 1px 0 rgba(0,0,0,.25);"
       >
         {#if state.hasNewActivity}
           <div
-            use:tooltip={"There is new activity"}
+            use:tooltip={'There is new activity'}
             class="h5 w5 mr2 rounded-full bg-green-500 b b-green-600"
           ></div>
         {/if}
@@ -143,18 +136,15 @@
         class="bg-gradient-to-b from-white/0 to-white/10 bg-main-500 @dark:bg-main-400 px2 h-8 rounded-bl-md"
         title="Creator"
         style="text-shadow: 0 -1px 0 rgba(0,0,0,.10);"
-        use:tooltip={"Spaceholder"}
+        use:tooltip={'Spaceholder'}
       >
-        <Avatar
-          size={20}
-          agentPubKey={decodeHashFromBase64(state.creator)}
-          showNickname={true}
-        />
+        <Avatar size={20} agentPubKey={decodeHashFromBase64(state.creator)} showNickname={true} />
       </div>
     </div>
 
-    <!-- Body -->
-    <div class="">
+    <!-- BODY -->
+    <div class="flex-grow">
+      <!-- PLAYERS -->
       {#if !isArchived}
         <div
           class="p2 flex justify-center overflow-hidden w-full"
@@ -191,73 +181,90 @@
           {/each}
           {#if state.maxPlayers > maxPlayersSlotCount && !showAllPlayers}
             <button
-              class:opacity-50={maxPlayersSlotCount >= state.players.length}
-              on:click={() => (showAllPlayers = true)}
+              on:click={() => {
+                if (state.players.length > maxPlayersSlotCount) showAllPlayers = true;
+              }}
+              disabled={state.players.length < maxPlayersSlotCount}
+              class={cx(
+                `
+                flexcc flex-shrink-0 h10 w10 mr2 mb2 last:mr0 overflow-hidden
+                bg-black/10 rounded-full shadow-inner b b-black/10
+                text-black/30 font-bold`,
+                {
+                  'opacity-50': maxPlayersSlotCount >= state.players.length,
+                  'cursor-default': state.players.length < maxPlayersSlotCount,
+                },
+              )}
+            >
+              +{state.maxPlayers - maxPlayersSlotCount}
+            </button>
+          {/if}
+          {#if showAllPlayers}
+            <button
+              on:click={() => (showAllPlayers = false)}
               class="
           flexcc flex-shrink-0 h10 w10 mr2 mb2 last:mr0 overflow-hidden
           bg-black/10 rounded-full shadow-inner b b-black/10
           text-black/30 font-bold"
             >
-              +{state.maxPlayers - maxPlayersSlotCount}
+              <ShrinkIcon class="rotate-45" />
             </button>
           {/if}
         </div>
         <div class="text-sm text-center -mt2">{playersMinMaxInfo}</div>
       {/if}
-      <div class="flex pl2 pt2 flex-wrap">
+
+      <!-- TIME INFO -->
+      <div class="flexcc pl2 pt2 flex-wrap">
         <div
           class="bg-main-700 b-main-600 text-white/80! @dark:(bg-main-500 b-main-400) px2 py1 rounded-md b mr2 mb2"
         >
-          Started <sl-relative-time format="short" date={state.createdDate}
-          ></sl-relative-time>
+          Started <sl-relative-time format="short" date={state.createdDate}></sl-relative-time>
         </div>
         {#if state.latestDate}
           <div
             class="bg-main-700 b-main-600 text-white/80! @dark:(bg-main-500 b-main-400) px2 py1 rounded-md b mr2 mb2"
           >
-            Last move <sl-relative-time format="short" date={state.latestDate}
-            ></sl-relative-time>
+            Last move <sl-relative-time format="short" date={state.latestDate}></sl-relative-time>
           </div>
         {/if}
       </div>
     </div>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <div class="bg-black/10 flex b-t b-main-600">
       {#if !isArchived}
         <button
           style="text-shadow: 0 1px 0 rgba(0,0,0,.25);"
           class="px2 py1 bg-main-700 @dark:bg-main-600 w-full text-white b-r b-main-600 hover:brightness-105"
-          on:click={() => dispatch("view")}
+          on:click={() => dispatch('view')}
         >
           View
         </button>
         <button
           disabled={!canJoin}
           style="text-shadow: 0 1px 0 rgba(0,0,0,.25);"
-          class={cx("px2 py1 bg-main-700 @dark:bg-main-600 w-full text-white", {
-            "saturate-0 opacity-50": !canJoin,
-            "hover:brightness-105": canJoin,
+          class={cx('px2 py1 bg-main-700 @dark:bg-main-600 w-full text-white', {
+            'saturate-50 opacity-50': !canJoin,
+            'hover:brightness-105': canJoin,
           })}
-          on:click={() => (canJoin ? dispatch("join") : null)}>Join</button
+          on:click={() => (canJoin ? dispatch('join') : null)}>Join</button
         >
       {:else}
         <button
           style="text-shadow: 0 1px 0 rgba(0,0,0,.25);"
-          class={cx(
-            "px2 py1 bg-main-700 @dark:bg-main-600 w-full text-white hover:brightness-105"
-          )}
-          on:click={() => dispatch("unarchive")}>Unarchive</button
+          class={cx('px2 py1 bg-main-700 @dark:bg-main-600 w-full text-white hover:brightness-105')}
+          on:click={() => dispatch('unarchive')}>Unarchive</button
         >
       {/if}
     </div>
-  {:else if $boardData.status === "pending"}
+  {:else if $boardData.status === 'pending'}
     <div class="p4">
       <sl-skeleton effect="pulse" class="h-8 w-full mb2"></sl-skeleton>
       <sl-skeleton effect="pulse" class="h-24 w-full mb2"></sl-skeleton>
       <sl-skeleton effect="pulse" class="h-8 w-full"></sl-skeleton>
     </div>
-  {:else if $boardData.status === "error"}
-    <div class="p4">{$boardData.error || "Unknown error loading board"}</div>
+  {:else if $boardData.status === 'error'}
+    <div class="p4">{$boardData.error || 'Unknown error loading board'}</div>
   {/if}
 </div>

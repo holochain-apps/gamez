@@ -8,10 +8,10 @@
   import { GamezStore } from "./store";
 
   import Toolbar from "./Toolbar.svelte";
-  import Home from './Home';
+  import Home from "./Home";
   import GamezPane from "./GamezPane";
 
-  import Loader from './Loader.svelte';
+  import Loader from "./Loader.svelte";
 
   export let roleName = "";
   export let client: AppClient;
@@ -24,6 +24,7 @@
     client,
     roleName
   );
+
   let synStore: SynStore = store.synStore;
 
   $: activeBoardHash = store.boardList.activeBoardHash;
@@ -39,15 +40,15 @@
   $: activeBoard = store.boardList.activeBoard;
 </script>
 
-<div>
+<div class="flex flex-col min-h-full">
   {#if store}
     <Toolbar />
     {#if $activeBoardHash !== undefined}
       <GamezPane activeBoard={$activeBoard} />
     {:else}
-      <Home/>
+      <Home />
     {/if}
   {:else}
-    <Loader/>
+    <Loader />
   {/if}
 </div>
