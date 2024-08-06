@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getContext, onMount } from "svelte";
-  import type { GamezStore } from "../store";
+  import { getContext, onMount } from 'svelte';
+  import type { GamezStore } from '../store';
   import {
     type BoardState,
     PieceDef,
@@ -8,32 +8,30 @@
     Board,
     type Piece,
     type BoardProps,
-  } from "../board";
-  import EditBoardDialog from "../Home/EditBoardDialog.svelte";
-  import Avatar from "../Avatar.svelte";
-  import AttachmentsDialog from "../AttachmentsDialog.svelte";
-  import { cloneDeep } from "lodash";
-  import sanitize from "sanitize-filename";
-  import SvgIcon from "../SvgIcon.svelte";
-  import "@shoelace-style/shoelace/dist/components/textarea/textarea.js";
-  import { decodeHashFromBase64 } from "@holochain/client";
-  import {
-    isWeContext,
-    weaveUrlFromWal,
-    type WAL,
-  } from "@lightningrodlabs/we-applet";
-  import AttachmentsList from "../AttachmentsList.svelte";
-  import WalSpace from "../WalSpace.svelte";
-  import { type AssetSpec } from "../util";
-  import PieceEl, { PLAYER_PIECE_SIZE } from "./Piece.svelte";
-  import PlayerName from "../PlayerName.svelte";
+  } from '../board';
+  import EditBoardDialog from '../Home/EditBoardDialog.svelte';
+  import Avatar from '../Avatar.svelte';
+  import AttachmentsDialog from '../AttachmentsDialog.svelte';
+  import { cloneDeep } from 'lodash';
+  import sanitize from 'sanitize-filename';
+  import SvgIcon from '../SvgIcon.svelte';
+  import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+  import { decodeHashFromBase64 } from '@holochain/client';
+  import { isWeContext, weaveUrlFromWal, type WAL } from '@lightningrodlabs/we-applet';
+  import AttachmentsList from '../AttachmentsList.svelte';
+  import WalSpace from '../WalSpace.svelte';
+  import { type AssetSpec } from '../util';
+  import PieceEl, { PLAYER_PIECE_SIZE } from './Piece.svelte';
+  import PlayerName from '../PlayerName.svelte';
+  import TopBar from './TopBar.svelte';
+  import PlayersBar from './PlayersBar.svelte';
 
   const MAX_PLAYERS_IN_HEADER = 5;
   const EMPTY_IMAGE = new Image(1, 1);
   EMPTY_IMAGE.src =
-    "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+    'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
-  const { getStore }: any = getContext("gzStore");
+  const { getStore }: any = getContext('gzStore');
   let store: GamezStore = getStore();
   export let activeBoard: Board;
   export let standAlone = false;
@@ -56,14 +54,11 @@
   //  ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝
 
   const download = (filename: string, text: string) => {
-    var element = document.createElement("a");
-    element.setAttribute(
-      "href",
-      "data:text/json;charset=utf-8," + encodeURIComponent(text)
-    );
-    element.setAttribute("download", filename);
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
 
-    element.style.display = "none";
+    element.style.display = 'none';
     document.body.appendChild(element);
 
     element.click();
@@ -72,7 +67,7 @@
   };
 
   const exportBoard = (state: BoardState) => {
-    const prefix = "gamez";
+    const prefix = 'gamez';
     const fileName = sanitize(`${prefix}_export_${state.name}.json`);
     download(fileName, JSON.stringify(state));
     alert(`Your board was exported to your Downloads folder as: '${fileName}'`);
@@ -90,10 +85,7 @@
   };
 
   const myTurn = (state) => {
-    return (
-      state.turns &&
-      state.props.players[state.props.turn | 0] == myAgentPubKeyB64
-    );
+    return state.turns && state.props.players[state.props.turn | 0] == myAgentPubKeyB64;
   };
 
   const canPlay = (state) => {
@@ -129,11 +121,7 @@
     const attachments = props.attachments;
 
     // backward compatibility check for when attachments were just strings
-    if (
-      attachments &&
-      attachments.length > 0 &&
-      typeof attachments[0] == "string"
-    ) {
+    if (attachments && attachments.length > 0 && typeof attachments[0] == 'string') {
       const assetSpecs = [];
 
       attachments.forEach((a, count) =>
@@ -142,11 +130,11 @@
           weaveUrl: a,
           position: { x: 50 * count, y: 20 * count },
           size: { width: 100, height: 100 },
-        })
+        }),
       );
 
       props.attachments = assetSpecs;
-      activeBoard.requestChanges([{ type: "set-props", props }]);
+      activeBoard.requestChanges([{ type: 'set-props', props }]);
     }
   });
 
@@ -183,20 +171,20 @@
         size: { width: 100, height: 100 },
       };
       props.attachments.push(asset);
-      activeBoard.requestChanges([{ type: "set-props", props }]);
+      activeBoard.requestChanges([{ type: 'set-props', props }]);
     }
   };
 
   const saveAttachments = async (assets: AssetSpec[]) => {
     const props = cloneDeep($state.props) as BoardProps;
     props.attachments = assets;
-    activeBoard.requestChanges([{ type: "set-props", props }]);
+    activeBoard.requestChanges([{ type: 'set-props', props }]);
   };
 
   const removeAttachment = async (index: number) => {
     const props = cloneDeep($state.props);
     props.attachments.splice(index, 1);
-    activeBoard.requestChanges([{ type: "set-props", props }]);
+    activeBoard.requestChanges([{ type: 'set-props', props }]);
   };
 
   const copyWALToClipboard = () => {
@@ -217,21 +205,21 @@
   let dragState:
     | null
     | {
-        type: "add";
+        type: 'add';
         offsetX: number;
         offsetY: number;
         pieceTypeId: string;
       }
     | {
-        type: "move";
+        type: 'move';
         offsetX: number;
         offsetY: number;
         pieceId: string;
       } = null;
 
   let dragImageEl: HTMLDivElement;
-  const root = document.getElementById("root");
-  function handleDragStart(e: DragEvent, dragType: "add" | "move", id: string) {
+  const root = document.getElementById('root');
+  function handleDragStart(e: DragEvent, dragType: 'add' | 'move', id: string) {
     const currentTarget = e.currentTarget as HTMLDivElement;
     const bounds = currentTarget.getBoundingClientRect();
     const offsetX = e.clientX - bounds.left;
@@ -239,9 +227,9 @@
 
     let dragOffsetX, dragOffsetY: number;
     let dragImageZoom: number;
-    if (dragType === "move") {
+    if (dragType === 'move') {
       dragState = {
-        type: "move",
+        type: 'move',
         offsetX,
         offsetY,
         pieceId: id,
@@ -249,9 +237,9 @@
       dragOffsetX = dragState.offsetX / zoom;
       dragOffsetY = dragState.offsetY / zoom;
       dragImageZoom = zoom;
-    } else if (dragType === "add") {
+    } else if (dragType === 'add') {
       dragState = {
-        type: "add",
+        type: 'add',
         offsetX,
         offsetY,
         pieceTypeId: id,
@@ -262,32 +250,31 @@
     }
 
     dragImageEl = currentTarget.cloneNode(true) as HTMLDivElement;
-    dragImageEl.style.top = "0";
-    dragImageEl.style.left = "0";
-    dragImageEl.style.zIndex = "9999";
-    dragImageEl.style.position = "absolute";
-    dragImageEl.style.pointerEvents = "none";
+    dragImageEl.style.top = '0';
+    dragImageEl.style.left = '0';
+    dragImageEl.style.zIndex = '9999';
+    dragImageEl.style.position = 'absolute';
+    dragImageEl.style.pointerEvents = 'none';
     dragImageEl.style.transform = `translate(-${dragOffsetX + e.clientX}px, -${dragOffsetY + e.clientY}px) scale(${zoom})`;
     dragImageEl.style.transformOrigin = `${dragOffsetX}px ${dragOffsetY}px`;
 
     // Fixes Svelte not setting non-string custom properties on the element
-    const agentAvatarEl = dragImageEl.querySelector("agent-avatar");
+    const agentAvatarEl = dragImageEl.querySelector('agent-avatar');
     // @ts-ignore
-    if (agentAvatarEl)
-      agentAvatarEl.setAttribute("size", PLAYER_PIECE_SIZE.toString());
+    if (agentAvatarEl) agentAvatarEl.setAttribute('size', PLAYER_PIECE_SIZE.toString());
 
     root.appendChild(dragImageEl);
 
     e.dataTransfer.setDragImage(EMPTY_IMAGE, 0, 0);
-    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.effectAllowed = 'move';
   }
 
-  function handleDragOver(e: DragEvent, el: "source" | "board") {
+  function handleDragOver(e: DragEvent, el: 'source' | 'board') {
     e.preventDefault();
     if (!dragState) return;
     const resolvedOffsetX = dragState.offsetX / zoom;
     const resolvedOffsetY = dragState.offsetY / zoom;
-    const resolvedZoom = el === "source" ? 1 : zoom;
+    const resolvedZoom = el === 'source' ? 1 : zoom;
     dragImageEl.style.transform = `translate(${-resolvedOffsetX + e.clientX}px, ${-resolvedOffsetY + e.clientY}px) scale(${resolvedZoom})`;
     dragImageEl.style.transformOrigin = `${resolvedOffsetX}px ${resolvedOffsetY}px`;
   }
@@ -304,19 +291,19 @@
       canvasY - dragState.offsetY,
     ]);
 
-    if (dragState.type === "move") {
+    if (dragState.type === 'move') {
       activeBoard.requestChanges([
         {
-          type: "move-piece",
+          type: 'move-piece',
           id: dragState.pieceId,
           x: boardX,
           y: boardY,
         },
       ]);
-    } else if (dragState.type === "add") {
+    } else if (dragState.type === 'add') {
       activeBoard.requestChanges([
         {
-          type: "add-piece",
+          type: 'add-piece',
           pieceType: dragState.pieceTypeId,
           imageIdx: 0,
           x: boardX,
@@ -338,10 +325,9 @@
   }
 
   const DEFAULT_BOARD_IMG =
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png";
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png';
 
-  $: bgUrl =
-    $state.props && $state.props.bgUrl ? $state.props.bgUrl : DEFAULT_BOARD_IMG;
+  $: bgUrl = $state.props && $state.props.bgUrl ? $state.props.bgUrl : DEFAULT_BOARD_IMG;
 
   // ███████╗ ██████╗  ██████╗ ███╗   ███╗     █████╗ ███╗   ██╗██████╗     ██████╗  █████╗ ███╗   ██╗
   // ╚══███╔╝██╔═══██╗██╔═══██╗████╗ ████║    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗████╗  ██║
@@ -378,8 +364,8 @@
       const [panInitialX, panInitialY] = [panX, panY];
       const [panStartX, panStartY] = screenToCanvasPos(ev);
 
-      window.document.addEventListener("mousemove", handleMouseMove);
-      window.document.addEventListener("mouseup", handleMouseUp);
+      window.document.addEventListener('mousemove', handleMouseMove);
+      window.document.addEventListener('mouseup', handleMouseUp);
 
       function handleMouseMove(ev: MouseEvent) {
         const [currentX, currentY] = screenToCanvasPos(ev);
@@ -393,8 +379,8 @@
 
       function handleMouseUp() {
         isPanning = false;
-        window.document.removeEventListener("mousemove", handleMouseMove);
-        window.document.removeEventListener("mouseup", handleMouseUp);
+        window.document.removeEventListener('mousemove', handleMouseMove);
+        window.document.removeEventListener('mouseup', handleMouseUp);
       }
     }
   };
@@ -423,90 +409,56 @@
   function canvasToBoardPos([x, y]: [number, number]) {
     return [x / zoom - panX, y / zoom - panY] as [number, number];
   }
+
+  $: console.log('PARTICIPANTS', Array.from($participants));
 </script>
 
-<div class="board">
+<div>
   <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
-  <div class="top-bar">
-    <div class="left-items">
-      <h5>{$state.name}</h5>
-      {#if store.weaveClient}
-        <sl-button
-          circle
-          title="Add Board to Pocket"
-          class="attachment-button"
-          style="margin-left:10px"
-          on:click={() => copyWALToClipboard()}
-        >
-          <SvgIcon icon="addToPocket" size="20px" />
-        </sl-button>
-
-        {#if $state.boundTo.length > 0}
-          <div style="margin-left:20px;display:flex; align-items: center">
-            <span style="margin-right: 5px;">Bound To:</span>
-            <AttachmentsList allowDelete={false} attachments={$state.boundTo} />
-          </div>
-        {/if}
-      {/if}
-    </div>
-    <div class="right-items">
-      In the room:
-      {#if $participants}
-        <div class="participants" style="margin-right:20px">
-          <div style="display:flex; flex-direction: row">
-            <div style="margin-left:5px;">
-              <Avatar
-                agentPubKey={store.myAgentPubKey}
-                showNickname={false}
-                size={25}
-              />
-            </div>
-
-            {#each Array.from($participants.entries()) as [agentPubKey, sessionData]}
-              {#if Date.now() - sessionData.lastSeen < 30000}
-                <div style="margin-left:5px;">
-                  <Avatar {agentPubKey} showNickname={false} size={25} />
-                </div>
-              {/if}
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      {#if !standAlone}
-        <sl-button circle on:click={leaveBoard} title="Exit Game Room">
-          <SvgIcon size="18" icon="exit" />
-        </sl-button>
-      {/if}
-      <sl-button
-        circle
-        on:click={() => editBoardDialog.open(cloneDeep($activeHash))}
-        title="Settings"
-      >
-        <SvgIcon icon="faCog" size="15" />
-      </sl-button>
-      <sl-button circle on:click={() => exportBoard($state)} title="Export">
-        <SvgIcon icon="faFileExport" size="15" />
-      </sl-button>
-      {#if !standAlone}
-        <sl-button circle on:click={closeBoard} title="Close">
-          <SvgIcon icon="faClose" size="12" />
-        </sl-button>
-      {/if}
-    </div>
-  </div>
+  <TopBar
+    showAddToPocket={!!store.weaveClient}
+    attachments={$state.boundTo}
+    {standAlone}
+    participants={$participants ? Array.from($participants.entries()) : []}
+    myAgentPubKey={store.myAgentPubKey}
+    on:pocket={() => copyWALToClipboard()}
+    on:export={() => exportBoard($state)}
+    on:settings={() => editBoardDialog.open(cloneDeep($activeHash))}
+    on:leave={() => closeBoard()}
+  />
   {#if $state}
-    {#if $state.min_players}
+    <PlayersBar
+      minPlayers={$state.min_players}
+      players={$state.props.players}
+      showPlayers={!$state.playerPieces}
+      turnsEnabled={$state.turns}
+      turn={$state.props.turn}
+      canJoin={canJoin($state)}
+      currentAgentIsPlaying={haveJoined($state)}
+      isCurrentAgentTurn={myTurn($state)}
+      isOnWeave={!!store.weaveClient}
+      {attachments}
+      {showEmbed}
+      {embedsEditable}
+      on:join={() => activeBoard.requestChanges([{ type: 'add-player', player: myAgentPubKeyB64 }])}
+      on:end-turn={() => activeBoard.requestChanges([{ type: 'next-turn' }])}
+      on:leave-game={() =>
+        activeBoard.requestChanges([{ type: 'remove-player', player: myAgentPubKeyB64 }])}
+      on:add-attachment={() => addAttachment()}
+      on:remove-attachment={(e) => removeAttachment(e.detail)}
+      on:toggle-show-embed={toggleShowEmbed}
+      on:toggle-embeds-editable={toggleEmbedsEditable}
+    />
+    <!-- {#if $state.min_players}
       {@const playerCount = $state.props.players.length}
       <div class="board-header">
         {#if !$state.playerPieces || $state.turns}
           <h3>Players:</h3>
           <div style="display:flex; align-items:end; margin-left: 10px;">
             {#each $state.props.players as player, index}
-              {@const thisPlayersTurn =
-                $state.turns && index == ($state.props.turn | 0)}
+              {@const thisPlayersTurn = $state.turns && index == ($state.props.turn | 0)}
               <div
-                title={thisPlayersTurn ? "This players turn!" : ""}
+                title={thisPlayersTurn ? 'This players turn!' : ''}
                 style="display:flex;align-items:center;flex-direction:column;margin-right:10px"
               >
                 {#if thisPlayersTurn}
@@ -528,7 +480,7 @@
             on:click={() => {
               activeBoard.requestChanges([
                 {
-                  type: "add-player",
+                  type: 'add-player',
                   player: myAgentPubKeyB64,
                 },
               ]);
@@ -542,8 +494,8 @@
             >Waiting for {$state.min_players - $state.props.players.length} player{$state.min_players -
               $state.props.players.length >
             1
-              ? "s"
-              : ""} to join</span
+              ? 's'
+              : ''} to join</span
           >
         {:else if myTurn($state)}
           <sl-button
@@ -551,7 +503,7 @@
             on:click={() => {
               activeBoard.requestChanges([
                 {
-                  type: "next-turn",
+                  type: 'next-turn',
                 },
               ]);
             }}
@@ -565,7 +517,7 @@
             on:click={() => {
               activeBoard.requestChanges([
                 {
-                  type: "remove-player",
+                  type: 'remove-player',
                   player: myAgentPubKeyB64,
                 },
               ]);
@@ -582,31 +534,21 @@
               >
             </sl-tooltip>
 
-            {#if attachments && attachments.length > 0 && typeof attachments[0] != "string"}
+            {#if attachments && attachments.length > 0 && typeof attachments[0] != 'string'}
               <AttachmentsList
                 attachments={attachments.map((a) => a.weaveUrl)}
                 allowDelete={true}
                 on:remove-attachment={(e) => removeAttachment(e.detail)}
               />
-              <sl-tooltip
-                content={showEmbed ? "Hide Asset Pane" : "Show Asset Pane"}
-              >
-                <sl-button
-                  size="small"
-                  variant="text"
-                  on:click={toggleShowEmbed}
-                  ><SvgIcon icon={showEmbed ? "hide" : "show"} color="white"
-                  ></SvgIcon></sl-button
+              <sl-tooltip content={showEmbed ? 'Hide Asset Pane' : 'Show Asset Pane'}>
+                <sl-button size="small" variant="text" on:click={toggleShowEmbed}
+                  ><SvgIcon icon={showEmbed ? 'hide' : 'show'} color="white"></SvgIcon></sl-button
                 >
               </sl-tooltip>
               {#if showEmbed}
-                <sl-tooltip
-                  content={embedsEditable ? "Save Changes" : "Edit Asset Pane"}
-                >
+                <sl-tooltip content={embedsEditable ? 'Save Changes' : 'Edit Asset Pane'}>
                   <sl-button variant="text" on:click={toggleEmbedsEditable}
-                    ><SvgIcon
-                      icon={embedsEditable ? "faCheck" : "faEdit"}
-                      color="black"
+                    ><SvgIcon icon={embedsEditable ? 'faCheck' : 'faEdit'} color="black"
                     ></SvgIcon></sl-button
                   >
                 </sl-tooltip>
@@ -615,22 +557,19 @@
           </div>
         {/if}
       </div>
-    {/if}
+    {/if} -->
 
     <div class="board-area">
-      <div
-        class="piece-source"
-        on:dragover={(ev) => handleDragOver(ev, "source")}
-      >
-        <h3>{iCanPlay ? "Add Piece:" : "Pieces:"}</h3>
+      <div class="piece-source" on:dragover={(ev) => handleDragOver(ev, 'source')}>
+        <h3>{iCanPlay ? 'Add Piece:' : 'Pieces:'}</h3>
         {#each Object.values(pieceDefs) as p}
           <div style="display: flex; place-items: center end;">
             <div style="margin-right: 4px; flex-grow: 1; text-align: right;">
               {pieceDefs[p.id].name}
             </div>
             <PieceEl
-              displayPiece={{ type: "pieceDefPiece", pieceDef: p }}
-              on:dragstart={(e) => handleDragStart(e, "add", p.id)}
+              displayPiece={{ type: 'pieceDefPiece', pieceDef: p }}
+              on:dragstart={(e) => handleDragStart(e, 'add', p.id)}
               on:dragend={handleDragEnd}
               on:drop={handleDragEnd}
               dragEnabled={iCanPlay}
@@ -644,8 +583,8 @@
                 <PlayerName agentPubKey={decodeHashFromBase64(player)} />
               </div>
               <PieceEl
-                displayPiece={{ type: "pieceDefPlayer", id: player }}
-                on:dragstart={(e) => handleDragStart(e, "add", player)}
+                displayPiece={{ type: 'pieceDefPlayer', id: player }}
+                on:dragstart={(e) => handleDragStart(e, 'add', player)}
                 on:dragend={handleDragEnd}
                 on:drop={handleDragEnd}
                 dragEnabled={iCanPlay}
@@ -660,11 +599,10 @@
         on:wheel={handleZoomInOut}
         on:mousedown={handlePanningStart}
         on:drop={handleDragDrop}
-        on:dragover={(ev) => handleDragOver(ev, "board")}
-        style={`${isPanning ? "cursor: move;" : ""} background-position: ${panX}px ${panY}px;`}
+        on:dragover={(ev) => handleDragOver(ev, 'board')}
+        style={`${isPanning ? 'cursor: move;' : ''} background-position: ${panX}px ${panY}px;`}
       >
-        <AttachmentsDialog {activeBoard} bind:this={attachmentsDialog}
-        ></AttachmentsDialog>
+        <AttachmentsDialog {activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
         <div
           style={`
           height: 100%;
@@ -675,16 +613,12 @@
           {#each pieces as piece}
             <PieceEl
               on:dblclick={() => editPieceAttachments(piece)}
-              on:dragstart={(e) => handleDragStart(e, "move", piece.id)}
+              on:dragstart={(e) => handleDragStart(e, 'move', piece.id)}
               on:dragend={handleDragEnd}
               on:drop={handleDragDrop}
-              on:dragover={(ev) => handleDragOver(ev, "board")}
-              hidden={!!(
-                dragState &&
-                dragState.type === "move" &&
-                dragState.pieceId === piece.id
-              )}
-              displayPiece={{ type: "piece", piece }}
+              on:dragover={(ev) => handleDragOver(ev, 'board')}
+              hidden={!!(dragState && dragState.type === 'move' && dragState.pieceId === piece.id)}
+              displayPiece={{ type: 'piece', piece }}
               {pieceDefs}
               dragEnabled={iCanPlay}
             />
@@ -702,9 +636,7 @@
       {#if showEmbed}
         <div class="wal-space">
           <WalSpace
-            items={$state.props.attachments
-              ? cloneDeep($state.props.attachments)
-              : []}
+            items={$state.props.attachments ? cloneDeep($state.props.attachments) : []}
             bind:this={walSpace}
             on:assets-edited={(e) => saveAttachments(e.detail)}
           ></WalSpace>
@@ -747,10 +679,10 @@
     padding: 0px;
     overflow: hidden;
     border-radius: 4px;
-    background-image: url("/noise20.png");
+    background-image: url('/noise20.png');
   }
   .img-container:before {
-    content: " ";
+    content: ' ';
     position: absolute;
     inset: 0;
     z-index: 20;

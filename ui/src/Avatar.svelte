@@ -1,18 +1,19 @@
 <script lang="ts">
-  import { encodeHashToBase64, type AgentPubKey } from "@holochain/client";
-  import "@holochain-open-dev/profiles/dist/elements/agent-avatar.js";
-  import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
-  import { getContext } from "svelte";
-  import type { GamezStore } from "./store";
-  import SvgIcon from "./SvgIcon.svelte";
-  import { tooltip as tooltipDirective } from "./Home/tooltip";
+  import { encodeHashToBase64, type AgentPubKey } from '@holochain/client';
+  import '@holochain-open-dev/profiles/dist/elements/agent-avatar.js';
+  import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
+  import UserIcon from '~icons/fa6-solid/user';
+  import { getContext } from 'svelte';
+  import type { GamezStore } from './store';
+  import SvgIcon from './SvgIcon.svelte';
+  import { tooltip as tooltipDirective } from './Home/tooltip';
 
-  const { getStore }: any = getContext("gzStore");
+  const { getStore }: any = getContext('gzStore');
   let store: GamezStore = getStore();
 
   export let agentPubKey: AgentPubKey;
   export let size = 32;
-  export let namePosition = "row";
+  export let namePosition = 'row';
   export let showAvatar = true;
   export let showNickname = true;
   export let placeholder = false;
@@ -25,27 +26,27 @@
   $: agentPubKeyB64 = encodeHashToBase64(agentPubKey);
   $: profile = store.profilesStore.profiles.get(agentPubKey);
   $: nickname =
-    $profile.status == "complete" && $profile.value
+    $profile.status == 'complete' && $profile.value
       ? $profile.value.entry.nickname
-      : agentPubKeyB64.slice(5, 9) + "...";
+      : agentPubKeyB64.slice(5, 9) + '...';
 </script>
 
 <div
   class="avatar-{namePosition}"
   use:tooltipDirective={tooltipName ? nickname : null}
-  title={showNickname ? "" : nickname}
+  title={showNickname ? '' : nickname}
 >
-  {#if $profile.status == "pending"}
-    <sl-skeleton effect="pulse" style={`height: ${size}px; width: ${size}px;`}
-    ></sl-skeleton>
-  {:else if $profile.status == "complete"}
+  {#if $profile.status == 'pending'}
+    <sl-skeleton effect="pulse" style={`height: ${size}px; width: ${size}px;`}></sl-skeleton>
+  {:else if $profile.status == 'complete'}
     {#if showAvatar}
       {#if placeholder && !$profile.value.entry.fields.avatar}
-        <SvgIcon
-          icon="faUser"
-          size={`${size}`}
-          style="margin-left:5px;margin-right:5px"
-        />
+        <div
+          class="bg-gray-200 text-black/60 rounded-full flexcc"
+          style={`height: ${size}px; width: ${size}px;`}
+        >
+          <UserIcon />
+        </div>
       {:else}
         <agent-avatar
           class:disable-ptr-events={disableAvatarPointerEvents}

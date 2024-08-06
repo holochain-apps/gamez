@@ -57,7 +57,7 @@
         hasNewActivity:
           $boardData.value.tip &&
           !hashEqual($uiProps.tips.get(boardHash), $boardData.value.tip.entryHash),
-        turnPlayerIndex: v.latestState.turns ? v.latestState.props.turn || 0 : undefined,
+        turnPlayerIndex: v.latestState.turns ? v.latestState.props.turn | 0 : undefined,
       };
       // I am not getting what's the difference between latestSnapshot
       // and latestState; but seemed important on the previous implementation

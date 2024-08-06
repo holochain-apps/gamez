@@ -39,5 +39,8 @@
   },
   "engines": {
     "npm": ">=7.0.0"
+  },
+  "dependencies": {
+    "@holochain/hc-spin-rust-utils-darwin-x64": "^0.300.1"
   }
 }

@@ -215,7 +215,7 @@
       />
       <div class="flex space-x-2">
         <SidebarButton mode={'lg'} class="w-1/2" on:click={() => newBoardDialog.open()}>
-          <SquarePlusIcon class="text-sm" />
+          <PlusIcon class="text-sm" />
           <div class="flex-grow">New</div>
         </SidebarButton>
         <SidebarButton mode={'lg'} class="w-1/2" on:click={() => fileinput.click()}>
@@ -228,7 +228,7 @@
         <div class="flex flex-col space-y-2">
           {#each availablePresets as g}
             <SidebarButton mode={'lg'} class="w-full" on:click={() => store.addDefaultGames(g)}>
-              <SquarePlusIcon class="text-sm" />
+              <PlusIcon class="text-sm" />
               <div class="flex-grow">{g}</div>
             </SidebarButton>
           {/each}

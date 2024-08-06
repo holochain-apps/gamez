@@ -11,14 +11,16 @@ export function tooltip(node: HTMLElement, content: string) {
   let show: boolean = false;
 
   const el = document.createElement('div');
-  el.className = 'absolute pointer-events-none px4 py2 rounded bg-black text-white';
+  el.className =
+    'absolute whitespace-nowrap pointer-events-none px4 py2 rounded bg-black text-white';
   el.innerHTML = content;
 
   let timeout = 0;
-  function handleMouseOver() {
+  function handleMouseEnter() {
     show = true;
     el.style.opacity = '0';
     document.body.appendChild(el);
+    console.log('Setting timeout');
     timeout = setTimeout(() => {
       el.style.opacity = '1';
     }, 200);
@@ -26,35 +28,38 @@ export function tooltip(node: HTMLElement, content: string) {
 
   function handleMouseMove(ev: MouseEvent) {
     if (show) {
-      el.style.top = ev.clientY + 'px';
-      el.style.left = ev.clientX + 15 + 'px';
-      const { width, left } = el.getBoundingClientRect();
+      const elClone = el.cloneNode(true) as HTMLDivElement;
+      elClone.style.opacity = '0.5';
+      elClone.style.top = ev.clientY + 'px';
+      elClone.style.left = ev.clientX + 15 + 'px';
+      document.body.appendChild(elClone);
+      const { width, left } = elClone.getBoundingClientRect();
+      elClone.remove();
+
       const docWidth = document.documentElement.clientWidth;
-      const overflow = left + width - docWidth;
+      const overflow = left + width + 10 - docWidth;
       const moveLeft = overflow > 0 ? overflow : 0;
 
-      // const moveLeft = overflow > 0 ? left - width : 0;
+      el.style.top = ev.clientY + 'px';
       el.style.left = ev.clientX + 15 - moveLeft + 'px';
-      // console.log(width, left, docWidth);
-      // el.style.transform = 'translateX(' + moveLeft + 'px)';
     }
   }
 
-  function handleMouseOut() {
+  function handleMouseLeave() {
     show = false;
     el.remove();
   }
 
-  node.addEventListener('mouseover', handleMouseOver);
+  node.addEventListener('mouseenter', handleMouseEnter);
   node.addEventListener('mousemove', handleMouseMove);
-  node.addEventListener('mouseout', handleMouseOut);
+  node.addEventListener('mouseleave', handleMouseLeave);
 
   return {
     destroy() {
       clearTimeout(timeout);
-      node.removeEventListener('mouseover', handleMouseOver);
+      node.removeEventListener('mouseenter', handleMouseEnter);
       node.removeEventListener('mousemove', handleMouseMove);
-      node.removeEventListener('mouseout', handleMouseOut);
+      node.removeEventListener('mouseleave', handleMouseLeave);
       el.remove();
     },
   };

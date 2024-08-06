@@ -1,39 +1,34 @@
 <script lang="ts">
-  import { setContext } from "svelte";
-  import type { AppClient } from "@holochain/client";
-  import type { SynStore } from "@holochain-syn/store";
-  import type { ProfilesStore } from "@holochain-open-dev/profiles";
-  import { type WeaveClient } from "@lightningrodlabs/we-applet";
+  import { setContext } from 'svelte';
+  import type { AppClient } from '@holochain/client';
+  import type { SynStore } from '@holochain-syn/store';
+  import type { ProfilesStore } from '@holochain-open-dev/profiles';
+  import { type WeaveClient } from '@lightningrodlabs/we-applet';
 
-  import { GamezStore } from "./store";
+  import { GamezStore } from './store';
 
-  import Toolbar from "./Toolbar.svelte";
-  import Home from "./Home";
-  import GamezPane from "./GamezPane";
+  import Toolbar from './Toolbar.svelte';
+  import Home from './Home';
+  import GamezPane from './GamezPane';
 
-  import Loader from "./Loader.svelte";
+  import Loader from './Loader.svelte';
 
-  export let roleName = "";
+  export let roleName = '';
   export let client: AppClient;
   export let profilesStore: ProfilesStore;
   export let weaveClient: WeaveClient;
 
-  let store: GamezStore = new GamezStore(
-    weaveClient,
-    profilesStore,
-    client,
-    roleName
-  );
+  let store: GamezStore = new GamezStore(weaveClient, profilesStore, client, roleName);
 
   let synStore: SynStore = store.synStore;
 
   $: activeBoardHash = store.boardList.activeBoardHash;
 
-  setContext("synStore", {
+  setContext('synStore', {
     getStore: () => synStore,
   });
 
-  setContext("gzStore", {
+  setContext('gzStore', {
     getStore: () => store,
   });
 
@@ -42,7 +37,7 @@
 
 <div class="flex flex-col min-h-full">
   {#if store}
-    <Toolbar />
+    <Toolbar activeBoard={$activeBoard} />
     {#if $activeBoardHash !== undefined}
       <GamezPane activeBoard={$activeBoard} />
     {:else}

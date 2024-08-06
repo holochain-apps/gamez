@@ -20,7 +20,7 @@ import type { ProfilesStore } from '@holochain-open-dev/profiles';
 import { EntryRecord, LazyHoloHashMap, ZomeClient } from '@holochain-open-dev/utils';
 import { collectionStore, type AsyncReadable, latestVersionOfEntryStore, pipe, joinAsync, sliceAndJoin, asyncDerived, type Writable, writable, get, type Unsubscriber } from '@holochain-open-dev/stores';
 import type { ActionCommittedSignal } from '@holochain-open-dev/utils';
-import type { WeClient } from '@lightningrodlabs/we-applet';
+import type { WeaveClient } from '@lightningrodlabs/we-applet';
 import { HoloHashMap } from '@holochain-open-dev/utils/dist/holo-hash-map';
 import { getMyDna } from './util';
 
@@ -108,7 +108,7 @@ export class GamezStore {
     dnaHash: DnaHash
 
     constructor(
-        public weaveClient : WeClient,
+        public weaveClient : WeaveClient,
         public profilesStore: ProfilesStore,
         protected clientIn: AppClient,
         protected roleName: RoleName,
