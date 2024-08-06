@@ -24,6 +24,7 @@
     "@shoelace-style/shoelace": "^2.5.2",
     "@ts-stack/markdown": "^1.4.0",
     "@types/javascript-time-ago": "^2.0.3",
+    "classnames": "^2.5.1",
     "emoji-picker-element": "1.21.0",
     "javascript-time-ago": "2.3.7",
     "lodash": "^4.17.21",

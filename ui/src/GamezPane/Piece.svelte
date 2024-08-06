@@ -1,6 +1,5 @@
 <script context="module">
-  export const
-  PLAYER_PIECE_SIZE = 32;
+  export const PLAYER_PIECE_SIZE = 32;
 </script>
 
 <script lang="ts">
@@ -64,9 +63,7 @@
 
   function title() {
     function pluralize(word: string, count: number) {
-      return count === 1
-        ? word
-        : `${word}s`;
+      return count === 1 ? word : `${word}s`;
     }
 
     return attachmentsLength
@@ -76,11 +73,11 @@
 </script>
 
 <div
-  class="piece"
+  class="piece text-black/100!"
   on:dblclick
   draggable={dragEnabled}
   class:draggable={dragEnabled}
-  class:hidden={hidden}
+  class:hidden
   on:dragstart
   on:dragend
   on:drop
@@ -155,7 +152,7 @@
     border-radius: 2px;
     color: white;
     background-color: rgba(200, 0, 0, 1);
-    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
-    box-shadow: 0 1px 1px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
   }
 </style>

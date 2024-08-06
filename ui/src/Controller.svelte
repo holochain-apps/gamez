@@ -39,19 +39,15 @@
   $: activeBoard = store.boardList.activeBoard;
 </script>
 
-<div class="flex-scrollable-parent">
-  <div class="flex-scrollable-container">
-    <div class="app">
-      {#if store}
-        <Toolbar />
-        {#if $activeBoardHash !== undefined}
-          <GamezPane activeBoard={$activeBoard} />
-        {:else}
-          <Home/>
-        {/if}
-      {:else}
-        <Loader/>
-      {/if}
-    </div>
-  </div>
+<div>
+  {#if store}
+    <Toolbar />
+    {#if $activeBoardHash !== undefined}
+      <GamezPane activeBoard={$activeBoard} />
+    {:else}
+      <Home/>
+    {/if}
+  {:else}
+    <Loader/>
+  {/if}
 </div>

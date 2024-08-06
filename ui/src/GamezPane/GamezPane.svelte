@@ -33,8 +33,6 @@
   EMPTY_IMAGE.src =
     "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
 
-
-
   const { getStore }: any = getContext("gzStore");
   let store: GamezStore = getStore();
   export let activeBoard: Board;
@@ -49,8 +47,6 @@
   $: attachments = $state ? $state.props.attachments : undefined;
   $: myAgentPubKeyB64 = store.myAgentPubKeyB64;
   $: participants = activeBoard.participants();
-
-
 
   // ██╗   ██╗████████╗██╗██╗     ███████╗
   // ██║   ██║╚══██╔══╝██║██║     ██╔════╝
@@ -127,7 +123,6 @@
   // ██║  ██║   ██║      ██║   ██║  ██║╚██████╗██║  ██║██║ ╚═╝ ██║███████╗██║ ╚████║   ██║   ███████║
   // ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
 
-
   onMount(async () => {
     const props = cloneDeep($state.props) as BoardProps;
 
@@ -154,7 +149,6 @@
       activeBoard.requestChanges([{ type: "set-props", props }]);
     }
   });
-
 
   let showEmbed = false;
   let embedsEditable = false;
@@ -212,8 +206,6 @@
     };
     store.weaveClient?.walToPocket(attachment);
   };
-
-
 
   // ██████╗ ██████╗  █████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
   // ██╔══██╗██╔══██╗██╔══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝
@@ -348,10 +340,8 @@
   const DEFAULT_BOARD_IMG =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png";
 
-  $: bgUrl = $state.props && $state.props.bgUrl ? $state.props.bgUrl : DEFAULT_BOARD_IMG;
-
-
-
+  $: bgUrl =
+    $state.props && $state.props.bgUrl ? $state.props.bgUrl : DEFAULT_BOARD_IMG;
 
   // ███████╗ ██████╗  ██████╗ ███╗   ███╗     █████╗ ███╗   ██╗██████╗     ██████╗  █████╗ ███╗   ██╗
   // ╚══███╔╝██╔═══██╗██╔═══██╗████╗ ████║    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗██╔══██╗████╗  ██║
@@ -665,13 +655,13 @@
         {/if}
       </div>
       <div
-        class="img-container"
+        class="img-container bg-main-400"
         bind:this={boardContainer}
         on:wheel={handleZoomInOut}
         on:mousedown={handlePanningStart}
         on:drop={handleDragDrop}
         on:dragover={(ev) => handleDragOver(ev, "board")}
-        style={`${isPanning ? "cursor: move;" : ""}`}
+        style={`${isPanning ? "cursor: move;" : ""} background-position: ${panX}px ${panY}px;`}
       >
         <AttachmentsDialog {activeBoard} bind:this={attachmentsDialog}
         ></AttachmentsDialog>
@@ -684,7 +674,7 @@
         >
           {#each pieces as piece}
             <PieceEl
-              on:dblclick={()=>editPieceAttachments(piece)}
+              on:dblclick={() => editPieceAttachments(piece)}
               on:dragstart={(e) => handleDragStart(e, "move", piece.id)}
               on:dragend={handleDragEnd}
               on:drop={handleDragDrop}
@@ -705,7 +695,7 @@
             height={$state.props.bgHeight}
             draggable={false}
             src={bgUrl}
-            style="display: block; padding:80px; background-color: transparent; border:1px solid transparent; object-fit: cover;"
+            class="max-w-none block p-[80px] bg-transparent b b-transparent object-cover"
           />
         </div>
       </div>
@@ -742,29 +732,29 @@
     background-color: rgb(139, 212, 30);
   }
   .board-area {
-    justify-content:center;
+    justify-content: center;
     margin-top: 10px;
     display: flex;
-    overflow:auto;
+    overflow: auto;
   }
   .piece-source {
     max-width: 100px;
     padding-right: 10px;
   }
   .img-container {
-    border: solid 1px rgba(0,0,0,.25);
+    border: solid 1px rgba(0, 0, 0, 0.25);
     position: relative;
     padding: 0px;
     overflow: hidden;
     border-radius: 4px;
-    background: rgba(0,0,0,0.1);
+    background-image: url("/noise20.png");
   }
   .img-container:before {
-    content: ' ';
+    content: " ";
     position: absolute;
     inset: 0;
     z-index: 20;
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.25);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.25);
     pointer-events: none;
   }
   .wal-space {
