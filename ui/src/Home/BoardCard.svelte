@@ -50,7 +50,7 @@
         name: v.latestState.name,
         creator: v.latestState.creator,
         createdDate: new Date(v.document.action.timestamp),
-        latestDate: new Date(v.tip.action.timestamp),
+        latestDate: v.tip ? new Date(v.tip.action.timestamp) : undefined,
         minPlayers: v.latestState.min_players,
         maxPlayers: v.latestState.max_players,
         players: v.latestState.props.players,
