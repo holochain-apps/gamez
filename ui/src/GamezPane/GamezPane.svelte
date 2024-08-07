@@ -535,7 +535,7 @@
       </div>
       <!-- WAL SPACE -->
       {#if showEmbed}
-        <div class="w60 ml4 flex-shrink-0">
+        <div class="w160 ml4 flex-shrink-1">
           <WalSpace
             items={$state.props.attachments ? cloneDeep($state.props.attachments) : []}
             bind:this={walSpace}
