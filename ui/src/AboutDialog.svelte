@@ -27,7 +27,7 @@
             a library that makes it really easy to build this kind of real-time collaboration into Holochain apps.
         </p>
     <p class="small">Copyright © 2023-2024 Holochain Foundation.  This software is distributed under the MIT License</p>
-    <p class="small">DNA Hash: {encodeHashToBase64(store.dnaHash)}</p>
+    <p class="small">DNA Hash: {store.dnaHash ? encodeHashToBase64(store.dnaHash) : 'Loading...'}</p>
     </div>
 </sl-dialog>
 

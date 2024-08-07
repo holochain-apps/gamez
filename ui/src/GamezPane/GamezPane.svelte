@@ -25,6 +25,7 @@
   import PlayerName from '../PlayerName.svelte';
   import TopBar from './TopBar.svelte';
   import PlayersBar from './PlayersBar.svelte';
+  import AttachmentsBar from './AttachmentsBar.svelte';
 
   const MAX_PLAYERS_IN_HEADER = 5;
   const EMPTY_IMAGE = new Image(1, 1);
@@ -423,7 +424,21 @@
     on:export={() => exportBoard($state)}
     on:settings={() => editBoardDialog.open(cloneDeep($activeHash))}
     on:leave={() => leaveBoard()}
+    on:add-attachment={() => addAttachment()}
   />
+
+  {#if store.weaveClient}
+    <AttachmentsBar
+      boundTo={$state.boundTo}
+      {attachments}
+      {showEmbed}
+      {embedsEditable}
+      on:remove-attachment={(e) => removeAttachment(e.detail)}
+      on:toggle-show-embed={toggleShowEmbed}
+      on:toggle-embeds-editable={toggleEmbedsEditable}
+    />
+  {/if}
+
   {#if $state}
     <PlayersBar
       minPlayers={$state.min_players}
@@ -434,18 +449,10 @@
       canJoin={canJoin($state)}
       currentAgentIsPlaying={haveJoined($state)}
       isCurrentAgentTurn={myTurn($state)}
-      isOnWeave={!!store.weaveClient}
-      {attachments}
-      {showEmbed}
-      {embedsEditable}
       on:join={() => activeBoard.requestChanges([{ type: 'add-player', player: myAgentPubKeyB64 }])}
       on:end-turn={() => activeBoard.requestChanges([{ type: 'next-turn' }])}
       on:leave-game={() =>
         activeBoard.requestChanges([{ type: 'remove-player', player: myAgentPubKeyB64 }])}
-      on:add-attachment={() => addAttachment()}
-      on:remove-attachment={(e) => removeAttachment(e.detail)}
-      on:toggle-show-embed={toggleShowEmbed}
-      on:toggle-embeds-editable={toggleEmbedsEditable}
     />
     <!-- {#if $state.min_players}
       {@const playerCount = $state.props.players.length}

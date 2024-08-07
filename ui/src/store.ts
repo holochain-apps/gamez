@@ -195,7 +195,7 @@ export class GamezStore {
     }
 
     async addDefaultGames(name:string): Promise<any> {
-        let board: BoardState
+        let board: Omit<BoardState, "creator">
         switch(name) {
             case "Chess": 
                 board = CHESS
@@ -208,7 +208,7 @@ export class GamezStore {
                 break;
         }
         if (board) {
-            await this.client.createBoardDef(board)
+            await this.client.createBoardDef(board as BoardState)
         }
     }
 

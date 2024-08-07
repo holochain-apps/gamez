@@ -5,6 +5,7 @@
   import DoorOpenIcon from '~icons/fa6-solid/door-open';
   import ExportIcon from '~icons/fa6-solid/file-arrow-down';
   import PocketIcon from '../icons/PocketIcon.svelte';
+  import AddAttachmentIcon from '~icons/fa6-solid/window-restore';
 
   // Organizational
   import { type SessionParticipant } from '@holochain-syn/core';
@@ -26,13 +27,20 @@
 
 <div class="h-16 flexcc px2 bg-main-500 @dark:bg-main-400 space-x-4 text-white/80!">
   {#if showAddToPocket}
-    <div class="">
+    <div class="flex">
       <button
         class="h10 w10 flexcc rounded-full hover:bg-white/20"
         use:tooltip={'Add Board to Pocket'}
         on:click={() => dispatch('pocket')}
       >
         <PocketIcon class="w8 h8" />
+      </button>
+      <button
+        class="h10 w10 flexcc rounded-full hover:bg-white/20"
+        use:tooltip={'Attach asset'}
+        on:click={() => dispatch('add-attachment')}
+      >
+        <AddAttachmentIcon />
       </button>
 
       {#if attachments.length > 0}

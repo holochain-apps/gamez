@@ -12,7 +12,7 @@ export function tooltip(node: HTMLElement, content: string) {
 
   const el = document.createElement('div');
   el.className =
-    'absolute whitespace-nowrap pointer-events-none px4 py2 rounded bg-black text-white';
+    'absolute whitespace-nowrap pointer-events-none px4 py2 rounded bg-black text-white z-100';
   el.innerHTML = content;
 
   let timeout = 0;
@@ -55,6 +55,9 @@ export function tooltip(node: HTMLElement, content: string) {
   node.addEventListener('mouseleave', handleMouseLeave);
 
   return {
+    update(content: string) {
+      el.innerHTML = content;
+    },
     destroy() {
       clearTimeout(timeout);
       node.removeEventListener('mouseenter', handleMouseEnter);
