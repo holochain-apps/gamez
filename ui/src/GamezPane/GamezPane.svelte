@@ -422,7 +422,7 @@
     on:pocket={() => copyWALToClipboard()}
     on:export={() => exportBoard($state)}
     on:settings={() => editBoardDialog.open(cloneDeep($activeHash))}
-    on:leave={() => closeBoard()}
+    on:leave={() => leaveBoard()}
   />
   {#if $state}
     <PlayersBar
