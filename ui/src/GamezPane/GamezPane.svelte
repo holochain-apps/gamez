@@ -347,6 +347,7 @@
   let isPanning = false;
 
   const handleZoomInOut = (ev: WheelEvent) => {
+    ev.preventDefault();
     const prevZoom = zoom;
     zoom += ev.deltaY * zoomStep;
     if (zoom < minZoom) zoom = minZoom;
@@ -412,7 +413,7 @@
   }
 </script>
 
-<div>
+<div class="overflow-auto flex-grow bg-main-700 @dark:bg-main-300">
   <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
   <TopBar
     showAddToPocket={!!store.weaveClient}
@@ -454,122 +455,14 @@
       on:leave-game={() =>
         activeBoard.requestChanges([{ type: 'remove-player', player: myAgentPubKeyB64 }])}
     />
-    <!-- {#if $state.min_players}
-      {@const playerCount = $state.props.players.length}
-      <div class="board-header">
-        {#if !$state.playerPieces || $state.turns}
-          <h3>Players:</h3>
-          <div style="display:flex; align-items:end; margin-left: 10px;">
-            {#each $state.props.players as player, index}
-              {@const thisPlayersTurn = $state.turns && index == ($state.props.turn | 0)}
-              <div
-                title={thisPlayersTurn ? 'This players turn!' : ''}
-                style="display:flex;align-items:center;flex-direction:column;margin-right:10px"
-              >
-                {#if thisPlayersTurn}
-                  <div class="my-turn"></div>
-                {/if}
-                <Avatar
-                  agentPubKey={decodeHashFromBase64(player)}
-                  namePosition="column"
-                  size={25}
-                  showNickname={playerCount < MAX_PLAYERS_IN_HEADER}
-                  tooltip={playerCount < MAX_PLAYERS_IN_HEADER}
-                />
-              </div>
-            {/each}
-          </div>
-        {/if}
-        {#if canJoin($state)}
-          <sl-button
-            on:click={() => {
-              activeBoard.requestChanges([
-                {
-                  type: 'add-player',
-                  player: myAgentPubKeyB64,
-                },
-              ]);
-            }}
-          >
-            Join Game
-          </sl-button>
-        {/if}
-        {#if $state.props.players.length < $state.min_players}
-          <span style="margin-left:10px"
-            >Waiting for {$state.min_players - $state.props.players.length} player{$state.min_players -
-              $state.props.players.length >
-            1
-              ? 's'
-              : ''} to join</span
-          >
-        {:else if myTurn($state)}
-          <sl-button
-            style="margin-left: 30px"
-            on:click={() => {
-              activeBoard.requestChanges([
-                {
-                  type: 'next-turn',
-                },
-              ]);
-            }}
-          >
-            End Turn
-          </sl-button>
-        {/if}
-        {#if haveJoined($state)}
-          <sl-button
-            style="margin-left:10px"
-            on:click={() => {
-              activeBoard.requestChanges([
-                {
-                  type: 'remove-player',
-                  player: myAgentPubKeyB64,
-                },
-              ]);
-            }}
-          >
-            Leave Game
-          </sl-button>
-        {/if}
-        {#if store.weaveClient}
-          <div class="attachments-area">
-            <sl-tooltip content="Attach assets">
-              <sl-button size="small" variant="text" on:click={addAttachment}
-                ><SvgIcon icon="addAsset" color="white"></SvgIcon></sl-button
-              >
-            </sl-tooltip>
 
-            {#if attachments && attachments.length > 0 && typeof attachments[0] != 'string'}
-              <AttachmentsList
-                attachments={attachments.map((a) => a.weaveUrl)}
-                allowDelete={true}
-                on:remove-attachment={(e) => removeAttachment(e.detail)}
-              />
-              <sl-tooltip content={showEmbed ? 'Hide Asset Pane' : 'Show Asset Pane'}>
-                <sl-button size="small" variant="text" on:click={toggleShowEmbed}
-                  ><SvgIcon icon={showEmbed ? 'hide' : 'show'} color="white"></SvgIcon></sl-button
-                >
-              </sl-tooltip>
-              {#if showEmbed}
-                <sl-tooltip content={embedsEditable ? 'Save Changes' : 'Edit Asset Pane'}>
-                  <sl-button variant="text" on:click={toggleEmbedsEditable}
-                    ><SvgIcon icon={embedsEditable ? 'faCheck' : 'faEdit'} color="black"
-                    ></SvgIcon></sl-button
-                  >
-                </sl-tooltip>
-              {/if}
-            {/if}
-          </div>
-        {/if}
-      </div>
-    {/if} -->
-
-    <div class="board-area">
-      <div class="piece-source" on:dragover={(ev) => handleDragOver(ev, 'source')}>
-        <h3>{iCanPlay ? 'Add Piece:' : 'Pieces:'}</h3>
+    <div class="flex-grow flex overflow-auto p2">
+      <!-- PIECE SOURCES -->
+      <div class="w60 pt4" on:dragover={(ev) => handleDragOver(ev, 'source')}>
+        <h3 class="text-bold text-xl text-center">{iCanPlay ? 'Add Piece:' : 'Pieces:'}</h3>
         {#each Object.values(pieceDefs) as p}
-          <div style="display: flex; place-items: center end;">
-            <div style="margin-right: 4px; flex-grow: 1; text-align: right;">
+          <div class="flexcc">
+            <div class="flex-grow mr2 text-right">
               {pieceDefs[p.id].name}
             </div>
             <PieceEl
@@ -598,8 +491,10 @@
           {/each}
         {/if}
       </div>
+
+      <!-- BOARD -->
       <div
-        class="img-container bg-main-400"
+        class="img-container flex-grow bg-main-400"
         bind:this={boardContainer}
         on:wheel={handleZoomInOut}
         on:mousedown={handlePanningStart}
@@ -638,8 +533,9 @@
           />
         </div>
       </div>
+      <!-- WAL SPACE -->
       {#if showEmbed}
-        <div class="wal-space">
+        <div class="w60 ml4 flex-shrink-0">
           <WalSpace
             items={$state.props.attachments ? cloneDeep($state.props.attachments) : []}
             bind:this={walSpace}
@@ -673,10 +569,6 @@
     margin-top: 10px;
     display: flex;
     overflow: auto;
-  }
-  .piece-source {
-    max-width: 100px;
-    padding-right: 10px;
   }
   .img-container {
     border: solid 1px rgba(0, 0, 0, 0.25);

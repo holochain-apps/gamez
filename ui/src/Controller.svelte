@@ -7,7 +7,7 @@
 
   import { GamezStore } from './store';
 
-  import Toolbar from './Toolbar.svelte';
+  import Toolbar from './LayoutBar.svelte';
   import Home from './Home';
   import GamezPane from './GamezPane';
 

@@ -25,7 +25,7 @@
   export let myAgentPubKey: Uint8Array;
 </script>
 
-<div class="h-16 flexcc px2 bg-main-500 @dark:bg-main-400 space-x-4 text-white/80!">
+<div class="h-16 flexcc px2 bg-main-800 @dark:bg-main-400 space-x-4">
   {#if showAddToPocket}
     <div class="flex">
       <button
@@ -51,8 +51,10 @@
       {/if}
     </div>
   {/if}
-  <div class="flex-grow flexcs bg-main-300 b b-black/10 h-12 rounded-md shadow-inner">
-    <div class="ml4 opacity-50 text-white/80! mr2">In the room</div>
+  <div
+    class="flex-grow flexcs bg-main-700 @dark:bg-main-300 b b-black/10 h-12 rounded-md shadow-inner"
+  >
+    <div class="ml4 opacity-70 mr2">In the room</div>
     {#if participants}
       <div class="participants" style="margin-right:20px">
         <div style="display:flex; flex-direction: row">

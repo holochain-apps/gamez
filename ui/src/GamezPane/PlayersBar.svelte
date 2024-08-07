@@ -23,7 +23,7 @@
 </script>
 
 {#if minPlayers}
-  <div class="h-20 bg-main-500 @dark:bg-main-400 flexcc px4">
+  <div class="h-20 bg-main-800 @dark:bg-main-400 flexcc px4">
     <!-- PLAYERS LIST -->
     {#if showPlayers || turnsEnabled}
       <div class="flex-basis-1 flexcs">
@@ -96,31 +96,5 @@
         </button>
       {/if}
     </div>
-
-    <!-- {#if isOnWeave}
-      <div class="flex-basis-1 flex">
-        {#if attachments && attachments.length > 0 && typeof attachments[0] != 'string'}
-          <AttachmentsList
-            attachments={attachments.map((a) => a.weaveUrl)}
-            allowDelete={true}
-            on:remove-attachment
-          />
-          <button
-            use:tooltip={showEmbed ? 'Hide Asset Pane' : 'Show Asset Pane'}
-            on:click={() => dispatcher('toggle-show-embed')}
-          >
-            {#if showEmbed}<EyeIcon />{:else}<EyeSlashIcon />{/if}
-          </button>
-          {#if showEmbed}
-            <button
-              use:tooltip={embedsEditable ? 'Save Changes' : 'Edit Asset Pane'}
-              on:click={() => dispatcher('toggle-embeds-editable')}
-            >
-              {#if embedsEditable}<PenToSquareIcon />{:else}<CheckIcon />{/if}
-            </button>
-          {/if}
-        {/if}
-      </div>
-    {/if} -->
   </div>
 {/if}

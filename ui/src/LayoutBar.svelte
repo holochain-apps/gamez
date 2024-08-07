@@ -45,7 +45,7 @@
 <ParticipantsDialog bind:this={participantsDialog} />
 
 <div
-  class="flexcc flex-shrink-0 bg-main-400 @dark:bg-main-300 b-black/10 0 b text-white/80 px6 h-16 space-x-2"
+  class="flexcc flex-shrink-0 bg-main-400 @dark:bg-main-300 b-black/10 0 b text-white px6 h-16 space-x-2"
 >
   <!-- LEFT SIDE BUTTONS -->
 

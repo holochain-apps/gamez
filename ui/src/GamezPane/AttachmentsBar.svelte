@@ -21,7 +21,7 @@
 </script>
 
 {#if showBar}
-  <div class="flex h-12 bg-main-500 @dark:bg-main-400 flexcc px4">
+  <div class="flex h-12 bg-main-800 @dark:bg-main-400 flexcc px4">
     {#if boundTo && boundTo.length > 0}
       <div class="flexcc">
         <span class="mr4">Attached To:</span>
