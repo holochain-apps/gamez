@@ -3,19 +3,20 @@
 </script>
 
 <script lang="ts">
-  import { decodeHashFromBase64 } from "@holochain/client";
-  import { type Piece, PieceDef, PieceType } from "../board";
-  import Avatar from "../Avatar.svelte";
+  import { decodeHashFromBase64 } from '@holochain/client';
+  import { type Piece, PieceDef, PieceType } from '../board';
+  import Avatar from '../Avatar.svelte';
+  import { hollowedToFilledChessPiece, isHollowChessPiece } from './utils';
 
-  const PLAYER_PIECE_ID_STARTS = "uhCA";
+  const PLAYER_PIECE_ID_STARTS = 'uhCA';
 
   type PieceDisplayType =
     | {
-        type: "pieceDefPlayer";
+        type: 'pieceDefPlayer';
         id: string;
       }
-    | { type: "pieceDefPiece"; pieceDef: PieceDef }
-    | { type: "piece"; piece: Piece };
+    | { type: 'pieceDefPiece'; pieceDef: PieceDef }
+    | { type: 'piece'; piece: Piece };
 
   export let displayPiece: PieceDisplayType;
   export let pieceDefs: { [key: string]: PieceDef } = null;
@@ -28,37 +29,35 @@
 
   // Player pieces are stored as normal pieces but they use a player ID instead of a pieceDef ID
   $: playerPieceId =
-    displayPiece.type === "pieceDefPlayer"
+    displayPiece.type === 'pieceDefPlayer'
       ? displayPiece.id
-      : displayPiece.type === "piece" &&
+      : displayPiece.type === 'piece' &&
           displayPiece.piece.typeId.startsWith(PLAYER_PIECE_ID_STARTS)
         ? displayPiece.piece.typeId
         : null;
 
   $: {
-    if (displayPiece.type === "pieceDefPiece") {
+    if (displayPiece.type === 'pieceDefPiece') {
       piece = null;
       pieceDef = displayPiece.pieceDef;
       pieceDefImage = pieceDef.images[0];
-    } else if (displayPiece.type === "piece" && playerPieceId) {
+    } else if (displayPiece.type === 'piece' && playerPieceId) {
       piece = displayPiece.piece;
       pieceDef = null;
       pieceDefImage = null;
-    } else if (displayPiece.type === "piece" && !playerPieceId) {
+    } else if (displayPiece.type === 'piece' && !playerPieceId) {
       piece = displayPiece.piece;
-      if (!pieceDefs) throw new Error("Missing pieceDefs");
+      if (!pieceDefs) throw new Error('Missing pieceDefs');
       pieceDef = pieceDefs[piece.typeId];
       pieceDefImage = pieceDef.images[piece.imageIdx];
     }
   }
 
-  $: pieceName = pieceDef?.name || "Player";
+  $: pieceName = pieceDef?.name || 'Player';
   $: pieceWH = playerPieceId
     ? { w: PLAYER_PIECE_SIZE, h: PLAYER_PIECE_SIZE }
     : { w: pieceDef.width, h: pieceDef.height };
-  $: stylePosition = piece
-    ? `position: absolute; top: ${piece.y}px; left: ${piece.x}px;`
-    : "";
+  $: stylePosition = piece ? `position: absolute; top: ${piece.y}px; left: ${piece.x}px;` : '';
   $: attachmentsLength = piece?.attachments?.length;
 
   function title() {
@@ -67,7 +66,7 @@
     }
 
     return attachmentsLength
-      ? `This ${pieceName} piece has ${attachmentsLength} ${pluralize("attachment", attachmentsLength)}`
+      ? `This ${pieceName} piece has ${attachmentsLength} ${pluralize('attachment', attachmentsLength)}`
       : pieceName;
   }
 </script>
@@ -102,7 +101,17 @@
     />
   {:else}
     {#if pieceDef.type === PieceType.Emoji}
-      <span style="margin-top: 1px;">{pieceDefImage}</span>
+      <div style="margin-top: 1px;">
+        <!-- A little hack to make hollowed chess pieces have a white background -->
+        {#if isHollowChessPiece(pieceDefImage)}
+          <div class="relative z-20 -top-[1px]">{pieceDefImage}</div>
+          <div class="absolute z-10 inset-0 flexcc text-white">
+            {hollowedToFilledChessPiece(pieceDefImage)}
+          </div>
+        {:else}
+          {pieceDefImage}
+        {/if}
+      </div>
     {/if}
     {#if pieceDef.type === PieceType.Image}
       <img
@@ -118,6 +127,7 @@
 
 <style>
   .piece {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
