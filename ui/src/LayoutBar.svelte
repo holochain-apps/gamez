@@ -56,7 +56,7 @@
   {/if}
   <h1 class="font-bold text-2xl" style="text-shadow: 0 1px 0 rgba(0,0,0,.5)">
     {#if activeBoard && $boardState}{$boardState.name}
-    {:else}BoardGamez{/if}
+    {:else}Board Gamez{/if}
   </h1>
 
   <div class="flex-grow"></div>

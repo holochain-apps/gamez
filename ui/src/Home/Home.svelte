@@ -21,6 +21,7 @@
   import StartGameDialog from './StartGameDialog.svelte';
   import Welcome from './Welcome.svelte';
   import SidebarButton from './SidebarButton.svelte';
+  import LoadingIndicator from '../LoadingIndicator.svelte';
 
   const DEFAULT_GAMES = ['Chess', 'Go', 'World'];
 
@@ -78,10 +79,11 @@
     store.boardList.setActiveBoard(boardHash);
   };
 
-  $: availablePresets = (() => {
-    const games = [];
+  $: availablePresets = ((): string[] | null => {
+    let games: string[] | null;
 
     if ((!isWeContext() || amWeaveSteward) && $defsList.status == 'complete') {
+      games = [];
       const names = $defsList.value.map((def) => def.board.name);
       DEFAULT_GAMES.forEach((g) => {
         if (!names.find((b) => b == g)) games.push(g);
@@ -111,32 +113,39 @@
   }}
 />
 
-{#if $defsList.status !== 'complete' || $defsList.value.length == 0}
-  <Welcome suggestCreateGameType={!isWeContext() || amWeaveSteward} />
-{/if}
-
 <div class="flex flex-grow">
   <!-- BOARDS LIST -->
 
   <div class="flex-grow p4">
+    {#if $defsList.status !== 'complete' || $defsList.value.length == 0 || true}
+      <Welcome suggestCreateGameType={!isWeContext() || amWeaveSteward} />
+    {/if}
     <div class="mb4">
       <!-- ACTIVE BOARDS -->
 
-      {#if $activeBoards.status == 'complete' && $activeBoards.value.length > 0}
-        <h3 class="font-black mb4 text-xl">Active Games</h3>
-        <div class="grid grid-cols-2 gap-4">
-          {#each $activeBoards.value as hash}
-            <BoardCard
-              boardHash={hash}
-              on:view={() => handleViewBoard(hash)}
-              on:join={() => handleJoinBoard(hash)}
-            />
-          {/each}
-        </div>
-      {:else}
-        <div class="bg-main-700 rounded-md text-lg text-white/80 text-center py4">
-          No active games
-        </div>
+      <h3 class="font-black mb4 text-xl">Active Games</h3>
+      {#if $activeBoards.status == 'complete'}
+        {#if $activeBoards.value.length > 0}
+          <div class="grid grid-cols-2 gap-4">
+            {#each $activeBoards.value as hash}
+              <BoardCard
+                boardHash={hash}
+                on:view={() => handleViewBoard(hash)}
+                on:join={() => handleJoinBoard(hash)}
+              />
+            {/each}
+          </div>
+        {:else}
+          <div
+            class="text-center opacity-70 bg-main-700 b b-black/10 @dark:(bg-main-300 b-white/10) rounded-md px4 py8 text-xl"
+          >
+            No active games
+          </div>
+        {/if}
+      {:else if $activeBoards.status == 'pending'}
+        <div class="mt16"><LoadingIndicator /></div>
+      {:else if $activeBoards.status == 'error'}
+        Error!: {$activeBoards.error}
       {/if}
     </div>
 
@@ -183,18 +192,29 @@
 
     {#if $myProfile.status == 'complete'}
       <div class="mb4">
-        <h3 class="font-black mb4 text-xl">Available Game Types</h3>
+        <h3 class="font-black mb4 text-xl">Game Types</h3>
         <div class="flex flex-col space-y-2">
           {#if $defHashes.status == 'complete'}
-            {#each $defHashes.value as hash}
-              <BoardDefItem
-                on:create={(e) => startGameDialog.open(e.detail)}
-                on:settings={(e) => {
-                  editBoardTypeDialog.open(e.detail);
-                }}
-                boardHash={hash}
-              ></BoardDefItem>
-            {/each}
+            {#if $defHashes.value.length > 0}
+              {#each $defHashes.value as hash}
+                <BoardDefItem
+                  on:create={(e) => startGameDialog.open(e.detail)}
+                  on:settings={(e) => {
+                    editBoardTypeDialog.open(e.detail);
+                  }}
+                  boardHash={hash}
+                ></BoardDefItem>
+              {/each}
+            {:else}
+              <div
+                class="text-center opacity-70 bg-main-800 b b-black/10 @dark:(bg-white/20 b-white/10) rounded-md px4 py2"
+              >
+                <strong class="block">No game types found</strong>
+                Add a one below
+              </div>
+            {/if}
+          {:else if $defHashes.status == 'pending'}
+            <div class="flexcc"><LoadingIndicator /></div>
           {:else if $defHashes.status == 'error'}
             Error!: {$defHashes.error}
           {/if}
@@ -223,7 +243,7 @@
           <div class="flex-grow">Import</div>
         </SidebarButton>
       </div>
-      {#if availablePresets.length > 0}
+      {#if availablePresets && availablePresets.length > 0}
         <h4 class="font-black mb4 text-lg mt4">Presets</h4>
         <div class="flex flex-col space-y-2">
           {#each availablePresets as g}
