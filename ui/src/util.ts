@@ -1,4 +1,4 @@
-import { type AsyncStatus } from "@holochain-open-dev/stores";
+import type { AsyncStatus } from "@holochain-open-dev/stores";
 import {
   type AppClient,
   type EntryHash,

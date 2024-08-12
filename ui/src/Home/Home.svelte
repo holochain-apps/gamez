@@ -3,7 +3,6 @@
   import { getContext, onMount } from 'svelte';
   import { cloneDeep } from 'lodash';
   import cx from 'classnames';
-  import SquarePlusIcon from '~icons/fa6-solid/square-plus';
   import PlusIcon from '~icons/fa6-solid/plus';
   import FileImportIcon from '~icons/fa6-solid/file-import';
 
@@ -12,7 +11,6 @@
 
   // Local
   import type { GamezStore } from '../store';
-  import { BoardType } from '../boardList';
 
   import NewBoardDialog from './NewBoardDialog.svelte';
   import EditGameTypeDialog from './EditGameTypeDialog.svelte';

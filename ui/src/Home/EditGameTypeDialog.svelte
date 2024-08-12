@@ -1,13 +1,12 @@
 <script lang="ts">
     import BoardEditor from '../BoardEditor.svelte';
-    import type { BoardDef, BoardDefData, GamezStore } from '../store';
+    import type { BoardDefData, GamezStore } from '../store';
     import { getContext, onMount } from 'svelte';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
     import type { BoardProps, BoardState, PieceDef } from '../board';
     import { cloneDeep } from "lodash";
-    import type { EntryRecord } from '@holochain-open-dev/utils';
 
     let dialog: SlDialog
     onMount(async () => {
@@ -36,7 +35,9 @@
             playerPieces,
             name,
             pieceDefs,
-            props
+            props,
+            boundTo: board.boundTo,
+            creator: board.creator
         };
 
         await store.client.updateBoardDef(boardDef.originalHash, boardDef.record.actionHash, newBoard)

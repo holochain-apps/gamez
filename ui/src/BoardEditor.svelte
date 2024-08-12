@@ -11,7 +11,7 @@
     import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
     import SvgIcon from './SvgIcon.svelte';
     import { cloneDeep } from "lodash";
-  import { BoardType } from './boardList';
+    import { BoardType } from './boardList';
 
     // import type { GamezStore } from './store';
     // const { getStore } :any = getContext('gzStore');
@@ -22,10 +22,12 @@
     export let canDelete = false
     export let cancelEdit
 
+    const generateBlankBoardProps = (): BoardProps => ({bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgHeight: "", bgWidth: ""})
+
     let text = ''
     let minPlayers = ""
     let maxPlayers = ""
-    let props:BoardProps = {bgUrl: "", pieces:{}, players:[], attachments:[], turn: 0, bgHeight: "", bgWidth: ""}
+    let props: BoardProps = generateBlankBoardProps();
     let pieceDefs: Array<PieceDef> = []
     let nameInput
     let turns = false
@@ -58,7 +60,7 @@
       minPlayers = state.min_players ? `${state.min_players}` : ""
       minPlayersInput.value = minPlayers
       pieceDefs = cloneDeep(state.pieceDefs)
-      props = state.props ? cloneDeep(state.props) : {bgUrl:""}
+      props = state.props ? cloneDeep(state.props) : generateBlankBoardProps();
       turns = state.turns
       turnsInput.checked = turns
       playerPieces = state.playerPieces
@@ -178,7 +180,7 @@
               {#if pieceDefs[index].type===PieceType.Image}
                 <sl-input label="Image URL" class='textarea' value={pieceDefs[index].images[0]} title="piece image"
                   on:input={e=>pieceDefs[index].images[0] = e.target.value}> </sl-input>
-                  <img src={pieceDefs[index].images[0]} width="40" height="40"/>
+                  <img alt={`${pieceDefs[index].name} piece`} src={pieceDefs[index].images[0]} width="40" height="40"/>
               {/if}
             </div>
           </div>
@@ -192,7 +194,7 @@
     <div style="display:flex; flex-direction:row; align-items:flex-end;">
        <sl-input label="Background Image" required class='textarea' maxlength="255" value={props.bgUrl} on:input={e=>props.bgUrl = e.target.value} />
         {#if props.bgUrl}
-          <img src={props.bgUrl} width="40" height="40"/>
+          <img alt="Board" src={props.bgUrl} width="40" height="40"/>
         {:else}
           <div style="width:40px;height:40px"></div>
         {/if}

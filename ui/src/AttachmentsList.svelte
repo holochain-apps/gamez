@@ -75,8 +75,6 @@
     flex-direction: row;
     flex-wrap: wrap;
   }
-  .attachment-item {
-  }
   .attachment-item-with-delete {
     background-color: rgba(0, 0, 0, 0.25);
     padding: 4px;

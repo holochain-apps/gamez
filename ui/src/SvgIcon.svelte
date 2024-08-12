@@ -17,7 +17,7 @@
     $:styleStr = `${size ? "width:"+size:""};`
 </script>
 
-<div class="icon" style={style}><img width={size} src={iconStr()}/></div>
+<div class="icon" style={style}><img alt={icon} width={size} src={iconStr()}/></div>
 
 <style>
     .icon {

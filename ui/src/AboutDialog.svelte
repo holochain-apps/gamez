@@ -17,6 +17,7 @@
 
 <svelte:window on:keydown={handleKeydown}/>
 
+<!-- svelte-ignore missing-declaration -->
 <sl-dialog label="Gamez!" bind:this={dialog} width={600} class="text-black/70!" >
     <div class="about ">
         <p>Gamez is a demonstration Holochain app built by the Holochain Foundation.</p>

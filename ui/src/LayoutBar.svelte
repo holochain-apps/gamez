@@ -6,7 +6,6 @@
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import UserGroupIcon from '~icons/fa6-solid/user-group';
 
-  import type { ProfilesStore } from '@holochain-open-dev/profiles';
   import { isWeContext } from '@lightningrodlabs/we-applet';
 
   import { tooltip } from './Home/tooltip';

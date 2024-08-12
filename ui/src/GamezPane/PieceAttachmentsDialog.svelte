@@ -1,13 +1,13 @@
 <script lang="ts">
   import { isWeContext, type WAL, weaveUrlFromWal, type WeaveUrl } from "@lightningrodlabs/we-applet";
   import { cloneDeep } from "lodash";
-  import type { Board, Piece } from "./board";
+  import type { Board, Piece } from "../board";
   import { getContext } from "svelte";
-  import type { GamezStore } from "./store";
-  import SvgIcon from "./SvgIcon.svelte";
+  import type { GamezStore } from "../store";
+  import SvgIcon from "../SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-  import AttachmentsList from "./AttachmentsList.svelte";
+  import AttachmentsList from "../AttachmentsList.svelte";
 
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
@@ -20,11 +20,7 @@
   export const close=()=>{dialog.hide()}
   export const open=(p: Piece)=>{
     piece = p
-    if (piece) {
-      attachments = piece.attachments ? cloneDeep(piece.attachments): []
-    } else {
-      attachments = activeBoard.state().props.attachments
-    }
+    attachments = piece.attachments ? cloneDeep(piece.attachments): [];
     dialog.show()
   }
   let dialog
@@ -56,10 +52,6 @@
         id: piece.id,
         attachments
       }])
-    } else {
-      const props = cloneDeep(activeBoard.state().props)
-      props.attachments = cloneDeep(attachments)
-      activeBoard.requestChanges([{type: 'set-props', props }])
     }
   }
 </script>

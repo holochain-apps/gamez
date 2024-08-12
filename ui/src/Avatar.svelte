@@ -5,7 +5,6 @@
   import UserIcon from '~icons/fa6-solid/user';
   import { getContext } from 'svelte';
   import type { GamezStore } from './store';
-  import SvgIcon from './SvgIcon.svelte';
   import { tooltip as tooltipDirective } from './Home/tooltip';
 
   const { getStore }: any = getContext('gzStore');
