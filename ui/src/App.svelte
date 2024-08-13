@@ -1,13 +1,11 @@
 <script lang="ts">
-  import Controller from './Controller.svelte';
-  import ControllerCreate from './ControllerCreate.svelte';
-  import ControllerBoard from './ControllerBoard.svelte';
+  import '@shoelace-style/shoelace/dist/themes/light.css';
+
   import {
     AppWebsocket,
     AdminWebsocket,
     type AppWebsocketConnectionOptions,
   } from '@holochain/client';
-  import '@shoelace-style/shoelace/dist/themes/light.css';
   import {
     WeaveClient,
     isWeContext,
@@ -19,6 +17,12 @@
   import '@holochain-open-dev/profiles/dist/elements/profile-prompt.js';
   import '@holochain-open-dev/profiles/dist/elements/create-profile.js';
   import { ProfilesClient, ProfilesStore } from '@holochain-open-dev/profiles';
+
+  import LoadingIndicator from './shared/LoadingIndicator.svelte';
+
+  import Controller from './Controller.svelte';
+  import ControllerCreate from './ControllerCreate.svelte';
+  import ControllerBoard from './ControllerBoard.svelte';
   import LogoIcon from './icons/LogoIcon.svelte';
   import { appletServices } from './we';
 
@@ -171,7 +175,7 @@
 {#if connected}
   <profiles-context store={profilesStore} id="root">
     {#if $prof.status == 'pending'}
-      <div class="loading"><div class="loader"></div></div>
+      <LoadingIndicator textual={false} class="mt40" />
     {:else if $prof.status == 'complete' && $prof.value == undefined}
       <div class="create-profile">
         <div class="welcome-text"><LogoIcon /></div>
@@ -188,7 +192,7 @@
     {/if}
   </profiles-context>
 {:else}
-  <div class="loading"><div class="loader"></div></div>
+  <LoadingIndicator textual={false} class="mt40" />
 {/if}
 
 <style>
@@ -210,39 +214,5 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-  }
-  :global(.loading) {
-    text-align: center;
-    padding-top: 100px;
-    display: flex;
-    margin-left: auto;
-    margin-right: auto;
-    align-items: center;
-  }
-  :global(.loader) {
-    border: 8px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 8px solid #3498db;
-    width: 50px;
-    height: 50px;
-    -webkit-animation: spin 2s linear infinite; /* Safari */
-    animation: spin 2s linear infinite;
-    display: inline-block;
-  }
-  @-webkit-keyframes spin {
-    0% {
-      -webkit-transform: rotate(0deg);
-    }
-    100% {
-      -webkit-transform: rotate(360deg);
-    }
-  }
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
   }
 </style>
