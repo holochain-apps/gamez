@@ -1,38 +1,38 @@
 <script lang="ts">
-    import { GamezStore } from './store'
-    import { setContext } from 'svelte';
-    import { encodeHashToBase64, type AppClient } from '@holochain/client';
-    import type { SynStore } from '@holochain-syn/store';
-    import type { ProfilesStore } from "@holochain-open-dev/profiles";
-    import type { WeaveClient } from '@lightningrodlabs/we-applet';
-    import { SynClient } from '@holochain-syn/core';
-    import { getMyDna } from './util';
-    import { Board } from './board';
-    import '@shoelace-style/shoelace/dist/components/select/select.js';
-    import '@shoelace-style/shoelace/dist/components/option/option.js';
-    import { cloneDeep } from "lodash";
+  import { setContext } from 'svelte';
+  import { cloneDeep } from "lodash";
+  import '@shoelace-style/shoelace/dist/components/select/select.js';
+  import '@shoelace-style/shoelace/dist/components/option/option.js';
 
-    export let roleName = ""
-    export let client : AppClient
-    export let weaveClient : WeaveClient
-    export let profilesStore : ProfilesStore
-    export let view
+  import { encodeHashToBase64, type AppClient } from '@holochain/client';
+  import type { SynStore } from '@holochain-syn/store';
+  import type { ProfilesStore } from "@holochain-open-dev/profiles";
+  import type { WeaveClient } from '@lightningrodlabs/we-applet';
+  
+  import { GamezStore } from '~/shared/store'
+  import { getMyDna } from '~/shared/util';
 
-    let store: GamezStore = new GamezStore (
-      weaveClient,
-      profilesStore,
-      client,
-      roleName,
-    );
-    let synStore: SynStore = store.synStore
+  export let roleName = ""
+  export let client : AppClient
+  export let weaveClient : WeaveClient
+  export let profilesStore : ProfilesStore
+  export let view
 
-    setContext('synStore', {
-      getStore: () => synStore,
-    });
+  let store: GamezStore = new GamezStore (
+    weaveClient,
+    profilesStore,
+    client,
+    roleName,
+  );
+  let synStore: SynStore = store.synStore
 
-    setContext('store', {
-      getStore: () => store,
-    });
+  setContext('synStore', {
+    getStore: () => synStore,
+  });
+
+  setContext('store', {
+    getStore: () => store,
+  });
   let inputElement
   let gameTypeElement
   let disabled = true

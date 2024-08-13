@@ -1,11 +1,13 @@
 <script lang="ts">
+  import { getContext } from "svelte";
+  import GamepadIcon from "~icons/fa6-solid/gamepad";
   import "@shoelace-style/shoelace/dist/components/skeleton/skeleton.js";
   import "@shoelace-style/shoelace/dist/components/dialog/dialog.js";
-  import GamepadIcon from "~icons/fa6-solid/gamepad";
-  import { getContext } from "svelte";
-  import type { GamezStore } from "./store";
-  import Avatar from "./Avatar.svelte";
+  
   import "@holochain-open-dev/stores/dist/debug-store.js";
+
+  import type { GamezStore } from "~/shared/store";
+  import Avatar from "~/shared/Avatar.svelte";
 
   const { getStore }: any = getContext("gzStore");
   const store: GamezStore = getStore();

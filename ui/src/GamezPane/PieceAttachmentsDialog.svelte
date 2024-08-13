@@ -1,13 +1,16 @@
 <script lang="ts">
-  import { isWeContext, type WAL, weaveUrlFromWal, type WeaveUrl } from "@lightningrodlabs/we-applet";
   import { cloneDeep } from "lodash";
-  import type { Board, Piece } from "../board";
   import { getContext } from "svelte";
-  import type { GamezStore } from "../store";
-  import SvgIcon from "../SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-  import AttachmentsList from "../AttachmentsList.svelte";
+  
+  import { isWeContext, type WAL, weaveUrlFromWal, type WeaveUrl } from "@lightningrodlabs/we-applet";
+
+  import type { Board, Piece } from "~/shared/board";
+  import type { GamezStore } from "~/shared/store";
+  import SvgIcon from "~/shared/SvgIcon.svelte";
+  
+  import AttachmentsList from "./AttachmentsList.svelte";
 
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();

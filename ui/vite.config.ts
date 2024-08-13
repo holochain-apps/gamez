@@ -1,8 +1,12 @@
-import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import path from 'path';
 import UnoCSS from 'unocss/vite';
 import Icons from 'unplugin-icons/vite';
-import { version, dnaVersion } from './package.json'; // Import version from package.json
+import { defineConfig } from 'vite';
+
+import { dnaVersion, version } from './package.json';
+
+// Import version from package.json
 
 // https://vitejs.dev/config/
 // @unocss-include
@@ -22,7 +26,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '~': './src',
+      '~/shared': path.resolve(__dirname, './src/shared'),
     },
   },
 });

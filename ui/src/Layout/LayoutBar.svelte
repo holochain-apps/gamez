@@ -8,13 +8,14 @@
 
   import { isWeContext } from '@lightningrodlabs/we-applet';
 
-  import { tooltip } from './Home/tooltip';
-  import type { GamezStore } from './store';
-  import Avatar from './Avatar.svelte';
+  import { tooltip } from '~/shared/tooltip';
+  import type { GamezStore } from '~/shared/store';
+  import { type Board } from '~/shared/board';
+  import Avatar from '~/shared/Avatar.svelte';
+
   import AboutDialog from './AboutDialog.svelte';
   import AvatarDialog from './AvatarDialog.svelte';
   import ParticipantsDialog from './ParticipantsDialog.svelte';
-  import { type Board } from './board';
 
   const { getStore }: any = getContext('gzStore');
   const store: GamezStore = getStore();

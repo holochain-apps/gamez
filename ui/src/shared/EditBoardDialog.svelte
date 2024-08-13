@@ -1,14 +1,15 @@
 <script lang="ts">
-    import BoardEditor from '../BoardEditor.svelte';
-    import type { GamezStore } from '../store';
     import { getContext, onMount } from 'svelte';
     import { isEqual } from 'lodash'
     import { encodeHashToBase64, type EntryHash } from '@holochain/client';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
-    import type { Board, BoardProps, BoardState,  PieceDef } from '../board';
-    import { BoardType } from '../boardList';
+    
+    import type { Board, BoardProps, BoardState,  PieceDef } from '~/shared/board';
+    import BoardEditor from '~/shared/BoardEditor.svelte';
+    import type { GamezStore } from '~/shared/store';
+    import { BoardType } from '~/shared/boardList';
 
     let boardHash:EntryHash|undefined = undefined
 

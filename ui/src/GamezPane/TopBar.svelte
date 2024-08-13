@@ -11,9 +11,10 @@
   import { type SessionParticipant } from '@holochain-syn/core';
 
   // Local
-  import { tooltip } from '../Home/tooltip';
-  import AttachmentsList from '../AttachmentsList.svelte';
-  import Avatar from '../Avatar.svelte';
+  import Avatar from '~/shared/Avatar.svelte';
+  import { tooltip } from '~/shared/tooltip';
+
+  import AttachmentsList from './AttachmentsList.svelte';
 
   const dispatch = createEventDispatcher();
 

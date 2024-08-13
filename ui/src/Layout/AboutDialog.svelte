@@ -1,8 +1,11 @@
 <script lang="ts">
-    import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-    import type { GamezStore } from "./store";
     import { getContext } from 'svelte';
-  import { encodeHashToBase64 } from '@holochain/client';
+    import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+
+    import { encodeHashToBase64 } from '@holochain/client';
+
+    import type { GamezStore } from "~/shared/store";
+    
     const { getStore } :any = getContext("gzStore");
     let store: GamezStore = getStore();
 

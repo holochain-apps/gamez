@@ -1,11 +1,13 @@
 <script lang="ts">
-  import GamezPane from "./GamezPane";
-  import { GamezStore } from "./store";
   import { setContext } from "svelte";
+  
   import type { AppClient, EntryHash } from "@holochain/client";
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
   import type { WeaveClient } from "@lightningrodlabs/we-applet";
+  
+  import { GamezStore } from "~/shared/store";
+  import GamezPane from "./GamezPane";
 
 
   export let roleName = "";

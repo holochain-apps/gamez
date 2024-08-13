@@ -1,28 +1,21 @@
 <script lang="ts">
   import { getContext, onMount } from 'svelte';
-  import type { GamezStore } from '../store';
-  import {
-    type BoardState,
-    PieceDef,
-    PieceType,
-    Board,
-    type Piece,
-    type BoardProps,
-  } from '../board';
-  import EditBoardDialog from '../Home/EditBoardDialog.svelte';
-  import Avatar from '../Avatar.svelte';
-  import PieceAttachmentDialog from './PieceAttachmentsDialog.svelte';
   import { cloneDeep } from 'lodash';
   import sanitize from 'sanitize-filename';
-  import SvgIcon from '../SvgIcon.svelte';
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+
   import { decodeHashFromBase64 } from '@holochain/client';
   import { isWeContext, weaveUrlFromWal, type WAL } from '@lightningrodlabs/we-applet';
-  import AttachmentsList from '../AttachmentsList.svelte';
-  import WalSpace from '../WalSpace.svelte';
-  import { type AssetSpec } from '../util';
+
+  import type { GamezStore } from '~/shared/store';
+  import { type BoardState, PieceDef, Board, type Piece, type BoardProps } from '~/shared/board';
+  import { type AssetSpec } from '~/shared/util';
+  import EditBoardDialog from '~/shared/EditBoardDialog.svelte';
+  import PlayerName from '~/shared/PlayerName.svelte';
+
+  import PieceAttachmentDialog from './PieceAttachmentsDialog.svelte';
+  import WalSpace from './WalSpace.svelte';
   import PieceEl, { PLAYER_PIECE_SIZE } from './Piece.svelte';
-  import PlayerName from '../PlayerName.svelte';
   import TopBar from './TopBar.svelte';
   import PlayersBar from './PlayersBar.svelte';
   import AttachmentsBar from './AttachmentsBar.svelte';

@@ -1,14 +1,15 @@
 <script lang="ts">
-    import { PieceDef, type BoardProps, Board, type BoardState, PieceType } from './board';
-    import { getContext, onMount } from 'svelte';
-  	import DragDropList, { VerticalDropZone, reorder, type DropEvent } from 'svelte-dnd-list';
-    import 'emoji-picker-element';
-    import '@shoelace-style/shoelace/dist/components/select/select.js';
-    import '@shoelace-style/shoelace/dist/components/option/option.js';
-    import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-    import '@shoelace-style/shoelace/dist/components/button/button.js';
-    import '@shoelace-style/shoelace/dist/components/input/input.js';
-    import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
+  import { getContext, onMount } from 'svelte';
+  import DragDropList, { VerticalDropZone, reorder, type DropEvent } from 'svelte-dnd-list';
+  import 'emoji-picker-element';
+  import '@shoelace-style/shoelace/dist/components/select/select.js';
+  import '@shoelace-style/shoelace/dist/components/option/option.js';
+  import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+  import '@shoelace-style/shoelace/dist/components/button/button.js';
+  import '@shoelace-style/shoelace/dist/components/input/input.js';
+  import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
+
+  import { PieceDef, type BoardProps, Board, type BoardState, PieceType } from './board';
     import SvgIcon from './SvgIcon.svelte';
     import { cloneDeep } from "lodash";
     import { BoardType } from './boardList';

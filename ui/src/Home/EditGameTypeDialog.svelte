@@ -1,12 +1,13 @@
 <script lang="ts">
-    import BoardEditor from '../BoardEditor.svelte';
-    import type { BoardDefData, GamezStore } from '../store';
     import { getContext, onMount } from 'svelte';
-    import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-    import '@shoelace-style/shoelace/dist/components/button/button.js';
-    import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
-    import type { BoardProps, BoardState, PieceDef } from '../board';
     import { cloneDeep } from "lodash";
+    import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+    import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
+    import '@shoelace-style/shoelace/dist/components/button/button.js';
+    
+    import BoardEditor from '~/shared/BoardEditor.svelte';
+    import type { BoardDefData, GamezStore } from '~/shared/store';
+    import type { BoardProps, BoardState, PieceDef } from '~/shared/board';
 
     let dialog: SlDialog
     onMount(async () => {

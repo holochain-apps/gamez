@@ -5,9 +5,10 @@
   import CheckIcon from '~icons/fa6-solid/check';
   import PenToSquareIcon from '~icons/fa6-solid/pen-to-square';
 
-  import AttachmentsList from '../AttachmentsList.svelte';
-  import { tooltip } from '../Home/tooltip';
-  import { type AssetSpec } from '../util';
+  import { tooltip } from '~/shared/tooltip';
+  import { type AssetSpec } from '~/shared/util';
+
+  import AttachmentsList from './AttachmentsList.svelte';
 
   const dispatcher = createEventDispatcher();
 

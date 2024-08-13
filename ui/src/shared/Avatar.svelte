@@ -1,11 +1,13 @@
 <script lang="ts">
+  import { getContext } from 'svelte';
+  import UserIcon from '~icons/fa6-solid/user';
+  import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
+  
   import { encodeHashToBase64, type AgentPubKey } from '@holochain/client';
   import '@holochain-open-dev/profiles/dist/elements/agent-avatar.js';
-  import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
-  import UserIcon from '~icons/fa6-solid/user';
-  import { getContext } from 'svelte';
+
   import type { GamezStore } from './store';
-  import { tooltip as tooltipDirective } from './Home/tooltip';
+  import { tooltip as tooltipDirective } from './tooltip';
 
   const { getStore }: any = getContext('gzStore');
   let store: GamezStore = getStore();

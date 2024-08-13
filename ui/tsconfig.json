@@ -17,7 +17,7 @@
     "importsNotUsedAsValues": "error",
     "preserveValueImports": true,
     "ignoreDeprecations": "5.0",
-    "types": ["./node_modules/unplugin-icons/types/svelte3.d.ts"],
+    "types": ["../node_modules/unplugin-icons/types/svelte3.d.ts"],
     "baseUrl": ".",
     "sourceMap": true,
     "strict": false,
@@ -25,17 +25,17 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "~/*": ["ui/src/*"]
+      "~/*": ["src/*"]
     }
   },
   "include": [
-    "./node_modules/unplugin-icons/types/svelte3.d.ts",
-    "./ui/package.json",
-    "./ui/types.d.ts",
-    "./ui/vite.config.ts",
-    "./ui/src/**/*.d.ts",
-    "./ui/src/**/*.ts",
-    "./ui/src/**/*.js",
-    "./ui/src/**/*.svelte"
+    "../node_modules/unplugin-icons/types/svelte3.d.ts",
+    "./package.json",
+    "./types.d.ts",
+    "./vite.config.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "./src/**/*.svelte"
   ]
 }

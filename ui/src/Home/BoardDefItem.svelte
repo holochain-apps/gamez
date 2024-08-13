@@ -2,9 +2,11 @@
   import { createEventDispatcher, getContext } from 'svelte';
   import GearIcon from '~icons/fa6-solid/gear';
   import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
+
   import type { EntryHash } from '@holochain/client';
 
-  import type { GamezStore } from '../store';
+  import type { GamezStore } from '~/shared/store';
+
   import SidebarButton from './SidebarButton.svelte';
 
   const dispatch = createEventDispatcher();

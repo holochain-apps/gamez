@@ -1,11 +1,12 @@
 <script lang="ts">
-    import BoardEditor from '../BoardEditor.svelte';
-    import type { GamezStore } from '../store';
     import { getContext } from 'svelte';
-    import type { BoardProps, BoardState, PieceDef } from '../board';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
+    
+    import BoardEditor from '~/shared/BoardEditor.svelte';
+    import type { GamezStore } from '~/shared/store';
+    import type { BoardProps, BoardState, PieceDef } from '~/shared/board';
 
     let editPieceDefs = []
     let dialog: SlDialog

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip as tooltipDirective } from './tooltip';
+  import { tooltip as tooltipDirective } from '~/shared/tooltip';
 
   export let tooltip: string = undefined;
   export let title: string = undefined;

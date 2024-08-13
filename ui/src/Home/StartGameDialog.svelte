@@ -1,9 +1,10 @@
 <script lang="ts">
-  import type {  BoardDefData } from "../store";
   import { createEventDispatcher, onMount } from "svelte";
   import "@shoelace-style/shoelace/dist/components/dialog/dialog.js";
   import "@shoelace-style/shoelace/dist/components/button/button.js";
   import type SlDialog from "@shoelace-style/shoelace/dist/components/dialog/dialog";
+  
+  import type {  BoardDefData } from "~/shared/store";
 
   let boardDef: BoardDefData| undefined;
   const dispatch = createEventDispatcher()

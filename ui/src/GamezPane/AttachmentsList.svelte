@@ -1,11 +1,12 @@
 <script lang="ts">
-  import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
-  import TrashIcon from '~icons/fa6-solid/trash';
   import { createEventDispatcher, getContext } from 'svelte';
-  import type { GamezStore } from './store';
-  import SvgIcon from './SvgIcon.svelte';
+  import TrashIcon from '~icons/fa6-solid/trash';
+  import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
+
   import { weaveUrlToWAL, type WeaveUrl } from '@lightningrodlabs/we-applet';
   import { hrlToString } from '@holochain-open-dev/utils';
+
+  import type { GamezStore } from '~/shared/store';
 
   const dispatch = createEventDispatcher();
 

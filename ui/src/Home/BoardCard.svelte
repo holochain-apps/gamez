@@ -1,15 +1,17 @@
 <script lang="ts">
   import { createEventDispatcher, getContext } from 'svelte';
+  import cx from 'classnames';
   import UserIcon from '~icons/fa6-solid/user';
   import ShrinkIcon from '~icons/fa6-solid/down-left-and-up-right-to-center';
-  import cx from 'classnames';
+  
   import { type EntryHash, decodeHashFromBase64 } from '@holochain/client';
   import { pipe } from '@holochain-open-dev/stores';
-  import { GamezStore } from '../store';
-  import Avatar from '../Avatar.svelte';
-  import { hashEqual, isComplete } from '../util';
-  import { Board } from '../board';
-  import { tooltip } from './tooltip';
+
+  import { GamezStore } from '~/shared/store';
+  import Avatar from '~/shared/Avatar.svelte';
+  import { hashEqual, isComplete } from '~/shared/util';
+  import { Board } from '~/shared/board';
+  import { tooltip } from '~/shared/tooltip';
 
   const dispatch = createEventDispatcher();
 

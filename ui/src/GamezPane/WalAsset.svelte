@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { createEventDispatcher, onMount } from "svelte";
   import Moveable from "svelte-moveable";
+
   import "@lightningrodlabs/we-elements/dist/elements/wal-embed.js";
   import { type WeaveUrl } from "@lightningrodlabs/we-applet";
-  import { createEventDispatcher, onMount } from "svelte";
-  import {type Position, type Size } from "./util";
+  
+  import {type Position, type Size } from "~/shared/util";
 
   const dispatch = createEventDispatcher()
   export let isEditable = false

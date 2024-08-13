@@ -4,8 +4,10 @@
 
 <script lang="ts">
   import { decodeHashFromBase64 } from '@holochain/client';
-  import { type Piece, PieceDef, PieceType } from '../board';
-  import Avatar from '../Avatar.svelte';
+
+  import { type Piece, PieceDef, PieceType } from '~/shared/board';
+  import Avatar from '~/shared/Avatar.svelte';
+
   import { hollowedToFilledChessPiece, isHollowChessPiece } from './utils';
 
   const PLAYER_PIECE_ID_STARTS = 'uhCA';
