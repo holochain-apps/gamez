@@ -1,20 +1,20 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
-  import "@shoelace-style/shoelace/dist/components/dialog/dialog.js";
-  import "@shoelace-style/shoelace/dist/components/button/button.js";
-  import type SlDialog from "@shoelace-style/shoelace/dist/components/dialog/dialog";
-  
-  import type {  BoardDefData } from "~/shared/store";
+  import { createEventDispatcher, onMount } from 'svelte';
+  import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+  import '@shoelace-style/shoelace/dist/components/button/button.js';
+  import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 
-  let boardDef: BoardDefData| undefined;
-  const dispatch = createEventDispatcher()
+  import type { BoardDefData } from '~/shared/store';
+
+  let boardDef: BoardDefData | undefined;
+  const dispatch = createEventDispatcher();
 
   let dialog: SlDialog;
   onMount(async () => {});
 
   export const open = async (def: BoardDefData) => {
-    boardDef = def
-    console.log("BOARD", def)
+    boardDef = def;
+    console.log('BOARD', def);
     text = def.board.name;
     nameInput.value = text;
     dialog.show();
@@ -25,22 +25,22 @@
   };
 
   const startGame = () => {
-    close()
-    dispatch("start-game", {name: text, boardDef})
+    close();
+    dispatch('start-game', { name: text, boardDef });
   };
 
-  $: valid = text != "";
+  $: valid = text != '';
 
   let text;
   let nameInput;
   const handleKeydown = (e) => {
-    if (e.key === "Escape") {
+    if (e.key === 'Escape') {
       close();
-    } else if (e.key === "Enter" && e.ctrlKey) {
+    } else if (e.key === 'Enter' && e.ctrlKey) {
       startGame();
-    } else if (e.key === "Tab") {
+    } else if (e.key === 'Tab') {
       // trap focus
-      const tabbable = Array.from(document.querySelectorAll("input"));
+      const tabbable = Array.from(document.querySelectorAll('input'));
 
       let index = tabbable.findIndex((elem) => elem == document.activeElement);
 
@@ -60,12 +60,12 @@
   bind:this={dialog}
   label="Start New Game"
   class="text-black/60!"
-  on:sl-initial-focus={(e)=>{
-    e.preventDefault()
-    nameInput.focus()
+  on:sl-initial-focus={(e) => {
+    e.preventDefault();
+    nameInput.focus();
   }}
   on:sl-request-close={(event) => {
-    if (event.detail.source === "overlay") {
+    if (event.detail.source === 'overlay') {
       event.preventDefault();
     }
   }}
@@ -76,10 +76,9 @@
     bind:this={nameInput}
     on:input={(e) => (text = e.target.value)}
   ></sl-input>
-  <sl-button slot="footer" on:click={() => close()} style="margin-left:10px">
-    Cancel
-  </sl-button>
-  <sl-button slot="footer"
+  <sl-button slot="footer" on:click={() => close()} style="margin-left:10px"> Cancel </sl-button>
+  <sl-button
+    slot="footer"
     disabled={!valid}
     style="margin-left:10px"
     on:click={() => startGame()}

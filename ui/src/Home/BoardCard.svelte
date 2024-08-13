@@ -3,7 +3,7 @@
   import cx from 'classnames';
   import UserIcon from '~icons/fa6-solid/user';
   import ShrinkIcon from '~icons/fa6-solid/down-left-and-up-right-to-center';
-  
+
   import { type EntryHash, decodeHashFromBase64 } from '@holochain/client';
   import { pipe } from '@holochain-open-dev/stores';
 

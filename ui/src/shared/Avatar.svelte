@@ -2,7 +2,7 @@
   import { getContext } from 'svelte';
   import UserIcon from '~icons/fa6-solid/user';
   import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
-  
+
   import { encodeHashToBase64, type AgentPubKey } from '@holochain/client';
   import '@holochain-open-dev/profiles/dist/elements/agent-avatar.js';
 

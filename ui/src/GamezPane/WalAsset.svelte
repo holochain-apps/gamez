@@ -1,18 +1,20 @@
+<svelte:options accessors />
+
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
-  import Moveable from "svelte-moveable";
+  import { createEventDispatcher, onMount } from 'svelte';
+  import Moveable from 'svelte-moveable';
 
-  import "@lightningrodlabs/we-elements/dist/elements/wal-embed.js";
-  import { type WeaveUrl } from "@lightningrodlabs/we-applet";
-  
-  import {type Position, type Size } from "~/shared/util";
+  import '@lightningrodlabs/we-elements/dist/elements/wal-embed.js';
+  import { type WeaveUrl } from '@lightningrodlabs/we-applet';
 
-  const dispatch = createEventDispatcher()
-  export let isEditable = false
+  import { type Position, type Size } from '~/shared/util';
 
-  let className = "";
+  const dispatch = createEventDispatcher();
+  export let isEditable = false;
+
+  let className = '';
   export const setEditable = (editable) => {
-    isEditable = editable
+    isEditable = editable;
     draggable = editable;
     edgeDraggable = editable;
     resizable = editable;
@@ -28,56 +30,35 @@
   export let position: Position;
   export let size: Size;
   export let weaveUrl: WeaveUrl;
-  let target:HTMLDivElement;
-  let embed
+  let target: HTMLDivElement;
+  let embed;
 
   onMount(async () => {
-        target.style.transform = `translate(${position.x}px,${position.y}px)`
+    target.style.transform = `translate(${position.x}px,${position.y}px)`;
     if (size) {
-      target.style.height = `${size.height}px`
-      target.style.width = `${size.width}px`
+      target.style.height = `${size.height}px`;
+      target.style.width = `${size.width}px`;
     }
-    setEditable(isEditable)
-  })
+    setEditable(isEditable);
+  });
 
   const onDragStart = (e) => {};
   const onDrag = (e) => {
     e.target.style.transform = e.transform;
-    position = {x: e.translate[0], y:e.translate[1]}
+    position = { x: e.translate[0], y: e.translate[1] };
   };
-  const onDragEnd = (e) => {
-
-  };
+  const onDragEnd = (e) => {};
   const onResize = (e) => {
     e.target.style.width = `${e.width}px`;
     e.target.style.height = `${e.height}px`;
     e.target.style.transform = e.drag.transform;
-    size = {height:e.height, width: e.width}
+    size = { height: e.height, width: e.width };
   };
-
 </script>
-<svelte:options accessors/>
 
-
-<div
-  class="asset {className}"
-  bind:this={target}
-  
->
-  <div
-  class:no-pointer={draggable}
-
-  >
-    <wal-embed
-      bind:this={embed}
-      closable
-      bare={bare}
-    
-      class="embed"
-      style=""
-      src={weaveUrl}
-    >
-    </wal-embed>
+<div class="asset {className}" bind:this={target}>
+  <div class:no-pointer={draggable}>
+    <wal-embed bind:this={embed} closable {bare} class="embed" style="" src={weaveUrl}> </wal-embed>
   </div>
 </div>
 <Moveable

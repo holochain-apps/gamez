@@ -1,39 +1,38 @@
 @font-face {
-  font-family: "Poppins";
+  font-family: 'Poppins';
   src: url('/fonts/Poppins-Regular.ttf');
   font-weight: regular;
 }
 @font-face {
-  font-family: "Poppins";
+  font-family: 'Poppins';
   src: url('/fonts/Poppins-SemiBold.ttf');
   font-weight: bold;
 }
 
 @font-face {
-  font-family: "Poppins";
+  font-family: 'Poppins';
   src: url('/fonts/Poppins-Italic.ttf');
   font-style: italic;
 }
 
 @font-face {
-  font-family: "Poppins";
+  font-family: 'Poppins';
   src: url('/fonts/Poppins-SemiBoldItalic.ttf');
   font-style: italic;
   font-weight: bold;
 }
 
-
 :root {
-  --mdc-theme-primary: #7B1FA2;
-  --mdc-theme-secondary: #FF5722;
+  --mdc-theme-primary: #7b1fa2;
+  --mdc-theme-secondary: #ff5722;
   --main-saturation: 25%;
   --main-hue: 130;
-  --primary-color: #536DFE;
-  --secondary-color: #FF9800;
-  --bg-color: #F5F5F5;
-  --light-text-color: #FFF;
+  --primary-color: #536dfe;
+  --secondary-color: #ff9800;
+  --bg-color: #f5f5f5;
+  --light-text-color: #fff;
   --dark-text-color: #333;
-  --border-color: #DDD;
+  --border-color: #ddd;
 }
 
 * {
@@ -42,12 +41,13 @@
   padding: 0;
 }
 
-html, body {
-  font-family: "Poppins", sans-serif;
-  letter-spacing: -.008rem;
+html,
+body {
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.008rem;
   font-size: 14px;
   line-height: 1.5;
-  color: rgba(86, 94, 109, 1.0);
+  color: rgba(86, 94, 109, 1);
   padding: 0px;
   height: 100%;
   overflow: hidden; /* In general, it's a good idea to have the body take up the full viewport height and have a fixed layout with no scrollbar. Then, you can have a scrollable inner container like .pane-content to handle the overflow of the content. This approach helps keep the page structure clean and allows you to control the scrolling behavior more effectively. */
@@ -62,7 +62,8 @@ button {
   cursor: pointer;
 }
 
-input, button {
+input,
+button {
   font-family: inherit;
   font-size: inherit;
 }

@@ -6,7 +6,7 @@
     "start": "vite --clearScreen false --port $UI_PORT",
     "build": "vite build",
     "build-check": "npm run check && vite build",
-    "check": "svelte-check --tsconfig ../tsconfig.json --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-mouse-events-have-key-events:ignore",
+    "check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-mouse-events-have-key-events:ignore",
     "package": "rm -f dist.zip && npm run build && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
@@ -20,20 +20,15 @@
     "@iconify-json/fa6-solid": "^1.1.24",
     "@lightningrodlabs/we-applet": "^0.17.0-dev.2",
     "@lightningrodlabs/we-elements": "^0.6.1",
-    "@mdi/js": "^7.1.96",
     "@shoelace-style/shoelace": "^2.5.2",
-    "@ts-stack/markdown": "^1.4.0",
     "@types/javascript-time-ago": "^2.0.3",
     "classnames": "^2.5.1",
     "emoji-picker-element": "1.21.0",
     "javascript-time-ago": "2.3.7",
     "lodash": "^4.17.21",
     "sanitize-filename": "1.6.3",
-    "svelte-awesome-color-picker": "2.4.6",
     "svelte-dnd-list": "0.1.8",
-    "svelte-materialify": "^0.3.11",
     "svelte-moveable": "0.45.0",
-    "svelte-multiselect": "^8.2.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

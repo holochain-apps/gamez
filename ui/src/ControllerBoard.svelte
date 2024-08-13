@@ -1,53 +1,46 @@
 <script lang="ts">
-  import { setContext } from "svelte";
-  
-  import type { AppClient, EntryHash } from "@holochain/client";
-  import type { SynStore } from "@holochain-syn/store";
-  import type { ProfilesStore } from "@holochain-open-dev/profiles";
-  import type { WeaveClient } from "@lightningrodlabs/we-applet";
-  
-  import { GamezStore } from "~/shared/store";
-  import GamezPane from "./GamezPane";
+  import { setContext } from 'svelte';
 
+  import type { AppClient, EntryHash } from '@holochain/client';
+  import type { SynStore } from '@holochain-syn/store';
+  import type { ProfilesStore } from '@holochain-open-dev/profiles';
+  import type { WeaveClient } from '@lightningrodlabs/we-applet';
 
-  export let roleName = "";
+  import { GamezStore } from '~/shared/store';
+  import GamezPane from './GamezPane';
+
+  export let roleName = '';
   export let client: AppClient;
   export let profilesStore: ProfilesStore;
-  export let weaveClient : WeaveClient
-  export let board : EntryHash
+  export let weaveClient: WeaveClient;
+  export let board: EntryHash;
 
-  let store: GamezStore = new GamezStore(
-    weaveClient,
-    profilesStore,
-    client,
-    roleName,
-  );
-  let synStore: SynStore = store.synStore
+  let store: GamezStore = new GamezStore(weaveClient, profilesStore, client, roleName);
+  let synStore: SynStore = store.synStore;
 
-  store.boardList.setActiveBoard(board)
-  $: activeBoardHash = store.boardList.activeBoardHash
+  store.boardList.setActiveBoard(board);
+  $: activeBoardHash = store.boardList.activeBoardHash;
 
-  setContext("synStore", {
+  setContext('synStore', {
     getStore: () => synStore,
   });
 
-  setContext("gzStore", {
+  setContext('gzStore', {
     getStore: () => store,
   });
 
-  $: activeBoard = store.boardList.activeBoard
-
+  $: activeBoard = store.boardList.activeBoard;
 </script>
 
 <div class="flex-scrollable-parent">
   <div class="flex-scrollable-container">
     <div class="app">
       {#if store}
-          {#if $activeBoardHash !== undefined}
-            <GamezPane standAlone={true} activeBoard={$activeBoard} />
-          {:else}
-            <div class="loading"><div class="loader" /></div>
-          {/if}
+        {#if $activeBoardHash !== undefined}
+          <GamezPane standAlone={true} activeBoard={$activeBoard} />
+        {:else}
+          <div class="loading"><div class="loader" /></div>
+        {/if}
       {:else}
         <div class="loading"><div class="loader" /></div>
       {/if}
@@ -59,7 +52,7 @@
   .app {
     margin: 0;
     padding-bottom: 10px;
-    background-image: var(--bg-img, url(""));
+    background-image: var(--bg-img, url(''));
     background-size: cover;
     display: flex;
     flex-direction: column;

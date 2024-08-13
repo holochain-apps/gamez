@@ -1,7 +1,7 @@
-import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
-import { BoardType } from './shared/boardList';
 import { LazyHoloHashMap } from '@holochain-open-dev/utils';
+import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
+import type { AppClient, RoleName, ZomeName } from '@holochain/client';
 import type {
   AppletHash,
   AppletServices,
@@ -10,9 +10,10 @@ import type {
   WAL,
   WeaveServices,
 } from '@lightningrodlabs/we-applet';
-import type { AppClient, RoleName, ZomeName } from '@holochain/client';
-import { getMyDna } from './shared/util';
+
 import type { BoardEphemeralState, BoardState } from './shared/board';
+import { BoardType } from './shared/boardList';
+import { getMyDna } from './shared/util';
 
 const ROLE_NAME = 'gamez';
 const ZOME_NAME = 'syn';
