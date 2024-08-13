@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { type HrlB64WithContext, isWeContext, type HrlWithContext } from "@lightningrodlabs/we-applet";
+  import { isWeContext, type WAL, weaveUrlFromWal, type WeaveUrl } from "@lightningrodlabs/we-applet";
   import { cloneDeep } from "lodash";
   import type { Board, Piece } from "./board";
   import { getContext } from "svelte";
   import type { GamezStore } from "./store";
-  import { hrlWithContextToB64} from "./util";
   import SvgIcon from "./SvgIcon.svelte";
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
@@ -13,7 +12,7 @@
   const { getStore } :any = getContext("gzStore");
   let store: GamezStore = getStore();
   let piece: Piece | undefined
-  let attachments: Array<HrlB64WithContext> = []
+  let attachments: Array<WeaveUrl> = []
  
   $:attachments = attachments
 
@@ -38,14 +37,14 @@
   }
 
   const addAttachment = async () => {
-    const hrl = await store.weClient.userSelectHrl()
-    if (hrl) {
-      _addAttachment(hrl)
+    const wal = await store.weaveClient.userSelectWal()
+    if (wal) {
+      _addAttachment(wal)
     }
   }
 
-  const _addAttachment = (hrl: HrlWithContext) => {
-    attachments.push(hrlWithContextToB64(hrl))
+  const _addAttachment = (wal: WAL) => {
+    attachments.push(weaveUrlFromWal(wal))
     attachments = attachments
     handleSave()
   }

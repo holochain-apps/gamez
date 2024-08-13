@@ -1,9 +1,9 @@
 <script lang="ts">
   import Toolbar from "./Toolbar.svelte";
-  import GamezPane from "./GamezPane.svelte";
+  import GamezPane from "./GamezPane";
   import { GamezStore } from "./store";
-  import { setContext } from "svelte";
-  import type { AppAgentClient, EntryHash } from "@holochain/client";
+  import { onMount, setContext } from "svelte";
+  import type { AppClient } from "@holochain/client";
   import type { SynStore } from "@holochain-syn/store";
   import type { ProfilesStore } from "@holochain-open-dev/profiles";
   import SvgIcon from "./SvgIcon.svelte";
@@ -11,40 +11,42 @@
   import NewBoardDialog from "./NewBoardDialog.svelte";
   import EditGameTypeDialog from "./EditGameTypeDialog.svelte";
   import { BoardType } from "./boardList";
-  import { CHESS, GO } from './defaultGames';
+  import { CHESS, GO } from "./defaultGames";
   import { v1 as uuidv1 } from "uuid";
   import BoardMenuItem from "./BoardMenuItem.svelte";
   import BoardDefItem from "./BoardDefItem.svelte";
-  import type { WeClient } from "@lightningrodlabs/we-applet";
+  import { isWeContext, type WeaveClient } from "@lightningrodlabs/we-applet";
+  import StartGameDialog from "./StartGameDialog.svelte";
 
   let defaultGames = [
     {
       id: uuidv1(),
       name: "Chess",
-      board:CHESS
+      board: CHESS,
     },
     {
       id: uuidv1(),
       name: "Go",
-      board:GO
-    }
-  ]
+      board: GO,
+    },
+  ];
 
   export let roleName = "";
-  export let client: AppAgentClient;
+  export let client: AppClient;
   export let profilesStore: ProfilesStore;
-  export let weClient : WeClient
+  export let weaveClient: WeaveClient;
 
   let DEFAULT_GAMES = ["Chess", "Go", "World"];
   let store: GamezStore = new GamezStore(
-    weClient,
+    weaveClient,
     profilesStore,
     client,
-    roleName,
+    roleName
   );
-  let synStore: SynStore = store.synStore
+  let synStore: SynStore = store.synStore;
 
-  $: activeBoardHash = store.boardList.activeBoardHash
+  $: activeBoardHash = store.boardList.activeBoardHash;
+  $: uiProps = store.uiProps
 
   setContext("synStore", {
     getStore: () => synStore,
@@ -54,13 +56,15 @@
     getStore: () => store,
   });
 
-  $: activeBoards = store.boardList.activeBoardHashes
-  $: archivedBoards = store.boardList.archivedBoardHashes
-  $: activeBoard = store.boardList.activeBoard
-  $: myAgentPubKeyB64 = store.myAgentPubKeyB64
-  $: myProfile = store.profilesStore.myProfile
-  $: defHashes = store.defHashes
-  $: defsList = store.defsList
+  $: activeBoards = store.boardList.activeBoardHashes;
+  $: archivedBoards = store.boardList.archivedBoardHashes;
+  $: activeBoard = store.boardList.activeBoard;
+  $: myAgentPubKeyB64 = store.myAgentPubKeyB64;
+  $: myProfile = store.profilesStore.myProfile;
+  $: defHashes = store.defHashes;
+  $: defsList = store.defsList;
+
+  let showArchived
 
   let fileinput;
   const onFileSelected = (e) => {
@@ -77,8 +81,16 @@
     );
     reader.readAsText(file);
   };
+  let amWeaveSteward = false
+
+  onMount(async () => {
+    if (isWeContext() && (await weaveClient.myGroupPermissionType()).type === "Steward")
+      amWeaveSteward = true
+  })
+
   let newBoardDialog;
-  let editBoarTypeDialog;
+  let editBoardTypeDialog;
+  let startGameDialog;
 </script>
 
 <svelte:head>
@@ -92,116 +104,146 @@
     <div class="app">
       {#if store}
         <NewBoardDialog bind:this={newBoardDialog} />
-        <EditGameTypeDialog bind:this={editBoarTypeDialog} />
+        <EditGameTypeDialog bind:this={editBoardTypeDialog} />
+        <StartGameDialog bind:this={startGameDialog}
+          on:start-game={async (e) => {
+            const state = cloneDeep(e.detail.boardDef.board);
+            state.name = e.detail.name;
+            if (state.min_players) {
+              state.props.players.push(myAgentPubKeyB64);
+            }
+            const board = await store.boardList.makeBoard(state);
+            await board.join();
+
+            store.boardList.setActiveBoard(board.hash);
+          }}/>
         <Toolbar />
-          {#if $activeBoardHash !== undefined}
-            <GamezPane activeBoard={$activeBoard} />
-          {:else}
+        {#if $activeBoardHash !== undefined}
+          <GamezPane activeBoard={$activeBoard} />
+        {:else}
+          {#if $defsList.status !== "complete" || $defsList.value.length == 0}
             <div class="welcome-text">
-              <div class="games-list">
-                {#if $activeBoards.status == "complete" && $activeBoards.value.length > 0}
+              <h3>Welcome to Board Gamez!</h3>
+              <p>If you have just joined and you don't see any game types, or games, please be patient and allow the network to sync with your peers. </p>
+              {#if (!isWeContext() || amWeaveSteward) }
+              <p style="font-size:90%;">If you created this instance you may want to click on Chess, Go and World in "Create Game Types" or add your own game types.</p>
+              {/if}
+            </div>
+          {/if}
+          <div style="display:flex">
+              <div class="games">
+                <div class="games-list">
                   <h3>Active Games</h3>
-                  {#each $activeBoards.value as hash}
-                    <div
-                        on:click={()=>store.boardList.setActiveBoard(hash)}
-                        class="game" >
-                        <BoardMenuItem boardType={BoardType.active} boardHash={hash}></BoardMenuItem>
+                  <div class="games-list-items">
+                    {#if $activeBoards.status == "complete" && $activeBoards.value.length > 0}
+                      {#each $activeBoards.value as hash}
+                        <BoardMenuItem
+                          on:select={() => store.boardList.setActiveBoard(hash)}
+                          boardType={BoardType.active}
+                          boardHash={hash}
+                        ></BoardMenuItem>
+                      {/each}
+                    {:else}
+                      (no active games)
+                    {/if}
+                  </div>
+                </div>
+                <div class="games-list">
+                  <div style="display:flex; align-items:center;"><h3>Archived Games</h3>
+                  <sl-checkbox
+                    style="margin-left:10px;"
+                    checked={$uiProps.showArchived}
+                    on:sl-input={(e)=>store.setUIprops({showArchived:e.target.checked})}
+                  >
+                    Show
+                  </sl-checkbox></div>
+                  {#if $uiProps.showArchived}
+                    <div class="games-list-items">
+                      {#if $archivedBoards.status == "complete" && $archivedBoards.value.length > 0}
+                        {#each $archivedBoards.value as hash}
+                          <div
+                            class="game"
+                            on:click={() => {
+                              store.boardList.unarchiveBoard(hash);
+                            }}
+                          >
+                            <BoardMenuItem
+                              boardType={BoardType.archived}
+                              boardHash={hash}
+                            ></BoardMenuItem>
+                          </div>
+                        {/each}
+                      {:else}
+                        (no archived games)
+                      {/if}
                     </div>
-                  {/each}
-                {/if}
-                {#if $archivedBoards.status == "complete" && $archivedBoards.value.length > 0}
-                  <h3>Archived Games</h3>
-                  {#each $archivedBoards.value as hash}
-                    <div class="game"
-                      on:click={() => {
-                        store.boardList.unarchiveBoard(hash);
-                      }}
-                    >
-                      <BoardMenuItem boardType={BoardType.archived} boardHash={hash}></BoardMenuItem>
-                    </div>
-                  {/each}
-                {/if}
+                  {/if}
+                </div>
               </div>
-              <div style="display:flex; flex-direction:column">
-                {#if $myProfile.status == "complete"}
-                  {@const myName = $myProfile.value.entry.nickname}
+            <div class="game-types">
+              {#if $myProfile.status == "complete"}
+                {@const myName = $myProfile.value.entry.nickname}
                 <div style="margin-bottom:10px">
-                  <h3>Game Library:</h3>
+                  <h3>Game Types:</h3>
                   {#if $defHashes.status == "complete"}
                     {#each $defHashes.value as hash}
-                      <BoardDefItem 
-                        on:create={ 
-                          async (e) => {
-                            const state = cloneDeep(e.detail.board);
-                            state.name = `${state.name}: ${
-                              myName
-                            }- ${new Date().toLocaleDateString("en-US")}`;
-                            if (state.min_players) {
-                              state.props.players.push(myAgentPubKeyB64);
-                            }
-                            const board = await store.boardList.makeBoard(
-                              state
-                            );
-                            await board.join()        
-
-                            store.boardList.setActiveBoard(board.hash)
-                          }
-                        }
-                        on:settings={
-                          (e) => {
-                            editBoarTypeDialog.open(e.detail);
-                          }
-                        }
-                        boardHash={hash}>
-                      </BoardDefItem>
-        
+                      <div class="game-type">
+                        <BoardDefItem
+                          on:create={(e)=> startGameDialog.open(e.detail)}
+                          on:settings={(e) => {
+                            editBoardTypeDialog.open(e.detail);
+                          }}
+                          boardHash={hash}
+                        ></BoardDefItem>
+                      </div>
                     {/each}
                   {:else if $defHashes.status == "error"}
                     Error!: {$defHashes.error}
                   {/if}
-      
                 </div>
+              {/if}
+              <div class="new-type">
+                <h3>Create Game Type:</h3>
+                <input
+                  style="display:none"
+                  type="file"
+                  accept=".json"
+                  on:change={(e) => onFileSelected(e)}
+                  bind:this={fileinput}
+                />
+                <sl-button
+                  on:click={() => newBoardDialog.open()}
+                  style=""
+                  title="New Game"
+                  >New <SvgIcon icon="faSquarePlus" size="16" /></sl-button
+                >
+                <sl-button
+                  on:click={() => {
+                    fileinput.click();
+                  }}
+                  title="Import Game"
+                  >Import <SvgIcon icon="faFileImport" size="16" /></sl-button
+                >
+                {#if (!isWeContext() || amWeaveSteward) && $defsList.status == "complete"}
+                  {@const names = $defsList.value.map((def) => def.board.name)}
+                  {#each DEFAULT_GAMES as g}
+                    {#if !names.find((b) => b == g)}
+                      <sl-button
+                        on:click={() => {
+                          store.addDefaultGames(g);
+                        }}
+                        title={g}
+                        >{g} <SvgIcon icon="faSquarePlus" size="16" /></sl-button
+                      >
+                    {/if}
+                  {/each}
                 {/if}
-                <div class="new-type">
-                  <h3>Add Game to Library:</h3>
-                  <input
-                    style="display:none"
-                    type="file"
-                    accept=".json"
-                    on:change={(e) => onFileSelected(e)}
-                    bind:this={fileinput}
-                  />
-                  <sl-button
-                    on:click={() => newBoardDialog.open()}
-                    style=""
-                    title="New Game"
-                    >New <SvgIcon icon=faSquarePlus size="16" /></sl-button
-                  >
-                  <sl-button
-                    on:click={() => {
-                      fileinput.click();
-                    }}
-                    title="Import Game"
-                    >Import <SvgIcon icon=faFileImport size="16" /></sl-button
-                  >
-                  {#if $defsList.status == "complete"}
-                    {@const names = $defsList.value.map(def => def.board.name)}
-                    {#each DEFAULT_GAMES as g}
-                      {#if !names.find((b) => b == g)}
-                        <sl-button
-                          on:click={() => {
-                            store.addDefaultGames(g);
-                          }}
-                          title={g}
-                          >{g} <SvgIcon icon=faSquarePlus size="16" /></sl-button
-                        >
-                      {/if}
-                    {/each}
-                  {/if}
-                </div>
               </div>
+
             </div>
-          {/if}
+          </div>
+
+        {/if}
       {:else}
         <div class="loading"><div class="loader" /></div>
       {/if}
@@ -213,8 +255,6 @@
   .app {
     margin: 0;
     padding-bottom: 10px;
-    background-image: var(--bg-img, url(""));
-    background-size: cover;
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -232,33 +272,48 @@
   }
   .welcome-text {
     display: flex;
+    flex-direction: column;
     border-radius: 5px;
     border: 1px solid #222;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 50px;
-    max-width: 650px;
+    max-width: 550px;
     padding: 26px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     background-color: white;
+    text-align: center;
+  }
+  .welcome-text p {
+    margin-top: 10px;
+  }
+  .games {
+    display: flex;
+    flex-direction: column;
+    flex: 3 ;
   }
   .games-list {
-    margin-right: 30px;
-    border-right: solid 1px lightgray;
-    padding-right: 40px;
-  }
-  .game {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-left: 10px;
-    border: solid 1px lightgray;
-    padding: 5px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    cursor: pointer;
+    flex-direction: column;
+    margin: 20px 20px 0px 20px;
+    overflow-y: auto;
   }
-  .game:hover {
-    background-color: rgb(240, 249, 2244);
+  .games-list-items {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .game-types {
+    margin-top: 20px;
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    flex: 1;
+    border-left: solid 1px #ccc;
+  }
+  .game-type {
+    display: flex;
+    margin-left: 5px;
   }
   .loading {
     text-align: center;

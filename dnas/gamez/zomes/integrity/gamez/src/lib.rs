@@ -3,7 +3,7 @@ pub use board_def::*;
 use hdi::prelude::*;
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     BoardDef(BoardDef),
@@ -57,27 +57,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         FlatOp::RegisterUpdate(update_entry) => {
             match update_entry {
                 OpUpdate::Entry {
-                    original_action,
-                    original_app_entry,
                     app_entry,
                     action,
                 } => {
-                    match (app_entry, original_app_entry) {
-                        (EntryTypes::BoardDef(space), EntryTypes::BoardDef(original_board_def)) => {
+                    match app_entry {
+                        EntryTypes::BoardDef(space) => {
                             validate_update_board_def(
                                 action,
                                 space,
-                                original_action,
-                                original_board_def,
-                            )
-                        }
-
-                        _ => {
-                            Ok(
-                                ValidateCallbackResult::Invalid(
-                                    "Original and updated entry types must be the same"
-                                        .to_string(),
-                                ),
                             )
                         }
                     }
@@ -87,14 +74,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
         }
         FlatOp::RegisterDelete(delete_entry) => {
             match delete_entry {
-                OpDelete::Entry { original_action, original_app_entry, action } => {
-                    match original_app_entry {
-                        EntryTypes::BoardDef(space) => {
-                            validate_delete_board_def(action, original_action, space)
-                        }
-                    }
+                OpDelete{ action } => {
+                    validate_delete_board_def(action)
                 }
-                _ => Ok(ValidateCallbackResult::Valid),
             }
         }
         FlatOp::RegisterCreateLink {
@@ -172,7 +154,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 } => {
                     let original_record = must_get_valid_record(original_action_hash)?;
                     let original_action = original_record.action().clone();
-                    let original_action = match original_action {
+                    let _original_action = match original_action {
                         Action::Create(create) => EntryCreationAction::Create(create),
                         Action::Update(update) => EntryCreationAction::Update(update),
                         _ => {
@@ -195,7 +177,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                     .entry()
                                     .to_app_option()
                                     .map_err(|e| wasm_error!(e))?;
-                                let original_board_def = match original_board_def {
+                                let _original_board_def = match original_board_def {
                                     Some(space) => space,
                                     None => {
                                         return Ok(
@@ -209,8 +191,6 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 validate_update_board_def(
                                     action,
                                     space,
-                                    original_action,
-                                    original_board_def,
                                 )
                             } else {
                                 Ok(result)
@@ -254,7 +234,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             }
                         }
                     };
-                    let original_app_entry = match EntryTypes::deserialize_from_type(
+                    let _original_app_entry = match EntryTypes::deserialize_from_type(
                         app_entry_type.zome_index.clone(),
                         app_entry_type.entry_index.clone(),
                         &entry,
@@ -269,15 +249,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             );
                         }
                     };
-                    match original_app_entry {
-                        EntryTypes::BoardDef(original_board_def) => {
-                            validate_delete_board_def(
-                                action,
-                                original_action,
-                                original_board_def,
-                            )
-                        }
-                    }
+                    validate_delete_board_def(
+                        action,
+                    )
                 }
                 OpRecord::CreateLink {
                     base_address,

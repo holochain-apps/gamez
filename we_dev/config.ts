@@ -44,12 +44,12 @@ export default defineConfig({
           registeringAgent: 1,
           joiningAgents: [2],
         },
-        {
-          name: 'notebooks',
-          instanceName: 'notebooks',
-          registeringAgent: 1,
-          joiningAgents: [2],
-        },
+        // {
+        //   name: 'notebooks',
+        //   instanceName: 'notebooks',
+        //   registeringAgent: 1,
+        //   joiningAgents: [2],
+        // },
       ],
     },
   ],
@@ -78,21 +78,21 @@ export default defineConfig({
         },
         source: {
           type: "https",
-          url: "https://github.com/holochain-apps/kando/releases/download/v0.8.101/kando.webhapp"
+          url: "https://github.com/holochain-apps/kando/releases/download/v0.10.0/kando.webhapp"
         },
       },
-      {
-      name: 'notebooks',
-      subtitle: 'Collaborative note taking',
-      description: 'Real-time notetaking based on syn',
-      icon: {
-        type: 'https',
-        url: 'https://lightningrodlabs.org/projects/notebooks.png',
-      },
-      source: {
-        type: 'https',
-        url: 'https://github.com/lightningrodlabs/notebooks/releases/download/v0.2.2/notebooks.webhapp',
-      },
-    },
+    //   {
+    //   name: 'notebooks',
+    //   subtitle: 'Collaborative note taking',
+    //   description: 'Real-time notetaking based on syn',
+    //   icon: {
+    //     type: 'https',
+    //     url: 'https://lightningrodlabs.org/projects/notebooks_logo.svg',
+    //   },
+    //   source: {
+    //     type: 'https',
+    //     url: 'https://github.com/lightningrodlabs/notebooks/releases/download/v0.2.10/notebooks.webhapp',
+    //   },
+    // },
   ],
 });

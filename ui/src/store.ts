@@ -1,5 +1,5 @@
 import {
-    type AppAgentClient,
+    type AppClient,
     type AgentPubKeyB64,
     type RoleName,
     encodeHashToBase64,
@@ -47,7 +47,7 @@ export type EntryTypes =
 export type GamezSignal = ActionCommittedSignal<EntryTypes, any>;
 
 export class GamezClient extends ZomeClient<GamezSignal> {
-    constructor(public client: AppAgentClient, public roleName, public zomeName = ZOME_NAME) {
+    constructor(public client: AppClient, public roleName, public zomeName = ZOME_NAME) {
         super(client, roleName, zomeName);
     }
 
@@ -79,6 +79,7 @@ export enum SeenType {
 
 export interface UIProps {
     tips: HoloHashMap<EntryHash,EntryHash>
+    showArchived: boolean
 }
 
 export class GamezStore {
@@ -107,9 +108,9 @@ export class GamezStore {
     dnaHash: DnaHash
 
     constructor(
-        public weClient : WeClient,
+        public weaveClient : WeClient,
         public profilesStore: ProfilesStore,
-        protected clientIn: AppAgentClient,
+        protected clientIn: AppClient,
         protected roleName: RoleName,
         protected zomeName: string = ZOME_NAME
     ) {
@@ -124,7 +125,7 @@ export class GamezStore {
         this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
 
         this.synStore = new SynStore(new SynClient(clientIn,this.roleName,"syn"))
-        this.boardList = new BoardList(profilesStore, this.synStore, weClient) 
+        this.boardList = new BoardList(profilesStore, this.synStore, weaveClient) 
         this.defLinks = collectionStore(
             this.client,
             () => this.client.getBoardDefs(),
@@ -153,6 +154,7 @@ export class GamezStore {
 
         this.uiProps = writable({
             tips: new HoloHashMap,
+            showArchived: false,
         })
         for (let i = 0; i < localStorage.length; i+=1){
             const key = localStorage.key(i)

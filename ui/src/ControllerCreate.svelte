@@ -1,8 +1,8 @@
 <script lang="ts">
     import { GamezStore } from './store'
     import { setContext } from 'svelte';
-    import { encodeHashToBase64, type AppAgentClient } from '@holochain/client';
-    import { SynStore } from '@holochain-syn/store';
+    import { encodeHashToBase64, type AppClient } from '@holochain/client';
+    import type { SynStore } from '@holochain-syn/store';
     import type { ProfilesStore } from "@holochain-open-dev/profiles";
     import type { WeClient } from '@lightningrodlabs/we-applet';
     import { SynClient } from '@holochain-syn/core';
@@ -13,13 +13,13 @@
     import { cloneDeep } from "lodash";
 
     export let roleName = ""
-    export let client : AppAgentClient
-    export let weClient : WeClient
+    export let client : AppClient
+    export let weaveClient : WeClient
     export let profilesStore : ProfilesStore
     export let view
 
     let store: GamezStore = new GamezStore (
-      weClient,
+      weaveClient,
       profilesStore,
       client,
       roleName,
@@ -78,18 +78,21 @@
               variant="primary"
               disabled={disabled}
               on:click={async ()=>{
-              try {
-                const defHashB64 = gameTypeElement.value
-                const defBoard = Array.from($defsList.value).find(def=>encodeHashToBase64(def.originalHash)==defHashB64)
-                //const hrlB64 = hrlWithContextToB64(attachToHrlWithContext)
-                const state = cloneDeep(defBoard.board);
-                state.name = inputElement.value
-                const board = await store.boardList.makeBoard(state);
-                const dnaHash = await getMyDna(roleName, client)
-                view.resolve({hrl:[dnaHash, board.hash]})
-              } catch(e) {
-                console.log("ERR",e)
-                view.reject(e)
+              if ($defsList.status == "complete") {
+                try {
+                  const defHashB64 = gameTypeElement.value
+                  const defBoard = Array.from($defsList.value).find(def=>encodeHashToBase64(def.originalHash)==defHashB64)
+                  const state = cloneDeep(defBoard.board);
+                  state.name = inputElement.value
+                  const board = await store.boardList.makeBoard(state);
+                  const dnaHash = await getMyDna(roleName, client)
+                  view.resolve({hrl:[dnaHash, board.hash]})
+                } catch(e) {
+                  console.log("ERR",e)
+                  view.reject(e)
+                }
+              } else {
+                console.log("click before defs loaded")
               }
             }}>Create</sl-button>
           </div>

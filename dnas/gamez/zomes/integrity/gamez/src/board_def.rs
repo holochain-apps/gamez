@@ -13,15 +13,11 @@ pub fn validate_create_board_def(
 pub fn validate_update_board_def(
     _action: Update,
     _board_def: BoardDef,
-    _original_action: EntryCreationAction,
-    _original_board_def: BoardDef,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_board_def(
     _action: Delete,
-    _original_action: EntryCreationAction,
-    _original_board_def: BoardDef,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }

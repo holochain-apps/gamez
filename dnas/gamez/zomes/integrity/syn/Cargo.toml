@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "syn_integrity"
-version = "0.0.1"
+version = "0.0.2"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -12,4 +12,4 @@ name = "syn_integrity"
 #derive_more = "0"
 #serde = { workspace = true }
 
-hc_zome_syn_integrity = {git = "https://github.com/holochain/syn", branch = "main"}
+hc_zome_syn_integrity = {git = "https://github.com/holochain/syn", branch = "for-hdk-v0.3.1"}
