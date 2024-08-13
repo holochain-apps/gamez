@@ -3,7 +3,7 @@
 
     export let icon: string
     export let style: string = ""
-    export let color: string =""
+    export let color: string = "currentColor"
     export let size: string = "20px"
 
     $:iconStr = () => {

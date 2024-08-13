@@ -1,11 +1,11 @@
 <script lang="ts">
-    import BoardEditor from './BoardEditor.svelte';
-    import type { BoardDef, BoardDefData, GamezStore } from './store';
+    import BoardEditor from '../BoardEditor.svelte';
+    import type { BoardDef, BoardDefData, GamezStore } from '../store';
     import { getContext, onMount } from 'svelte';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
-    import type { BoardProps, BoardState, PieceDef } from './board';
+    import type { BoardProps, BoardState, PieceDef } from '../board';
     import { cloneDeep } from "lodash";
     import type { EntryRecord } from '@holochain-open-dev/utils';
 
@@ -17,7 +17,7 @@
     let board: BoardState
 
     export const  open = async (def: BoardDefData )=> {
-        boardDef = def   
+        boardDef = def
         board = cloneDeep(def.board)
         boardEditor.edit(board)
         dialog.show()
@@ -38,7 +38,7 @@
             pieceDefs,
             props
         };
-        
+
         await store.client.updateBoardDef(boardDef.originalHash, boardDef.record.actionHash, newBoard)
 
         close()
@@ -52,10 +52,10 @@
     }
     let boardEditor
 </script>
-<sl-dialog style="--width:600px" bind:this={dialog} label="Edit Game Type" 
+<sl-dialog style="--width:600px" bind:this={dialog} class="text-black/60!" label="Edit Game Type"
 on:sl-request-close={(event)=>{
     if (event.detail.source === 'overlay') {
-    event.preventDefault();    
+    event.preventDefault();
 }}}>
     <BoardEditor bind:this={boardEditor} handleSave={updateBoard} handleDelete={undefined} cancelEdit={close}/>
 </sl-dialog>

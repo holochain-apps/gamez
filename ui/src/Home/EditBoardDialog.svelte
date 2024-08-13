@@ -1,14 +1,14 @@
 <script lang="ts">
-    import BoardEditor from './BoardEditor.svelte';
-    import type { GamezStore } from './store';
+    import BoardEditor from '../BoardEditor.svelte';
+    import type { GamezStore } from '../store';
     import { getContext, onMount } from 'svelte';
     import { isEqual } from 'lodash'
     import { encodeHashToBase64, type EntryHash } from '@holochain/client';
     import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
     import '@shoelace-style/shoelace/dist/components/button/button.js';
     import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
-    import type { Board, BoardProps, BoardState,  PieceDef } from './board';
-    import { BoardType } from './boardList';
+    import type { Board, BoardProps, BoardState,  PieceDef } from '../board';
+    import { BoardType } from '../boardList';
 
     let boardHash:EntryHash|undefined = undefined
 
@@ -85,7 +85,7 @@
     const archiveBoard = (type: BoardType) => {
         if (type == BoardType.archived)
             store.boardList.archiveBoard(boardHash)
-        else if (type == BoardType.deleted) 
+        else if (type == BoardType.deleted)
             store.boardList.deleteBoard(boardHash)
 
         close()
@@ -96,10 +96,10 @@
     }
     let boardEditor
 </script>
-<sl-dialog style="--width:600px" bind:this={dialog} label="Edit Game" 
+<sl-dialog style="--width:600px" bind:this={dialog} class="text-black/60!" label="Edit Game"
 on:sl-request-close={(event)=>{
     if (event.detail.source === 'overlay') {
-    event.preventDefault();    
+    event.preventDefault();
 }}}>
     <BoardEditor bind:this={boardEditor} handleSave={updateBoard} handleDelete={archiveBoard} {canDelete} cancelEdit={close}/>
 </sl-dialog>

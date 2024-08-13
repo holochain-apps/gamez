@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.2",
-    "@holochain/hc-spin": "^0.400.0-dev.0",
+    "@holochain/hc-spin": "^0.300.1",
     "@lightningrodlabs/we-dev-cli": "^0.12.0-dev.6",
     "@rollup/plugin-typescript": "^8.0.0",
     "@tsconfig/svelte": "^2.0.0",
@@ -39,9 +39,5 @@
   },
   "engines": {
     "npm": ">=7.0.0"
-  },
-  "dependencies": {
-    "svelte-moveable": "^0.45.0",
-    "update": "^0.7.4"
   }
 }

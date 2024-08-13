@@ -64,17 +64,17 @@
   }
 </script>
 
-<sl-dialog label={piece? "Piece Links":"Board Links"} bind:this={dialog}>
+<sl-dialog class="text-black/60!" label="Attached Assets" bind:this={dialog}>
   {#if isWeContext()}
   <AttachmentsList attachments={attachments}
       on:remove-attachment={(e)=>removeAttachment(e.detail)}/>
 
-  <div>
-      <h3>Search Linkables:</h3> 
+  <div class="flex justify-content:center">
+    <button class="h10 w10 flexcc rounded-full hover:bg-gray/20"
+      on:click={()=>addAttachment()} >
+      <SvgIcon icon=searchPlus size=25/>
+    </button>
   </div> 
-  <sl-button style="margin-top:5px;margin-right: 5px" circle on:click={()=>addAttachment()} >
-        <SvgIcon icon=searchPlus size=25/>
-  </sl-button>
   
   {/if}
 </sl-dialog>

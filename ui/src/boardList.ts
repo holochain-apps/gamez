@@ -6,7 +6,7 @@ import type { BoardDelta, BoardState } from "./board";
 import { type AgentPubKey, type EntryHash, decodeHashFromBase64, type EntryHashB64, type AgentPubKeyB64, encodeHashToBase64, type Timestamp } from "@holochain/client";
 import {toPromise, type AsyncReadable, pipe, joinAsync, sliceAndJoin, asyncDerived, alwaysSubscribed} from '@holochain-open-dev/stores'
 import type { ProfilesStore } from "@holochain-open-dev/profiles";
-import type { WeClient } from "@lightningrodlabs/we-applet";
+import type { WeaveClient } from "@lightningrodlabs/we-applet";
 import { SeenType } from "./store";
 import type { AsyncStatus } from "@holochain-open-dev/stores";
 
@@ -105,7 +105,7 @@ export class BoardList {
         
     allAgentBoards: AsyncReadable<ReadonlyMap<AgentPubKey, Array<BoardAndLatestState>>>
        
-    constructor(public profilseStore: ProfilesStore, public synStore: SynStore, public weaveClient : WeClient) {
+    constructor(public profilseStore: ProfilesStore, public synStore: SynStore, public weaveClient : WeaveClient) {
         this.allAgentBoards = pipe(this.profilseStore.agentsWithProfile,
             agents=>sliceAndJoin(this.agentBoardHashes, agents)
         )

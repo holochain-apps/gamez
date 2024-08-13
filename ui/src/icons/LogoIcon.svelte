@@ -1,9 +1,1 @@
-<style>
-  .icon {
-    width: inherit;
-    height: inherit;
-    margin: inherit;
-  }
-</style>
-
-<div style="font-size:20px;font-weight:bold">BoardGamez</div>
+<div class="font-bold text-2xl">BoardGamez</div>
