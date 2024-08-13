@@ -1,1 +1,1 @@
-export { default as default } from "./GamezPane.svelte";
+export { default as default } from './GamezPane.svelte';

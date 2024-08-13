@@ -11,16 +11,17 @@
   import { type SessionParticipant } from '@holochain-syn/core';
 
   // Local
-  import { tooltip } from '../Home/tooltip';
-  import SvgIcon from '../SvgIcon.svelte';
-  import AttachmentsList from '../AttachmentsList.svelte';
-  import Avatar from '../Avatar.svelte';
+  import Avatar from '~/shared/Avatar.svelte';
+  import { tooltip } from '~/shared/tooltip';
+
+  import AttachmentsList from './AttachmentsList.svelte';
 
   const dispatch = createEventDispatcher();
 
   export let attachments: string[];
   export let showAddToPocket: boolean;
   export let standAlone: boolean;
+  export let boardName: string;
   export let participants: [Uint8Array, SessionParticipant][] | null;
   export let myAgentPubKey: Uint8Array;
 </script>
@@ -28,6 +29,10 @@
 <div class="h-16 flexcc px2 bg-main-800 @dark:bg-main-400 space-x-4">
   {#if showAddToPocket}
     <div class="flex">
+      {#if standAlone}
+        <div class="text-xl flexcc font-bold mx2">{boardName}</div>
+      {/if}
+
       <button
         class="h10 w10 flexcc rounded-full hover:bg-white/20"
         use:tooltip={'Add Board to Pocket'}

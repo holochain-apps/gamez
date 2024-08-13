@@ -5,9 +5,8 @@
   import { decodeHashFromBase64 } from '@holochain/client';
 
   // Local
-  import Avatar from '../Avatar.svelte';
-  import { type AssetSpec } from '../util';
-  import { tooltip } from '../Home/tooltip';
+  import Avatar from '~/shared/Avatar.svelte';
+  import { tooltip } from '~/shared/tooltip';
 
   const dispatcher = createEventDispatcher();
   const MAX_PLAYERS_IN_HEADER = 5;

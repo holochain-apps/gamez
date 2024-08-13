@@ -1,53 +1,50 @@
 <script lang="ts">
-  import GamezPane from "./GamezPane";
-  import { GamezStore } from "./store";
-  import { setContext } from "svelte";
-  import type { AppClient, EntryHash } from "@holochain/client";
-  import type { SynStore } from "@holochain-syn/store";
-  import type { ProfilesStore } from "@holochain-open-dev/profiles";
-  import type { WeClient } from "@lightningrodlabs/we-applet";
+  import { setContext } from 'svelte';
 
+  import type { AppClient, EntryHash } from '@holochain/client';
+  import type { SynStore } from '@holochain-syn/store';
+  import type { ProfilesStore } from '@holochain-open-dev/profiles';
+  import type { WeaveClient } from '@lightningrodlabs/we-applet';
 
-  export let roleName = "";
+  import { GamezStore } from '~/shared/store';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+
+  import GamezPane from './GamezPane';
+
+  export let roleName = '';
   export let client: AppClient;
   export let profilesStore: ProfilesStore;
-  export let weaveClient : WeClient
-  export let board : EntryHash
+  export let weaveClient: WeaveClient;
+  export let board: EntryHash;
 
-  let store: GamezStore = new GamezStore(
-    weaveClient,
-    profilesStore,
-    client,
-    roleName,
-  );
-  let synStore: SynStore = store.synStore
+  let store: GamezStore = new GamezStore(weaveClient, profilesStore, client, roleName);
+  let synStore: SynStore = store.synStore;
 
-  store.boardList.setActiveBoard(board)
-  $: activeBoardHash = store.boardList.activeBoardHash
+  store.boardList.setActiveBoard(board);
+  $: activeBoardHash = store.boardList.activeBoardHash;
 
-  setContext("synStore", {
+  setContext('synStore', {
     getStore: () => synStore,
   });
 
-  setContext("gzStore", {
+  setContext('gzStore', {
     getStore: () => store,
   });
 
-  $: activeBoard = store.boardList.activeBoard
-
+  $: activeBoard = store.boardList.activeBoard;
 </script>
 
 <div class="flex-scrollable-parent">
   <div class="flex-scrollable-container">
     <div class="app">
       {#if store}
-          {#if $activeBoardHash !== undefined}
-            <GamezPane standAlone={true} activeBoard={$activeBoard} />
-          {:else}
-            <div class="loading"><div class="loader" /></div>
-          {/if}
+        {#if $activeBoardHash !== undefined}
+          <GamezPane standAlone={true} activeBoard={$activeBoard} />
+        {:else}
+          <LoadingIndicator textual={false} class="mt40" />
+        {/if}
       {:else}
-        <div class="loading"><div class="loader" /></div>
+        <LoadingIndicator textual={false} class="mt40" />
       {/if}
     </div>
   </div>
@@ -57,7 +54,7 @@
   .app {
     margin: 0;
     padding-bottom: 10px;
-    background-image: var(--bg-img, url(""));
+    background-image: var(--bg-img, url(''));
     background-size: cover;
     display: flex;
     flex-direction: column;
@@ -75,36 +72,6 @@
     }
   }
 
-  .loading {
-    text-align: center;
-    padding-top: 100px;
-  }
-  .loader {
-    border: 8px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 8px solid #3498db;
-    width: 50px;
-    height: 50px;
-    -webkit-animation: spin 2s linear infinite; /* Safari */
-    animation: spin 2s linear infinite;
-    display: inline-block;
-  }
-  @-webkit-keyframes spin {
-    0% {
-      -webkit-transform: rotate(0deg);
-    }
-    100% {
-      -webkit-transform: rotate(360deg);
-    }
-  }
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
   .flex-scrollable-parent {
     position: relative;
     display: flex;

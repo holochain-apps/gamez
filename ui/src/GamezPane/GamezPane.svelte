@@ -1,28 +1,21 @@
 <script lang="ts">
   import { getContext, onMount } from 'svelte';
-  import type { GamezStore } from '../store';
-  import {
-    type BoardState,
-    PieceDef,
-    PieceType,
-    Board,
-    type Piece,
-    type BoardProps,
-  } from '../board';
-  import EditBoardDialog from '../Home/EditBoardDialog.svelte';
-  import Avatar from '../Avatar.svelte';
-  import AttachmentsDialog from '../AttachmentsDialog.svelte';
   import { cloneDeep } from 'lodash';
   import sanitize from 'sanitize-filename';
-  import SvgIcon from '../SvgIcon.svelte';
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+
   import { decodeHashFromBase64 } from '@holochain/client';
   import { isWeContext, weaveUrlFromWal, type WAL } from '@lightningrodlabs/we-applet';
-  import AttachmentsList from '../AttachmentsList.svelte';
-  import WalSpace from '../WalSpace.svelte';
-  import { type AssetSpec } from '../util';
+
+  import type { GamezStore } from '~/shared/store';
+  import { type BoardState, PieceDef, Board, type Piece, type BoardProps } from '~/shared/board';
+  import { type AssetSpec } from '~/shared/util';
+  import EditBoardDialog from '~/shared/EditBoardDialog.svelte';
+  import PlayerName from '~/shared/PlayerName.svelte';
+
+  import PieceAttachmentDialog from './PieceAttachmentsDialog.svelte';
+  import WalSpace from './WalSpace.svelte';
   import PieceEl, { PLAYER_PIECE_SIZE } from './Piece.svelte';
-  import PlayerName from '../PlayerName.svelte';
   import TopBar from './TopBar.svelte';
   import PlayersBar from './PlayersBar.svelte';
   import AttachmentsBar from './AttachmentsBar.svelte';
@@ -151,9 +144,9 @@
     showEmbed = !showEmbed;
   };
 
-  let attachmentsDialog: AttachmentsDialog;
+  let pieceAttachmentDialog: PieceAttachmentDialog;
   function editPieceAttachments(piece: Piece) {
-    if (isWeContext()) attachmentsDialog.open(piece);
+    if (isWeContext()) pieceAttachmentDialog.open(piece);
   }
 
   let walSpace: WalSpace;
@@ -418,9 +411,10 @@
   <TopBar
     showAddToPocket={!!store.weaveClient}
     attachments={$state.boundTo}
-    {standAlone}
     participants={$participants ? Array.from($participants.entries()) : null}
     myAgentPubKey={store.myAgentPubKey}
+    boardName={$state.name}
+    {standAlone}
     on:pocket={() => copyWALToClipboard()}
     on:export={() => exportBoard($state)}
     on:settings={() => editBoardDialog.open(cloneDeep($activeHash))}
@@ -502,7 +496,8 @@
         on:dragover={(ev) => handleDragOver(ev, 'board')}
         style={`${isPanning ? 'cursor: move;' : ''} background-position: ${panX}px ${panY}px;`}
       >
-        <AttachmentsDialog {activeBoard} bind:this={attachmentsDialog}></AttachmentsDialog>
+        <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}
+        ></PieceAttachmentDialog>
         <div
           style={`
           height: 100%;
@@ -555,21 +550,6 @@
 </div>
 
 <style>
-  .my-turn {
-    z-index: 100;
-    margin-right: 18px;
-    margin-bottom: -10px;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    background-color: rgb(139, 212, 30);
-  }
-  .board-area {
-    justify-content: center;
-    margin-top: 10px;
-    display: flex;
-    overflow: auto;
-  }
   .img-container {
     border: solid 1px rgba(0, 0, 0, 0.25);
     position: relative;
@@ -585,75 +565,5 @@
     z-index: 20;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.25);
     pointer-events: none;
-  }
-  .wal-space {
-    margin-left: 20px;
-    margin-right: 10px;
-    margin-bottom: 5px;
-    flex-grow: 1;
-  }
-
-  .board {
-    display: flex;
-    flex-direction: column;
-    background: transparent;
-    border-radius: 3px;
-    margin-left: 15px;
-    margin-right: 15px;
-    margin-top: 15px;
-    min-height: 0;
-    padding-bottom: 10px;
-    border: solid 1px lightgray;
-  }
-  .top-bar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #cccccc99;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 3px;
-    color: white;
-  }
-  .left-items {
-    display: flex;
-    align-items: center;
-  }
-  .right-items {
-    display: flex;
-    align-items: center;
-  }
-  .board-header {
-    padding-top: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-bottom: solid 1px lightgray;
-  }
-  .attachments-area {
-    border-left: solid 1px lightgray;
-    padding-left: 10px;
-    padding-bottom: 5px;
-    display: flex;
-    flex-direction: row;
-    margin-left: 20px;
-    align-items: center;
-  }
-  .piece-has-attachment {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    z-index: 10;
-    font-size: 12px;
-    font-weight: bold;
-    color: blue;
-    padding-right: 5px;
-    padding-left: 5px;
-    border-radius: 5px;
-    background-color: rgba(0, 255, 0, 0.5);
-  }
-  .idle {
-    opacity: 0.5;
   }
 </style>

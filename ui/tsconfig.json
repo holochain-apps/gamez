@@ -1,9 +1,9 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
@@ -15,12 +15,27 @@
     "checkJs": true,
     "isolatedModules": true,
     "importsNotUsedAsValues": "error",
+    "preserveValueImports": true,
     "ignoreDeprecations": "5.0",
-    "types": [
-      "../node_modules/unplugin-icons/types/svelte3.d.ts",
-    ]
+    "types": ["../node_modules/unplugin-icons/types/svelte.d.ts"],
+    "baseUrl": ".",
+    "sourceMap": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "~/*": ["src/*"]
+    }
   },
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "../node_modules/unplugin-icons/types/svelte.d.ts",
+    "./package.json",
+    "./types.d.ts",
+    "./vite.config.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "./src/**/*.svelte"
+  ]
 }
-

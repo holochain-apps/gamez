@@ -1,12 +1,12 @@
 // Add textShadow
-import { defineConfig, presetTypography, presetUno } from "unocss";
-import transformerVariantGroup from "@unocss/transformer-variant-group";
+import transformerVariantGroup from '@unocss/transformer-variant-group';
+import { defineConfig, presetTypography, presetUno } from 'unocss';
 
 const FLEX_ALIGNS = {
-  c: "center",
-  e: "flex-end",
-  s: "flex-start",
-  _: "stretch",
+  c: 'center',
+  e: 'flex-end',
+  s: 'flex-start',
+  _: 'stretch',
 };
 
 export default defineConfig({
@@ -16,15 +16,15 @@ export default defineConfig({
     [
       /^flex([cse_])([cse_])$/,
       ([, c1, c2]) => ({
-        display: "flex",
-        "align-items": FLEX_ALIGNS[c1],
-        "justify-content": FLEX_ALIGNS[c2],
+        display: 'flex',
+        'align-items': FLEX_ALIGNS[c1],
+        'justify-content': FLEX_ALIGNS[c2],
       }),
     ],
   ],
   variants: [
     (matcher) => {
-      if (!matcher.startsWith("hocus:")) return matcher;
+      if (!matcher.startsWith('hocus:')) return matcher;
 
       return {
         // slice `hover:` prefix and passed to the next variants and rules
@@ -33,43 +33,33 @@ export default defineConfig({
       };
     },
     (matcher) => {
-      const variant = "placeholder-shown";
+      const variant = 'placeholder-shown';
       if (!matcher.includes(variant)) return matcher;
-      const isNot = matcher.startsWith("not-");
+      const isNot = matcher.startsWith('not-');
       return {
         // slice `hover:` prefix and passed to the next variants and rules
-        matcher: isNot
-          ? matcher.slice(variant.length + 5)
-          : matcher.slice(variant.length + 1),
+        matcher: isNot ? matcher.slice(variant.length + 5) : matcher.slice(variant.length + 1),
         selector: (input) =>
-          isNot
-            ? `${input}:not(:placeholder-shown)`
-            : `${input}:placeholder-shown`,
+          isNot ? `${input}:not(:placeholder-shown)` : `${input}:placeholder-shown`,
       };
     },
   ],
   theme: {
     breakpoints: {
-      xs: "360px",
-      sm: "640px",
-      md: "768px",
-      lg: "1024px",
-      xl: "1280px",
-      "2xl": "1536px",
+      xs: '360px',
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
     },
     colors: {
       main: (() => {
         let colors: [string, string][] = [];
         for (let i = 10; i <= 90; i += 10) {
-          colors.push([
-            `${i}0`,
-            `hsl(var(--main-hue), var(--main-saturation), ${i}%)`,
-          ]);
+          colors.push([`${i}0`, `hsl(var(--main-hue), var(--main-saturation), ${i}%)`]);
         }
-        colors.push([
-          `950`,
-          `hsl(var(--main-hue), var(--main-saturation), 95%)`,
-        ]);
+        colors.push([`950`, `hsl(var(--main-hue), var(--main-saturation), 95%)`]);
         return Object.fromEntries(colors);
       })(),
     },

@@ -3,7 +3,6 @@
   import { getContext, onMount } from 'svelte';
   import { cloneDeep } from 'lodash';
   import cx from 'classnames';
-  import SquarePlusIcon from '~icons/fa6-solid/square-plus';
   import PlusIcon from '~icons/fa6-solid/plus';
   import FileImportIcon from '~icons/fa6-solid/file-import';
 
@@ -11,8 +10,8 @@
   import { isWeContext } from '@lightningrodlabs/we-applet';
 
   // Local
-  import type { GamezStore } from '../store';
-  import { BoardType } from '../boardList';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+  import type { GamezStore } from '~/shared/store';
 
   import NewBoardDialog from './NewBoardDialog.svelte';
   import EditGameTypeDialog from './EditGameTypeDialog.svelte';
@@ -21,7 +20,6 @@
   import StartGameDialog from './StartGameDialog.svelte';
   import Welcome from './Welcome.svelte';
   import SidebarButton from './SidebarButton.svelte';
-  import LoadingIndicator from '../LoadingIndicator.svelte';
 
   const DEFAULT_GAMES = ['Chess', 'Go', 'World'];
 

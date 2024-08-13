@@ -1,61 +1,81 @@
 <script lang="ts">
-    import BoardEditor from '../BoardEditor.svelte';
-    import type { BoardDef, BoardDefData, GamezStore } from '../store';
-    import { getContext, onMount } from 'svelte';
-    import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
-    import '@shoelace-style/shoelace/dist/components/button/button.js';
-    import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
-    import type { BoardProps, BoardState, PieceDef } from '../board';
-    import { cloneDeep } from "lodash";
-    import type { EntryRecord } from '@holochain-open-dev/utils';
+  import { getContext, onMount } from 'svelte';
+  import { cloneDeep } from 'lodash';
+  import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+  import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
+  import '@shoelace-style/shoelace/dist/components/button/button.js';
 
-    let dialog: SlDialog
-    onMount(async () => {
+  import BoardEditor from '~/shared/BoardEditor.svelte';
+  import type { BoardDefData, GamezStore } from '~/shared/store';
+  import type { BoardProps, BoardState, PieceDef } from '~/shared/board';
 
-    })
-    let boardDef: BoardDefData
-    let board: BoardState
+  let dialog: SlDialog;
+  onMount(async () => {});
+  let boardDef: BoardDefData;
+  let board: BoardState;
 
-    export const  open = async (def: BoardDefData )=> {
-        boardDef = def
-        board = cloneDeep(def.board)
-        boardEditor.edit(board)
-        dialog.show()
-    }
+  export const open = async (def: BoardDefData) => {
+    boardDef = def;
+    board = cloneDeep(def.board);
+    boardEditor.edit(board);
+    dialog.show();
+  };
 
-    const { getStore } :any = getContext('gzStore');
+  const { getStore }: any = getContext('gzStore');
 
-    const store:GamezStore = getStore();
+  const store: GamezStore = getStore();
 
-    const updateBoard = async ( name: string, pieceDefs: PieceDef[], props: BoardProps, minPlayers:number, maxPlayers:number, turns: boolean, playerPieces: boolean) => {
-        const newBoard = {
-            status: board.status,
-            max_players: maxPlayers,
-            min_players: minPlayers,
-            turns,
-            playerPieces,
-            name,
-            pieceDefs,
-            props
-        };
+  const updateBoard = async (
+    name: string,
+    pieceDefs: PieceDef[],
+    props: BoardProps,
+    minPlayers: number,
+    maxPlayers: number,
+    turns: boolean,
+    playerPieces: boolean,
+  ) => {
+    const newBoard = {
+      status: board.status,
+      max_players: maxPlayers,
+      min_players: minPlayers,
+      turns,
+      playerPieces,
+      name,
+      pieceDefs,
+      props,
+      boundTo: board.boundTo,
+      creator: board.creator,
+    };
 
-        await store.client.updateBoardDef(boardDef.originalHash, boardDef.record.actionHash, newBoard)
+    await store.client.updateBoardDef(boardDef.originalHash, boardDef.record.actionHash, newBoard);
 
-        close()
-    }
-    // const archiveBoard = () => {
-    //     store.boardList.archiveBoard(boardHash)
-    //     close()
-    // }
-    const close = ()=>{
-        dialog.hide()
-    }
-    let boardEditor
+    close();
+  };
+  // const archiveBoard = () => {
+  //     store.boardList.archiveBoard(boardHash)
+  //     close()
+  // }
+  const close = () => {
+    dialog.hide();
+  };
+  let boardEditor;
 </script>
-<sl-dialog style="--width:600px" bind:this={dialog} class="text-black/60!" label="Edit Game Type"
-on:sl-request-close={(event)=>{
+
+<sl-dialog
+  style="--width:600px"
+  bind:this={dialog}
+  class="text-black/60!"
+  label="Edit Game Type"
+  on:sl-request-close={(event) => {
     if (event.detail.source === 'overlay') {
-    event.preventDefault();
-}}}>
-    <BoardEditor bind:this={boardEditor} handleSave={updateBoard} handleDelete={undefined} cancelEdit={close}/>
+      event.preventDefault();
+    }
+  }}
+>
+  <BoardEditor
+    bind:this={boardEditor}
+    handleSave={updateBoard}
+    handleDelete={undefined}
+    cancelEdit={close}
+  />
 </sl-dialog>

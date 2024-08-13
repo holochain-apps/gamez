@@ -1,139 +1,163 @@
 <script lang="ts">
-  import Controller from './Controller.svelte'
-  import ControllerCreate from './ControllerCreate.svelte'
-  import ControllerBoard from './ControllerBoard.svelte'
-  import { AppWebsocket, AdminWebsocket, type AppWebsocketConnectionOptions } from '@holochain/client';
   import '@shoelace-style/shoelace/dist/themes/light.css';
-  import { WeaveClient, isWeContext, initializeHotReload, type Hrl, type WAL } from '@lightningrodlabs/we-applet';
-  import "@holochain-open-dev/profiles/dist/elements/profiles-context.js";
-  import "@holochain-open-dev/profiles/dist/elements/profile-prompt.js";
-  import "@holochain-open-dev/profiles/dist/elements/create-profile.js";
+
+  import {
+    AppWebsocket,
+    AdminWebsocket,
+    type AppWebsocketConnectionOptions,
+  } from '@holochain/client';
+  import {
+    WeaveClient,
+    isWeContext,
+    initializeHotReload,
+    type Hrl,
+    type WAL,
+  } from '@lightningrodlabs/we-applet';
+  import '@holochain-open-dev/profiles/dist/elements/profiles-context.js';
+  import '@holochain-open-dev/profiles/dist/elements/profile-prompt.js';
+  import '@holochain-open-dev/profiles/dist/elements/create-profile.js';
   import { ProfilesClient, ProfilesStore } from '@holochain-open-dev/profiles';
-  import LogoIcon from "./icons/LogoIcon.svelte";
+
+  import LoadingIndicator from './shared/LoadingIndicator.svelte';
+
+  import Controller from './Controller.svelte';
+  import ControllerCreate from './ControllerCreate.svelte';
+  import ControllerBoard from './ControllerBoard.svelte';
+  import LogoIcon from './icons/LogoIcon.svelte';
   import { appletServices } from './we';
 
-  const appId = import.meta.env.VITE_APP_ID ? import.meta.env.VITE_APP_ID : 'gamez'
-  const roleName = 'gamez'
-  const appPort = import.meta.env.VITE_APP_PORT ? import.meta.env.VITE_APP_PORT : 8888
-  const adminPort = import.meta.env.VITE_ADMIN_PORT
+  const appId = import.meta.env.VITE_APP_ID ? import.meta.env.VITE_APP_ID : 'gamez';
+  const roleName = 'gamez';
+  const appPort = import.meta.env.VITE_APP_PORT ? import.meta.env.VITE_APP_PORT : 8888;
+  const adminPort = import.meta.env.VITE_ADMIN_PORT;
   const url = `ws://localhost:${appPort}`;
 
-  let client: AppWebsocket
-  let weaveClient: WeaveClient
-  let profilesStore : ProfilesStore|undefined = undefined
+  let client: AppWebsocket;
+  let weaveClient: WeaveClient;
+  let profilesStore: ProfilesStore | undefined = undefined;
 
-  let connected = false
+  let connected = false;
 
-  let createView
+  let createView;
   enum RenderType {
     App,
     Board,
     CreateBoard,
   }
 
-  let renderType = RenderType.App
-  let wal: WAL
+  let renderType = RenderType.App;
+  let wal: WAL;
 
-  initialize()
+  initialize();
 
-  async function initialize() : Promise<void> {
-    let profilesClient
+  async function initialize(): Promise<void> {
+    let profilesClient;
     if ((import.meta as any).env.DEV) {
       try {
         await initializeHotReload();
       } catch (e) {
-        console.warn("Could not initialize applet hot-reloading. This is only expected to work in a We context in dev mode.")
+        console.warn(
+          'Could not initialize applet hot-reloading. This is only expected to work in a We context in dev mode.',
+        );
       }
     }
     let tokenResp;
     if (!isWeContext()) {
-        console.log("adminPort is", adminPort)
-        if (adminPort) {
-          const url = `ws://localhost:${adminPort}`
+      console.log('adminPort is', adminPort);
+      if (adminPort) {
+        const url = `ws://localhost:${adminPort}`;
 
-          const adminWebsocket = await AdminWebsocket.connect({url: new URL(url)})
-          tokenResp = await adminWebsocket.issueAppAuthenticationToken({
-            installed_app_id: appId,
-          });
-          const x = await adminWebsocket.listApps({})
-          console.log("apps", x)
-          const cellIds = await adminWebsocket.listCellIds()
-          console.log("CELL IDS",cellIds)
-          await adminWebsocket.authorizeSigningCredentials(cellIds[0])
-        }
-        console.log("appPort and Id is", appPort, appId)
-        const params: AppWebsocketConnectionOptions = { url: new URL(url) };
-        if (tokenResp) params.token = tokenResp.token;
-        client = await AppWebsocket.connect(params);
-        profilesClient = new ProfilesClient(client, appId);
-    }
-    else {
+        const adminWebsocket = await AdminWebsocket.connect({ url: new URL(url) });
+        tokenResp = await adminWebsocket.issueAppAuthenticationToken({
+          installed_app_id: appId,
+        });
+        const x = await adminWebsocket.listApps({});
+        console.log('apps', x);
+        const cellIds = await adminWebsocket.listCellIds();
+        console.log('CELL IDS', cellIds);
+        await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
+      }
+      console.log('appPort and Id is', appPort, appId);
+      const params: AppWebsocketConnectionOptions = { url: new URL(url) };
+      if (tokenResp) params.token = tokenResp.token;
+      client = await AppWebsocket.connect(params);
+      profilesClient = new ProfilesClient(client, appId);
+    } else {
       weaveClient = await WeaveClient.connect(appletServices);
-      switch (weaveClient.renderInfo ?  weaveClient.renderInfo.type : "applet-view") {
-        case "applet-view":
+      switch (weaveClient.renderInfo ? weaveClient.renderInfo.type : 'applet-view') {
+        case 'applet-view':
           switch (weaveClient.renderInfo.view.type) {
-            case "main":
+            case 'main':
               // here comes your rendering logic for the main view
               break;
-            case "block":
-              switch(weaveClient.renderInfo.view.block) {
+            case 'block':
+              switch (weaveClient.renderInfo.view.block) {
                 default:
-                  throw new Error("Unknown applet-view block type:"+weaveClient.renderInfo.view.block);
-              }
-            case "asset":
-              if (!weaveClient.renderInfo.view.recordInfo) {
                   throw new Error(
-                    "KanDo does not implement asset views pointing to DNAs instead of Records."
+                    'Unknown applet-view block type:' + weaveClient.renderInfo.view.block,
                   );
+              }
+            case 'asset':
+              if (!weaveClient.renderInfo.view.recordInfo) {
+                throw new Error(
+                  'KanDo does not implement asset views pointing to DNAs instead of Records.',
+                );
               } else {
                 switch (weaveClient.renderInfo.view.recordInfo.roleName) {
-                  case "gamez":
+                  case 'gamez':
                     switch (weaveClient.renderInfo.view.recordInfo.integrityZomeName) {
-                      case "syn_integrity":
+                      case 'syn_integrity':
                         switch (weaveClient.renderInfo.view.recordInfo.entryType) {
-                          case "document":
-                            renderType = RenderType.Board
-                            wal = weaveClient.renderInfo.view.wal
+                          case 'document':
+                            renderType = RenderType.Board;
+                            wal = weaveClient.renderInfo.view.wal;
                             break;
                           default:
-                            throw new Error("Unknown entry type:"+weaveClient.renderInfo.view.recordInfo.entryType);
+                            throw new Error(
+                              'Unknown entry type:' +
+                                weaveClient.renderInfo.view.recordInfo.entryType,
+                            );
                         }
                         break;
                       default:
-                        throw new Error("Unknown integrity zome:"+weaveClient.renderInfo.view.recordInfo.integrityZomeName);
+                        throw new Error(
+                          'Unknown integrity zome:' +
+                            weaveClient.renderInfo.view.recordInfo.integrityZomeName,
+                        );
                     }
                     break;
                   default:
-                    throw new Error("Unknown role name:"+weaveClient.renderInfo.view.recordInfo.roleName);
+                    throw new Error(
+                      'Unknown role name:' + weaveClient.renderInfo.view.recordInfo.roleName,
+                    );
                 }
               }
               break;
-            case "creatable":
+            case 'creatable':
               switch (weaveClient.renderInfo.view.name) {
-                case "game":
-                  renderType = RenderType.CreateBoard
-                  createView = weaveClient.renderInfo.view
+                case 'game':
+                  renderType = RenderType.CreateBoard;
+                  createView = weaveClient.renderInfo.view;
               }
               break;
             default:
-              throw new Error("Unsupported applet-view type");
+              throw new Error('Unsupported applet-view type');
           }
           break;
-        case "cross-applet-view":
+        case 'cross-applet-view':
           switch (this.weaveClient.renderInfo.view.type) {
-            case "main":
-              // here comes your rendering logic for the cross-applet main view
-              //break;
-            case "block":
-              //
-              //break;
+            case 'main':
+            // here comes your rendering logic for the cross-applet main view
+            //break;
+            case 'block':
+            //
+            //break;
             default:
-              throw new Error("Unknown cross-applet-view render type.")
+              throw new Error('Unknown cross-applet-view render type.');
           }
           break;
         default:
-          throw new Error("Unknown render view type");
-
+          throw new Error('Unknown render view type');
       }
 
       //@ts-ignore
@@ -142,38 +166,33 @@
       profilesClient = weaveClient.renderInfo.profilesClient;
     }
     profilesStore = new ProfilesStore(profilesClient);
-    connected = true
+    connected = true;
   }
-  $: prof = profilesStore ? profilesStore.myProfile : undefined
-
+  $: prof = profilesStore ? profilesStore.myProfile : undefined;
 </script>
 
-<svelte:head>
-</svelte:head>
+<svelte:head></svelte:head>
 {#if connected}
   <profiles-context store={profilesStore} id="root">
-    {#if $prof.status=="pending"}
-      <div class="loading"><div class="loader"></div></div>
-    {:else if $prof.status=="complete" && $prof.value == undefined}
+    {#if $prof.status == 'pending'}
+      <LoadingIndicator textual={false} class="mt40" />
+    {:else if $prof.status == 'complete' && $prof.value == undefined}
       <div class="create-profile">
         <div class="welcome-text"><LogoIcon /></div>
-        <create-profile
-          on:profile-created={()=>{}}
-        ></create-profile>
+        <create-profile on:profile-created={() => {}}></create-profile>
       </div>
-    {:else}
-      {#if renderType== RenderType.CreateBoard}
-        <ControllerCreate  view={createView} client={client} weaveClient={weaveClient} profilesStore={profilesStore} roleName={roleName}></ControllerCreate>
-      {:else if renderType== RenderType.App}
-        <Controller  client={client} weaveClient={weaveClient} profilesStore={profilesStore} roleName={roleName}></Controller>
-      {:else if  renderType== RenderType.Board}
-        <ControllerBoard  board={wal.hrl[1]} client={client} weaveClient={weaveClient} profilesStore={profilesStore} roleName={roleName}></ControllerBoard>
-      {/if}
+    {:else if renderType == RenderType.CreateBoard}
+      <ControllerCreate view={createView} {client} {weaveClient} {profilesStore} {roleName}
+      ></ControllerCreate>
+    {:else if renderType == RenderType.App}
+      <Controller {client} {weaveClient} {profilesStore} {roleName}></Controller>
+    {:else if renderType == RenderType.Board}
+      <ControllerBoard board={wal.hrl[1]} {client} {weaveClient} {profilesStore} {roleName}
+      ></ControllerBoard>
     {/if}
-
   </profiles-context>
 {:else}
-  <div class="loading"><div class="loader"></div></div>
+  <LoadingIndicator textual={false} class="mt40" />
 {/if}
 
 <style>
@@ -189,38 +208,11 @@
     align-items: center;
   }
   create-profile {
-    box-shadow: 0px 10px 10px rgba(0, 0, 0, .15);
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.15);
   }
   :global(body) {
     min-height: 0;
     display: flex;
     flex-direction: column;
   }
-  :global(.loading) {
-    text-align: center;
-    padding-top: 100px;
-    display: flex;
-    margin-left: auto;
-    margin-right: auto;
-    align-items: center;
-  }
-  :global(.loader) {
-    border: 8px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 8px solid #3498db;
-    width: 50px;
-    height: 50px;
-    -webkit-animation: spin 2s linear infinite; /* Safari */
-    animation: spin 2s linear infinite;
-    display: inline-block;
-  }
-  @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
 </style>

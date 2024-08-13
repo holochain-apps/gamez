@@ -15,12 +15,11 @@ export function tooltip(node: HTMLElement, content: string) {
     'absolute whitespace-nowrap pointer-events-none px4 py2 rounded bg-black text-white z-100';
   el.innerHTML = content;
 
-  let timeout = 0;
+  let timeout: NodeJS.Timeout;
   function handleMouseEnter() {
     show = true;
     el.style.opacity = '0';
     document.body.appendChild(el);
-    console.log('Setting timeout');
     timeout = setTimeout(() => {
       el.style.opacity = '1';
     }, 200);

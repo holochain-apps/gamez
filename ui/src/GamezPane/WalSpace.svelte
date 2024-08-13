@@ -1,14 +1,15 @@
 <script lang="ts">
-  import WalAsset from './WalAsset.svelte';
-  import { GamezStore } from './store';
   import { createEventDispatcher, getContext } from 'svelte';
-  import { type AssetSpec } from './util';
-  import { weaveUrlFromWal } from '@lightningrodlabs/we-applet';
+  import '@shoelace-style/shoelace/dist/components/button/button.js';
+  import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
+
+  import { GamezStore } from '~/shared/store';
+  import { type AssetSpec } from '~/shared/util';
+
+  import WalAsset from './WalAsset.svelte';
+
   const { getStore }: any = getContext('gzStore');
   let store: GamezStore = getStore();
-  import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
-  import '@shoelace-style/shoelace/dist/components/button/button.js';
-  import SvgIcon from './SvgIcon.svelte';
 
   const dispatch = createEventDispatcher();
 

@@ -5,13 +5,12 @@
   import type { ProfilesStore } from '@holochain-open-dev/profiles';
   import { type WeaveClient } from '@lightningrodlabs/we-applet';
 
-  import { GamezStore } from './store';
+  import { GamezStore } from '~/shared/store';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
-  import Toolbar from './LayoutBar.svelte';
+  import Toolbar from './Layout/LayoutBar.svelte';
   import Home from './Home';
   import GamezPane from './GamezPane';
-
-  import Loader from './Loader.svelte';
 
   export let roleName = '';
   export let client: AppClient;
@@ -44,6 +43,6 @@
       <Home />
     {/if}
   {:else}
-    <Loader />
+    <LoadingIndicator class="mt40" textual={false} />
   {/if}
 </div>

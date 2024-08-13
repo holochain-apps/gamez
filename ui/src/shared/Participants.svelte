@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { decodeHashFromBase64 } from "@holochain/client";
+  import { decodeHashFromBase64 } from '@holochain/client';
 
-  import Avatar from "./Avatar.svelte";
-  import type { Board } from "./board";
+  import Avatar from './Avatar.svelte';
+  import type { Board } from './board';
 
   export let board: Board;
   export let showPlayers = false;
@@ -16,17 +16,13 @@
 
 <div class="wrapper" class:bordered={false}>
   {#if showPlayers}
-    {#if $latestSnapshot && $latestSnapshot.status == "complete"}
+    {#if $latestSnapshot && $latestSnapshot.status == 'complete'}
       {#each $latestSnapshot.value.props.players as player, index}
         {#if moreAfter == 0 || index < moreAfter || $latestSnapshot.value.turns}
           {#if $latestSnapshot.value.turns && index == ($latestSnapshot.value.props.turn | 0)}
             <div class="my-turn"></div>
           {/if}
-          <Avatar
-            {size}
-            agentPubKey={decodeHashFromBase64(player)}
-            showNickname={false}
-          />
+          <Avatar {size} agentPubKey={decodeHashFromBase64(player)} showNickname={false} />
         {/if}
       {/each}
       {#if moreAfter > 0 && !$latestSnapshot.value.turns && $latestSnapshot.value.props.players.length > moreAfter}
@@ -37,21 +33,17 @@
         >
           + {$latestSnapshot.value.props.players.length - moreAfter} more...
 
-          <div class={showMorePlayersList ? "more-player-list" : "hidden"}>
+          <div class={showMorePlayersList ? 'more-player-list' : 'hidden'}>
             {#each $latestSnapshot.value.props.players as player, index}
               {#if index >= moreAfter}
-                <Avatar
-                  {size}
-                  agentPubKey={decodeHashFromBase64(player)}
-                  showNickname={true}
-                />
+                <Avatar {size} agentPubKey={decodeHashFromBase64(player)} showNickname={true} />
               {/if}
             {/each}
           </div>
         </div>
       {/if}
     {/if}
-  {:else if $participants && $participants.status == "complete"}
+  {:else if $participants && $participants.status == 'complete'}
     {#each Array.from($participants.value) as agentPubKey}
       <Avatar {size} {agentPubKey} showNickname={false} />
     {/each}
