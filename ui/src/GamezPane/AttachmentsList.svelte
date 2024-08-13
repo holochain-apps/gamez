@@ -32,6 +32,8 @@
         {#if data}
           {@const assetInfo = data.assetInfo}
           <sl-button
+            role="button"
+            tabindex="0"
             size="small"
             on:click={async (e) => {
               e.stopPropagation();

@@ -17,7 +17,7 @@
     "importsNotUsedAsValues": "error",
     "preserveValueImports": true,
     "ignoreDeprecations": "5.0",
-    "types": ["../node_modules/unplugin-icons/types/svelte3.d.ts"],
+    "types": ["../node_modules/unplugin-icons/types/svelte.d.ts"],
     "baseUrl": ".",
     "sourceMap": true,
     "strict": false,
@@ -29,7 +29,7 @@
     }
   },
   "include": [
-    "../node_modules/unplugin-icons/types/svelte3.d.ts",
+    "../node_modules/unplugin-icons/types/svelte.d.ts",
     "./package.json",
     "./types.d.ts",
     "./vite.config.ts",

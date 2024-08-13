@@ -63,11 +63,15 @@
           ></sl-input>
           <div style="margin-top:10px;display:flex;justify-content:flex-end">
             <sl-button
+              role="button"
+              tabindex="0"
               on:click={() => {
                 view.cancel();
               }}>Cancel</sl-button
             >
             <sl-button
+              role="button"
+              tabindex="0"
               style="margin-left:10px;"
               variant="primary"
               {disabled}

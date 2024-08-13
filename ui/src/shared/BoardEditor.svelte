@@ -187,7 +187,7 @@
     <div class="title-text">
       Pieces:
 
-      <sl-button circle size="small" on:click={() => addPieceDef()}>
+      <sl-button role="button" tabindex="0" circle size="small" on:click={() => addPieceDef()}>
         <SvgIcon size="12" icon="faPlus" />
       </sl-button>
     </div>
@@ -264,6 +264,8 @@
               >
               </sl-input>
               <sl-button
+                role="button"
+                tabindex="0"
                 style="margin-bottom:5px"
                 on:click={() => {
                   showEmojiPicker = index;
@@ -291,7 +293,13 @@
             {/if}
           </div>
         </div>
-        <sl-button style="margin-left:25px" size="small" on:click={deletePieceDef(index)}>
+        <sl-button
+          role="button"
+          tabindex="0"
+          style="margin-left:25px"
+          size="small"
+          on:click={deletePieceDef(index)}
+        >
           <SvgIcon size="12" icon="faTrash" />
         </sl-button>
       </div>
@@ -336,16 +344,30 @@
   <div class="controls">
     {#if handleDelete}
       {#if canDelete}
-        <sl-button on:click={() => handleDelete(BoardType.deleted)} variant="warning">
+        <sl-button
+          role="button"
+          tabindex="0"
+          on:click={() => handleDelete(BoardType.deleted)}
+          variant="warning"
+        >
           Delete
         </sl-button>
       {/if}
-      <sl-button style="margin-left:10px" on:click={() => handleDelete(BoardType.archived)}>
+      <sl-button
+        role="button"
+        tabindex="0"
+        style="margin-left:10px"
+        on:click={() => handleDelete(BoardType.archived)}
+      >
         Archive
       </sl-button>
     {/if}
-    <sl-button on:click={cancelEdit} style="margin-left:10px"> Cancel </sl-button>
+    <sl-button role="button" tabindex="0" on:click={cancelEdit} style="margin-left:10px">
+      Cancel
+    </sl-button>
     <sl-button
+      role="button"
+      tabindex="0"
       disabled={!valid}
       style="margin-left:10px"
       on:click={() =>

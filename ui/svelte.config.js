@@ -5,6 +5,7 @@ export default {
   // for more information about preprocessors
   preprocess: vitePreprocess(),
   onwarn: (warning, handler) => {
+    console.log(warning.code);
     if (warning.code === 'a11y-click-events-have-key-events') return;
     handler(warning);
   },

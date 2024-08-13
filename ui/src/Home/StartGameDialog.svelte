@@ -71,13 +71,25 @@
   }}
 >
   <sl-input
+    role="button"
+    tabindex="0"
     label="Name"
     maxlength="60"
     bind:this={nameInput}
     on:input={(e) => (text = e.target.value)}
   ></sl-input>
-  <sl-button slot="footer" on:click={() => close()} style="margin-left:10px"> Cancel </sl-button>
   <sl-button
+    role="button"
+    tabindex="0"
+    slot="footer"
+    on:click={() => close()}
+    style="margin-left:10px"
+  >
+    Cancel
+  </sl-button>
+  <sl-button
+    role="button"
+    tabindex="0"
     slot="footer"
     disabled={!valid}
     style="margin-left:10px"

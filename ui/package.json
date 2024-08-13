@@ -6,7 +6,7 @@
     "start": "vite --clearScreen false --port $UI_PORT",
     "build": "vite build",
     "build-check": "npm run check && vite build",
-    "check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-mouse-events-have-key-events:ignore",
+    "check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings a11y-click-events-have-key-events:ignore,a11y-mouse-events-have-key-events:ignore,a11y-no-static-element-interactions:ignore",
     "package": "rm -f dist.zip && npm run build && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
@@ -23,7 +23,7 @@
     "@shoelace-style/shoelace": "^2.5.2",
     "@types/javascript-time-ago": "^2.0.3",
     "classnames": "^2.5.1",
-    "emoji-picker-element": "1.21.0",
+    "emoji-picker-element": "1.22.2",
     "javascript-time-ago": "2.3.7",
     "lodash": "^4.17.21",
     "sanitize-filename": "1.6.3",
@@ -32,18 +32,18 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^2.0.2",
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@types/lodash": "^4.17.7",
-    "@unocss/vite": "^0.61.9",
+    "@unocss/vite": "^0.62.1",
     "bestzip": "^2.2.0",
-    "svelte": "^3.55.1",
+    "svelte": "^4.2.18",
     "svelte-check": "^3.8.5",
     "tslib": "^2.4.1",
     "typescript": "^4.9.3",
-    "unocss": "^0.61.9",
-    "unplugin-icons": "^0.19.1",
+    "unocss": "^0.62.1",
+    "unplugin-icons": "^0.19.2",
     "update": "^0.7.4",
-    "vite": "^4.0.4"
+    "vite": "^5.4.0"
   },
   "type": "module"
 }
