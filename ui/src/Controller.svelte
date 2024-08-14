@@ -15,7 +15,7 @@
   export let roleName = '';
   export let client: AppClient;
   export let profilesStore: ProfilesStore;
-  export let weaveClient: WeaveClient;
+  export let weaveClient: WeaveClient = undefined;
 
   let store: GamezStore = new GamezStore(weaveClient, profilesStore, client, roleName);
 
