@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { getContext, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { cloneDeep } from 'lodash';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
   import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
   import '@shoelace-style/shoelace/dist/components/button/button.js';
 
+  import { getStoreContext } from '~/lib/context';
   import BoardEditor from '~/shared/BoardEditor.svelte';
-  import type { BoardDefData, GamezStore } from '~/shared/store';
+  import type { BoardDefData } from '~/shared/store';
   import type { BoardProps, BoardState, PieceDef } from '~/shared/board';
 
   let dialog: SlDialog;
@@ -21,9 +22,7 @@
     dialog.show();
   };
 
-  const { getStore }: any = getContext('gzStore');
-
-  const store: GamezStore = getStore();
+  const store = getStoreContext();
 
   const updateBoard = async (
     name: string,

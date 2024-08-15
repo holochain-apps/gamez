@@ -1,41 +1,26 @@
 <script lang="ts">
-  import { setContext } from 'svelte';
-
-  import type { AppClient, EntryHash } from '@holochain/client';
-  import type { SynStore } from '@holochain-syn/store';
-  import type { ProfilesStore } from '@holochain-open-dev/profiles';
-  import type { WeaveClient } from '@lightningrodlabs/we-applet';
+  import type { EntryHash } from '@holochain/client';
+  import type { AppletView } from '@lightningrodlabs/we-applet';
 
   import { GamezStore } from '~/shared/store';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+  import { getStoreContext } from '~/lib/context';
 
   import GamezPane from './GamezPane';
 
-  export let roleName = '';
-  export let client: AppClient;
-  export let profilesStore: ProfilesStore;
-  export let weaveClient: WeaveClient;
-  export let board: EntryHash;
+  export let view: Extract<AppletView, { type: 'asset' }>;
+  $: board = view.wal.hrl[1] as EntryHash;
 
-  let store: GamezStore = new GamezStore(weaveClient, profilesStore, client, roleName);
-  let synStore: SynStore = store.synStore;
+  const store = getStoreContext();
 
   store.boardList.setActiveBoard(board);
+
   $: activeBoardHash = store.boardList.activeBoardHash;
-
-  setContext('synStore', {
-    getStore: () => synStore,
-  });
-
-  setContext('gzStore', {
-    getStore: () => store,
-  });
-
   $: activeBoard = store.boardList.activeBoard;
 </script>
 
-<div class="flex-scrollable-parent">
-  <div class="flex-scrollable-container">
+<div class="flex flex-1 relative">
+  <div class="absolute inset-0">
     <div class="app">
       {#if store}
         {#if $activeBoardHash !== undefined}
@@ -70,18 +55,5 @@
     .app {
       max-width: none;
     }
-  }
-
-  .flex-scrollable-parent {
-    position: relative;
-    display: flex;
-    flex: 1;
-  }
-  .flex-scrollable-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
   }
 </style>

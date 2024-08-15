@@ -1,11 +1,10 @@
 <script lang="ts">
   import { encodeHashToBase64 } from '@holochain/client';
   import { type AgentPubKey } from '@holochain/client';
-  import { getContext } from 'svelte';
-  import { GamezStore } from './store';
 
-  const { getStore }: any = getContext('gzStore');
-  const store: GamezStore = getStore();
+  import { getStoreContext } from '~/lib/context';
+
+  const store = getStoreContext();
 
   export let agentPubKey: AgentPubKey;
 

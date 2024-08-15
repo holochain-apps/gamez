@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, getContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import cx from 'classnames';
   import UserIcon from '~icons/fa6-solid/user';
   import ShrinkIcon from '~icons/fa6-solid/down-left-and-up-right-to-center';
@@ -7,19 +7,18 @@
   import { type EntryHash, decodeHashFromBase64 } from '@holochain/client';
   import { pipe } from '@holochain-open-dev/stores';
 
-  import { GamezStore } from '~/shared/store';
   import Avatar from '~/shared/Avatar.svelte';
   import { hashEqual, isComplete } from '~/shared/util';
   import { Board } from '~/shared/board';
   import { tooltip } from '~/shared/tooltip';
+  import { getStoreContext } from '~/lib/context';
 
   const dispatch = createEventDispatcher();
 
   export let boardHash: EntryHash;
   export let isArchived: boolean = false;
 
-  const { getStore }: any = getContext('gzStore');
-  let store: GamezStore = getStore();
+  const store = getStoreContext();
 
   $: uiProps = store.uiProps;
   $: boardData = store.boardList.boardData2.get(boardHash);

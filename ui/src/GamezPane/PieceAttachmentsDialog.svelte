@@ -1,6 +1,5 @@
 <script lang="ts">
   import { cloneDeep } from 'lodash';
-  import { getContext } from 'svelte';
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 
@@ -12,13 +11,12 @@
   } from '@lightningrodlabs/we-applet';
 
   import type { Board, Piece } from '~/shared/board';
-  import type { GamezStore } from '~/shared/store';
   import SvgIcon from '~/shared/SvgIcon.svelte';
+  import { getStoreContext } from '~/lib/context';
 
   import AttachmentsList from './AttachmentsList.svelte';
 
-  const { getStore }: any = getContext('gzStore');
-  let store: GamezStore = getStore();
+  const store = getStoreContext();
   let piece: Piece | undefined;
   let attachments: Array<WeaveUrl> = [];
 

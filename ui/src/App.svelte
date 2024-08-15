@@ -26,6 +26,8 @@
   import ControllerBoard from './ControllerBoard.svelte';
   import LogoIcon from './icons/LogoIcon.svelte';
   import { appletServices } from './we';
+  import { GamezStore } from './shared/store';
+  import { setStoreContext } from './lib/context';
 
   const appId = import.meta.env.VITE_APP_ID ?? 'gamez';
   const roleName = 'gamez';
@@ -50,38 +52,12 @@
         client: AppWebsocket;
         profilesStore: ProfilesStore;
         weaveClient: WeaveClient;
-        // renderType: WeaveRenderMode;
-        // appletVeiw: {type: 'main'} | {type: 'asset', wal: WAL} | {type: 'creatable'};
-        view: SupportedAppletViews; // Only on creatable
-        // wal: WAL; // Only on asset
+        view: SupportedAppletViews;
       };
 
   let state: State = { type: 'pending' };
-
-  $: console.log('APP STATE', state);
-
-  // enum WeaveRenderMode {
-  //   Main,
-  //   Asset,
-  //   Creatable,
-  // }
-
-  // let client: AppWebsocket;
-  // let weaveClient: WeaveClient;
-  // let profilesStore: ProfilesStore | undefined = undefined;
-
-  // let connected = false;
-
-  // let createView;
-  // enum RenderType {
-  //   App,
-  //   Board,
-  //   CreateBoard,
-  // }
-
-  // let renderType = RenderType.App;
-  // let wal: WAL;
-
+  let store: GamezStore;
+  setStoreContext(() => store);
   initialize();
 
   async function initialize(): Promise<void> {
@@ -101,6 +77,13 @@
     } else {
       state = { type: 'weave', ...(await initOnWeave()) };
     }
+
+    store = new GamezStore(
+      state.type === 'weave' ? state.weaveClient : undefined,
+      state.profilesStore,
+      state.client,
+      roleName,
+    );
   }
 
   async function initStandalone(): Promise<{ profilesStore: ProfilesStore; client: AppWebsocket }> {
@@ -187,11 +170,14 @@
       view,
     };
   }
+
   $: prof = state.type !== 'pending' ? state.profilesStore.myProfile : undefined;
+
+  $: console.log('APP STATE', state);
 </script>
 
 <svelte:head></svelte:head>
-{#if state.type !== 'pending'}
+{#if state.type !== 'pending' && store}
   <profiles-context store={state.profilesStore} id="root">
     {#if $prof.status == 'pending'}
       <LoadingIndicator textual={false} class="mt40" />
@@ -201,31 +187,14 @@
         <create-profile on:profile-created={() => {}}></create-profile>
       </div>
     {:else if state.type === 'standalone'}
-      <Controller client={state.client} profilesStore={state.profilesStore} {roleName} />
+      <Controller />
     {:else if state.type === 'weave'}
       {#if state.view.type === 'main'}
-        <Controller
-          client={state.client}
-          weaveClient={state.weaveClient}
-          profilesStore={state.profilesStore}
-          {roleName}
-        />
+        <Controller />
       {:else if state.view.type === 'asset'}
-        <ControllerBoard
-          board={state.view.wal.hrl[1]}
-          client={state.client}
-          weaveClient={state.weaveClient}
-          profilesStore={state.profilesStore}
-          {roleName}
-        />
+        <ControllerBoard view={state.view} />
       {:else if state.view.type === 'creatable'}
-        <ControllerCreate
-          view={state.view}
-          client={state.client}
-          weaveClient={state.weaveClient}
-          profilesStore={state.profilesStore}
-          {roleName}
-        />
+        <ControllerCreate view={state.view} />
       {/if}
     {/if}
   </profiles-context>

@@ -1,6 +1,6 @@
 <script lang="ts">
   // External
-  import { getContext, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { cloneDeep } from 'lodash';
   import cx from 'classnames';
   import PlusIcon from '~icons/fa6-solid/plus';
@@ -10,8 +10,8 @@
   import { isWeContext } from '@lightningrodlabs/we-applet';
 
   // Local
+  import { getStoreContext } from '~/lib/context';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
-  import type { GamezStore } from '~/shared/store';
 
   import NewBoardDialog from './NewBoardDialog.svelte';
   import EditGameTypeDialog from './EditGameTypeDialog.svelte';
@@ -23,8 +23,7 @@
 
   const DEFAULT_GAMES = ['Chess', 'Go', 'World'];
 
-  const { getStore }: any = getContext('gzStore');
-  const store: GamezStore = getStore();
+  const store = getStoreContext();
 
   $: activeBoards = store.boardList.activeBoardHashes;
   $: archivedBoards = store.boardList.archivedBoardHashes;

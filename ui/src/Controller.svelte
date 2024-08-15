@@ -1,37 +1,18 @@
 <script lang="ts">
-  import { setContext } from 'svelte';
-  import type { AppClient } from '@holochain/client';
-  import type { SynStore } from '@holochain-syn/store';
-  import type { ProfilesStore } from '@holochain-open-dev/profiles';
-  import { type WeaveClient } from '@lightningrodlabs/we-applet';
-
   import { GamezStore } from '~/shared/store';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+  import { getStoreContext } from '~/lib/context';
 
   import Toolbar from './Layout/LayoutBar.svelte';
   import Home from './Home';
   import GamezPane from './GamezPane';
+  import BoardEditor from './BoardEditor';
 
-  export let roleName = '';
-  export let client: AppClient;
-  export let profilesStore: ProfilesStore;
-  export let weaveClient: WeaveClient = undefined;
-
-  let store: GamezStore = new GamezStore(weaveClient, profilesStore, client, roleName);
-
-  let synStore: SynStore = store.synStore;
-
-  $: activeBoardHash = store.boardList.activeBoardHash;
-
-  setContext('synStore', {
-    getStore: () => synStore,
-  });
-
-  setContext('gzStore', {
-    getStore: () => store,
-  });
+  type Route = 'editGameType' | 'editBoard' | 'newBoard' | 'newGame' | 'new' | 'home' | 'game';
+  const store = getStoreContext();
 
   $: activeBoard = store.boardList.activeBoard;
+  $: activeBoardHash = store.boardList.activeBoardHash;
 </script>
 
 <div class="flex flex-col min-h-full">

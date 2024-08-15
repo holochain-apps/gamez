@@ -9,6 +9,7 @@ import {
   get,
   joinAsync,
   latestVersionOfEntryStore,
+  lazyLoad,
   pipe,
   sliceAndJoin,
   type Unsubscriber,
@@ -129,18 +130,18 @@ export class GamezStore {
   defsList: AsyncReadable<BoardDefData[]>;
   uiProps: Writable<UIProps>;
   unsub: Unsubscriber;
-  dnaHash: DnaHash;
+  dnaHash: AsyncReadable<DnaHash>;
 
   constructor(
-    public weaveClient: WeaveClient,
+    public weaveClient: WeaveClient, // Used to send notifications so far
     public profilesStore: ProfilesStore,
     protected clientIn: AppClient,
     protected roleName: RoleName,
     protected zomeName: string = ZOME_NAME,
   ) {
     this.client = new GamezClient(clientIn, this.roleName, this.zomeName);
-    getMyDna(roleName, clientIn).then((res) => {
-      this.dnaHash = res;
+    this.dnaHash = lazyLoad(async () => {
+      return await getMyDna(roleName, clientIn);
     });
     this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
 

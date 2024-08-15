@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import { get } from 'svelte/store';
   import CircleInfoIcon from '~icons/fa6-solid/circle-info';
   import BugIcon from '~icons/fa6-solid/bug';
@@ -12,13 +11,13 @@
   import type { GamezStore } from '~/shared/store';
   import { type Board } from '~/shared/board';
   import Avatar from '~/shared/Avatar.svelte';
+  import { getStoreContext } from '~/lib/context';
 
   import AboutDialog from './AboutDialog.svelte';
   import AvatarDialog from './AvatarDialog.svelte';
   import ParticipantsDialog from './ParticipantsDialog.svelte';
 
-  const { getStore }: any = getContext('gzStore');
-  const store: GamezStore = getStore();
+  const store = getStoreContext();
 
   export let activeBoard: Board;
 

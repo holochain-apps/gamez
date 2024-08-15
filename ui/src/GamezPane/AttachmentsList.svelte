@@ -1,20 +1,19 @@
 <script lang="ts">
-  import { createEventDispatcher, getContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import TrashIcon from '~icons/fa6-solid/trash';
   import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 
   import { weaveUrlToWAL, type WeaveUrl } from '@lightningrodlabs/we-applet';
   import { hrlToString } from '@holochain-open-dev/utils';
 
-  import type { GamezStore } from '~/shared/store';
+  import { getStoreContext } from '~/lib/context';
 
   const dispatch = createEventDispatcher();
 
   export let attachments: Array<WeaveUrl>;
   export let allowDelete = true;
 
-  const { getStore }: any = getContext('gzStore');
-  let store: GamezStore = getStore();
+  const store = getStoreContext();
 </script>
 
 <div class="attachments-list">

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import DragDropList, { VerticalDropZone, reorder, type DropEvent } from 'svelte-dnd-list';
   import 'emoji-picker-element';
   import '@shoelace-style/shoelace/dist/components/select/select.js';
@@ -9,14 +9,10 @@
   import '@shoelace-style/shoelace/dist/components/input/input.js';
   import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
 
-  import { PieceDef, type BoardProps, Board, type BoardState, PieceType } from './board';
+  import { PieceDef, type BoardProps, type BoardState, PieceType } from './board';
   import SvgIcon from './SvgIcon.svelte';
   import { cloneDeep } from 'lodash';
   import { BoardType } from './boardList';
-
-  // import type { GamezStore } from './store';
-  // const { getStore } :any = getContext('gzStore');
-  // const store:GamezStore = getStore();
 
   export let handleSave;
   export let handleDelete = undefined;

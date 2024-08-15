@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { createEventDispatcher, getContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
 
-  import { GamezStore } from '~/shared/store';
   import { type AssetSpec } from '~/shared/util';
+  import { getStoreContext } from '~/lib/context';
 
   import WalAsset from './WalAsset.svelte';
 
-  const { getStore }: any = getContext('gzStore');
-  let store: GamezStore = getStore();
+  const store = getStoreContext();
 
   const dispatch = createEventDispatcher();
 

@@ -1,37 +1,22 @@
 <script lang="ts">
-  import { setContext } from 'svelte';
   import { cloneDeep } from 'lodash';
   import '@shoelace-style/shoelace/dist/components/select/select.js';
   import '@shoelace-style/shoelace/dist/components/option/option.js';
 
   import { encodeHashToBase64, type AppClient } from '@holochain/client';
-  import type { SynStore } from '@holochain-syn/store';
-  import type { ProfilesStore } from '@holochain-open-dev/profiles';
-  import type { WeaveClient } from '@lightningrodlabs/we-applet';
+  import type { AppletView } from '@lightningrodlabs/we-applet';
 
   import { GamezStore } from '~/shared/store';
-  import { getMyDna } from '~/shared/util';
+  import { getStoreContext } from '~/lib/context';
 
-  export let roleName = '';
-  export let client: AppClient;
-  export let weaveClient: WeaveClient;
-  export let profilesStore: ProfilesStore;
-  export let view;
+  export let view: Extract<AppletView, { type: 'creatable' }>;
+  const store = getStoreContext();
 
-  let store: GamezStore = new GamezStore(weaveClient, profilesStore, client, roleName);
-  let synStore: SynStore = store.synStore;
-
-  setContext('synStore', {
-    getStore: () => synStore,
-  });
-
-  setContext('store', {
-    getStore: () => store,
-  });
   let inputElement;
   let gameTypeElement;
   let disabled = true;
   $: defsList = store.defsList;
+  $: dnaHash = store.dnaHash;
 </script>
 
 <div class="flex-scrollable-parent">
@@ -76,7 +61,7 @@
               variant="primary"
               {disabled}
               on:click={async () => {
-                if ($defsList.status == 'complete') {
+                if ($defsList.status == 'complete' && $dnaHash.status === 'complete') {
                   try {
                     const defHashB64 = gameTypeElement.value;
                     const defBoard = Array.from($defsList.value).find(
@@ -85,14 +70,13 @@
                     const state = cloneDeep(defBoard.board);
                     state.name = inputElement.value;
                     const board = await store.boardList.makeBoard(state);
-                    const dnaHash = await getMyDna(roleName, client);
-                    view.resolve({ hrl: [dnaHash, board.hash] });
+                    view.resolve({ hrl: [$dnaHash.value, board.hash] });
                   } catch (e) {
                     console.log('ERR', e);
                     view.reject(e);
                   }
                 } else {
-                  console.log('click before defs loaded');
+                  console.log('Clicked before defs and DNA hash loaded');
                 }
               }}>Create</sl-button
             >

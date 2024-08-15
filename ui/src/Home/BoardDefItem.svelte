@@ -1,17 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher, getContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import GearIcon from '~icons/fa6-solid/gear';
   import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 
   import type { EntryHash } from '@holochain/client';
 
-  import type { GamezStore } from '~/shared/store';
+  import { getStoreContext } from '~/lib/context';
 
   import SidebarButton from './SidebarButton.svelte';
 
   const dispatch = createEventDispatcher();
-  const { getStore }: any = getContext('gzStore');
-  let store: GamezStore = getStore();
+  const store = getStoreContext();
 
   export let boardHash: EntryHash;
 

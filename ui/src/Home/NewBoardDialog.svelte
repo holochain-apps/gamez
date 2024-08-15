@@ -1,19 +1,16 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 
+  import { getStoreContext } from '~/lib/context';
   import BoardEditor from '~/shared/BoardEditor.svelte';
-  import type { GamezStore } from '~/shared/store';
   import type { BoardProps, BoardState, PieceDef } from '~/shared/board';
 
   let editPieceDefs = [];
   let dialog: SlDialog;
 
-  const { getStore }: any = getContext('gzStore');
-
-  const store: GamezStore = getStore();
+  const store = getStoreContext();
 
   const addBoard = async (
     name: string,

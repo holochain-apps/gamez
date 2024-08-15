@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import UserIcon from '~icons/fa6-solid/user';
   import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 
   import { encodeHashToBase64, type AgentPubKey } from '@holochain/client';
   import '@holochain-open-dev/profiles/dist/elements/agent-avatar.js';
 
-  import type { GamezStore } from './store';
+  import { getStoreContext } from '~/lib/context';
+
   import { tooltip as tooltipDirective } from './tooltip';
 
-  const { getStore }: any = getContext('gzStore');
-  let store: GamezStore = getStore();
+  const store = getStoreContext();
 
   export let agentPubKey: AgentPubKey;
   export let size = 32;

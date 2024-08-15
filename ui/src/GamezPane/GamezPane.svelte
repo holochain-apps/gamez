@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { cloneDeep } from 'lodash';
   import sanitize from 'sanitize-filename';
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
@@ -7,11 +7,11 @@
   import { decodeHashFromBase64 } from '@holochain/client';
   import { isWeContext, weaveUrlFromWal, type WAL } from '@lightningrodlabs/we-applet';
 
-  import type { GamezStore } from '~/shared/store';
   import { type BoardState, PieceDef, Board, type Piece, type BoardProps } from '~/shared/board';
   import { type AssetSpec } from '~/shared/util';
   import EditBoardDialog from '~/shared/EditBoardDialog.svelte';
   import PlayerName from '~/shared/PlayerName.svelte';
+  import { getStoreContext } from '~/lib/context';
 
   import PieceAttachmentDialog from './PieceAttachmentsDialog.svelte';
   import WalSpace from './WalSpace.svelte';
@@ -25,8 +25,7 @@
   EMPTY_IMAGE.src =
     'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
-  const { getStore }: any = getContext('gzStore');
-  let store: GamezStore = getStore();
+  const store = getStoreContext();
   export let activeBoard: Board;
   export let standAlone = false;
   let selectedCommitHash;
@@ -181,12 +180,17 @@
     activeBoard.requestChanges([{ type: 'set-props', props }]);
   };
 
+  $: dnaHash = store.dnaHash;
   const copyWALToClipboard = () => {
-    const attachment: WAL = {
-      hrl: [store.dnaHash, activeBoard.hash],
-      context: {},
-    };
-    store.weaveClient?.walToPocket(attachment);
+    if ($dnaHash.status === 'complete') {
+      const attachment: WAL = {
+        hrl: [$dnaHash.value, activeBoard.hash],
+        context: {},
+      };
+      store.weaveClient?.walToPocket(attachment);
+    } else {
+      console.log('Clicke before DNA hash loaded');
+    }
   };
 
   // ██████╗ ██████╗  █████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
