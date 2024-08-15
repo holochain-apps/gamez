@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
   import { get } from 'svelte/store';
   import CircleInfoIcon from '~icons/fa6-solid/circle-info';
   import BugIcon from '~icons/fa6-solid/bug';
@@ -17,8 +18,10 @@
   import ParticipantsDialog from './ParticipantsDialog.svelte';
 
   const store = getStoreContext();
+  const dispatcher = createEventDispatcher();
 
   export let activeBoard: Board;
+  export let route;
 
   let aboutDialog;
   let editAvatarDialog;
@@ -49,6 +52,13 @@
 
   {#if activeBoard != undefined}
     <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={closeBoard}>
+      <ArrowLeftIcon />
+    </button>
+  {:else if route === 'newBoard'}
+    <button
+      class="h12 w12 flexcc hover:bg-black/10 rounded-full"
+      on:click={() => dispatcher('nav', 'home')}
+    >
       <ArrowLeftIcon />
     </button>
   {/if}

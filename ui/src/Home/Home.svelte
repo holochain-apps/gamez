@@ -1,6 +1,6 @@
 <script lang="ts">
   // External
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import { cloneDeep } from 'lodash';
   import cx from 'classnames';
   import PlusIcon from '~icons/fa6-solid/plus';
@@ -23,6 +23,7 @@
 
   const DEFAULT_GAMES = ['Chess', 'Go', 'World'];
 
+  const dispatch = createEventDispatcher();
   const store = getStoreContext();
 
   $: activeBoards = store.boardList.activeBoardHashes;
@@ -231,7 +232,7 @@
         bind:this={fileinput}
       />
       <div class="flex space-x-2">
-        <SidebarButton mode={'lg'} class="w-1/2" on:click={() => newBoardDialog.open()}>
+        <SidebarButton mode={'lg'} class="w-1/2" on:click={() => dispatch('nav', 'newBoard')}>
           <PlusIcon class="text-sm" />
           <div class="flex-grow">New</div>
         </SidebarButton>
