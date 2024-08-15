@@ -232,11 +232,15 @@
         bind:this={fileinput}
       />
       <div class="flex space-x-2">
-        <SidebarButton mode={'lg'} class="w-1/2" on:click={() => dispatch('nav', 'newBoard')}>
+        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => newBoardDialog.open()}>
           <PlusIcon class="text-sm" />
           <div class="flex-grow">New</div>
         </SidebarButton>
-        <SidebarButton mode={'lg'} class="w-1/2" on:click={() => fileinput.click()}>
+        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => dispatch('nav', 'newBoard')}>
+          <PlusIcon class="text-sm" />
+          <div class="flex-grow">N2</div>
+        </SidebarButton>
+        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => fileinput.click()}>
           <FileImportIcon class="text-sm" />
           <div class="flex-grow">Import</div>
         </SidebarButton>
