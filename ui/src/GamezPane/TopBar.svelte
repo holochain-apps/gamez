@@ -4,7 +4,6 @@
   import GearIcon from '~icons/fa6-solid/gear';
   import DoorOpenIcon from '~icons/fa6-solid/door-open';
   import ExportIcon from '~icons/fa6-solid/file-arrow-down';
-  import PocketIcon from '../icons/PocketIcon.svelte';
   import AddAttachmentIcon from '~icons/fa6-solid/window-restore';
 
   // Organizational
@@ -13,6 +12,7 @@
   // Local
   import Avatar from '~/shared/Avatar.svelte';
   import { tooltip } from '~/shared/tooltip';
+  import PocketIcon from '~/shared/icons/PocketIcon.svelte';
 
   import AttachmentsList from './AttachmentsList.svelte';
 

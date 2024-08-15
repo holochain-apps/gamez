@@ -20,14 +20,14 @@
   import { ProfilesClient, ProfilesStore } from '@holochain-open-dev/profiles';
 
   import { GamezStore } from '~/lib/store';
+  import { setStoreContext } from '~/lib/context';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+  import LogoIcon from '~/shared/icons/LogoIcon.svelte';
 
   import ControllerMain from './controllers/ControllerMain.svelte';
   import ControllerCreatable from './controllers/ControllerCreatable.svelte';
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
-  import LogoIcon from './icons/LogoIcon.svelte';
   import { appletServices } from './we';
-  import { setStoreContext } from './lib/context';
 
   const appId = import.meta.env.VITE_APP_ID ?? 'gamez';
   const roleName = 'gamez';

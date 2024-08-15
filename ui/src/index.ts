@@ -17,4 +17,4 @@ export { default as CardEditor } from './CardEditor.svelte';
 export { default as CardEditor } from './CardEditor.svelte';
 export { default as Toolbar } from './Layout/LayoutBar.svelte';
 export { default as EmojiIcon } from './icons/EmojiIcon.svelte';
-export { default as LogoIcon } from './icons/LogoIcon.svelte';
+export { default as LogoIcon } from './shared/icons/LogoIcon.svelte';
