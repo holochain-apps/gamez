@@ -11,7 +11,7 @@
   } from '@lightningrodlabs/we-applet';
 
   import { getStoreContext } from '~/lib/context';
-  import type { Board, Piece } from '~/lib/board';
+  import type { Board, Piece } from '~/lib/store';
   import SvgIcon from '~/shared/SvgIcon.svelte';
 
   import AttachmentsList from './AttachmentsList.svelte';

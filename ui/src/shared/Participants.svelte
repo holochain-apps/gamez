@@ -1,7 +1,7 @@
 <script lang="ts">
   import { decodeHashFromBase64 } from '@holochain/client';
 
-  import type { Board } from '~/lib/board';
+  import type { Board } from '~/lib/store';
 
   import Avatar from './Avatar.svelte';
 

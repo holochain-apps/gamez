@@ -11,8 +11,8 @@ import type {
   WeaveServices,
 } from '@lightningrodlabs/we-applet';
 
-import type { BoardEphemeralState, BoardState } from './lib/board';
-import { BoardType } from './lib/boardList';
+import type { BoardEphemeralState, BoardState } from './lib/store/board';
+import { BoardType } from './lib/store/boardList';
 import { getMyDna } from './lib/util';
 
 const ROLE_NAME = 'gamez';

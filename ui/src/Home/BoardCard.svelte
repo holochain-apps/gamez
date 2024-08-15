@@ -8,7 +8,7 @@
   import { pipe } from '@holochain-open-dev/stores';
 
   import { getStoreContext } from '~/lib/context';
-  import { Board } from '~/lib/board';
+  import { Board } from '~/lib/store';
   import Avatar from '~/shared/Avatar.svelte';
   import { hashEqual, isComplete } from '~/lib/util';
   import { tooltip } from '~/shared/tooltip';

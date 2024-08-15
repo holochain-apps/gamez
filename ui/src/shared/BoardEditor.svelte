@@ -10,8 +10,7 @@
   import '@shoelace-style/shoelace/dist/components/input/input.js';
   import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
 
-  import { PieceDef, type BoardProps, type BoardState, PieceType } from '~/lib/board';
-  import { BoardType } from '~/lib/boardList';
+  import { PieceDef, type BoardProps, type BoardState, PieceType, BoardType } from '~/lib/store';
 
   import SvgIcon from './SvgIcon.svelte';
 

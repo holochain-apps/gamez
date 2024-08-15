@@ -34,10 +34,10 @@ import {
 } from '@holochain/client';
 import type { WeaveClient } from '@lightningrodlabs/we-applet';
 
+import { getMyDna } from '../util';
 import type { BoardState } from './board';
 import { BoardList } from './boardList';
 import { CHESS, GO, WORLD } from './defaultGames';
-import { getMyDna } from './util';
 
 TimeAgo.addDefaultLocale(en);
 

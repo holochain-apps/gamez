@@ -6,8 +6,7 @@
   import '@shoelace-style/shoelace/dist/components/button/button.js';
 
   import { getStoreContext } from '~/lib/context';
-  import type { BoardDefData } from '~/lib/store';
-  import type { BoardProps, BoardState, PieceDef } from '~/lib/board';
+  import type { BoardProps, BoardState, PieceDef, BoardDefData } from '~/lib/store';
   import BoardEditor from '~/shared/BoardEditor.svelte';
 
   let dialog: SlDialog;

@@ -4,8 +4,8 @@
   import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 
   import { getStoreContext } from '~/lib/context';
+  import type { BoardProps, BoardState, PieceDef } from '~/lib/store';
   import BoardEditor from '~/shared/BoardEditor.svelte';
-  import type { BoardProps, BoardState, PieceDef } from '~/lib/board';
 
   let editPieceDefs = [];
   let dialog: SlDialog;

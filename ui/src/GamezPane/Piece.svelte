@@ -5,7 +5,7 @@
 <script lang="ts">
   import { decodeHashFromBase64 } from '@holochain/client';
 
-  import { type Piece, PieceDef, PieceType } from '~/lib/board';
+  import { type Piece, PieceDef, PieceType } from '~/lib/store';
   import Avatar from '~/shared/Avatar.svelte';
 
   import { hollowedToFilledChessPiece, isHollowChessPiece } from './utils';

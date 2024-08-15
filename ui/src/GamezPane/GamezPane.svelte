@@ -7,7 +7,7 @@
   import { decodeHashFromBase64 } from '@holochain/client';
   import { isWeContext, weaveUrlFromWal, type WAL } from '@lightningrodlabs/we-applet';
 
-  import { type BoardState, PieceDef, Board, type Piece, type BoardProps } from '~/lib/board';
+  import { type BoardState, PieceDef, Board, type Piece, type BoardProps } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
   import { type AssetSpec } from '~/lib/util';
   import EditBoardDialog from '~/shared/EditBoardDialog.svelte';

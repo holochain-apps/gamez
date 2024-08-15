@@ -7,8 +7,8 @@
 
   import { isWeContext } from '@lightningrodlabs/we-applet';
 
+  import { type Board } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
-  import { type Board } from '~/lib/board';
   import { tooltip } from '~/shared/tooltip';
   import Avatar from '~/shared/Avatar.svelte';
 
