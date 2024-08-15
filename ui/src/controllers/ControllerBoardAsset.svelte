@@ -2,11 +2,9 @@
   import type { EntryHash } from '@holochain/client';
   import type { AppletView } from '@lightningrodlabs/we-applet';
 
-  import { GamezStore } from '~/shared/store';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
   import { getStoreContext } from '~/lib/context';
-
-  import GamezPane from './GamezPane';
+  import GamezPane from '~/GamezPane';
 
   export let view: Extract<AppletView, { type: 'asset' }>;
   $: board = view.wal.hrl[1] as EntryHash;

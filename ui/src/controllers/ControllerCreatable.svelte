@@ -6,7 +6,6 @@
   import { encodeHashToBase64, type AppClient } from '@holochain/client';
   import type { AppletView } from '@lightningrodlabs/we-applet';
 
-  import { GamezStore } from '~/shared/store';
   import { getStoreContext } from '~/lib/context';
 
   export let view: Extract<AppletView, { type: 'creatable' }>;

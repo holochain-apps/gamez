@@ -12,7 +12,7 @@ import {
 } from '@holochain/client';
 import type { WeaveUrl } from '@lightningrodlabs/we-applet';
 
-import type { AssetSpec } from '~/shared/util';
+import type { AssetSpec } from '~/lib/util';
 
 import { BoardType } from './boardList';
 

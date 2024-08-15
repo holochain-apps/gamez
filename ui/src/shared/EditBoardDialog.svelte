@@ -7,9 +7,9 @@
   import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 
   import { getStoreContext } from '~/lib/context';
-  import type { Board, BoardProps, BoardState, PieceDef } from '~/shared/board';
+  import type { Board, BoardProps, BoardState, PieceDef } from '~/lib/board';
+  import { BoardType } from '~/lib/boardList';
   import BoardEditor from '~/shared/BoardEditor.svelte';
-  import { BoardType } from '~/shared/boardList';
 
   let boardHash: EntryHash | undefined = undefined;
 

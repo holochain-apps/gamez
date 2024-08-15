@@ -10,9 +10,9 @@
     type WeaveUrl,
   } from '@lightningrodlabs/we-applet';
 
-  import type { Board, Piece } from '~/shared/board';
-  import SvgIcon from '~/shared/SvgIcon.svelte';
   import { getStoreContext } from '~/lib/context';
+  import type { Board, Piece } from '~/lib/board';
+  import SvgIcon from '~/shared/SvgIcon.svelte';
 
   import AttachmentsList from './AttachmentsList.svelte';
 

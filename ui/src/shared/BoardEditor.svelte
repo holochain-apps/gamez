@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { cloneDeep } from 'lodash';
   import DragDropList, { VerticalDropZone, reorder, type DropEvent } from 'svelte-dnd-list';
   import 'emoji-picker-element';
   import '@shoelace-style/shoelace/dist/components/select/select.js';
@@ -9,10 +10,10 @@
   import '@shoelace-style/shoelace/dist/components/input/input.js';
   import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
 
-  import { PieceDef, type BoardProps, type BoardState, PieceType } from './board';
+  import { PieceDef, type BoardProps, type BoardState, PieceType } from '~/lib/board';
+  import { BoardType } from '~/lib/boardList';
+
   import SvgIcon from './SvgIcon.svelte';
-  import { cloneDeep } from 'lodash';
-  import { BoardType } from './boardList';
 
   export let handleSave;
   export let handleDelete = undefined;

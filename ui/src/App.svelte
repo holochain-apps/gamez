@@ -19,14 +19,14 @@
   import '@holochain-open-dev/profiles/dist/elements/create-profile.js';
   import { ProfilesClient, ProfilesStore } from '@holochain-open-dev/profiles';
 
-  import LoadingIndicator from './shared/LoadingIndicator.svelte';
+  import { GamezStore } from '~/lib/store';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
-  import Controller from './Controller.svelte';
-  import ControllerCreate from './ControllerCreate.svelte';
-  import ControllerBoard from './ControllerBoard.svelte';
+  import ControllerMain from './controllers/ControllerMain.svelte';
+  import ControllerCreatable from './controllers/ControllerCreatable.svelte';
+  import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
   import LogoIcon from './icons/LogoIcon.svelte';
   import { appletServices } from './we';
-  import { GamezStore } from './shared/store';
   import { setStoreContext } from './lib/context';
 
   const appId = import.meta.env.VITE_APP_ID ?? 'gamez';
@@ -187,14 +187,14 @@
         <create-profile on:profile-created={() => {}}></create-profile>
       </div>
     {:else if state.type === 'standalone'}
-      <Controller />
+      <ControllerMain />
     {:else if state.type === 'weave'}
       {#if state.view.type === 'main'}
-        <Controller />
+        <ControllerMain />
       {:else if state.view.type === 'asset'}
-        <ControllerBoard view={state.view} />
+        <ControllerBoardAsset view={state.view} />
       {:else if state.view.type === 'creatable'}
-        <ControllerCreate view={state.view} />
+        <ControllerCreatable view={state.view} />
       {/if}
     {/if}
   </profiles-context>

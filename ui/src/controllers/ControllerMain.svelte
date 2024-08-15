@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { GamezStore } from '~/shared/store';
-  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
   import { getStoreContext } from '~/lib/context';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
-  import Toolbar from './Layout/LayoutBar.svelte';
-  import Home from './Home';
-  import GamezPane from './GamezPane';
-  import BoardEditor from './BoardEditor';
+  import Toolbar from '../Layout/LayoutBar.svelte';
+  import Home from '~/Home';
+  import GamezPane from '~/GamezPane';
+  import BoardEditor from '~/BoardEditor';
 
   type Route = 'editGameType' | 'editBoard' | 'newBoard' | 'newGame' | 'new' | 'home' | 'game';
   const store = getStoreContext();

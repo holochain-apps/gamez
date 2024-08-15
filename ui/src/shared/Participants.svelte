@@ -1,8 +1,9 @@
 <script lang="ts">
   import { decodeHashFromBase64 } from '@holochain/client';
 
+  import type { Board } from '~/lib/board';
+
   import Avatar from './Avatar.svelte';
-  import type { Board } from './board';
 
   export let board: Board;
   export let showPlayers = false;

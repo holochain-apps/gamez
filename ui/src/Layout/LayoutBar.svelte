@@ -7,11 +7,10 @@
 
   import { isWeContext } from '@lightningrodlabs/we-applet';
 
-  import { tooltip } from '~/shared/tooltip';
-  import type { GamezStore } from '~/shared/store';
-  import { type Board } from '~/shared/board';
-  import Avatar from '~/shared/Avatar.svelte';
   import { getStoreContext } from '~/lib/context';
+  import { type Board } from '~/lib/board';
+  import { tooltip } from '~/shared/tooltip';
+  import Avatar from '~/shared/Avatar.svelte';
 
   import AboutDialog from './AboutDialog.svelte';
   import AvatarDialog from './AvatarDialog.svelte';

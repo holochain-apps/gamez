@@ -7,7 +7,7 @@
   import '@lightningrodlabs/we-elements/dist/elements/wal-embed.js';
   import { type WeaveUrl } from '@lightningrodlabs/we-applet';
 
-  import { type Position, type Size } from '~/shared/util';
+  import { type Position, type Size } from '~/lib/util';
 
   const dispatch = createEventDispatcher();
   export let isEditable = false;

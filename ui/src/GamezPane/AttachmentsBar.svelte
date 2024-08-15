@@ -6,7 +6,7 @@
   import PenToSquareIcon from '~icons/fa6-solid/pen-to-square';
 
   import { tooltip } from '~/shared/tooltip';
-  import { type AssetSpec } from '~/shared/util';
+  import { type AssetSpec } from '~/lib/util';
 
   import AttachmentsList from './AttachmentsList.svelte';
 

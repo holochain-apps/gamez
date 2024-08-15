@@ -2,7 +2,7 @@
 export * from './shared/board';
 export * from './gamezStore';
 export * from './shared/boardList';
-export { default as Controller } from './Controller.svelte';
+export { default as Controller } from './controllers/ControllerMain.svelte';
 export { default as BoardEditor } from './shared/BoardEditor.svelte';
 export { default as AvatarIcon } from './AvatarIcon.svelte';
 export { default as AvatarDialog } from './Layout/AvatarDialog.svelte';

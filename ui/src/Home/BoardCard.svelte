@@ -7,11 +7,11 @@
   import { type EntryHash, decodeHashFromBase64 } from '@holochain/client';
   import { pipe } from '@holochain-open-dev/stores';
 
-  import Avatar from '~/shared/Avatar.svelte';
-  import { hashEqual, isComplete } from '~/shared/util';
-  import { Board } from '~/shared/board';
-  import { tooltip } from '~/shared/tooltip';
   import { getStoreContext } from '~/lib/context';
+  import { Board } from '~/lib/board';
+  import Avatar from '~/shared/Avatar.svelte';
+  import { hashEqual, isComplete } from '~/lib/util';
+  import { tooltip } from '~/shared/tooltip';
 
   const dispatch = createEventDispatcher();
 

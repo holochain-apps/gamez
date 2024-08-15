@@ -5,7 +5,7 @@
 
   import { getStoreContext } from '~/lib/context';
   import BoardEditor from '~/shared/BoardEditor.svelte';
-  import type { BoardProps, BoardState, PieceDef } from '~/shared/board';
+  import type { BoardProps, BoardState, PieceDef } from '~/lib/board';
 
   let editPieceDefs = [];
   let dialog: SlDialog;

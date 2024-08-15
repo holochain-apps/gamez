@@ -4,7 +4,7 @@
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import type SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 
-  import type { BoardDefData } from '~/shared/store';
+  import type { BoardDefData } from '~/lib/store';
 
   let boardDef: BoardDefData | undefined;
   const dispatch = createEventDispatcher();

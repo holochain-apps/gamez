@@ -3,7 +3,7 @@
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
 
-  import { type AssetSpec } from '~/shared/util';
+  import { type AssetSpec } from '~/lib/util';
   import { getStoreContext } from '~/lib/context';
 
   import WalAsset from './WalAsset.svelte';

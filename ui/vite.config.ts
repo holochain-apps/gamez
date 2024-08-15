@@ -26,9 +26,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // Well this is not ideal
+      '~/BoardEditor': path.resolve(__dirname, './src/BoardEditor'),
+      '~/Home': path.resolve(__dirname, './src/Home'),
+      '~/GamezPane': path.resolve(__dirname, './src/GamezPane'),
+      '~/Layout': path.resolve(__dirname, './src/Layout'),
       '~/shared': path.resolve(__dirname, './src/shared'),
       '~/lib': path.resolve(__dirname, './src/lib'),
-      '~/': path.resolve(__dirname, './src/'),
     },
   },
 });
