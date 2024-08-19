@@ -40,7 +40,7 @@
     {:else if route === 'home'}
       <Home on:nav={handleNav} />
     {:else if route === 'newBoard'}
-      <BoardEditor />
+      <BoardEditor onBack={() => handleNav({ detail: 'home' })} />
     {/if}
   {:else}
     <LoadingIndicator class="mt40" textual={false} />

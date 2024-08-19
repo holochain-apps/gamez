@@ -1,23 +1,22 @@
 <script lang="ts">
   import PlusIcon from '~icons/fa6-solid/plus';
   import { PieceDef, PieceType, type BoardProps, type BoardState } from '~/lib/store';
+  import { getStoreContext } from '~/lib/context';
   import Input from './BoardEditorInput.svelte';
   import IntegerInput from './IntegerInput.svelte';
   import PieceTypeCard from './PieceTypeCard.svelte';
 
-  const generateBlankBoardProps = (): BoardProps => ({
-    bgUrl: '',
-    pieces: {},
-    players: [],
-    attachments: [],
-    turn: 0,
-    bgHeight: '',
-    bgWidth: '',
-  });
+  export let onBack: () => void;
+
+  const store = getStoreContext();
 
   type NewBoardProps = Omit<BoardProps, 'players' | 'turn' | 'attachments' | 'pieces'>;
   type NewBoardState = Omit<BoardState, 'props' | 'status' | 'boundTo' | 'creator'> & {
     props: NewBoardProps;
+  };
+
+  let uiState = {
+    saving: false,
   };
 
   let boardState: NewBoardState = {
@@ -44,6 +43,8 @@
     boardState = { ...boardState, props: { ...boardState.props, [key]: value } };
   }
 
+  // PIECE DEFS
+
   function setPieceDefs(pieceDefs: Array<PieceDef>) {
     updateBoardState('pieceDefs', pieceDefs);
   }
@@ -61,6 +62,31 @@
     const newPieceDefs = [...boardState.pieceDefs];
     newPieceDefs[i] = pieceDef;
     setPieceDefs(newPieceDefs);
+  }
+
+  // BUTTONS ACTIONS
+
+  function generateBoardState(): BoardState {
+    return {
+      ...boardState,
+      status: '',
+      creator: store.myAgentPubKeyB64,
+      boundTo: [],
+      props: {
+        ...boardState.props,
+        players: [],
+        turn: 0,
+        attachments: [],
+        pieces: {},
+      },
+    };
+  }
+
+  async function handleSave() {
+    uiState.saving = true;
+    await store.makeGameType(generateBoardState());
+    uiState.saving = false;
+    onBack();
   }
 </script>
 
@@ -141,13 +167,23 @@
       </div>
     </div>
     <div class="flex space-x-4 absolute w-full p2 h14 bg-main-400">
-      <button class="bg-red-500 text-white px4 py2 rounded-md flex-1 hover:brightness-120">
+      <button
+        disabled={uiState.saving}
+        class="bg-red-500 text-white px4 py2 rounded-md flex-1 hover:brightness-120"
+      >
         Delete
       </button>
-      <button class="bg-orange-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110">
+      <button
+        disabled={uiState.saving}
+        class="bg-orange-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110"
+      >
         Archive
       </button>
-      <button class="bg-main-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110">
+      <button
+        disabled={uiState.saving}
+        on:click={handleSave}
+        class="bg-main-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110"
+      >
         Save
       </button>
     </div>
