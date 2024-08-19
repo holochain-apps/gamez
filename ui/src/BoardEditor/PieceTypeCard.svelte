@@ -4,6 +4,7 @@
   import TrashIcon from '~icons/fa6-solid/trash';
   import { PieceDef, PieceType } from '~/lib/store';
   import Input from './BoardEditorInput.svelte';
+  import IntegerInput from './IntegerInput.svelte';
   import EmojiPicker from './EmojiPicker.svelte';
   // import { cloneDeep } from 'lodash';
 
@@ -100,17 +101,7 @@
   {/if}
 
   <div class="flex space-x-4">
-    <Input
-      label="Width"
-      type="number"
-      value={def.width}
-      on:input={({ detail }) => setWidth(parseInt(detail))}
-    />
-    <Input
-      label="Height"
-      type="number"
-      value={def.height}
-      on:input={({ detail }) => setHeight(parseInt(detail))}
-    />
+    <IntegerInput label="Width" value={def.width} on:input={({ detail }) => setWidth(detail)} />
+    <IntegerInput label="Height" value={def.height} on:input={({ detail }) => setHeight(detail)} />
   </div>
 </div>

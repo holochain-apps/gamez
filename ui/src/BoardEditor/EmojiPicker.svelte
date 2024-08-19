@@ -18,6 +18,7 @@
     picker.addEventListener('emoji-click', (ev: any) => {
       D('select', ev.detail.unicode);
     });
+    (picker.shadowRoot.querySelector('#search') as HTMLInputElement).focus();
   });
 
   const { left, top, width } = target.getBoundingClientRect();
