@@ -55,20 +55,10 @@
 <div class="bg-black/10 p2 rounded-md mb4 last:mb0 relative pl8 b b-black/10">
   <GripVerticalIcon class="absolute top-0 left-0 h-full w-8 px2 cursor-grab" />
   {#if emojiPickerOpen}
-    <EmojiPicker
-      target={emojiPickerTarget}
-      on:cancel={cancelPickEmoji}
-      on:select={({ detail }) => pickedEmoji(detail)}
-    />
+    <EmojiPicker target={emojiPickerTarget} onCancel={cancelPickEmoji} onSelect={pickedEmoji} />
   {/if}
   <div class="flex mb4">
-    <Input
-      class="flex-grow"
-      label="Name *"
-      type="text"
-      value={def.name}
-      on:input={({ detail }) => setName(detail)}
-    />
+    <Input class="flex-grow" label="Name *" type="text" value={def.name} onInput={setName} />
     <button class="h-10 w-8 ml4 hover:text-red-200" on:click={() => D('delete')}>
       <TrashIcon class="" />
     </button>
@@ -101,7 +91,7 @@
   {/if}
 
   <div class="flex space-x-4">
-    <IntegerInput label="Width" value={def.width} on:input={({ detail }) => setWidth(detail)} />
-    <IntegerInput label="Height" value={def.height} on:input={({ detail }) => setHeight(detail)} />
+    <IntegerInput label="Width" value={def.width} onInput={setWidth} />
+    <IntegerInput label="Height" value={def.height} onInput={setHeight} />
   </div>
 </div>

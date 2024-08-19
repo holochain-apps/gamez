@@ -8,6 +8,9 @@
   const D = createEventDispatcher<{ select: string; cancel: void }>();
 
   export let target: HTMLElement;
+  export let onSelect: (emoji: string) => void;
+  export let onCancel: () => void;
+
   let el: HTMLElement;
 
   onMount(() => {
@@ -16,7 +19,7 @@
     picker.style.height = '100%';
     el.appendChild(picker);
     picker.addEventListener('emoji-click', (ev: any) => {
-      D('select', ev.detail.unicode);
+      onSelect(ev.detail.unicode);
     });
     (picker.shadowRoot.querySelector('#search') as HTMLInputElement).focus();
   });
@@ -46,10 +49,5 @@
     style={rectangleToStyle(rectangle)}
     bind:this={el}
   ></div>
-  <div
-    class="absolute z-10 w-full h-full bg-black/10"
-    on:click={() => {
-      D('cancel');
-    }}
-  ></div>
+  <div class="absolute z-10 w-full h-full bg-black/10" on:click={onCancel}></div>
 </div>

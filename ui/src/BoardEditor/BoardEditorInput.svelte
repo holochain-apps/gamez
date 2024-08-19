@@ -3,6 +3,7 @@
   export let label: string;
   export let value: string | number = '';
   export let type: string = 'text';
+  export let onInput: (value: string) => void = () => {};
   let klass: string = '';
   export { klass as class };
 
@@ -15,7 +16,7 @@
     placeholder={label}
     {type}
     {value}
-    on:input={({ currentTarget }) => D('input', currentTarget.value)}
+    on:input={({ currentTarget }) => onInput(currentTarget.value)}
   />
   <div
     class="peer-placeholder-shown:hidden absolute -left-1 -top-3 bg-main-400 text-white text-sm rounded-md px1"

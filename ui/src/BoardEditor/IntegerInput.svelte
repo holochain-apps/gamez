@@ -4,6 +4,7 @@
 
   export let label: string;
   export let value: string | number = '';
+  export let onInput: (value: number) => void = () => {};
   let klass: string = '';
   export { klass as class };
 
@@ -15,5 +16,5 @@
   class={klass}
   {label}
   {value}
-  on:input={({ detail }) => D('input', parseInt(detail))}
+  onInput={(newVal) => onInput(parseInt(newVal))}
 />

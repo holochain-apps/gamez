@@ -72,24 +72,22 @@
         label="Name *"
         type="text"
         value={boardState.name}
-        on:input={({ detail }) => updateBoardState('name', detail)}
+        onInput={(name) => updateBoardState('name', name)}
       />
       <div class="flex mb4 space-x-4">
         <IntegerInput
           class="w-1/2"
           label="Min players"
           value={boardState.min_players}
-          on:input={({ detail }) => {
-            updateBoardState('min_players', detail);
+          onInput={(minPlayers) => {
+            updateBoardState('min_players', minPlayers);
           }}
         />
         <IntegerInput
           class="w-1/2"
           label="Max players"
           value={boardState.max_players}
-          on:input={({ detail }) => {
-            updateBoardState('max_players', detail);
-          }}
+          onInput={updateBoardState.bind(null, 'max_players')}
         />
       </div>
       <label class="block mb4 cursor-pointer">
@@ -107,7 +105,7 @@
           type="text"
           label="URL *"
           value={boardState.props.bgUrl}
-          on:input={({ detail }) => updateBoardProps('bgUrl', detail)}
+          onInput={updateBoardProps.bind(null, 'bgUrl')}
         />
         <div class="flex space-x-4">
           <Input
@@ -115,14 +113,14 @@
             type="number"
             label="Width *"
             value={boardState.props.bgWidth}
-            on:input={({ detail }) => updateBoardProps('bgWidth', detail)}
+            onInput={updateBoardProps.bind(null, 'bgWidth')}
           />
           <Input
             class="block w-1/2"
             type="number"
             label="Height *"
             value={boardState.props.bgHeight}
-            on:input={({ detail }) => updateBoardProps('bgHeight', detail)}
+            onInput={updateBoardProps.bind(null, 'bgHeight')}
           />
         </div>
       </div>
