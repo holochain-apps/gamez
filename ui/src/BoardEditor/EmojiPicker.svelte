@@ -1,11 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
   import 'emoji-picker-element';
   import { Picker } from 'emoji-picker-element';
   import { adjustRectToDocument, rectangleToStyle } from '~/lib/floatingRectangle';
-
-  const D = createEventDispatcher<{ select: string; cancel: void }>();
 
   export let target: HTMLElement;
   export let onSelect: (emoji: string) => void;

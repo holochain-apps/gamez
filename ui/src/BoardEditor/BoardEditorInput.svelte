@@ -1,13 +1,10 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   export let label: string;
   export let value: string | number = '';
   export let type: string = 'text';
   export let onInput: (value: string) => void = () => {};
   let klass: string = '';
   export { klass as class };
-
-  const D = createEventDispatcher<{ input: string }>();
 </script>
 
 <div class={`relative ${klass}`}>
