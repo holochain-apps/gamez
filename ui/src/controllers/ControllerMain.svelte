@@ -2,7 +2,7 @@
   import { getStoreContext } from '~/lib/context';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
-  import Toolbar from '../Layout/LayoutBar.svelte';
+  import LayoutBar from '../Layout/LayoutBar.svelte';
   import Home from '~/Home';
   import GamezPane from '~/GamezPane';
   import BoardEditor from '~/BoardEditor';
@@ -29,7 +29,12 @@
 
 <div class="flex flex-col min-h-full">
   {#if store}
-    <Toolbar activeBoard={$activeBoard} {route} on:nav={handleNav} />
+    <LayoutBar
+      title={route === 'home' ? 'Board Gamez' : 'Game Type Editor'}
+      activeBoard={$activeBoard}
+      {route}
+      on:nav={handleNav}
+    />
     {#if $activeBoardHash !== undefined}
       <GamezPane activeBoard={$activeBoard} />
     {:else if route === 'home'}

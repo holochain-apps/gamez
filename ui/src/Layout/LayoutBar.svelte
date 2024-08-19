@@ -22,12 +22,12 @@
 
   export let activeBoard: Board;
   export let route;
+  export let title = 'Board Gamez';
 
   let aboutDialog;
   let editAvatarDialog;
   let participantsDialog;
   $: boardState = activeBoard ? activeBoard.readableState() : undefined;
-  $: console.log('NAV ACTIVE BOARD', activeBoard, boardState);
   //@ts-ignore
   $: myProfile = get(store.profilesStore.myProfile).value;
   $: myName = myProfile ? myProfile.nickname : '';
@@ -64,7 +64,7 @@
   {/if}
   <h1 class="font-bold text-2xl" style="text-shadow: 0 1px 0 rgba(0,0,0,.5)">
     {#if activeBoard && $boardState}{$boardState.name}
-    {:else}Board Gamez{/if}
+    {:else}{title}{/if}
   </h1>
 
   <div class="flex-grow"></div>
