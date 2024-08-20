@@ -1,78 +1,83 @@
 <script lang="ts">
   import PlusIcon from '~icons/fa6-solid/plus';
-  import { PieceDef, PieceType, type BoardProps, type BoardState } from '~/lib/store';
+  import { toPromise, derived, asyncDerived } from '@holochain-open-dev/stores';
+
+  import {
+    type BoardDefData,
+    PieceDef,
+    PieceType,
+    type BoardProps,
+    type BoardState,
+  } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
-  import { nav } from '~/lib/routes';
+  import { nav, route, type Route } from '~/lib/routes';
+
   import Input from './BoardEditorInput.svelte';
   import IntegerInput from './IntegerInput.svelte';
   import PieceTypeCard from './PieceTypeCard.svelte';
+  import BoardEditorPlain, { type EditableBoardState } from './BoardEditorPlain.svelte';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+  import { isEqual } from 'lodash';
 
   const store = getStoreContext();
-
-  type NewBoardProps = Omit<BoardProps, 'players' | 'turn' | 'attachments' | 'pieces'>;
-  type NewBoardState = Omit<BoardState, 'props' | 'status' | 'boundTo' | 'creator'> & {
-    props: NewBoardProps;
-  };
+  export let defHash: Uint8Array = null;
 
   let uiState = {
     saving: false,
+    canDelete: false,
+    canArchive: false,
   };
+  let boardState: EditableBoardState;
+  let boardDef: BoardDefData;
+  $: (async () => {
+    if (defHash) {
+      let localBoardDef = await toPromise(store.defs.get(defHash));
+      const board = localBoardDef.board;
 
-  let boardState: NewBoardState = {
-    name: '',
-    min_players: 1,
-    max_players: 6,
-    turns: false,
-    playerPieces: false,
-    pieceDefs: [],
-    props: {
-      bgUrl: '',
-      bgHeight: '',
-      bgWidth: '',
-    },
-  };
+      boardDef = localBoardDef;
+      boardState = {
+        name: board.name,
+        min_players: board.min_players,
+        max_players: board.max_players,
+        turns: board.turns,
+        playerPieces: board.playerPieces,
+        pieceDefs: board.pieceDefs,
+        props: {
+          bgUrl: board.props.bgUrl,
+          bgHeight: board.props.bgHeight,
+          bgWidth: board.props.bgWidth,
+        },
+      };
 
-  $: console.log('Board State updated', boardState);
-
-  function updateBoardState<K extends keyof NewBoardState>(key: K, value: NewBoardState[K]) {
-    boardState = { ...boardState, [key]: value };
-  }
-
-  function updateBoardProps<K extends keyof NewBoardProps>(key: K, value: NewBoardProps[K]) {
-    boardState = { ...boardState, props: { ...boardState.props, [key]: value } };
-  }
-
-  // PIECE DEFS
-
-  function setPieceDefs(pieceDefs: Array<PieceDef>) {
-    updateBoardState('pieceDefs', pieceDefs);
-  }
-
-  function addPieceDef() {
-    setPieceDefs([...boardState.pieceDefs, new PieceDef(PieceType.Emoji, 'Black', 30, 30, [`🔥`])]);
-  }
-
-  function deletePieceDef(i: number) {
-    setPieceDefs(boardState.pieceDefs.filter((_, index) => index !== i));
-  }
-
-  function changePieceDef(i: number, pieceDef: PieceDef) {
-    console.log('Changing piece def', i, pieceDef);
-    const newPieceDefs = [...boardState.pieceDefs];
-    newPieceDefs[i] = pieceDef;
-    setPieceDefs(newPieceDefs);
-  }
+      // uiState.canDelete = board.creator === store.myAgentPubKeyB64;
+    } else {
+      boardDef = null;
+      boardState = {
+        name: '',
+        min_players: 1,
+        max_players: 6,
+        turns: false,
+        playerPieces: false,
+        pieceDefs: [],
+        props: {
+          bgUrl: '',
+          bgHeight: '',
+          bgWidth: '',
+        },
+      };
+    }
+  })();
 
   // BUTTONS ACTIONS
 
-  function generateBoardState(): BoardState {
+  function toNewBoardState(newBoardState: EditableBoardState): BoardState {
     return {
-      ...boardState,
+      ...newBoardState,
       status: '',
       creator: store.myAgentPubKeyB64,
       boundTo: [],
       props: {
-        ...boardState.props,
+        ...newBoardState.props,
         players: [],
         turn: 0,
         attachments: [],
@@ -81,111 +86,50 @@
     };
   }
 
-  async function handleSave() {
+  function toUpdatedBoardState(newBoardState: EditableBoardState): BoardState {
+    if (!boardDef) throw 'Expected boardDef to be defined';
+    return {
+      ...boardDef.board,
+      ...newBoardState,
+      props: {
+        ...boardDef.board.props,
+        ...newBoardState.props,
+      },
+    };
+  }
+
+  async function handleSave(newBoardState: EditableBoardState) {
     uiState.saving = true;
-    await store.makeGameType(generateBoardState());
+    if (boardDef) {
+      await store.client.updateBoardDef(
+        boardDef.originalHash,
+        boardDef.record.actionHash,
+        toUpdatedBoardState(newBoardState),
+      );
+    } else {
+      await store.makeGameType(toNewBoardState(newBoardState));
+    }
+
     uiState.saving = false;
     nav({ id: 'home' });
   }
+
+  async function handleDelete() {
+    if (uiState.canDelete) {
+      console.log('Deleting!');
+    }
+  }
 </script>
 
-<div class="flex flex-grow min-h-0">
-  <div class="w-80 flex-shrink-0 bg-main-700 relative pb14">
-    <div class="overflow-y-auto flex flex-col h-full p4">
-      <Input
-        class="block w-full mb4"
-        label="Name *"
-        type="text"
-        value={boardState.name}
-        onInput={(name) => updateBoardState('name', name)}
-      />
-      <div class="flex mb4 space-x-4">
-        <IntegerInput
-          class="w-1/2"
-          label="Min players"
-          value={boardState.min_players}
-          onInput={(minPlayers) => {
-            updateBoardState('min_players', minPlayers);
-          }}
-        />
-        <IntegerInput
-          class="w-1/2"
-          label="Max players"
-          value={boardState.max_players}
-          onInput={updateBoardState.bind(null, 'max_players')}
-        />
-      </div>
-      <label class="block mb4 cursor-pointer">
-        <input type="checkbox" class="mr2" bind:checked={boardState.turns} />
-        Enforce turns
-      </label>
-      <label class="block mb4 cursor-pointer">
-        <input type="checkbox" class="mr2" bind:checked={boardState.playerPieces} />
-        Players are pieces
-      </label>
-      <div class="mb4">
-        <h3 class="font-bold text-lg mb4">Background Image</h3>
-        <Input
-          class="block w-full mb4"
-          type="text"
-          label="URL *"
-          value={boardState.props.bgUrl}
-          onInput={updateBoardProps.bind(null, 'bgUrl')}
-        />
-        <div class="flex space-x-4">
-          <Input
-            class="block w-1/2"
-            type="number"
-            label="Width *"
-            value={boardState.props.bgWidth}
-            onInput={updateBoardProps.bind(null, 'bgWidth')}
-          />
-          <Input
-            class="block w-1/2"
-            type="number"
-            label="Height *"
-            value={boardState.props.bgHeight}
-            onInput={updateBoardProps.bind(null, 'bgHeight')}
-          />
-        </div>
-      </div>
-      <div>
-        <div class="flexcc mb4">
-          <h3 class="font-bold text-lg flex-grow">Pieces Types</h3>
-          <button class="bg-main-500 p1 rounded-full hover:brightness-110" on:click={addPieceDef}
-            ><PlusIcon /></button
-          >
-        </div>
-        {#each boardState.pieceDefs as pieceDef, index}
-          <PieceTypeCard
-            def={pieceDef}
-            on:delete={() => deletePieceDef(index)}
-            on:change={({ detail }) => changePieceDef(index, detail)}
-          />
-        {/each}
-      </div>
-    </div>
-    <div class="flex space-x-4 absolute w-full p2 h14 bg-main-400">
-      <button
-        disabled={uiState.saving}
-        class="bg-red-500 text-white px4 py2 rounded-md flex-1 hover:brightness-120"
-      >
-        Delete
-      </button>
-      <button
-        disabled={uiState.saving}
-        class="bg-orange-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110"
-      >
-        Archive
-      </button>
-      <button
-        disabled={uiState.saving}
-        on:click={handleSave}
-        class="bg-main-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110"
-      >
-        Save
-      </button>
-    </div>
-  </div>
-  <div class="bg-main-500 flex-grow">Board Editor</div>
-</div>
+{#if (defHash && boardDef) || !defHash}
+  <BoardEditorPlain
+    board={boardState}
+    onSave={handleSave}
+    canDelete={uiState.canDelete}
+    canArchive={uiState.canArchive}
+    onDelete={handleDelete}
+    disabled={uiState.saving}
+  />
+{:else}
+  <LoadingIndicator class="pt80" />
+{/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getStoreContext } from '~/lib/context';
-  import { type Route, nav, route } from '~/lib/routes';
+  import { route } from '~/lib/routes';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   import LayoutBar from '../Layout/LayoutBar.svelte';
@@ -10,14 +10,7 @@
 
   const store = getStoreContext();
 
-  // setRouteContext({
-  //   nav: (newRoute: Route) => {
-  //     route = newRoute;
-  //   },
-  //   getRoute: () => route,
-  // });
-
-  function getTitle() {
+  $: title = (() => {
     switch ($route.id) {
       case 'home':
         return 'Board Gamez';
@@ -28,7 +21,7 @@
       default:
         return 'Board Gamez';
     }
-  }
+  })();
 
   $: activeBoard = store.boardList.activeBoard;
   $: activeBoardHash = store.boardList.activeBoardHash;
@@ -36,13 +29,15 @@
 
 <div class="flex flex-col min-h-full">
   {#if store}
-    <LayoutBar title={getTitle()} activeBoard={$activeBoard} />
+    <LayoutBar {title} activeBoard={$activeBoard} />
     {#if $activeBoardHash !== undefined}
       <GamezPane activeBoard={$activeBoard} />
     {:else if $route.id === 'home'}
       <Home />
     {:else if $route.id === 'newGameDef'}
       <BoardEditor />
+    {:else if $route.id === 'editGameDef'}
+      <BoardEditor defHash={$route.defHash} />
     {/if}
   {:else}
     <LoadingIndicator class="mt40" textual={false} />
