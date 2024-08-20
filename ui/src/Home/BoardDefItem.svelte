@@ -6,6 +6,7 @@
   import type { EntryHash } from '@holochain/client';
 
   import { getStoreContext } from '~/lib/context';
+  import { type BoardDefData } from '~/lib/store';
 
   import SidebarButton from './SidebarButton.svelte';
 
@@ -13,6 +14,8 @@
   const store = getStoreContext();
 
   export let boardHash: EntryHash;
+  export let onEdit: () => void;
+  export let onNewGame: (def: BoardDefData) => void;
 
   $: def = store.defs.get(boardHash);
 </script>
@@ -25,7 +28,7 @@
       <SidebarButton
         mode={'sm'}
         on:click={() => {
-          dispatch('create', boardData);
+          onNewGame(boardData);
         }}
       >
         New Game
@@ -37,6 +40,7 @@
       >
         <GearIcon />
       </SidebarButton>
+      <SidebarButton tooltip={'Settings'} mode={'icon'} on:click={() => onEdit()}>S2</SidebarButton>
     </div>
   {:else if $def.status == 'pending'}
     <div class="h-8 flex space-x-2">

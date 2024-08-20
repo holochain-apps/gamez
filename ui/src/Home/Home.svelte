@@ -1,6 +1,6 @@
 <script lang="ts">
   // External
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
   import { cloneDeep } from 'lodash';
   import cx from 'classnames';
   import PlusIcon from '~icons/fa6-solid/plus';
@@ -11,6 +11,7 @@
 
   // Local
   import { getStoreContext } from '~/lib/context';
+  import { getRouteContext } from '~/lib/routes';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   import NewBoardDialog from './NewBoardDialog.svelte';
@@ -23,7 +24,7 @@
 
   const DEFAULT_GAMES = ['Chess', 'Go', 'World'];
 
-  const dispatch = createEventDispatcher();
+  const { nav } = getRouteContext();
   const store = getStoreContext();
 
   $: activeBoards = store.boardList.activeBoardHashes;
@@ -196,10 +197,11 @@
             {#if $defHashes.value.length > 0}
               {#each $defHashes.value as hash}
                 <BoardDefItem
-                  on:create={(e) => startGameDialog.open(e.detail)}
+                  onNewGame={(boardDef) => startGameDialog.open(boardDef)}
                   on:settings={(e) => {
                     editBoardTypeDialog.open(e.detail);
                   }}
+                  onEdit={() => nav({ id: 'editGameDef', defHash: hash })}
                   boardHash={hash}
                 ></BoardDefItem>
               {/each}
@@ -236,7 +238,7 @@
           <PlusIcon class="text-sm" />
           <div class="flex-grow">New</div>
         </SidebarButton>
-        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => dispatch('nav', 'newBoard')}>
+        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => nav({ id: 'newGameDef' })}>
           <PlusIcon class="text-sm" />
           <div class="flex-grow">N2</div>
         </SidebarButton>

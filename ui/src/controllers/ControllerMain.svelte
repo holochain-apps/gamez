@@ -1,22 +1,17 @@
 <script lang="ts">
   import { getStoreContext } from '~/lib/context';
+  import { type Route, setRouteContext } from '~/lib/routes';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   import LayoutBar from '../Layout/LayoutBar.svelte';
   import Home from '~/Home';
   import GamezPane from '~/GamezPane';
   import BoardEditor from '~/BoardEditor';
-  import { setContext } from 'svelte';
 
-  type Route = 'editGameType' | 'editBoard' | 'newBoard' | 'newGame' | 'new' | 'home' | 'game';
   const store = getStoreContext();
-  let route: Route = 'home';
+  let route: Route = { id: 'home' };
 
-  function handleNav(ev: { detail: Route }) {
-    route = ev.detail;
-  }
-
-  setContext('nav', {
+  setRouteContext({
     nav: (newRoute: Route) => {
       route = newRoute;
     },
@@ -30,17 +25,15 @@
 <div class="flex flex-col min-h-full">
   {#if store}
     <LayoutBar
-      title={route === 'home' ? 'Board Gamez' : 'Game Type Editor'}
+      title={route.id === 'home' ? 'Board Gamez' : 'Game Type Editor'}
       activeBoard={$activeBoard}
-      {route}
-      on:nav={handleNav}
     />
     {#if $activeBoardHash !== undefined}
       <GamezPane activeBoard={$activeBoard} />
-    {:else if route === 'home'}
-      <Home on:nav={handleNav} />
-    {:else if route === 'newBoard'}
-      <BoardEditor onBack={() => handleNav({ detail: 'home' })} />
+    {:else if route.id === 'home'}
+      <Home />
+    {:else if route.id === 'newGameDef'}
+      <BoardEditor />
     {/if}
   {:else}
     <LoadingIndicator class="mt40" textual={false} />

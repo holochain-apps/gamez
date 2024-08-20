@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { get } from 'svelte/store';
   import CircleInfoIcon from '~icons/fa6-solid/circle-info';
   import BugIcon from '~icons/fa6-solid/bug';
@@ -10,6 +9,7 @@
 
   import { type Board } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
+  import { getRouteContext } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
   import Avatar from '~/shared/Avatar.svelte';
 
@@ -17,11 +17,10 @@
   import AvatarDialog from './AvatarDialog.svelte';
   import ParticipantsDialog from './ParticipantsDialog.svelte';
 
+  const { nav, route } = getRouteContext();
   const store = getStoreContext();
-  const dispatcher = createEventDispatcher();
 
   export let activeBoard: Board;
-  export let route;
   export let title = 'Board Gamez';
 
   let aboutDialog;
@@ -54,10 +53,10 @@
     <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={closeBoard}>
       <ArrowLeftIcon />
     </button>
-  {:else if route === 'newBoard'}
+  {:else if route.id === 'newGameDef'}
     <button
       class="h12 w12 flexcc hover:bg-black/10 rounded-full"
-      on:click={() => dispatcher('nav', 'home')}
+      on:click={() => nav({ id: 'home' })}
     >
       <ArrowLeftIcon />
     </button>

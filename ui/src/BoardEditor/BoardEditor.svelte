@@ -2,12 +2,12 @@
   import PlusIcon from '~icons/fa6-solid/plus';
   import { PieceDef, PieceType, type BoardProps, type BoardState } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
+  import { getRouteContext } from '~/lib/routes';
   import Input from './BoardEditorInput.svelte';
   import IntegerInput from './IntegerInput.svelte';
   import PieceTypeCard from './PieceTypeCard.svelte';
 
-  export let onBack: () => void;
-
+  const { nav } = getRouteContext();
   const store = getStoreContext();
 
   type NewBoardProps = Omit<BoardProps, 'players' | 'turn' | 'attachments' | 'pieces'>;
@@ -86,7 +86,7 @@
     uiState.saving = true;
     await store.makeGameType(generateBoardState());
     uiState.saving = false;
-    onBack();
+    nav({ id: 'home' });
   }
 </script>
 
