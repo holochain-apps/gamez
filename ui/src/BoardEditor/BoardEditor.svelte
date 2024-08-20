@@ -12,9 +12,6 @@
   import { getStoreContext } from '~/lib/context';
   import { nav, route, type Route } from '~/lib/routes';
 
-  import Input from './BoardEditorInput.svelte';
-  import IntegerInput from './IntegerInput.svelte';
-  import PieceTypeCard from './PieceTypeCard.svelte';
   import BoardEditorPlain, { type EditableBoardState } from './BoardEditorPlain.svelte';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
   import { isEqual } from 'lodash';

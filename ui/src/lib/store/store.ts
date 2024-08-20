@@ -38,62 +38,9 @@ import { getMyDna } from '../util';
 import type { BoardState } from './board';
 import { BoardList } from './boardList';
 import { CHESS, GO, WORLD } from './defaultGames';
+import GamezClient, { BoardDefData } from './GamezClient';
 
 TimeAgo.addDefaultLocale(en);
-
-const ZOME_NAME = 'gamez';
-
-export type BoardDef = {
-  board: string;
-};
-
-export type BoardDefData = {
-  originalHash: ActionHash;
-  board: BoardState;
-  record: EntryRecord<BoardDef>;
-};
-
-export type EntryTypes = { type: 'BoardDef' } & BoardDef;
-
-export type GamezSignal = ActionCommittedSignal<EntryTypes, any>;
-
-export class GamezClient extends ZomeClient<GamezSignal> {
-  constructor(
-    public client: AppClient,
-    public roleName,
-    public zomeName = ZOME_NAME,
-  ) {
-    super(client, roleName, zomeName);
-  }
-
-  async createBoardDef(def: BoardState): Promise<EntryRecord<BoardDef>> {
-    return new EntryRecord(await this.callZome('create_board_def', { board: JSON.stringify(def) }));
-  }
-  async updateBoardDef(
-    origHash: ActionHash,
-    prevHash: ActionHash,
-    def: BoardState,
-  ): Promise<EntryRecord<BoardDef>> {
-    return new EntryRecord(
-      await this.callZome('update_board_def', {
-        original_board_def_hash: origHash,
-        previous_board_def_hash: prevHash,
-        updated_board_def: { board: JSON.stringify(def) },
-      }),
-    );
-  }
-  async getBoardDefs(): Promise<Link[]> {
-    const results = await this.callZome('get_board_defs', undefined);
-    return results;
-  }
-  async getBoardDef(hash: ActionHash): Promise<EntryRecord<BoardDef> | undefined> {
-    const record = await this.callZome('get_board_def', hash);
-    if (!record) return undefined;
-
-    const def: EntryRecord<BoardDef> = new EntryRecord(record);
-    return def;
-  }
-}
 
 export enum SeenType {
   Tip = 't',
@@ -137,16 +84,16 @@ export class GamezStore {
     public profilesStore: ProfilesStore,
     protected clientIn: AppClient,
     protected roleName: RoleName,
-    protected zomeName: string = ZOME_NAME,
   ) {
-    this.client = new GamezClient(clientIn, this.roleName, this.zomeName);
+    this.client = new GamezClient(clientIn, this.roleName);
     this.dnaHash = lazyLoad(async () => {
       return await getMyDna(roleName, clientIn);
     });
     this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
 
-    this.synStore = new SynStore(new SynClient(clientIn, this.roleName, 'syn'));
-    this.boardList = new BoardList(profilesStore, this.synStore, weaveClient);
+    // Board / Game Types definitions
+    // Use zome
+
     this.defLinks = collectionStore(this.client, () => this.client.getBoardDefs(), 'AllBoardDefs');
     this.defHashes = asyncDerived(this.defLinks, (links) => links.map((link) => link.target));
     this.defsList = pipe(
@@ -154,6 +101,11 @@ export class GamezStore {
       (hashes) => sliceAndJoin(this.defs, hashes),
       (map) => Array.from(map.values()),
     );
+
+    // Created Games boards
+    // Use syn
+    this.synStore = new SynStore(new SynClient(clientIn, this.roleName, 'syn'));
+    this.boardList = new BoardList(profilesStore, this.synStore, weaveClient);
     this.boardList.activeBoard.subscribe((board) => {
       if (this.unsub) {
         this.unsub();
@@ -172,6 +124,7 @@ export class GamezStore {
       tips: new HoloHashMap(),
       showArchived: false,
     });
+
     for (let i = 0; i < localStorage.length; i += 1) {
       const key = localStorage.key(i);
       const [type, boardHashB64, cardId] = key.split(':');
