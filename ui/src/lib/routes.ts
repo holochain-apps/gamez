@@ -1,4 +1,5 @@
 import { getContext, setContext } from 'svelte';
+import { writable } from 'svelte/store';
 
 export type Route =
   | {
@@ -16,19 +17,17 @@ export type Route =
       boardHash: Uint8Array;
     };
 
-export function setRouteContext({
-  nav,
-  route,
-}: {
-  nav: (newRoute: Route) => void;
-  route: () => Route;
-}) {
-  setContext('route', { nav, route });
-}
+const route = writable<Route>({ id: 'home' });
+const nav = (newRoute: Route) => {
+  route.set(newRoute);
+};
 
-export function getRouteContext() {
-  const { nav, route } = getContext<{ route: () => Route; nav: (newRoute: Route) => void }>(
-    'route',
-  );
-  return { nav, route: route() };
-}
+export { route, nav };
+
+// export function setRouteContext(props: { nav: (newRoute: Route) => void; getRoute: () => Route }) {
+//   setContext('route', props);
+// }
+
+// export function getRouteContext() {
+//   return getContext<{ getRoute: () => Route; nav: (newRoute: Route) => void }>('route');
+// }

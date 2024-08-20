@@ -11,7 +11,7 @@
 
   // Local
   import { getStoreContext } from '~/lib/context';
-  import { getRouteContext } from '~/lib/routes';
+  import { nav } from '~/lib/routes';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   import NewBoardDialog from './NewBoardDialog.svelte';
@@ -24,7 +24,6 @@
 
   const DEFAULT_GAMES = ['Chess', 'Go', 'World'];
 
-  const { nav } = getRouteContext();
   const store = getStoreContext();
 
   $: activeBoards = store.boardList.activeBoardHashes;

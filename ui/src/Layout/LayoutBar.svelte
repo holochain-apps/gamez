@@ -9,7 +9,7 @@
 
   import { type Board } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
-  import { getRouteContext } from '~/lib/routes';
+  import { nav, route } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
   import Avatar from '~/shared/Avatar.svelte';
 
@@ -17,7 +17,6 @@
   import AvatarDialog from './AvatarDialog.svelte';
   import ParticipantsDialog from './ParticipantsDialog.svelte';
 
-  const { nav, route } = getRouteContext();
   const store = getStoreContext();
 
   export let activeBoard: Board;
@@ -31,8 +30,11 @@
   $: myProfile = get(store.profilesStore.myProfile).value;
   $: myName = myProfile ? myProfile.nickname : '';
 
-  const closeBoard = async () => {
-    await store.boardList.closeActiveBoard(false);
+  const handleBack = async () => {
+    if ($route.id === 'board') {
+      await store.boardList.closeActiveBoard(false);
+    }
+    nav({ id: 'home' });
   };
 
   const editAvatar = () => {
@@ -49,15 +51,8 @@
 >
   <!-- LEFT SIDE BUTTONS -->
 
-  {#if activeBoard != undefined}
-    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={closeBoard}>
-      <ArrowLeftIcon />
-    </button>
-  {:else if route.id === 'newGameDef'}
-    <button
-      class="h12 w12 flexcc hover:bg-black/10 rounded-full"
-      on:click={() => nav({ id: 'home' })}
-    >
+  {#if $route.id != 'home'}
+    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={handleBack}>
       <ArrowLeftIcon />
     </button>
   {/if}
