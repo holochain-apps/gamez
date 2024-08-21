@@ -38,7 +38,7 @@ import { getMyDna } from '../util';
 import type { BoardState } from './board';
 import { BoardList } from './boardList';
 import { CHESS, GO, WORLD } from './defaultGames';
-import GamezClient, { BoardDefData } from './GamezClient';
+import GamezClient, { type BoardDefData } from './GamezClient';
 
 TimeAgo.addDefaultLocale(en);
 

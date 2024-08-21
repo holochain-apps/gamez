@@ -23,21 +23,30 @@
     }
   })();
 
+  $: {
+    if ($route.id === 'board') {
+      store.boardList.setActiveBoard($route.boardHash);
+    } else {
+      store.boardList.setActiveBoard(undefined);
+    }
+  }
+
   $: activeBoard = store.boardList.activeBoard;
-  $: activeBoardHash = store.boardList.activeBoardHash;
 </script>
 
 <div class="flex flex-col min-h-full">
-  {#if store}
+  {#if (store && $route.id === 'board' && $activeBoard) || $route.id !== 'board'}
     <LayoutBar {title} activeBoard={$activeBoard} />
-    {#if $activeBoardHash !== undefined}
-      <GamezPane activeBoard={$activeBoard} />
+    {#if $route.id === 'board'}
+      <GamezPane boardHash={$route.boardHash} activeBoard={$activeBoard} />
     {:else if $route.id === 'home'}
       <Home />
     {:else if $route.id === 'newGameDef'}
       <BoardEditor />
     {:else if $route.id === 'editGameDef'}
       <BoardEditor defHash={$route.defHash} />
+    {:else if $route.id === 'editBoard'}
+      <BoardEditor boardHash={$route.boardHash} />
     {/if}
   {:else}
     <LoadingIndicator class="mt40" textual={false} />

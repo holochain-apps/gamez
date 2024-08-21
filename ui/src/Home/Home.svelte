@@ -63,7 +63,7 @@
   };
 
   const handleJoinBoard = async (boardHash: Uint8Array) => {
-    await store.boardList.setActiveBoard(boardHash);
+    nav({ id: 'board', boardHash });
     const board = await store.boardList.getBoard(boardHash);
     board.requestChanges([
       {
@@ -74,7 +74,7 @@
   };
 
   const handleViewBoard = (boardHash: Uint8Array) => {
-    store.boardList.setActiveBoard(boardHash);
+    nav({ id: 'board', boardHash });
   };
 
   $: availablePresets = ((): string[] | null => {

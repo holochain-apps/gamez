@@ -34,7 +34,11 @@
     if ($route.id === 'board') {
       await store.boardList.closeActiveBoard(false);
     }
-    nav({ id: 'home' });
+    if ($route.id === 'editBoard') {
+      nav({ id: 'board', boardHash: $route.boardHash });
+    } else {
+      nav({ id: 'home' });
+    }
   };
 
   const editAvatar = () => {

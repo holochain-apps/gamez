@@ -10,6 +10,15 @@
 
   import { hollowedToFilledChessPiece, isHollowChessPiece } from './utils';
 
+  const MISSING_PIECE_DEF: PieceDef = {
+    id: null,
+    type: PieceType.Emoji,
+    name: 'Missing',
+    images: ['🚫'],
+    width: 30,
+    height: 30,
+  };
+
   const PLAYER_PIECE_ID_STARTS = 'uhCA';
 
   type PieceDisplayType =
@@ -50,7 +59,7 @@
     } else if (displayPiece.type === 'piece' && !playerPieceId) {
       piece = displayPiece.piece;
       if (!pieceDefs) throw new Error('Missing pieceDefs');
-      pieceDef = pieceDefs[piece.typeId];
+      pieceDef = pieceDefs[piece.typeId] || MISSING_PIECE_DEF;
       pieceDefImage = pieceDef.images[piece.imageIdx];
     }
   }
@@ -101,29 +110,26 @@
       showNickname={false}
       size={PLAYER_PIECE_SIZE}
     />
-  {:else}
-    {#if pieceDef.type === PieceType.Emoji}
-      <div style="margin-top: 1px;">
-        <!-- A little hack to make hollowed chess pieces have a white background -->
-        {#if isHollowChessPiece(pieceDefImage)}
-          <div class="relative z-20 -top-[1px]">{pieceDefImage}</div>
-          <div class="absolute z-10 inset-0 flexcc text-white">
-            {hollowedToFilledChessPiece(pieceDefImage)}
-          </div>
-        {:else}
-          {pieceDefImage}
-        {/if}
-      </div>
-    {/if}
-    {#if pieceDef.type === PieceType.Image}
-      <img
-        alt={pieceDef.name}
-        draggable={false}
-        src={pieceDefImage}
-        width={pieceDef.width}
-        height={pieceDef.height}
-      />
-    {/if}
+  {:else if pieceDef.type === PieceType.Emoji}
+    <div style="margin-top: 1px;">
+      <!-- A little hack to make hollowed chess pieces have a white background -->
+      {#if isHollowChessPiece(pieceDefImage)}
+        <div class="relative z-20 -top-[1px]">{pieceDefImage}</div>
+        <div class="absolute z-10 inset-0 flexcc text-white">
+          {hollowedToFilledChessPiece(pieceDefImage)}
+        </div>
+      {:else}
+        {pieceDefImage}
+      {/if}
+    </div>
+  {:else if pieceDef.type === PieceType.Image}
+    <img
+      alt={pieceDef.name}
+      draggable={false}
+      src={pieceDefImage}
+      width={pieceDef.width}
+      height={pieceDef.height}
+    />
   {/if}
 </div>
 

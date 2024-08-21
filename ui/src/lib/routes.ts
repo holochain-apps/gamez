@@ -13,6 +13,10 @@ export type Route =
       defHash: Uint8Array;
     }
   | {
+      id: 'editBoard';
+      boardHash: Uint8Array;
+    }
+  | {
       id: 'board';
       boardHash: Uint8Array;
     };

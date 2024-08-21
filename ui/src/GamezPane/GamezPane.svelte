@@ -19,6 +19,8 @@
   import TopBar from './TopBar.svelte';
   import PlayersBar from './PlayersBar.svelte';
   import AttachmentsBar from './AttachmentsBar.svelte';
+  import { nav } from '~/lib/routes';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   const MAX_PLAYERS_IN_HEADER = 5;
   const EMPTY_IMAGE = new Image(1, 1);
@@ -26,18 +28,22 @@
     'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
   const store = getStoreContext();
+  export let boardHash: Uint8Array;
   export let activeBoard: Board;
   export let standAlone = false;
   let selectedCommitHash;
   let editBoardDialog;
 
-  $: activeHash = store.boardList.activeBoardHash;
-  $: state = activeBoard.readableState();
-  $: pieces = $state ? Object.values($state.props.pieces) : undefined;
-  $: pieceDefs = $state ? getPieceDefs($state.pieceDefs) : undefined;
-  $: attachments = $state ? $state.props.attachments : undefined;
   $: myAgentPubKeyB64 = store.myAgentPubKeyB64;
+
+  // Board state
+  $: state = activeBoard.readableState();
   $: participants = activeBoard.participants();
+
+  // Derived state
+  $: pieces = $state ? Object.values($state.props.pieces) : undefined;
+  $: pieceDefs = $state ? piecesDefToMap($state.pieceDefs) : undefined;
+  $: attachments = $state ? $state.props.attachments : undefined;
 
   // ██╗   ██╗████████╗██╗██╗     ███████╗
   // ██║   ██║╚══██╔══╝██║██║     ██╔════╝
@@ -87,7 +93,7 @@
 
   $: iCanPlay = canPlay($state);
 
-  const getPieceDefs = (defs: Array<PieceDef>) => {
+  const piecesDefToMap = (defs: Array<PieceDef>) => {
     const pieceDefs: { [key: string]: PieceDef } = {};
     defs.forEach((d) => (pieceDefs[d.id] = d));
     return pieceDefs;
@@ -108,28 +114,32 @@
   // ██║  ██║   ██║      ██║   ██║  ██║╚██████╗██║  ██║██║ ╚═╝ ██║███████╗██║ ╚████║   ██║   ███████║
   // ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
 
-  onMount(async () => {
-    const props = cloneDeep($state.props) as BoardProps;
+  // Migrate plain strings attachments to AssetSpec
+  $: {
+    if (activeBoard && $state) {
+      console.log('Running attachments migration');
+      const props = cloneDeep($state.props) as BoardProps;
 
-    const attachments = props.attachments;
+      const attachments = props.attachments;
 
-    // backward compatibility check for when attachments were just strings
-    if (attachments && attachments.length > 0 && typeof attachments[0] == 'string') {
-      const assetSpecs = [];
+      // backward compatibility check for when attachments were just strings
+      if (attachments && attachments.length > 0 && typeof attachments[0] == 'string') {
+        const assetSpecs = [];
 
-      attachments.forEach((a, count) =>
-        assetSpecs.push({
-          embed: true,
-          weaveUrl: a,
-          position: { x: 50 * count, y: 20 * count },
-          size: { width: 100, height: 100 },
-        }),
-      );
+        attachments.forEach((a, count) =>
+          assetSpecs.push({
+            embed: true,
+            weaveUrl: a,
+            position: { x: 50 * count, y: 20 * count },
+            size: { width: 100, height: 100 },
+          }),
+        );
 
-      props.attachments = assetSpecs;
-      activeBoard.requestChanges([{ type: 'set-props', props }]);
+        props.attachments = assetSpecs;
+        activeBoard.requestChanges([{ type: 'set-props', props }]);
+      }
     }
-  });
+  }
 
   let showEmbed = false;
   let embedsEditable = false;
@@ -411,145 +421,156 @@
 </script>
 
 <div class="overflow-auto flex-grow bg-main-700 @dark:bg-main-300">
-  <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
-  <TopBar
-    showAddToPocket={!!store.weaveClient}
-    attachments={$state.boundTo}
-    participants={$participants ? Array.from($participants.entries()) : null}
-    myAgentPubKey={store.myAgentPubKey}
-    boardName={$state.name}
-    {standAlone}
-    on:pocket={() => copyWALToClipboard()}
-    on:export={() => exportBoard($state)}
-    on:settings={() => editBoardDialog.open(cloneDeep($activeHash))}
-    on:leave={() => leaveBoard()}
-    on:add-attachment={() => addAttachment()}
-  />
-
-  {#if store.weaveClient}
-    <AttachmentsBar
-      boundTo={$state.boundTo}
-      {attachments}
-      {showEmbed}
-      {embedsEditable}
-      on:remove-attachment={(e) => removeAttachment(e.detail)}
-      on:toggle-show-embed={toggleShowEmbed}
-      on:toggle-embeds-editable={toggleEmbedsEditable}
-    />
-  {/if}
-
-  {#if $state}
-    <PlayersBar
-      minPlayers={$state.min_players}
-      players={$state.props.players}
-      showPlayers={!$state.playerPieces}
-      turnsEnabled={$state.turns}
-      turn={$state.props.turn}
-      canJoin={canJoin($state)}
-      currentAgentIsPlaying={haveJoined($state)}
-      isCurrentAgentTurn={myTurn($state)}
-      on:join={() => activeBoard.requestChanges([{ type: 'add-player', player: myAgentPubKeyB64 }])}
-      on:end-turn={() => activeBoard.requestChanges([{ type: 'next-turn' }])}
-      on:leave-game={() =>
-        activeBoard.requestChanges([{ type: 'remove-player', player: myAgentPubKeyB64 }])}
+  {#if activeBoard}
+    <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
+    <TopBar
+      showAddToPocket={!!store.weaveClient}
+      attachments={$state.boundTo}
+      participants={$participants ? Array.from($participants.entries()) : null}
+      myAgentPubKey={store.myAgentPubKey}
+      boardName={$state.name}
+      {standAlone}
+      on:pocket={() => copyWALToClipboard()}
+      on:export={() => exportBoard($state)}
+      on:settings={() => nav({ id: 'editBoard', boardHash })}
+      on:leave={() => leaveBoard()}
+      on:add-attachment={() => addAttachment()}
     />
 
-    <div class="flex-grow flex overflow-auto p2">
-      <!-- PIECE SOURCES -->
-      <div class="w60 pt4" on:dragover={(ev) => handleDragOver(ev, 'source')}>
-        <h3 class="text-bold text-xl text-center">{iCanPlay ? 'Add Piece:' : 'Pieces:'}</h3>
-        {#each Object.values(pieceDefs) as p}
-          <div class="flexcc">
-            <div class="flex-grow mr2 text-right">
-              {pieceDefs[p.id].name}
-            </div>
-            <PieceEl
-              displayPiece={{ type: 'pieceDefPiece', pieceDef: p }}
-              on:dragstart={(e) => handleDragStart(e, 'add', p.id)}
-              on:dragend={handleDragEnd}
-              on:drop={handleDragEnd}
-              dragEnabled={iCanPlay}
-            />
-          </div>
-        {/each}
-        {#if $state.playerPieces}
-          {#each $state.props.players as player, index}
-            <div style="display: flex; place-items: center end;">
-              <div style="margin-right: 4px; flex-grow: 1; text-align: right;">
-                <PlayerName agentPubKey={decodeHashFromBase64(player)} />
+    {#if store.weaveClient}
+      <AttachmentsBar
+        boundTo={$state.boundTo}
+        {attachments}
+        {showEmbed}
+        {embedsEditable}
+        on:remove-attachment={(e) => removeAttachment(e.detail)}
+        on:toggle-show-embed={toggleShowEmbed}
+        on:toggle-embeds-editable={toggleEmbedsEditable}
+      />
+    {/if}
+
+    {#if $state}
+      <PlayersBar
+        minPlayers={$state.min_players}
+        players={$state.props.players}
+        showPlayers={!$state.playerPieces}
+        turnsEnabled={$state.turns}
+        turn={$state.props.turn}
+        canJoin={canJoin($state)}
+        currentAgentIsPlaying={haveJoined($state)}
+        isCurrentAgentTurn={myTurn($state)}
+        on:join={() =>
+          activeBoard.requestChanges([{ type: 'add-player', player: myAgentPubKeyB64 }])}
+        on:end-turn={() => activeBoard.requestChanges([{ type: 'next-turn' }])}
+        on:leave-game={() =>
+          activeBoard.requestChanges([{ type: 'remove-player', player: myAgentPubKeyB64 }])}
+      />
+
+      <div class="flex-grow flex overflow-auto p2">
+        <!-- PIECE SOURCES -->
+        <div class="w60 pt4" on:dragover={(ev) => handleDragOver(ev, 'source')}>
+          <h3 class="text-bold text-xl text-center">{iCanPlay ? 'Add Piece:' : 'Pieces:'}</h3>
+          {#each Object.values(pieceDefs) as p}
+            <div class="flexcc">
+              <div class="flex-grow mr2 text-right">
+                {pieceDefs[p.id].name}
               </div>
               <PieceEl
-                displayPiece={{ type: 'pieceDefPlayer', id: player }}
-                on:dragstart={(e) => handleDragStart(e, 'add', player)}
+                displayPiece={{ type: 'pieceDefPiece', pieceDef: p }}
+                on:dragstart={(e) => handleDragStart(e, 'add', p.id)}
                 on:dragend={handleDragEnd}
                 on:drop={handleDragEnd}
                 dragEnabled={iCanPlay}
               />
             </div>
           {/each}
-        {/if}
-      </div>
+          {#if $state.playerPieces}
+            {#each $state.props.players as player, index}
+              <div class="flexce">
+                <div class="text-right mr2 flex-grow">
+                  <PlayerName agentPubKey={decodeHashFromBase64(player)} />
+                </div>
+                <div class="p2">
+                  <PieceEl
+                    displayPiece={{ type: 'pieceDefPlayer', id: player }}
+                    on:dragstart={(e) => handleDragStart(e, 'add', player)}
+                    on:dragend={handleDragEnd}
+                    on:drop={handleDragEnd}
+                    dragEnabled={iCanPlay}
+                  />
+                </div>
+              </div>
+            {/each}
+          {/if}
+        </div>
 
-      <!-- BOARD -->
-      <div
-        class="img-container flex-grow bg-main-400"
-        bind:this={boardContainer}
-        on:wheel={handleZoomInOut}
-        on:mousedown={handlePanningStart}
-        on:drop={handleDragDrop}
-        on:dragover={(ev) => handleDragOver(ev, 'board')}
-        style={`${isPanning ? 'cursor: move;' : ''} background-position: ${panX}px ${panY}px;`}
-      >
-        <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}
-        ></PieceAttachmentDialog>
+        <!-- BOARD -->
         <div
-          style={`
+          class="img-container flex-grow bg-main-400"
+          bind:this={boardContainer}
+          on:wheel={handleZoomInOut}
+          on:mousedown={handlePanningStart}
+          on:drop={handleDragDrop}
+          on:dragover={(ev) => handleDragOver(ev, 'board')}
+          style={`${isPanning ? 'cursor: move;' : ''} background-position: ${panX}px ${panY}px;`}
+        >
+          <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}
+          ></PieceAttachmentDialog>
+          <div
+            style={`
           height: 100%;
           width: 100%;
           transform:scale(${zoom}) translate(${panX}px, ${panY}px);
           transform-origin: top left;`}
-        >
-          {#each pieces as piece}
-            <PieceEl
-              on:dblclick={() => editPieceAttachments(piece)}
-              on:dragstart={(e) => handleDragStart(e, 'move', piece.id)}
-              on:dragend={handleDragEnd}
-              on:drop={handleDragDrop}
-              on:dragover={(ev) => handleDragOver(ev, 'board')}
-              hidden={!!(dragState && dragState.type === 'move' && dragState.pieceId === piece.id)}
-              displayPiece={{ type: 'piece', piece }}
-              {pieceDefs}
-              dragEnabled={iCanPlay}
+          >
+            {#each pieces as piece}
+              <PieceEl
+                on:dblclick={() => editPieceAttachments(piece)}
+                on:dragstart={(e) => handleDragStart(e, 'move', piece.id)}
+                on:dragend={handleDragEnd}
+                on:drop={handleDragDrop}
+                on:dragover={(ev) => handleDragOver(ev, 'board')}
+                hidden={!!(
+                  dragState &&
+                  dragState.type === 'move' &&
+                  dragState.pieceId === piece.id
+                )}
+                displayPiece={{ type: 'piece', piece }}
+                {pieceDefs}
+                dragEnabled={iCanPlay}
+              />
+            {/each}
+            <img
+              alt="Board"
+              width={$state.props.bgWidth}
+              height={$state.props.bgHeight}
+              draggable={false}
+              src={bgUrl}
+              class="max-w-none block p-[80px] bg-transparent b b-transparent object-cover"
             />
-          {/each}
-          <img
-            alt="Board"
-            width={$state.props.bgWidth}
-            height={$state.props.bgHeight}
-            draggable={false}
-            src={bgUrl}
-            class="max-w-none block p-[80px] bg-transparent b b-transparent object-cover"
-          />
+          </div>
         </div>
+        <!-- WAL SPACE -->
+        {#if showEmbed}
+          <div class="w160 ml4 flex-shrink-1">
+            <WalSpace
+              items={$state.props.attachments ? cloneDeep($state.props.attachments) : []}
+              bind:this={walSpace}
+              on:assets-edited={(e) => saveAttachments(e.detail)}
+            ></WalSpace>
+          </div>
+        {/if}
       </div>
-      <!-- WAL SPACE -->
-      {#if showEmbed}
-        <div class="w160 ml4 flex-shrink-1">
-          <WalSpace
-            items={$state.props.attachments ? cloneDeep($state.props.attachments) : []}
-            bind:this={walSpace}
-            on:assets-edited={(e) => saveAttachments(e.detail)}
-          ></WalSpace>
-        </div>
-      {/if}
-    </div>
-    <commit-history
-      style="flex: 1"
-      {selectedCommitHash}
-      on:commit-selected={(e) => {
-        selectedCommitHash = e.detail.commitHash;
-      }}
-    ></commit-history>
+      <commit-history
+        style="flex: 1"
+        {selectedCommitHash}
+        on:commit-selected={(e) => {
+          selectedCommitHash = e.detail.commitHash;
+        }}
+      ></commit-history>
+    {/if}
+  {:else}
+    <LoadingIndicator class="mt80" />
   {/if}
 </div>
 

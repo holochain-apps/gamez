@@ -74,7 +74,7 @@
     </select>
     {#if def.type == PieceType.Emoji}
       <button
-        class="flexcc w10 h10 ml4 rounded-md text-lg bg-white"
+        class="flexcc w10 h10 ml4 rounded-md text-2xl bg-white text-black"
         on:click={openEmojiPicker}
         bind:this={emojiPickerTarget}>{def.images[0] || ''}</button
       >

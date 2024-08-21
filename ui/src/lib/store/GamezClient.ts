@@ -1,9 +1,9 @@
 // Handles the Gamez Zome
 // which provides the boards definitions
-import { ActionCommittedSignal, EntryRecord, ZomeClient } from '@holochain-open-dev/utils';
-import { ActionHash, AppClient, Link } from '@holochain/client';
+import { type ActionCommittedSignal, EntryRecord, ZomeClient } from '@holochain-open-dev/utils';
+import { type ActionHash, type AppClient, type Link } from '@holochain/client';
 
-import { BoardState } from './board';
+import { type BoardState } from './board';
 
 export const ZOME_NAME = 'gamez';
 

@@ -145,11 +145,11 @@ export class BoardList {
   allAgentBoards: AsyncReadable<ReadonlyMap<AgentPubKey, Array<BoardAndLatestState>>>;
 
   constructor(
-    public profilseStore: ProfilesStore,
+    public profilesStore: ProfilesStore,
     public synStore: SynStore,
     public weaveClient: WeaveClient,
   ) {
-    this.allAgentBoards = pipe(this.profilseStore.agentsWithProfile, (agents) =>
+    this.allAgentBoards = pipe(this.profilesStore.agentsWithProfile, (agents) =>
       sliceAndJoin(this.agentBoardHashes, agents),
     );
 
