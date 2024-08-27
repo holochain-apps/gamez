@@ -31,77 +31,99 @@
 
   // Mounting the board data for editing
   $: (async () => {
-    // EDIT GAME TYPE
     if (defHash) {
-      let boardDef2 = await toPromise(store.defs.get(defHash));
-      const boardState2 = boardDef2.board;
-
-      boardDef = boardDef2;
-      board = null;
-      boardState = {
-        name: boardState2.name,
-        min_players: boardState2.min_players,
-        max_players: boardState2.max_players,
-        turns: boardState2.turns,
-        playerPieces: boardState2.playerPieces,
-        pieceDefs: boardState2.pieceDefs,
-        props: {
-          bgUrl: boardState2.props.bgUrl,
-          bgHeight: boardState2.props.bgHeight,
-          bgWidth: boardState2.props.bgWidth,
-        },
-      };
-      uiState.canArchive = false;
-      uiState.canDelete = false;
-      // EDIT BOARD
+      await initOnEditGameType();
     } else if (boardHash) {
-      const board2 = await store.boardList.getBoard(boardHash);
-      const boardState2 = board2.state();
-      const isSteward = await toPromise(store.agentIsSteward);
-
-      boardDef = null;
-      board = board2;
-      boardState = {
-        name: boardState2.name,
-        min_players: boardState2.min_players,
-        max_players: boardState2.max_players,
-        turns: boardState2.turns,
-        playerPieces: boardState2.playerPieces,
-        pieceDefs: cloneDeep(boardState2.pieceDefs),
-        props: {
-          bgUrl: boardState2.props.bgUrl,
-          bgHeight: boardState2.props.bgHeight,
-          bgWidth: boardState2.props.bgWidth,
-        },
-      };
-      uiState.canArchive = true;
-      uiState.canDelete = boardState2.creator === store.myAgentPubKeyB64 || isSteward;
-      // NEW GAME
+      await initOnEditGame();
     } else {
-      boardDef = null;
-      board = null;
-      boardState = {
-        name: '',
-        min_players: 1,
-        max_players: 6,
-        turns: false,
-        playerPieces: false,
-        pieceDefs: [],
-        props: {
-          bgUrl: '',
-          bgHeight: '',
-          bgWidth: '',
-        },
-      };
-      uiState.canArchive = false;
-      uiState.canDelete = false;
+      await initOnNewGameType();
     }
   })();
 
+  async function initOnNewGameType() {
+    boardDef = null;
+    board = null;
+    boardState = {
+      name: '',
+      min_players: 1,
+      max_players: 6,
+      turns: false,
+      playerPieces: false,
+      pieceDefs: [],
+      props: {
+        bgUrl: '',
+        bgHeight: '',
+        bgWidth: '',
+      },
+    };
+    uiState.canArchive = false;
+    uiState.canDelete = false;
+  }
+
+  async function initOnEditGameType() {
+    let boardDef2 = await toPromise(store.defs.get(defHash));
+    const boardState2 = boardDef2.board;
+
+    boardDef = boardDef2;
+    board = null;
+    boardState = {
+      name: boardState2.name,
+      min_players: boardState2.min_players,
+      max_players: boardState2.max_players,
+      turns: boardState2.turns,
+      playerPieces: boardState2.playerPieces,
+      pieceDefs: boardState2.pieceDefs,
+      props: {
+        bgUrl: boardState2.props.bgUrl,
+        bgHeight: boardState2.props.bgHeight,
+        bgWidth: boardState2.props.bgWidth,
+      },
+    };
+    uiState.canArchive = false;
+    uiState.canDelete = false;
+  }
+
+  async function initOnEditGame() {
+    const board2 = await store.boardList.getBoard(boardHash);
+    const boardState2 = board2.state();
+    const isSteward = await toPromise(store.agentIsSteward);
+
+    boardDef = null;
+    board = board2;
+    boardState = {
+      name: boardState2.name,
+      min_players: boardState2.min_players,
+      max_players: boardState2.max_players,
+      turns: boardState2.turns,
+      playerPieces: boardState2.playerPieces,
+      pieceDefs: cloneDeep(boardState2.pieceDefs),
+      props: {
+        bgUrl: boardState2.props.bgUrl,
+        bgHeight: boardState2.props.bgHeight,
+        bgWidth: boardState2.props.bgWidth,
+      },
+    };
+    uiState.canArchive = true;
+    uiState.canDelete = boardState2.creator === store.myAgentPubKeyB64 || isSteward;
+  }
+
   // BUTTONS ACTIONS
 
-  function toNewBoardState(newBoardState: EditableBoardState): BoardState {
-    return {
+  async function handleSave(newBoardState: EditableBoardState) {
+    uiState.saving = true;
+    if (boardDef) {
+      handleSaveOnEditGameType(newBoardState);
+    } else if (board) {
+      handleSaveOnEditGame(newBoardState);
+    } else {
+      handleSaveOnNewGameType(newBoardState);
+    }
+
+    uiState.saving = false;
+  }
+
+  async function handleSaveOnNewGameType(newBoardState: EditableBoardState) {
+    const finalBoardState = {
       ...newBoardState,
       status: '',
       creator: store.myAgentPubKeyB64,
@@ -114,11 +136,15 @@
         pieces: {},
       },
     };
+
+    await store.makeGameType(finalBoardState);
+    nav({ id: 'home' });
   }
 
-  function toUpdatedBoardState(newBoardState: EditableBoardState): BoardState {
+  async function handleSaveOnEditGameType(newBoardState: EditableBoardState) {
     if (!boardDef) throw 'Expected boardDef to be defined';
-    return {
+
+    const finalBoardState = {
       ...boardDef.board,
       ...newBoardState,
       props: {
@@ -126,67 +152,57 @@
         ...newBoardState.props,
       },
     };
+
+    await store.client.updateBoardDef(
+      boardDef.originalHash,
+      boardDef.record.actionHash,
+      finalBoardState,
+    );
+    nav({ id: 'home' });
   }
 
-  function toBoardDeltas({
-    name,
-    turns,
-    playerPieces,
-    min_players,
-    max_players,
-    props,
-    pieceDefs,
-  }: EditableBoardState): BoardDelta[] {
-    const changes: BoardDelta[] = [];
-    const state = board.state();
-    const mergedProps = { ...state.props, ...props };
+  function handleSaveOnEditGame(newBoardState: EditableBoardState) {
+    function toBoardDeltas({
+      name,
+      turns,
+      playerPieces,
+      min_players,
+      max_players,
+      props,
+      pieceDefs,
+    }: EditableBoardState): BoardDelta[] {
+      const changes: BoardDelta[] = [];
+      const state = board.state();
+      const mergedProps = { ...state.props, ...props };
 
-    if (state.name != name) {
-      changes.push({ type: 'set-name', name });
-    }
-    if (state.turns != turns) {
-      changes.push({ type: 'set-turns', turns });
-    }
-    if (state.playerPieces != playerPieces) {
-      changes.push({ type: 'set-player-pieces', playerPieces });
-    }
-    if (min_players != state.min_players || max_players != state.max_players) {
-      changes.push({ type: 'set-player-range', min_players, max_players });
-    }
-    if (!isEqual(mergedProps, state.props)) {
-      changes.push({ type: 'set-props', props: mergedProps });
-    }
-    if (!isEqual(pieceDefs, state.pieceDefs)) {
-      changes.push({ type: 'set-piece-defs', pieceDefs });
-    }
-
-    return changes;
-  }
-
-  // Buttons handling
-
-  async function handleSave(newBoardState: EditableBoardState) {
-    uiState.saving = true;
-    if (boardDef) {
-      await store.client.updateBoardDef(
-        boardDef.originalHash,
-        boardDef.record.actionHash,
-        toUpdatedBoardState(newBoardState),
-      );
-      nav({ id: 'home' });
-    } else if (board) {
-      const changes = toBoardDeltas(newBoardState);
-      if (changes.length > 0) {
-        console.log('Updating board!', changes);
-        board.requestChanges(changes);
+      if (state.name != name) {
+        changes.push({ type: 'set-name', name });
       }
-      nav({ id: 'board', boardHash });
-    } else {
-      await store.makeGameType(toNewBoardState(newBoardState));
-      nav({ id: 'home' });
+      if (state.turns != turns) {
+        changes.push({ type: 'set-turns', turns });
+      }
+      if (state.playerPieces != playerPieces) {
+        changes.push({ type: 'set-player-pieces', playerPieces });
+      }
+      if (min_players != state.min_players || max_players != state.max_players) {
+        changes.push({ type: 'set-player-range', min_players, max_players });
+      }
+      if (!isEqual(mergedProps, state.props)) {
+        changes.push({ type: 'set-props', props: mergedProps });
+      }
+      if (!isEqual(pieceDefs, state.pieceDefs)) {
+        changes.push({ type: 'set-piece-defs', pieceDefs });
+      }
+
+      return changes;
     }
 
-    uiState.saving = false;
+    const changes = toBoardDeltas(newBoardState);
+    if (changes.length > 0) {
+      console.log('Updating board!', changes);
+      board.requestChanges(changes);
+    }
+    nav({ id: 'board', boardHash });
   }
 
   async function handleDelete() {
