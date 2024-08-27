@@ -32,7 +32,7 @@ import {
   type Link,
   type RoleName,
 } from '@holochain/client';
-import type { WeaveClient } from '@lightningrodlabs/we-applet';
+import { isWeContext, type WeaveClient } from '@lightningrodlabs/we-applet';
 
 import { getMyDna } from '../util';
 import type { BoardState } from './board';
@@ -78,6 +78,7 @@ export class GamezStore {
   uiProps: Writable<UIProps>;
   unsub: Unsubscriber;
   dnaHash: AsyncReadable<DnaHash>;
+  agentIsSteward: AsyncReadable<boolean>;
 
   constructor(
     public weaveClient: WeaveClient, // Used to send notifications so far
@@ -90,6 +91,12 @@ export class GamezStore {
       return await getMyDna(roleName, clientIn);
     });
     this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
+    this.agentIsSteward = lazyLoad(async () => {
+      return (
+        !isWeContext() ||
+        (isWeContext() && (await weaveClient.myGroupPermissionType()).type === 'Steward')
+      );
+    });
 
     // Board / Game Types definitions
     // Use zome

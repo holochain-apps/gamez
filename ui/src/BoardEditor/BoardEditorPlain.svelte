@@ -7,8 +7,11 @@
 
 <script lang="ts">
   import PlusIcon from '~icons/fa6-solid/plus';
+  import TrashIcon from '~icons/fa6-solid/trash';
+  import ArchiveIcon from '~icons/fa6-solid/box-archive';
 
   import { PieceDef, PieceType, type BoardProps, type BoardState } from '~/lib/store';
+  import { tooltip } from '~/shared/tooltip';
 
   import Input from './BoardEditorInput.svelte';
   import IntegerInput from './IntegerInput.svelte';
@@ -18,6 +21,8 @@
   export let disabled: boolean = false;
   export let onSave: (newBoardState: EditableBoardState) => void;
   export let onDelete: () => void = () => {};
+  export let onExport: () => void = () => {};
+  export let onArchive: () => void = () => {};
   export let canDelete: boolean = false;
   export let canArchive: boolean = false;
 
@@ -136,28 +141,38 @@
         {/each}
       </div>
     </div>
-    <div class="flex space-x-4 absolute w-full p2 h14 bg-main-400">
+    <div class="flex space-x-2 absolute w-full p2 h14 bg-main-400">
       {#if canDelete}
         <button
           {disabled}
           on:click={() => onDelete()}
-          class="bg-red-500 text-white px4 py2 rounded-md flex-1 hover:brightness-120"
+          use:tooltip={'Delete'}
+          class="bg-red-500 text-white px4 py2 rounded-md flexcc hover:brightness-120"
         >
-          Delete
+          <TrashIcon />
         </button>
       {/if}
       {#if canArchive}
         <button
           {disabled}
-          class="bg-orange-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110"
+          on:click={() => onArchive()}
+          use:tooltip={'Archive'}
+          class="bg-orange-500 text-white px4 py2 rounded-md flexcc hover:brightness-110"
         >
-          Archive
+          <ArchiveIcon />
         </button>
       {/if}
       <button
         {disabled}
+        on:click={() => onExport()}
+        class="bg-yellow-500 text-white px4 py2 rounded-md flex-grow hover:brightness-110"
+      >
+        Export
+      </button>
+      <button
+        {disabled}
         on:click={() => onSave(boardState)}
-        class="bg-main-500 text-white px4 py2 rounded-md flex-1 hover:brightness-110"
+        class="bg-main-500 text-white px4 py2 rounded-md flex-grow hover:brightness-110"
       >
         Save
       </button>

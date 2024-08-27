@@ -14,6 +14,12 @@
   export let defHash: Uint8Array = null;
   export let boardHash: Uint8Array = null;
 
+  // There is essentially 3 possible uses for this component
+  // - Creating a new Game Type
+  // - Editing a Game Type
+  // - Editing a Game
+  // This component takes care of picking the loading and saving mechanism that is different for each
+
   let uiState = {
     saving: false,
     canDelete: false,
@@ -45,12 +51,13 @@
           bgWidth: boardState2.props.bgWidth,
         },
       };
-
-      // uiState.canDelete = board.creator === store.myAgentPubKeyB64;
+      uiState.canArchive = false;
+      uiState.canDelete = false;
       // EDIT BOARD
     } else if (boardHash) {
       const board2 = await store.boardList.getBoard(boardHash);
       const boardState2 = board2.state();
+      const isSteward = await toPromise(store.agentIsSteward);
 
       boardDef = null;
       board = board2;
@@ -67,6 +74,8 @@
           bgWidth: boardState2.props.bgWidth,
         },
       };
+      uiState.canArchive = true;
+      uiState.canDelete = boardState2.creator === store.myAgentPubKeyB64 || isSteward;
       // NEW GAME
     } else {
       boardDef = null;
@@ -84,6 +93,8 @@
           bgWidth: '',
         },
       };
+      uiState.canArchive = false;
+      uiState.canDelete = false;
     }
   })();
 
@@ -152,6 +163,8 @@
     return changes;
   }
 
+  // Buttons handling
+
   async function handleSave(newBoardState: EditableBoardState) {
     uiState.saving = true;
     if (boardDef) {
@@ -178,7 +191,17 @@
 
   async function handleDelete() {
     if (uiState.canDelete) {
-      console.log('Deleting!');
+      store.boardList.deleteBoard(boardHash);
+      nav({ id: 'home' });
+    }
+  }
+
+  async function handleExport() {}
+
+  async function handleArchive() {
+    if (uiState.canArchive) {
+      store.boardList.archiveBoard(boardHash);
+      nav({ id: 'home' });
     }
   }
 </script>
@@ -186,10 +209,12 @@
 {#if boardState}
   <BoardEditorPlain
     board={boardState}
-    onSave={handleSave}
     canDelete={uiState.canDelete}
     canArchive={uiState.canArchive}
+    onSave={handleSave}
     onDelete={handleDelete}
+    onArchive={handleArchive}
+    onExport={handleExport}
     disabled={uiState.saving}
   />
 {:else}

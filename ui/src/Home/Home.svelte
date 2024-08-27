@@ -33,6 +33,7 @@
   $: defHashes = store.defHashes;
   $: defsList = store.defsList;
   $: uiProps = store.uiProps;
+  $: agentIsSteward = store.agentIsSteward;
 
   let amWeaveSteward = false;
 
@@ -79,15 +80,17 @@
 
   $: availablePresets = ((): string[] | null => {
     let games: string[] | null;
-
-    if ((!isWeContext() || amWeaveSteward) && $defsList.status == 'complete') {
+    if (
+      $agentIsSteward.status === 'complete' &&
+      $agentIsSteward.value &&
+      $defsList.status === 'complete'
+    ) {
       games = [];
       const names = $defsList.value.map((def) => def.board.name);
       DEFAULT_GAMES.forEach((g) => {
         if (!names.find((b) => b == g)) games.push(g);
       });
     }
-
     return games;
   })();
 </script>
@@ -116,7 +119,9 @@
 
   <div class="flex-grow p4">
     {#if $defsList.status !== 'complete' || $defsList.value.length == 0 || true}
-      <Welcome suggestCreateGameType={!isWeContext() || amWeaveSteward} />
+      <Welcome
+        suggestCreateGameType={$agentIsSteward.status === 'complete' && $agentIsSteward.value}
+      />
     {/if}
     <div class="mb4">
       <!-- ACTIVE BOARDS -->

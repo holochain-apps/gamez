@@ -89,6 +89,13 @@
     </button>
     <button
       class="h10 w10 flexcc rounded-full hover:bg-white/20"
+      on:click={() => dispatch('settingsOld')}
+      use:tooltip={'Edit board'}
+    >
+      Old
+    </button>
+    <button
+      class="h10 w10 flexcc rounded-full hover:bg-white/20"
       on:click={() => dispatch('export')}
       use:tooltip={'Export Board'}
     >

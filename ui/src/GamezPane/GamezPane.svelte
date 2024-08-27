@@ -433,6 +433,7 @@
       on:pocket={() => copyWALToClipboard()}
       on:export={() => exportBoard($state)}
       on:settings={() => nav({ id: 'editBoard', boardHash })}
+      on:settingsOld={() => editBoardDialog.open(boardHash)}
       on:leave={() => leaveBoard()}
       on:add-attachment={() => addAttachment()}
     />
