@@ -37,7 +37,7 @@ import { isWeContext, type WeaveClient } from '@lightningrodlabs/we-applet';
 import { getMyDna } from '../util';
 import type { BoardState } from './board';
 import { BoardList } from './boardList';
-import { CHESS, GO, WORLD } from './defaultGames';
+import * as defaultGames from './defaultGames';
 import GamezClient, { type BoardDefData } from './GamezClient';
 
 TimeAgo.addDefaultLocale(en);
@@ -170,23 +170,5 @@ export class GamezStore {
 
   async makeGameType(board: BoardState): Promise<any> {
     return await this.client.createBoardDef(board);
-  }
-
-  async addDefaultGames(name: string): Promise<any> {
-    let board: Omit<BoardState, 'creator'>;
-    switch (name) {
-      case 'Chess':
-        board = CHESS;
-        break;
-      case 'Go':
-        board = GO;
-        break;
-      case 'World':
-        board = WORLD;
-        break;
-    }
-    if (board) {
-      await this.client.createBoardDef(board as BoardState);
-    }
   }
 }

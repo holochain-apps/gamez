@@ -10,3 +10,4 @@ export {
   type BoardDelta,
 } from './board';
 export { BoardType } from './boardList';
+export * as defaultGames from './defaultGames';

@@ -260,7 +260,7 @@
     if (!S.props.bgUrl) return false;
     if (!S.min_players || !S.max_players) return false;
     if (S.min_players < 1) return false;
-    if (S.max_players - S.min_players <= 0) return false;
+    if (S.max_players - S.min_players < 0) return false;
     return true;
   })();
 </script>

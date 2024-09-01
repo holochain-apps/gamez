@@ -13,14 +13,13 @@
   import { getStoreContext } from '~/lib/context';
   import { nav } from '~/lib/routes';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+  import { defaultGames, type BoardState } from '~/lib/store';
 
   import BoardCard from './BoardCard.svelte';
   import BoardDefItem from './BoardDefItem.svelte';
   import StartGameDialog from './StartGameDialog.svelte';
   import Welcome from './Welcome.svelte';
   import SidebarButton from './SidebarButton.svelte';
-
-  const DEFAULT_GAMES = ['Chess', 'Go', 'World'];
 
   const store = getStoreContext();
 
@@ -74,18 +73,18 @@
     nav({ id: 'board', boardHash });
   };
 
-  $: availablePresets = ((): string[] | null => {
-    let games: string[] | null;
+  $: availablePresets = ((): BoardState[] | null => {
+    let games: BoardState[] | null = null;
     if (
       $agentIsSteward.status === 'complete' &&
       $agentIsSteward.value &&
       $defsList.status === 'complete'
     ) {
-      games = [];
       const names = $defsList.value.map((def) => def.board.name);
-      DEFAULT_GAMES.forEach((g) => {
-        if (!names.find((b) => b == g)) games.push(g);
-      });
+      const defaultGamesStates = Object.values(defaultGames) as BoardState[];
+      return defaultGamesStates.filter(({ name }) => names.indexOf(name) === -1);
+    } else {
+      return null;
     }
     return games;
   })();
@@ -240,10 +239,14 @@
       {#if availablePresets && availablePresets.length > 0}
         <h4 class="font-black mb4 text-lg mt4">Presets</h4>
         <div class="flex flex-col space-y-2">
-          {#each availablePresets as g}
-            <SidebarButton mode={'lg'} class="w-full" on:click={() => store.addDefaultGames(g)}>
+          {#each availablePresets as gamePreset}
+            <SidebarButton
+              mode={'lg'}
+              class="w-full"
+              on:click={() => store.makeGameType(gamePreset)}
+            >
               <PlusIcon class="text-sm" />
-              <div class="flex-grow">{g}</div>
+              <div class="flex-grow">{gamePreset.name}</div>
             </SidebarButton>
           {/each}
         </div>
