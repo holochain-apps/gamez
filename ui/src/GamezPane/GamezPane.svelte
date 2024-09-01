@@ -9,7 +9,6 @@
   import { type BoardState, PieceDef, Board, type Piece, type BoardProps } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
   import { type AssetSpec } from '~/lib/util';
-  import EditBoardDialog from '~/shared/EditBoardDialog.svelte';
   import PlayerName from '~/shared/PlayerName.svelte';
   import { nav } from '~/lib/routes';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
@@ -31,7 +30,6 @@
   export let activeBoard: Board;
   export let standAlone = false;
   let selectedCommitHash;
-  let editBoardDialog;
 
   $: myAgentPubKeyB64 = store.myAgentPubKeyB64;
 
@@ -401,7 +399,6 @@
 
 <div class="overflow-auto flex-grow bg-main-700 @dark:bg-main-300">
   {#if activeBoard}
-    <EditBoardDialog bind:this={editBoardDialog}></EditBoardDialog>
     <TopBar
       showAddToPocket={!!store.weaveClient}
       attachments={$state.boundTo}

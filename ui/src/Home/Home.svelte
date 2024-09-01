@@ -14,8 +14,6 @@
   import { nav } from '~/lib/routes';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
-  import NewBoardDialog from './NewBoardDialog.svelte';
-  import EditGameTypeDialog from './EditGameTypeDialog.svelte';
   import BoardCard from './BoardCard.svelte';
   import BoardDefItem from './BoardDefItem.svelte';
   import StartGameDialog from './StartGameDialog.svelte';
@@ -38,8 +36,6 @@
   let amWeaveSteward = false;
 
   // Binds
-  let newBoardDialog;
-  let editBoardTypeDialog;
   let startGameDialog;
   let fileinput;
 
@@ -97,8 +93,6 @@
 
 <!-- DIALOGS -->
 
-<NewBoardDialog bind:this={newBoardDialog} />
-<EditGameTypeDialog bind:this={editBoardTypeDialog} />
 <StartGameDialog
   bind:this={startGameDialog}
   on:start-game={async (e) => {
