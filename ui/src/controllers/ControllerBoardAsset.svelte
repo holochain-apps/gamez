@@ -22,7 +22,7 @@
     <div class="app">
       {#if store}
         {#if $activeBoardHash !== undefined}
-          <GamezPane standAlone={true} activeBoard={$activeBoard} />
+          <GamezPane standAlone={true} activeBoard={$activeBoard} boardHash={$activeBoardHash} />
         {:else}
           <LoadingIndicator textual={false} class="mt40" />
         {/if}
