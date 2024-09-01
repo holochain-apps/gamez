@@ -22,9 +22,11 @@
   export let onSave: (newBoardState: EditableBoardState) => void;
   export let onDelete: () => void = () => {};
   export let onExport: (newBoardState: EditableBoardState) => void = () => {};
+  export let onChange: (newBoardState: EditableBoardState) => void = () => {};
   export let onArchive: () => void = () => {};
   export let canDelete: boolean = false;
   export let canArchive: boolean = false;
+  export let isValid: boolean = true;
 
   $: boardState = board;
   $: console.log('Board State updated', boardState);
@@ -34,13 +36,14 @@
     value: EditableBoardState[K],
   ) {
     boardState = { ...boardState, [key]: value };
+    onChange(boardState);
   }
 
   function updateBoardProps<K extends keyof EditableBoardProps>(
     key: K,
     value: EditableBoardProps[K],
   ) {
-    boardState = { ...boardState, props: { ...boardState.props, [key]: value } };
+    updateBoardState('props', { ...boardState.props, [key]: value });
   }
 
   // PIECE DEFS
@@ -78,7 +81,7 @@
       <div class="flex mb4 space-x-4">
         <IntegerInput
           class="w-1/2"
-          label="Min players"
+          label="Min players *"
           value={boardState.min_players}
           onInput={(minPlayers) => {
             updateBoardState('min_players', minPlayers);
@@ -86,7 +89,7 @@
         />
         <IntegerInput
           class="w-1/2"
-          label="Max players"
+          label="Max players *"
           value={boardState.max_players}
           onInput={updateBoardState.bind(null, 'max_players')}
         />
@@ -112,14 +115,14 @@
           <Input
             class="block w-1/2"
             type="number"
-            label="Width *"
+            label="Width"
             value={boardState.props.bgWidth}
             onInput={updateBoardProps.bind(null, 'bgWidth')}
           />
           <Input
             class="block w-1/2"
             type="number"
-            label="Height *"
+            label="Height"
             value={boardState.props.bgHeight}
             onInput={updateBoardProps.bind(null, 'bgHeight')}
           />
@@ -147,7 +150,7 @@
           {disabled}
           on:click={() => onDelete()}
           use:tooltip={'Delete'}
-          class="bg-red-500 text-white px4 py2 rounded-md flexcc hover:brightness-120"
+          class="bg-red-500 text-white px4 py2 rounded-md flexcc hover:brightness-120 disabled:(saturate-0 opacity-50)"
         >
           <TrashIcon />
         </button>
@@ -157,22 +160,22 @@
           {disabled}
           on:click={() => onArchive()}
           use:tooltip={'Archive'}
-          class="bg-orange-500 text-white px4 py2 rounded-md flexcc hover:brightness-110"
+          class="bg-orange-500 text-white px4 py2 rounded-md flexcc hover:brightness-110 disabled:(saturate-0 opacity-50)"
         >
           <ArchiveIcon />
         </button>
       {/if}
       <button
-        {disabled}
+        disabled={disabled || !isValid}
         on:click={() => onExport(boardState)}
-        class="bg-yellow-500 text-white px4 py2 rounded-md flex-grow hover:brightness-110"
+        class="bg-yellow-500 text-white px4 py2 rounded-md flex-grow hover:brightness-110 disabled:(saturate-0 opacity-50)"
       >
         Export
       </button>
       <button
-        {disabled}
+        disabled={disabled || !isValid}
         on:click={() => onSave(boardState)}
-        class="bg-main-500 text-white px4 py2 rounded-md flex-grow hover:brightness-110"
+        class="bg-main-500 text-white px4 py2 rounded-md flex-grow hover:brightness-110 disabled:(saturate-0 opacity-50)"
       >
         Save
       </button>

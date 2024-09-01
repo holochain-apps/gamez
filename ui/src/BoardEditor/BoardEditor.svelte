@@ -26,6 +26,7 @@
     saving: false,
     canDelete: false,
     canArchive: false,
+    isValid: false,
   };
   let boardState: EditableBoardState;
   let boardDef: BoardDefData;
@@ -225,11 +226,14 @@
     }
   }
 
+  function generateFinalBoardState(newBoardState: EditableBoardState) {
+    return boardDef || board
+      ? generateBoardStateFromBase(newBoardState, boardDef?.board ?? board?.state())
+      : generateBoardStateFromNew(newBoardState);
+  }
+
   async function handleExport(newBoardState: EditableBoardState) {
-    const finalBoardState =
-      boardDef || board
-        ? generateBoardStateFromBase(newBoardState, boardDef?.board ?? board?.state())
-        : generateBoardStateFromNew(newBoardState);
+    const finalBoardState = generateFinalBoardState(newBoardState);
     const prefix = 'gamez';
     const fileName = sanitize(`${prefix}_export_${finalBoardState.name}.json`);
     download(fileName, JSON.stringify(finalBoardState));
@@ -242,6 +246,23 @@
       nav({ id: 'home' });
     }
   }
+
+  let stagingBoardState: BoardState;
+  $: stagingBoardState = boardState ? generateFinalBoardState(boardState) : null;
+  function handleChange(newBoardState: EditableBoardState) {
+    stagingBoardState = generateFinalBoardState(newBoardState);
+  }
+
+  $: uiState.isValid = (() => {
+    const S = stagingBoardState;
+    if (!S) return false;
+    if (!S.name) return false;
+    if (!S.props.bgUrl) return false;
+    if (!S.min_players || !S.max_players) return false;
+    if (S.min_players < 1) return false;
+    if (S.max_players - S.min_players <= 0) return false;
+    return true;
+  })();
 </script>
 
 {#if boardState}
@@ -253,7 +274,9 @@
     onDelete={handleDelete}
     onArchive={handleArchive}
     onExport={handleExport}
+    onChange={handleChange}
     disabled={uiState.saving}
+    isValid={uiState.isValid}
   />
 {:else}
   <LoadingIndicator class="pt80" />
