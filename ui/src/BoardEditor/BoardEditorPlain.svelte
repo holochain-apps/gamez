@@ -6,6 +6,7 @@
 </script>
 
 <script lang="ts">
+  import DragDropList, { VerticalDropZone, reorder, type DropEvent } from 'svelte-dnd-list';
   import PlusIcon from '~icons/fa6-solid/plus';
   import TrashIcon from '~icons/fa6-solid/trash';
   import ArchiveIcon from '~icons/fa6-solid/box-archive';
@@ -65,6 +66,16 @@
     const newPieceDefs = [...boardState.pieceDefs];
     newPieceDefs[i] = pieceDef;
     setPieceDefs(newPieceDefs);
+  }
+
+  function onDrop({ detail: { from, to } }: CustomEvent<DropEvent>) {
+    if (!to || from === to) {
+      return;
+    }
+
+    const newPiecesDefs = reorder(boardState.pieceDefs, from.index, to.index);
+
+    setPieceDefs(newPiecesDefs);
   }
 </script>
 
@@ -129,19 +140,28 @@
         </div>
       </div>
       <div>
-        <div class="flexcc mb4">
+        <div class="flexcc">
           <h3 class="font-bold text-lg flex-grow">Pieces Types</h3>
           <button class="bg-main-500 p1 rounded-full hover:brightness-110" on:click={addPieceDef}
             ><PlusIcon /></button
           >
         </div>
-        {#each boardState.pieceDefs as pieceDef, index}
+        <DragDropList
+          id="pieces-defs-list"
+          zoneClass="pt4"
+          type={VerticalDropZone}
+          itemSize={160}
+          useHandle={true}
+          itemCount={boardState.pieceDefs.length}
+          on:drop={onDrop}
+          let:index
+        >
           <PieceTypeCard
-            def={pieceDef}
+            def={boardState.pieceDefs[index]}
             on:delete={() => deletePieceDef(index)}
             on:change={({ detail }) => changePieceDef(index, detail)}
           />
-        {/each}
+        </DragDropList>
       </div>
     </div>
     <div class="flex space-x-2 absolute w-full p2 h14 bg-main-400">

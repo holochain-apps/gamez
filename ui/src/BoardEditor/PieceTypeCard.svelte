@@ -53,7 +53,7 @@
 </script>
 
 <div class="bg-black/10 p2 rounded-md mb4 last:mb0 relative pl8 b b-black/10">
-  <GripVerticalIcon class="absolute top-0 left-0 h-full w-8 px2 cursor-grab" />
+  <GripVerticalIcon class="absolute top-0 left-0 h-full w-8 px2 cursor-grab" data-dnd-handle />
   {#if emojiPickerOpen}
     <EmojiPicker target={emojiPickerTarget} onCancel={cancelPickEmoji} onSelect={pickedEmoji} />
   {/if}
@@ -65,12 +65,12 @@
   </div>
   <div class="flex mb4">
     <select
-      class="rounded-md text-black/60 px4 py2 h10 flex-grow outline-main-500"
+      class="rounded-md text-black/60 px2 py2 h10 flex-grow outline-main-500"
       value={def.type}
       on:change={({ currentTarget }) => setPieceType(parseInt(currentTarget.value))}
     >
       <option value={PieceType.Emoji}>Emoji</option>
-      <option value={PieceType.Image}>Image</option>
+      <option value={PieceType.Image}>Img</option>
     </select>
     {#if def.type == PieceType.Emoji}
       <button
@@ -78,17 +78,16 @@
         on:click={openEmojiPicker}
         bind:this={emojiPickerTarget}>{def.images[0] || ''}</button
       >
+    {:else if def.type == PieceType.Image}
+      <Input
+        class="ml4 flex-grow"
+        label="Image URL"
+        type="text"
+        value={def.images[0]}
+        on:input={({ detail }) => setImageUrl(detail)}
+      />
     {/if}
   </div>
-  {#if def.type == PieceType.Image}
-    <Input
-      class="mb4"
-      label="Image URL"
-      type="text"
-      value={def.images[0]}
-      on:input={({ detail }) => setImageUrl(detail)}
-    />
-  {/if}
 
   <div class="flex space-x-4">
     <IntegerInput label="Width" value={def.width} onInput={setWidth} />
