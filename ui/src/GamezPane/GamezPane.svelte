@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { cloneDeep } from 'lodash';
   import sanitize from 'sanitize-filename';
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
@@ -12,6 +11,8 @@
   import { type AssetSpec } from '~/lib/util';
   import EditBoardDialog from '~/shared/EditBoardDialog.svelte';
   import PlayerName from '~/shared/PlayerName.svelte';
+  import { nav } from '~/lib/routes';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   import PieceAttachmentDialog from './PieceAttachmentsDialog.svelte';
   import WalSpace from './WalSpace.svelte';
@@ -19,8 +20,6 @@
   import TopBar from './TopBar.svelte';
   import PlayersBar from './PlayersBar.svelte';
   import AttachmentsBar from './AttachmentsBar.svelte';
-  import { nav } from '~/lib/routes';
-  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   const MAX_PLAYERS_IN_HEADER = 5;
   const EMPTY_IMAGE = new Image(1, 1);
@@ -51,26 +50,6 @@
   // ██║   ██║   ██║   ██║██║     ╚════██║
   // ╚██████╔╝   ██║   ██║███████╗███████║
   //  ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝
-
-  const download = (filename: string, text: string) => {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-  };
-
-  const exportBoard = (state: BoardState) => {
-    const prefix = 'gamez';
-    const fileName = sanitize(`${prefix}_export_${state.name}.json`);
-    download(fileName, JSON.stringify(state));
-    alert(`Your board was exported to your Downloads folder as: '${fileName}'`);
-  };
 
   const canJoin = (state) => {
     return (
@@ -431,9 +410,7 @@
       boardName={$state.name}
       {standAlone}
       on:pocket={() => copyWALToClipboard()}
-      on:export={() => exportBoard($state)}
       on:settings={() => nav({ id: 'editBoard', boardHash })}
-      on:settingsOld={() => editBoardDialog.open(boardHash)}
       on:leave={() => leaveBoard()}
       on:add-attachment={() => addAttachment()}
     />

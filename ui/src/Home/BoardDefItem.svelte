@@ -33,14 +33,9 @@
       >
         New Game
       </SidebarButton>
-      <SidebarButton
-        tooltip={'Settings'}
-        mode={'icon'}
-        on:click={() => dispatch('settings', boardData)}
-      >
+      <SidebarButton tooltip={'Settings'} mode={'icon'} on:click={() => onEdit()}>
         <GearIcon />
       </SidebarButton>
-      <SidebarButton tooltip={'Settings'} mode={'icon'} on:click={() => onEdit()}>S2</SidebarButton>
     </div>
   {:else if $def.status == 'pending'}
     <div class="h-8 flex space-x-2">

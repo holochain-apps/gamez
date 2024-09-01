@@ -21,7 +21,7 @@
   export let disabled: boolean = false;
   export let onSave: (newBoardState: EditableBoardState) => void;
   export let onDelete: () => void = () => {};
-  export let onExport: () => void = () => {};
+  export let onExport: (newBoardState: EditableBoardState) => void = () => {};
   export let onArchive: () => void = () => {};
   export let canDelete: boolean = false;
   export let canArchive: boolean = false;
@@ -164,7 +164,7 @@
       {/if}
       <button
         {disabled}
-        on:click={() => onExport()}
+        on:click={() => onExport(boardState)}
         class="bg-yellow-500 text-white px4 py2 rounded-md flex-grow hover:brightness-110"
       >
         Export

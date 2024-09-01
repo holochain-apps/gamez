@@ -3,7 +3,6 @@
   import { createEventDispatcher } from 'svelte';
   import GearIcon from '~icons/fa6-solid/gear';
   import DoorOpenIcon from '~icons/fa6-solid/door-open';
-  import ExportIcon from '~icons/fa6-solid/file-arrow-down';
   import AddAttachmentIcon from '~icons/fa6-solid/window-restore';
 
   // Organizational
@@ -86,20 +85,6 @@
       use:tooltip={'Edit board'}
     >
       <GearIcon />
-    </button>
-    <button
-      class="h10 w10 flexcc rounded-full hover:bg-white/20"
-      on:click={() => dispatch('settingsOld')}
-      use:tooltip={'Edit board'}
-    >
-      Old
-    </button>
-    <button
-      class="h10 w10 flexcc rounded-full hover:bg-white/20"
-      on:click={() => dispatch('export')}
-      use:tooltip={'Export Board'}
-    >
-      <ExportIcon />
     </button>
     <button
       class="h10 w10 flexcc rounded-full hover:bg-white/20"

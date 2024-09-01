@@ -1,14 +1,16 @@
 <script lang="ts">
   import { cloneDeep, isEqual } from 'lodash';
+  import sanitize from 'sanitize-filename';
 
   import { toPromise } from '@holochain-open-dev/stores';
 
   import { type BoardDefData, type BoardState, Board, type BoardDelta } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
   import { nav } from '~/lib/routes';
+  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
+  import download from '~/lib/download';
 
   import BoardEditorPlain, { type EditableBoardState } from './BoardEditorPlain.svelte';
-  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   const store = getStoreContext();
   export let defHash: Uint8Array = null;
@@ -123,7 +125,14 @@
   }
 
   async function handleSaveOnNewGameType(newBoardState: EditableBoardState) {
-    const finalBoardState = {
+    const finalBoardState = generateBoardStateFromNew(newBoardState);
+
+    await store.makeGameType(finalBoardState);
+    nav({ id: 'home' });
+  }
+
+  function generateBoardStateFromNew(newBoardState: EditableBoardState): BoardState {
+    return {
       ...newBoardState,
       status: '',
       creator: store.myAgentPubKeyB64,
@@ -136,22 +145,12 @@
         pieces: {},
       },
     };
-
-    await store.makeGameType(finalBoardState);
-    nav({ id: 'home' });
   }
 
   async function handleSaveOnEditGameType(newBoardState: EditableBoardState) {
     if (!boardDef) throw 'Expected boardDef to be defined';
 
-    const finalBoardState = {
-      ...boardDef.board,
-      ...newBoardState,
-      props: {
-        ...boardDef.board.props,
-        ...newBoardState.props,
-      },
-    };
+    const finalBoardState = generateBoardStateFromBase(newBoardState, boardDef.board);
 
     await store.client.updateBoardDef(
       boardDef.originalHash,
@@ -159,6 +158,20 @@
       finalBoardState,
     );
     nav({ id: 'home' });
+  }
+
+  function generateBoardStateFromBase(
+    newBoardState: EditableBoardState,
+    baseBoardDef: BoardState,
+  ): BoardState {
+    return {
+      ...baseBoardDef,
+      ...newBoardState,
+      props: {
+        ...baseBoardDef.props,
+        ...newBoardState.props,
+      },
+    };
   }
 
   function handleSaveOnEditGame(newBoardState: EditableBoardState) {
@@ -212,7 +225,16 @@
     }
   }
 
-  async function handleExport() {}
+  async function handleExport(newBoardState: EditableBoardState) {
+    const finalBoardState =
+      boardDef || board
+        ? generateBoardStateFromBase(newBoardState, boardDef?.board ?? board?.state())
+        : generateBoardStateFromNew(newBoardState);
+    const prefix = 'gamez';
+    const fileName = sanitize(`${prefix}_export_${finalBoardState.name}.json`);
+    download(fileName, JSON.stringify(finalBoardState));
+    alert(`Your board was exported to your Downloads folder as: '${fileName}'`);
+  }
 
   async function handleArchive() {
     if (uiState.canArchive) {

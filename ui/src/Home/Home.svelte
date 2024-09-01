@@ -109,8 +109,7 @@
     }
     const board = await store.boardList.makeBoard(state);
     await board.join();
-
-    store.boardList.setActiveBoard(board.hash);
+    nav({ id: 'board', boardHash: board.hash });
   }}
 />
 
@@ -202,9 +201,6 @@
               {#each $defHashes.value as hash}
                 <BoardDefItem
                   onNewGame={(boardDef) => startGameDialog.open(boardDef)}
-                  on:settings={(e) => {
-                    editBoardTypeDialog.open(e.detail);
-                  }}
                   onEdit={() => nav({ id: 'editGameDef', defHash: hash })}
                   boardHash={hash}
                 ></BoardDefItem>
@@ -238,16 +234,12 @@
         bind:this={fileinput}
       />
       <div class="flex space-x-2">
-        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => newBoardDialog.open()}>
-          <PlusIcon class="text-sm" />
+        <SidebarButton mode={'lg'} on:click={() => nav({ id: 'newGameDef' })}>
+          <PlusIcon class="text-sm mr2" />
           <div class="flex-grow">New</div>
         </SidebarButton>
-        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => nav({ id: 'newGameDef' })}>
-          <PlusIcon class="text-sm" />
-          <div class="flex-grow">N2</div>
-        </SidebarButton>
-        <SidebarButton mode={'lg'} class="w-1/3" on:click={() => fileinput.click()}>
-          <FileImportIcon class="text-sm" />
+        <SidebarButton mode={'lg'} on:click={() => fileinput.click()}>
+          <FileImportIcon class="text-sm mr2" />
           <div class="flex-grow">Import</div>
         </SidebarButton>
       </div>
