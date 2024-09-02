@@ -663,7 +663,7 @@ export const CHECKERS: Omit<BoardState, 'creator'> = {
         y: 408.5,
       },
     },
-    players: ['uhCAkf_yXZslfKu0106-HaZzwwXR2OQi4U6pu47giv5T8dKEhn1Gb'],
+    players: [],
     turn: 0,
   },
   status: '',
