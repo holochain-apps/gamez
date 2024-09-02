@@ -4,9 +4,9 @@
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
 
   import LayoutBar from '../Layout/LayoutBar.svelte';
-  import Home from '~/Home';
+  import HomePage from '~/HomePage';
   import BoardPage from '~/BoardPage';
-  import BoardEditor from '~/BoardEditor';
+  import BoardEditorPage from '~/BoardEditorPage';
 
   const store = getStoreContext();
 
@@ -40,13 +40,13 @@
     {#if $route.id === 'board'}
       <BoardPage boardHash={$route.boardHash} activeBoard={$activeBoard} />
     {:else if $route.id === 'home'}
-      <Home />
+      <HomePage />
     {:else if $route.id === 'newGameDef'}
-      <BoardEditor />
+      <BoardEditorPage />
     {:else if $route.id === 'editGameDef'}
-      <BoardEditor defHash={$route.defHash} />
+      <BoardEditorPage defHash={$route.defHash} />
     {:else if $route.id === 'editBoard'}
-      <BoardEditor boardHash={$route.boardHash} />
+      <BoardEditorPage boardHash={$route.boardHash} />
     {/if}
   {:else}
     <LoadingIndicator class="mt40" textual={false} />
