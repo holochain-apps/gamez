@@ -8,7 +8,7 @@ export { default as AvatarIcon } from './AvatarIcon.svelte';
 export { default as AvatarDialog } from './Layout/AvatarDialog.svelte';
 export { default as AboutDialog } from './Layout/AboutDialog.svelte';
 export { default as ParticipantsDialog } from './ParticipantsDialog.svelte';
-export { default as GamezPane } from './GamezPane';
+export { default as BoardPage } from './BoardPage';
 export { default as BoardMenu } from './BoardMenu.svelte';
 export { default as Folk } from './Folk.svelte';
 export { default as NewBoardDialog } from './Home/NewBoardDialog.svelte';

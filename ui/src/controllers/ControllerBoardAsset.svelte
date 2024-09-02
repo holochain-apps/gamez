@@ -4,7 +4,7 @@
 
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
   import { getStoreContext } from '~/lib/context';
-  import GamezPane from '~/GamezPane';
+  import BoardPage from '~/BoardPage';
 
   export let view: Extract<AppletView, { type: 'asset' }>;
   $: board = view.wal.hrl[1] as EntryHash;
@@ -22,7 +22,7 @@
     <div class="app">
       {#if store}
         {#if $activeBoardHash !== undefined}
-          <GamezPane standAlone={true} activeBoard={$activeBoard} boardHash={$activeBoardHash} />
+          <BoardPage standAlone={true} activeBoard={$activeBoard} boardHash={$activeBoardHash} />
         {:else}
           <LoadingIndicator textual={false} class="mt40" />
         {/if}

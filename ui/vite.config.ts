@@ -1,4 +1,5 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { readdirSync } from 'fs';
 import path from 'path';
 import UnoCSS from 'unocss/vite';
 import Icons from 'unplugin-icons/vite';
@@ -25,14 +26,19 @@ export default defineConfig({
     __DNA_VERSION__: JSON.stringify(dnaVersion), // Define a global constant
   },
   resolve: {
-    alias: {
-      // Well this is not ideal
-      '~/BoardEditor': path.resolve(__dirname, './src/BoardEditor'),
-      '~/Home': path.resolve(__dirname, './src/Home'),
-      '~/GamezPane': path.resolve(__dirname, './src/GamezPane'),
-      '~/Layout': path.resolve(__dirname, './src/Layout'),
-      '~/shared': path.resolve(__dirname, './src/shared'),
-      '~/lib': path.resolve(__dirname, './src/lib'),
-    },
+    alias: generateAliases(path.resolve(__dirname, './src')),
   },
 });
+
+function generateAliases(srcPath) {
+  const directories = readdirSync(srcPath, { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name);
+
+  const aliases = directories.reduce((acc, dir) => {
+    acc[`~/${dir}`] = path.resolve(srcPath, dir);
+    return acc;
+  }, {});
+
+  return aliases;
+}

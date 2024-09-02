@@ -5,7 +5,7 @@
 
   import LayoutBar from '../Layout/LayoutBar.svelte';
   import Home from '~/Home';
-  import GamezPane from '~/GamezPane';
+  import BoardPage from '~/BoardPage';
   import BoardEditor from '~/BoardEditor';
 
   const store = getStoreContext();
@@ -38,7 +38,7 @@
   {#if (store && $route.id === 'board' && $activeBoard) || $route.id !== 'board'}
     <LayoutBar {title} activeBoard={$activeBoard} />
     {#if $route.id === 'board'}
-      <GamezPane boardHash={$route.boardHash} activeBoard={$activeBoard} />
+      <BoardPage boardHash={$route.boardHash} activeBoard={$activeBoard} />
     {:else if $route.id === 'home'}
       <Home />
     {:else if $route.id === 'newGameDef'}
