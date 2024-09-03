@@ -13,7 +13,7 @@
   "htmlWhitespaceSensitivity": "strict",
   "plugins": ["prettier-plugin-svelte", "@trivago/prettier-plugin-sort-imports"],
   "endOfLine": "auto",
-  "importOrder": ["holochain|lightningrodlabs", "^~\/shared\/(.*)$", "^[./]"],
+  "importOrder": ["holochain|lightningrodlabs", "^~\/(.*)$", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderCaseInsensitive": true,

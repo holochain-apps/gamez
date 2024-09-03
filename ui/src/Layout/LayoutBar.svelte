@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import { get } from 'svelte/store';
   import CircleInfoIcon from '~icons/fa6-solid/circle-info';
   import BugIcon from '~icons/fa6-solid/bug';
@@ -8,31 +7,38 @@
 
   import { isWeContext } from '@lightningrodlabs/we-applet';
 
+  import { type Board } from '~/lib/store';
+  import { getStoreContext } from '~/lib/context';
+  import { nav, route } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
-  import type { GamezStore } from '~/shared/store';
-  import { type Board } from '~/shared/board';
   import Avatar from '~/shared/Avatar.svelte';
 
   import AboutDialog from './AboutDialog.svelte';
   import AvatarDialog from './AvatarDialog.svelte';
   import ParticipantsDialog from './ParticipantsDialog.svelte';
 
-  const { getStore }: any = getContext('gzStore');
-  const store: GamezStore = getStore();
+  const store = getStoreContext();
 
   export let activeBoard: Board;
+  export let title = 'Board Gamez';
 
   let aboutDialog;
   let editAvatarDialog;
   let participantsDialog;
   $: boardState = activeBoard ? activeBoard.readableState() : undefined;
-  $: console.log('NAV ACTIVE BOARD', activeBoard, boardState);
   //@ts-ignore
   $: myProfile = get(store.profilesStore.myProfile).value;
   $: myName = myProfile ? myProfile.nickname : '';
 
-  const closeBoard = async () => {
-    await store.boardList.closeActiveBoard(false);
+  const handleBack = async () => {
+    if ($route.id === 'board') {
+      await store.boardList.closeActiveBoard(false);
+    }
+    if ($route.id === 'editBoard') {
+      nav({ id: 'board', boardHash: $route.boardHash });
+    } else {
+      nav({ id: 'home' });
+    }
   };
 
   const editAvatar = () => {
@@ -49,14 +55,14 @@
 >
   <!-- LEFT SIDE BUTTONS -->
 
-  {#if activeBoard != undefined}
-    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={closeBoard}>
+  {#if $route.id != 'home'}
+    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={handleBack}>
       <ArrowLeftIcon />
     </button>
   {/if}
   <h1 class="font-bold text-2xl" style="text-shadow: 0 1px 0 rgba(0,0,0,.5)">
     {#if activeBoard && $boardState}{$boardState.name}
-    {:else}Board Gamez{/if}
+    {:else}{title}{/if}
   </h1>
 
   <div class="flex-grow"></div>
