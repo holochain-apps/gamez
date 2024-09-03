@@ -7,6 +7,7 @@
   import HomePage from '~/HomePage';
   import BoardPage from '~/BoardPage';
   import BoardEditorPage from '~/BoardEditorPage';
+  import { Page as GameSpacePage } from '~/GameSpace';
 
   const store = getStoreContext();
 
@@ -18,6 +19,8 @@
         return 'Create Game Type';
       case 'editGameDef':
         return 'Edit Game Type';
+      case 'gameSpace':
+        return 'Game Space';
       default:
         return 'Board Gamez';
     }
@@ -41,6 +44,8 @@
       <BoardPage boardHash={$route.boardHash} activeBoard={$activeBoard} />
     {:else if $route.id === 'home'}
       <HomePage />
+    {:else if $route.id === 'gameSpace'}
+      <GameSpacePage />
     {:else if $route.id === 'newGameDef'}
       <BoardEditorPage />
     {:else if $route.id === 'editGameDef'}

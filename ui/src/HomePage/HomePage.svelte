@@ -183,6 +183,15 @@
   <!-- SIDEBAR -->
 
   <div class="bg-main-900 @dark:bg-main-400 p4 w-70 flex-shrink-0">
+    <SidebarButton
+      class="w-full mb4"
+      mode={'lg'}
+      on:click={() => nav({ id: 'gameSpace', gameSpaceHash: null })}
+    >
+      <PlusIcon class="text-sm mr2" />
+      <div class="flex-grow">Game Space</div>
+    </SidebarButton>
+
     <!-- AVAILABLE GAMES -->
 
     {#if $myProfile.status == 'complete'}

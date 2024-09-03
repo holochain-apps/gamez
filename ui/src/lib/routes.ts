@@ -19,6 +19,10 @@ export type Route =
   | {
       id: 'board';
       boardHash: Uint8Array;
+    }
+  | {
+      id: 'gameSpace';
+      gameSpaceHash: Uint8Array;
     };
 
 const route = writable<Route>({ id: 'home' });
