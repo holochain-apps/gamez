@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+  import cx from 'classnames';
   import { decodeHashFromBase64 } from '@holochain/client';
 
   import { type Piece, PieceDef, PieceType } from '~/lib/store';
@@ -83,11 +84,12 @@
 </script>
 
 <div
-  class="piece text-black/100!"
+  class={cx(`relative flexcc line-height-[0] text-black/100! cursor-default`, {
+    'cursor-move hover:(brightness-125 saturate-125)': dragEnabled,
+    'opacity-0': hidden,
+  })}
   on:dblclick
   draggable={dragEnabled}
-  class:draggable={dragEnabled}
-  class:hidden
   on:dragstart
   on:dragend
   on:drop
@@ -134,26 +136,6 @@
 </div>
 
 <style>
-  .piece {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0; /* Fixes avatar element extra spacing */
-  }
-
-  .piece.hidden {
-    opacity: 0;
-  }
-
-  .piece:hover {
-    filter: brightness(1.25) saturate(1.25);
-  }
-
-  .draggable {
-    cursor: move;
-  }
-
   .piece-attachment-count {
     position: absolute;
     height: 14px;

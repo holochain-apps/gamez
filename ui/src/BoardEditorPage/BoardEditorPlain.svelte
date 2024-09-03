@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  export type EditableBoardProps = Omit<BoardProps, 'players' | 'turn' | 'attachments' | 'pieces'>;
+  export type EditableBoardProps = Omit<BoardProps, 'players' | 'turn' | 'attachments'>;
   export type EditableBoardState = Omit<BoardState, 'props' | 'status' | 'boundTo' | 'creator'> & {
     props: EditableBoardProps;
   };
@@ -17,6 +17,7 @@
   import Input from './BoardEditorInput.svelte';
   import IntegerInput from './IntegerInput.svelte';
   import PieceTypeCard from './PieceTypeCard.svelte';
+  import GameBoard from '~/GameBoard';
 
   export let board: EditableBoardState;
   export let disabled: boolean = false;
@@ -201,5 +202,18 @@
       </button>
     </div>
   </div>
-  <div class="bg-main-500 flex-grow">Board Editor</div>
+  <div class="bg-main-500 flex-grow">
+    <GameBoard
+      pieces={boardState.props.pieces}
+      piecesDefs={boardState.pieceDefs}
+      bgUrl={boardState.props.bgUrl}
+      bgHeight={boardState.props.bgHeight}
+      bgWidth={boardState.props.bgWidth}
+      playerPieces={boardState.playerPieces}
+      players={[]}
+      showPiecesSource={false}
+      canAddPieces={false}
+      dragPiecesEnabled={false}
+    />
+  </div>
 </div>

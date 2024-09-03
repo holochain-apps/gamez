@@ -57,6 +57,7 @@
         bgUrl: '',
         bgHeight: '',
         bgWidth: '',
+        pieces: {},
       },
     };
     uiState.canArchive = false;
@@ -80,6 +81,7 @@
         bgUrl: boardState2.props.bgUrl,
         bgHeight: boardState2.props.bgHeight,
         bgWidth: boardState2.props.bgWidth,
+        pieces: boardState2.props.pieces,
       },
     };
     uiState.canArchive = false;
@@ -104,6 +106,7 @@
         bgUrl: boardState2.props.bgUrl,
         bgHeight: boardState2.props.bgHeight,
         bgWidth: boardState2.props.bgWidth,
+        pieces: cloneDeep(boardState2.props.pieces),
       },
     };
     uiState.canArchive = true;
