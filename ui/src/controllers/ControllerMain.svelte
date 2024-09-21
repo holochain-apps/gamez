@@ -39,7 +39,7 @@
 
 <div class="flex flex-col min-h-full">
   {#if (store && $route.id === 'board' && $activeBoard) || $route.id !== 'board'}
-    <LayoutBar {title} activeBoard={$activeBoard} />
+    {#if $route.id !== 'gameSpace'}<LayoutBar {title} activeBoard={$activeBoard} />{/if}
     {#if $route.id === 'board'}
       <BoardPage boardHash={$route.boardHash} activeBoard={$activeBoard} />
     {:else if $route.id === 'home'}

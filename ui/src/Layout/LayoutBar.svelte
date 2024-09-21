@@ -19,7 +19,7 @@
 
   const store = getStoreContext();
 
-  export let activeBoard: Board;
+  export let activeBoard: Board = null;
   export let title = 'Board Gamez';
 
   let aboutDialog;

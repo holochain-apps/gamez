@@ -7,6 +7,7 @@
   import { getContext, GameSpaceSyn } from './store';
   import { type GameSpace } from './types.d';
   import Avatar from '~/shared/Avatar.svelte';
+  import LayoutBar from '~/Layout/LayoutBar.svelte';
   // import GameSpace from './GameSpace.svelte';
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
@@ -64,6 +65,7 @@
   $: console.log('Game Space!', gameSpace);
 </script>
 
+<LayoutBar title={gameSpaceState?.name || 'Game Space'} />
 <div class="h-full flex flex-col">
   <div class="bg-main-700 h-14 flex">
     <button
