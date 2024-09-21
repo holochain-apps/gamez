@@ -122,6 +122,11 @@
         {/if}
       </div>
     {/if}
-    <Surface elements={state.elements} />
+    <Surface
+      elements={state.elements}
+      onMoveElement={(uuid, x, y) => {
+        gameSpace.change({ type: 'move-element', uuid, x, y });
+      }}
+    />
   </div>
 </div>

@@ -33,7 +33,8 @@ export type GameSpaceDelta =
   | { type: 'set-is-stewarded'; isStewarded: boolean }
   | { type: 'add-player'; player: AgentPubKeyB64 }
   | { type: 'remove-player'; player: AgentPubKeyB64 }
-  | { type: 'add-element'; element: GElement };
+  | { type: 'add-element'; element: GElement }
+  | { type: 'move-element'; uuid: string; x: number; y: number };
 
 const gameSpaceGrammar = {
   initialState(pubKey: Uint8Array) {
@@ -67,6 +68,15 @@ const gameSpaceGrammar = {
       case 'add-element':
         const elemenToAdd = { ...delta.element, uuid: uuidv1() };
         status.elements.push(elemenToAdd);
+        break;
+      case 'move-element':
+        status.elements.forEach((e) => {
+          if (e.uuid === delta.uuid) {
+            e.x = delta.x;
+            e.y = delta.y;
+          }
+          // return e;
+        });
         break;
     }
   },

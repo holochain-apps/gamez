@@ -6,10 +6,10 @@
   let fontSize = Math.min(el.width, el.height) + 'px';
 </script>
 
-<div class="hover:bg-black/20">
+<div>
   {#if el.display.mode === 'emoji'}
     <div
-      class="flexcc"
+      class="flexcc text-black/100"
       style={`width: ${el.width}px; height: ${el.height}px; font-size: ${fontSize}`}
       >{el.display.value}</div
     >
@@ -18,6 +18,7 @@
       style={`width: ${el.width}px; height: ${el.height}px;`}
       src={el.display.value}
       alt="image"
+      draggable={false}
     />
   {/if}
 </div>
