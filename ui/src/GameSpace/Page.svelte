@@ -14,6 +14,7 @@
 
   import Input from './ui/Input.svelte';
   import { decodeHashFromBase64 } from '@holochain/client';
+  import ElementWrapper from './ElementWrapper.svelte';
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
   let showingParticipants = false;
@@ -255,14 +256,10 @@
         {/if}
       </div>
     {/if}
-    <div class="flex-grow bg-main-400 bg-[url('/noise20.png')]">
+    <div class="flex-grow bg-main-400 bg-[url('/noise20.png')] relative">
       {#if gameSpaceState}
         {#each gameSpaceState.elements as element}
-          {#if element.type === 'Piece'}
-            <svelte:component this={elements.Piece} el={element} />
-          {:else if element.type === 'Image'}
-            <svelte:component this={elements.Image} el={element} />
-          {/if}
+          <ElementWrapper el={element} />
         {/each}
       {/if}
     </div>

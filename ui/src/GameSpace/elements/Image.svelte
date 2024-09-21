@@ -4,4 +4,4 @@
   export let el: ImageElement;
 </script>
 
-{JSON.stringify(el)}
+<img src={el.url} alt="image" width={el.width} height={el.height} />
