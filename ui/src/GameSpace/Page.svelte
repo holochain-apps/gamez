@@ -6,14 +6,17 @@
   import UsersIcon from '~icons/fa6-solid/users';
   import { getContext, GameSpaceSyn } from './store';
   import { type GameSpace } from './types.d';
+  import Avatar from '~/shared/Avatar.svelte';
   // import GameSpace from './GameSpace.svelte';
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
+  let showingParticipants = false;
 
   const store = getContext();
 
   let gameSpace: GameSpaceSyn;
   let gameSpaceState: GameSpace;
+  let participants: Uint8Array[] = [];
   // let gameSpaces: any;
   onMount(() => {
     (async () => {
@@ -31,11 +34,16 @@
         gameSpaceState = state;
       });
 
+      gameSpace.session.participants.subscribe((allParticipants) => {
+        participants = allParticipants.active;
+      });
+
       console.log('Joined session', gameSpace.session);
     })();
 
     return () => {
       if (gameSpace) {
+        console.log('Leaving!');
         gameSpace.leave();
       }
     };
@@ -47,6 +55,10 @@
     } else {
       sidebar = value;
     }
+  };
+
+  const toggleParticipants = () => {
+    showingParticipants = !showingParticipants;
   };
 
   $: console.log('Game Space!', gameSpace);
@@ -68,11 +80,35 @@
       })}
       on:click={() => toggleSidebar('configurator')}><GearIcon /></button
     >
-    <div class="flex-grow flexce space-x-2">
+    <div class="flex-grow flexce space-x-2 relative">
       <button class="bg-main-400 h10 px2 py1 rounded-md text-white">Join Game</button>
       <div class="h10 w10 rounded-full bg-blue-400 flexcc text-white">Plyr1</div>
       <div class="h10 w10 rounded-full bg-blue-400 flexcc text-white">Plyr2</div>
-      <button class="h14 w14 flexcc bg-white/20 b b-black/10"><UsersIcon /></button>
+      <button
+        class={cx('relative h14 w14 flexcc b b-black/10 ', {
+          'bg-black/30 text-white': showingParticipants,
+          'bg-white/20 hover:bg-white/30': !showingParticipants,
+        })}
+        on:click={toggleParticipants}
+      >
+        <UsersIcon />
+
+        <div
+          class="bg-red-500 text-sm text-white h4 w4 flexcc rounded-full absolute bottom-2 right-2"
+        >
+          {participants.length}
+        </div>
+      </button>
+      {#if showingParticipants}
+        <div class="bg-main-900 p4 rounded-bl-md top-full w-60 absolute flex flex-col space-y-2">
+          <div>Sync Session Participants</div>
+          {#each participants as participant}
+            <div class="">
+              <Avatar showNickname={true} size={32} agentPubKey={participant} />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
   </div>
   <div class="flex flex-grow">
