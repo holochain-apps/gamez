@@ -22,7 +22,7 @@ import {
   type Timestamp,
 } from '@holochain/client';
 
-import type { GameSpace } from './types';
+import type { GameSpace, GElement } from './types';
 
 const GAME_SPACE_TAG = 'game-space';
 
@@ -32,7 +32,8 @@ export type GameSpaceDelta =
   | { type: 'set-name'; name: string }
   | { type: 'set-is-stewarded'; isStewarded: boolean }
   | { type: 'add-player'; player: AgentPubKeyB64 }
-  | { type: 'remove-player'; player: AgentPubKeyB64 };
+  | { type: 'remove-player'; player: AgentPubKeyB64 }
+  | { type: 'add-element'; element: GElement };
 
 const gameSpaceGrammar = {
   initialState(pubKey: Uint8Array) {
@@ -62,6 +63,10 @@ const gameSpaceGrammar = {
         break;
       case 'remove-player':
         status.players = status.players.filter((p) => p !== delta.player);
+        break;
+      case 'add-element':
+        const elemenToAdd = { ...delta.element, uuid: uuidv1() };
+        status.elements.push(elemenToAdd);
         break;
     }
   },
@@ -155,6 +160,13 @@ export class GameSpaceSyn {
     const b64key = encodeHashToBase64(this.session.myPubKey);
     this.change({ type: 'remove-player', player: b64key });
   }
+
+  isSteward = derived(this.state, (latestState) => {
+    if (!this.session) return false;
+    if (!latestState.isStewarded) return true;
+    const b64key = encodeHashToBase64(this.session.myPubKey);
+    return latestState.creator === b64key;
+  });
 }
 
 export function createGameSpaceStore(appClient: AppClient) {

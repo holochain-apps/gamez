@@ -11,17 +11,10 @@ export type GameSpace = {
   players: string[];
 };
 
-export type GElementType = {
-  name: string;
-  label: string;
-  icon: string;
-  initialWidth: number;
-  initialHeight: number;
-};
-
-export type GElement = {
-  type: GElementType;
-  id: string;
+export type GElementBase = {
+  type: string;
+  version: number;
+  uuid: string;
   x: number;
   y: number;
   z: number;
@@ -29,3 +22,17 @@ export type GElement = {
   height: number;
   wals: WeaveUrl[];
 };
+
+export type PieceElement = GElementBase & {
+  type: 'Piece';
+  version: 1;
+  display: { mode: 'emoji'; value: string } | { mode: 'url'; value: string };
+};
+
+export type ImageElement = GElementBase & {
+  type: 'Image';
+  version: 1;
+  url: string;
+};
+
+export type GElement = PieceElement | ImageElement;

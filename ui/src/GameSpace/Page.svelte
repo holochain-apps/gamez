@@ -9,6 +9,7 @@
   import Avatar from '~/shared/Avatar.svelte';
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import { getStoreContext } from '~/lib/context';
+  import * as elements from './elements';
   // import GameSpace from './GameSpace.svelte';
 
   import Input from './ui/Input.svelte';
@@ -25,6 +26,32 @@
   let participants: Uint8Array[] = [];
   $: canJoinGame = gameSpace?.canJoinGame;
   $: canLeaveGame = gameSpace?.canLeaveGame;
+  $: isSteward = gameSpace?.isSteward;
+
+  type LibraryElement = {
+    elementType: string;
+    label: string;
+    icon: string;
+    initialWidth: number;
+    initialHeight: number;
+  };
+
+  const LIBRARY: LibraryElement[] = [
+    {
+      elementType: 'Piece',
+      label: 'Piece',
+      icon: '♟',
+      initialHeight: 30,
+      initialWidth: 30,
+    },
+    {
+      elementType: 'Image',
+      label: 'Image',
+      icon: '🖼',
+      initialHeight: 250,
+      initialWidth: 250,
+    },
+  ];
 
   // let gameSpaces: any;
   onMount(() => {
@@ -72,9 +99,41 @@
 
   $: console.log('Game Space!', gameSpace);
 
-  $: participantIsSteward =
-    gameSpaceState &&
-    (!gameSpaceState.isStewarded || gameSpaceState.creator === oldStore.myAgentPubKeyB64);
+  function addElement(type: LibraryElement) {
+    if (type.elementType === 'Piece') {
+      gameSpace.change({
+        type: 'add-element',
+        element: {
+          type: 'Piece',
+          uuid: '',
+          version: 1,
+          x: 0,
+          y: 0,
+          z: 0,
+          width: type.initialWidth,
+          height: type.initialHeight,
+          wals: [],
+          display: { mode: 'emoji', value: '🔥' },
+        },
+      });
+    } else if (type.elementType === 'Image') {
+      gameSpace.change({
+        type: 'add-element',
+        element: {
+          type: 'Image',
+          uuid: '',
+          version: 1,
+          x: 0,
+          y: 0,
+          z: 0,
+          width: type.initialWidth,
+          height: type.initialHeight,
+          wals: [],
+          url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png',
+        },
+      });
+    }
+  }
 </script>
 
 <LayoutBar title={gameSpaceState?.name || 'Game Space'} />
@@ -87,7 +146,7 @@
       })}
       on:click={() => toggleSidebar('configurator')}><GearIcon /></button
     >
-    {#if participantIsSteward}
+    {#if $isSteward}
       <button
         class={cx('h14 w14 flexcc b b-black/10', {
           'bg-black/30 text-white': sidebar === 'elementsLibrary',
@@ -146,10 +205,20 @@
     </div>
   </div>
   <div class="flex flex-grow">
-    {#if sidebar === 'elementsLibrary'}
-      <div class="w-60 bg-main-800 h-full">Elements Library</div>
+    {#if sidebar === 'elementsLibrary' && $isSteward}
+      <div class="w-60 bg-main-800 h-full p2 space-y-2 flex-shrink-0">
+        {#each LIBRARY as libraryElement}
+          <button
+            class="b b-black/10 rounded-md bg-black/5 flexcc w-full"
+            on:click={() => addElement(libraryElement)}
+          >
+            <div class="text-4xl h12 w12 flexcc">{libraryElement.icon}</div>
+            <div class="flex-grow text-left text-lg">{libraryElement.label}</div>
+          </button>
+        {/each}
+      </div>
     {:else if sidebar === 'configurator'}
-      <div class="w-60 bg-main-800 h-full">
+      <div class="w-60 bg-main-800 h-full flex-shrink-0">
         {#if gameSpaceState}
           <div class="h16 p2 relative bg-white/10 b b-black/10 flexcs">
             <div class="absolute right-2 top-1 opacity-50">Creator</div>
@@ -163,7 +232,7 @@
             <Input
               value={gameSpaceState.name}
               label="Name"
-              disabled={!participantIsSteward}
+              disabled={!$isSteward}
               onInput={(value) => {
                 gameSpace.change({ type: 'set-name', name: value });
               }}
@@ -172,7 +241,7 @@
               <input
                 type="checkbox"
                 checked={gameSpaceState.isStewarded}
-                disabled={!participantIsSteward}
+                disabled={!$isSteward}
                 class="mr2"
                 on:change={({ currentTarget }) => {
                   gameSpace.change({
@@ -186,6 +255,16 @@
         {/if}
       </div>
     {/if}
-    <div class="flex-grow bg-main-400 bg-[url('/noise20.png')]"></div>
+    <div class="flex-grow bg-main-400 bg-[url('/noise20.png')]">
+      {#if gameSpaceState}
+        {#each gameSpaceState.elements as element}
+          {#if element.type === 'Piece'}
+            <svelte:component this={elements.Piece} el={element} />
+          {:else if element.type === 'Image'}
+            <svelte:component this={elements.Image} el={element} />
+          {/if}
+        {/each}
+      {/if}
+    </div>
   </div>
 </div>
