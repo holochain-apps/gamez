@@ -10,6 +10,7 @@
 
   import Input from './ui/Input.svelte';
   import ElementWrapper from './ElementWrapper.svelte';
+  import Surface from './Surface.svelte';
 
   import { type GameSpaceSyn } from './store';
   import { type GameSpace } from './types.d';
@@ -121,10 +122,6 @@
         {/if}
       </div>
     {/if}
-    <div class="flex-grow bg-main-400 bg-[url('/noise20.png')] relative">
-      {#each state.elements as element}
-        <ElementWrapper el={element} />
-      {/each}
-    </div>
+    <Surface elements={state.elements} />
   </div>
 </div>
