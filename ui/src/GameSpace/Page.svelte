@@ -1,10 +1,45 @@
 <script lang="ts">
   import cx from 'classnames';
+  import { onMount } from 'svelte';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
   import UsersIcon from '~icons/fa6-solid/users';
+  import { getContext, GameSpaceSyn } from './store';
+  import { type GameSpace } from './types.d';
+  // import GameSpace from './GameSpace.svelte';
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
+
+  const store = getContext();
+
+  let gameSpace: GameSpaceSyn;
+  let gameSpaceState: GameSpace;
+  // let gameSpaces: any;
+  onMount(() => {
+    (async () => {
+      // If there is no game space, create one
+      const gameSpaces = await store.getAllGameSpaces();
+      if (gameSpaces.size === 0) {
+        gameSpace = await store.createGameSpace();
+      } else {
+        gameSpace = gameSpaces.values().next().value;
+      }
+
+      await gameSpace.join();
+
+      gameSpace.state.subscribe((state) => {
+        gameSpaceState = state;
+      });
+
+      console.log('Joined session', gameSpace.session);
+    })();
+
+    return () => {
+      if (gameSpace) {
+        gameSpace.leave();
+      }
+    };
+  });
 
   const toggleSidebar = (value: typeof sidebar) => {
     if (sidebar === value) {
@@ -13,6 +48,8 @@
       sidebar = value;
     }
   };
+
+  $: console.log('Game Space!', gameSpace);
 </script>
 
 <div class="h-full flex flex-col">
@@ -42,8 +79,19 @@
     {#if sidebar === 'elementsLibrary'}
       <div class="w-60 bg-main-800 h-full">Elements Library</div>
     {:else if sidebar === 'configurator'}
-      <div class="w-60 bg-main-800 h-full">Configurator</div>
+      <div class="w-60 bg-main-800 h-full">
+        {#if gameSpaceState}
+          <div>Name: {gameSpaceState.name}</div>
+          <input
+            type="text"
+            value={gameSpaceState.name}
+            on:input={({ currentTarget }) => {
+              gameSpace.change({ type: 'set-name', name: currentTarget.value });
+            }}
+          />
+        {/if}
+      </div>
     {/if}
-    <div class="flex-grow bg-main-400"></div>
+    <div class="flex-grow bg-main-400 bg-[url('/noise20.png')]"></div>
   </div>
 </div>

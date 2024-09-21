@@ -28,6 +28,11 @@
   import ControllerCreatable from './controllers/ControllerCreatable.svelte';
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
   import { appletServices } from './we';
+  import {
+    createGameSpaceStore,
+    type GameSpaceStore,
+    setContext as setGameSpaceStoreContext,
+  } from './GameSpace/store';
 
   const appId = import.meta.env.VITE_APP_ID ?? 'gamez';
   const roleName = 'gamez';
@@ -58,6 +63,8 @@
   let state: State = { type: 'pending' };
   let store: GamezStore;
   setStoreContext(() => store);
+  let gameSpaceStore: GameSpaceStore;
+  setGameSpaceStoreContext(() => gameSpaceStore);
   initialize();
 
   async function initialize(): Promise<void> {
@@ -84,6 +91,7 @@
       state.client,
       roleName,
     );
+    gameSpaceStore = createGameSpaceStore(state.client);
   }
 
   async function initStandalone(): Promise<{ profilesStore: ProfilesStore; client: AppWebsocket }> {

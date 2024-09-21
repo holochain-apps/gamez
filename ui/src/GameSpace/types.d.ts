@@ -1,7 +1,6 @@
 import type { WeaveUrl } from '@lightningrodlabs/we-applet';
 
 export type GameSpace = {
-  id: string;
   name: string;
   creator: string;
   elements: GElement[];
