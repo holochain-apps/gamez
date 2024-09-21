@@ -28,7 +28,9 @@ const GAME_SPACE_TAG = 'game-space';
 
 export type GameSpaceStore = ReturnType<typeof createGameSpaceStore>;
 
-export type GameSpaceDelta = { type: 'set-name'; name: string };
+export type GameSpaceDelta =
+  | { type: 'set-name'; name: string }
+  | { type: 'set-is-stewarded'; isStewarded: boolean };
 
 const gameSpaceGrammar = {
   initialState(pubKey: Uint8Array) {
@@ -48,6 +50,9 @@ const gameSpaceGrammar = {
     switch (delta.type) {
       case 'set-name':
         status.name = delta.name;
+        break;
+      case 'set-is-stewarded':
+        status.isStewarded = delta.isStewarded;
         break;
     }
   },

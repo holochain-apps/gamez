@@ -8,16 +8,22 @@
   import { type GameSpace } from './types.d';
   import Avatar from '~/shared/Avatar.svelte';
   import LayoutBar from '~/Layout/LayoutBar.svelte';
+  import { getStoreContext } from '~/lib/context';
   // import GameSpace from './GameSpace.svelte';
+
+  import Input from './ui/Input.svelte';
+  import { decodeHashFromBase64 } from '@holochain/client';
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
   let showingParticipants = false;
 
   const store = getContext();
+  const oldStore = getStoreContext();
 
   let gameSpace: GameSpaceSyn;
   let gameSpaceState: GameSpace;
   let participants: Uint8Array[] = [];
+
   // let gameSpaces: any;
   onMount(() => {
     (async () => {
@@ -63,6 +69,10 @@
   };
 
   $: console.log('Game Space!', gameSpace);
+
+  $: participantIsSteward =
+    gameSpaceState &&
+    (!gameSpaceState.isStewarded || gameSpaceState.creator === oldStore.myAgentPubKeyB64);
 </script>
 
 <LayoutBar title={gameSpaceState?.name || 'Game Space'} />
@@ -70,18 +80,20 @@
   <div class="bg-main-700 h-14 flex">
     <button
       class={cx('h14 w14 flexcc b b-black/10', {
-        'bg-black/30 text-white': sidebar === 'elementsLibrary',
-        'bg-white/20': sidebar !== 'elementsLibrary',
-      })}
-      on:click={() => toggleSidebar('elementsLibrary')}><CubesIcon /></button
-    >
-    <button
-      class={cx('h14 w14 flexcc b b-black/10', {
         'bg-black/30 text-white': sidebar === 'configurator',
         'bg-white/20': sidebar !== 'configurator',
       })}
       on:click={() => toggleSidebar('configurator')}><GearIcon /></button
     >
+    {#if participantIsSteward}
+      <button
+        class={cx('h14 w14 flexcc b b-black/10', {
+          'bg-black/30 text-white': sidebar === 'elementsLibrary',
+          'bg-white/20': sidebar !== 'elementsLibrary',
+        })}
+        on:click={() => toggleSidebar('elementsLibrary')}><CubesIcon /></button
+      >
+    {/if}
     <div class="flex-grow flexce space-x-2 relative">
       <button class="bg-main-400 h10 px2 py1 rounded-md text-white">Join Game</button>
       <div class="h10 w10 rounded-full bg-blue-400 flexcc text-white">Plyr1</div>
@@ -119,14 +131,38 @@
     {:else if sidebar === 'configurator'}
       <div class="w-60 bg-main-800 h-full">
         {#if gameSpaceState}
-          <div>Name: {gameSpaceState.name}</div>
-          <input
-            type="text"
-            value={gameSpaceState.name}
-            on:input={({ currentTarget }) => {
-              gameSpace.change({ type: 'set-name', name: currentTarget.value });
-            }}
-          />
+          <div class="h16 p2 relative bg-white/10 b b-black/10 flexcs">
+            <div class="absolute right-2 top-1 opacity-50">Creator</div>
+            <Avatar
+              showNickname={true}
+              size={32}
+              agentPubKey={decodeHashFromBase64(gameSpaceState.creator)}
+            />
+          </div>
+          <div class="p4 flex flex-col space-y-4">
+            <Input
+              value={gameSpaceState.name}
+              label="Name"
+              disabled={!participantIsSteward}
+              onInput={(value) => {
+                gameSpace.change({ type: 'set-name', name: value });
+              }}
+            />
+            <label>
+              <input
+                type="checkbox"
+                checked={gameSpaceState.isStewarded}
+                disabled={!participantIsSteward}
+                class="mr2"
+                on:change={({ currentTarget }) => {
+                  gameSpace.change({
+                    type: 'set-is-stewarded',
+                    isStewarded: currentTarget.checked,
+                  });
+                }}
+              /> Stewarded?
+            </label>
+          </div>
         {/if}
       </div>
     {/if}
