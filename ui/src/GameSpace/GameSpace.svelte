@@ -12,13 +12,13 @@
   import ElementWrapper from './ElementWrapper.svelte';
 
   import { type GameSpaceSyn } from './store';
-  import { GameSpace } from './types';
+  import { type GameSpace } from './types.d';
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import ElementsLibrary from './ElementsLibrary.svelte';
   import PeopleBar from './PeopleBar.svelte';
 
   export let gameSpace: GameSpaceSyn;
-  let state: GameSpace;
+  let state: GameSpace = get(gameSpace.state);
   let participants: Uint8Array[] = [];
   $: canJoinGame = gameSpace.canJoinGame;
   $: canLeaveGame = gameSpace.canLeaveGame;
@@ -27,7 +27,6 @@
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
 
   onMount(async () => {
-    state = get(gameSpace.state);
     await gameSpace.join();
 
     gameSpace.state.subscribe((latestState) => {
@@ -123,11 +122,9 @@
       </div>
     {/if}
     <div class="flex-grow bg-main-400 bg-[url('/noise20.png')] relative">
-      {#if state}
-        {#each state.elements as element}
-          <ElementWrapper el={element} />
-        {/each}
-      {/if}
+      {#each state.elements as element}
+        <ElementWrapper el={element} />
+      {/each}
     </div>
   </div>
 </div>

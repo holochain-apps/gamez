@@ -81,15 +81,19 @@ export class GameSpaceSyn {
     public workspace: WorkspaceStore<any, any>,
   ) {
     workspace.latestState.subscribe((state) => {
-      console.log('Workspace latest state', state);
       if (state.status === 'complete') {
-        this.state.set(state.value);
+        if (!this.session) {
+          console.log('Setting state from latestState', state);
+          this.state.set(state.value);
+        }
       }
     });
     workspace.latestSnapshot.subscribe((snapshot) => {
-      console.log('Workspace latest snapshot', snapshot);
       if (snapshot.status === 'complete') {
-        this.state.set(snapshot.value);
+        if (!this.session) {
+          console.log('Setting state from latestSnapshot', snapshot);
+          this.state.set(snapshot.value);
+        }
       }
     });
   }

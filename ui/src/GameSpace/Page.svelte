@@ -8,6 +8,9 @@
   const store = getContext();
 
   let gameSpace: GameSpaceSyn;
+  $: state = gameSpace?.state;
+
+  $: console.log('STATE!', state);
 
   onMount(async () => {
     // If there is no game space, create one
@@ -20,6 +23,6 @@
   });
 </script>
 
-{#if gameSpace}
+{#if gameSpace && $state}
   <GameSpaceComp {gameSpace} />
 {/if}

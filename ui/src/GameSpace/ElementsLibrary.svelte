@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type GElement } from './types';
+  import { type GElement } from './types.d';
 
   export let onAdd: (el: GElement) => void;
 
