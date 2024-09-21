@@ -9,6 +9,7 @@
   export let onDrop: (ev: DragEvent) => void;
   export let onDragOver: (ev: DragEvent) => void;
   export let hidden = false;
+  export let onContextMenu: (ev: MouseEvent) => void;
 
   const draggable = true;
 </script>
@@ -24,6 +25,7 @@
   on:dragend={onDragEnd}
   on:drop={onDrop}
   on:dragover={onDragOver}
+  on:contextmenu={onContextMenu}
   {draggable}
 >
   {#if el.type === 'Piece'}

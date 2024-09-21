@@ -7,6 +7,12 @@
   export let onMoveElement = (id: string, x: number, y: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
 
+  let menuForId: string | null = null;
+  function handleContextMenu(ev: MouseEvent, id: string) {
+    ev.preventDefault();
+    menuForId = id;
+  }
+
   // ██████╗ ██████╗  █████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
   // ██╔══██╗██╔══██╗██╔══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝
   // ██║  ██║██████╔╝███████║██║  ███╗██║  ███╗██║██╔██╗ ██║██║  ███╗
@@ -237,7 +243,13 @@
         onDragOver={(ev) => handleDragOver(ev, 'board')}
         hidden={!!(dragState && dragState.type === 'move' && dragState.pieceId === element.uuid)}
         el={element}
+        onContextMenu={(ev) => handleContextMenu(ev, element.uuid)}
       />
     {/each}
   </div>
+  {#if menuForId}
+    <div class="absolute left-0 top-0 w-40 rounded-md bg-white shadow-md b b-black/10">
+      Edit piece
+    </div>
+  {/if}
 </div>
