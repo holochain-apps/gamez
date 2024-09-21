@@ -169,6 +169,12 @@ export class GameSpaceSyn {
   });
 }
 
+// export class GameSpaceStore {
+//   constructor(private appClient: AppClient) {
+
+//   }
+// }
+
 export function createGameSpaceStore(appClient: AppClient) {
   const synStore = new SynStore(new SynClient(appClient, 'gamez', 'syn'));
 
