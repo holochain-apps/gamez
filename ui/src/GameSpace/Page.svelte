@@ -23,6 +23,8 @@
   let gameSpace: GameSpaceSyn;
   let gameSpaceState: GameSpace;
   let participants: Uint8Array[] = [];
+  $: canJoinGame = gameSpace?.canJoinGame;
+  $: canLeaveGame = gameSpace?.canLeaveGame;
 
   // let gameSpaces: any;
   onMount(() => {
@@ -95,9 +97,27 @@
       >
     {/if}
     <div class="flex-grow flexce space-x-2 relative">
-      <button class="bg-main-400 h10 px2 py1 rounded-md text-white">Join Game</button>
-      <div class="h10 w10 rounded-full bg-blue-400 flexcc text-white">Plyr1</div>
-      <div class="h10 w10 rounded-full bg-blue-400 flexcc text-white">Plyr2</div>
+      {#if $canJoinGame}
+        <button
+          class="bg-main-400 h10 px2 py1 rounded-md text-white"
+          on:click={() => {
+            gameSpace.joinGame();
+          }}>Join Game</button
+        >
+      {/if}
+      {#if $canLeaveGame}
+        <button
+          class="bg-gray-400 h10 px2 py1 rounded-md text-white"
+          on:click={() => {
+            gameSpace.leaveGame();
+          }}>Leave Game</button
+        >
+      {/if}
+      {#if gameSpaceState}
+        {#each gameSpaceState.players as player}
+          <Avatar showNickname={false} size={32} agentPubKey={decodeHashFromBase64(player)} />
+        {/each}
+      {/if}
       <button
         class={cx('relative h14 w14 flexcc b b-black/10 ', {
           'bg-black/30 text-white': showingParticipants,

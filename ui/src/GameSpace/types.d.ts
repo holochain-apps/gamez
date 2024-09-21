@@ -8,6 +8,7 @@ export type GameSpace = {
   isStewarded: boolean;
   status: 'draft' | 'ready' | 'archived' | 'deleted';
   minMaxPlayers: [number, number];
+  players: string[];
 };
 
 export type GElementType = {

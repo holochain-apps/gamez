@@ -1,5 +1,5 @@
 import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
-import { get, type Readable, type Writable } from 'svelte/store';
+import { derived, get, type Readable, type Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import { v1 as uuidv1 } from 'uuid';
 
@@ -30,7 +30,9 @@ export type GameSpaceStore = ReturnType<typeof createGameSpaceStore>;
 
 export type GameSpaceDelta =
   | { type: 'set-name'; name: string }
-  | { type: 'set-is-stewarded'; isStewarded: boolean };
+  | { type: 'set-is-stewarded'; isStewarded: boolean }
+  | { type: 'add-player'; player: AgentPubKeyB64 }
+  | { type: 'remove-player'; player: AgentPubKeyB64 };
 
 const gameSpaceGrammar = {
   initialState(pubKey: Uint8Array) {
@@ -42,6 +44,7 @@ const gameSpaceGrammar = {
       isStewarded: false,
       status: 'draft',
       minMaxPlayers: [1, 4],
+      players: [],
     };
     return state;
   },
@@ -53,6 +56,12 @@ const gameSpaceGrammar = {
         break;
       case 'set-is-stewarded':
         status.isStewarded = delta.isStewarded;
+        break;
+      case 'add-player':
+        status.players.push(delta.player);
+        break;
+      case 'remove-player':
+        status.players = status.players.filter((p) => p !== delta.player);
         break;
     }
   },
@@ -89,7 +98,15 @@ export class GameSpaceSyn {
     this.session = await this.workspace.joinSession();
     this.session.state.subscribe((state) => {
       console.log('Game Space Session State!', state);
-      this.state.set(state);
+      // Little migration procedure
+      if (!state.players) {
+        this.session.change((state) => {
+          console.log('Migrating!');
+          state.players = [];
+        });
+      } else {
+        this.state.set(state);
+      }
     });
   }
 
@@ -108,6 +125,35 @@ export class GameSpaceSyn {
         }
       });
     }
+  }
+
+  canJoinGame = derived(this.state, (latestState) => {
+    if (!this.session) return false;
+    const b64key = encodeHashToBase64(this.session.myPubKey);
+    const alreadyJoined = !!latestState.players.find((v) => v === b64key);
+    if (alreadyJoined) return false;
+    const v = latestState.players.length;
+    const max = latestState.minMaxPlayers[1];
+    if (v >= max) return false;
+    return true;
+  });
+
+  canLeaveGame = derived(this.state, (latestState) => {
+    if (!this.session) return false;
+    const b64key = encodeHashToBase64(this.session.myPubKey);
+    const alreadyJoined = !!latestState.players.find((v) => v === b64key);
+    if (!alreadyJoined) return false;
+    return true;
+  });
+
+  joinGame() {
+    const b64key = encodeHashToBase64(this.session.myPubKey);
+    this.change({ type: 'add-player', player: b64key });
+  }
+
+  leaveGame() {
+    const b64key = encodeHashToBase64(this.session.myPubKey);
+    this.change({ type: 'remove-player', player: b64key });
   }
 }
 
