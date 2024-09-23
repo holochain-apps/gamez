@@ -32,7 +32,7 @@
     createGameSpaceStore,
     type GameSpaceStore,
     setContext as setGameSpaceStoreContext,
-  } from './GameSpace/store';
+  } from './GameSpace/store/store';
 
   const appId = import.meta.env.VITE_APP_ID ?? 'gamez';
   const roleName = 'gamez';
