@@ -1,5 +1,6 @@
 <script lang="ts">
   import cx from 'classnames';
+  import { onMount } from 'svelte';
   import ElementWrapper from './ElementWrapper.svelte';
   import { type GElement } from './types.d';
 
@@ -185,6 +186,26 @@
       return el;
     }
   };
+
+  onMount(() => {
+    function centerBoard() {
+      const { width, height } = boardContainer.getBoundingClientRect();
+      setTimeout(() => {
+        const { width, height } = boardContainer.getBoundingClientRect();
+      }, 100);
+      if (panX === 0 && panY === 0 && zoom === 1) {
+        panX = width / 2;
+        panY = height / 2;
+      }
+    }
+    centerBoard();
+    window.addEventListener('resize', centerBoard);
+    return () => {
+      window.removeEventListener('resize', centerBoard);
+    };
+  });
+
+  // $: console.log(panX, panY);
 </script>
 
 <div
@@ -221,3 +242,14 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .inset-content-shadow:before {
+    content: ' ';
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+</style>

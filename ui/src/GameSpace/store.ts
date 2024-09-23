@@ -86,11 +86,14 @@ const gameSpaceGrammar = {
 export class GameSpaceSyn {
   session: SessionStore<any, any> | null;
   state = writable<GameSpace>(null);
+  pubKeyB64: string;
 
   constructor(
     public document: DocumentStore<any, any>,
     public workspace: WorkspaceStore<any, any>,
+    public pubKey: AgentPubKey,
   ) {
+    this.pubKeyB64 = encodeHashToBase64(pubKey);
     workspace.latestState.subscribe((state) => {
       if (state.status === 'complete') {
         if (!this.session) {
@@ -148,9 +151,7 @@ export class GameSpaceSyn {
   }
 
   canJoinGame = derived(this.state, (latestState) => {
-    if (!this.session) return false;
-    const b64key = encodeHashToBase64(this.session.myPubKey);
-    const alreadyJoined = !!latestState.players.find((v) => v === b64key);
+    const alreadyJoined = !!latestState.players.find((v) => v === this.pubKeyB64);
     if (alreadyJoined) return false;
     const v = latestState.players.length;
     const max = latestState.minMaxPlayers[1];
@@ -159,28 +160,22 @@ export class GameSpaceSyn {
   });
 
   canLeaveGame = derived(this.state, (latestState) => {
-    if (!this.session) return false;
-    const b64key = encodeHashToBase64(this.session.myPubKey);
-    const alreadyJoined = !!latestState.players.find((v) => v === b64key);
+    const alreadyJoined = !!latestState.players.find((v) => v === this.pubKeyB64);
     if (!alreadyJoined) return false;
     return true;
   });
 
   joinGame() {
-    const b64key = encodeHashToBase64(this.session.myPubKey);
-    this.change({ type: 'add-player', player: b64key });
+    this.change({ type: 'add-player', player: this.pubKeyB64 });
   }
 
   leaveGame() {
-    const b64key = encodeHashToBase64(this.session.myPubKey);
-    this.change({ type: 'remove-player', player: b64key });
+    this.change({ type: 'remove-player', player: this.pubKeyB64 });
   }
 
   isSteward = derived(this.state, (latestState) => {
-    if (!this.session) return false;
     if (!latestState.isStewarded) return true;
-    const b64key = encodeHashToBase64(this.session.myPubKey);
-    return latestState.creator === b64key;
+    return latestState.creator === this.pubKeyB64;
   });
 }
 
@@ -192,14 +187,15 @@ export class GameSpaceSyn {
 
 export function createGameSpaceStore(appClient: AppClient) {
   const synStore = new SynStore(new SynClient(appClient, 'gamez', 'syn'));
+  const pubKey = synStore.client.client.myPubKey;
 
   async function createGameSpace() {
-    const initialState = gameSpaceGrammar.initialState(synStore.client.client.myPubKey);
+    const initialState = gameSpaceGrammar.initialState(pubKey);
     const document = await synStore.createDocument(initialState, {});
     const workspace = await document.createWorkspace(`${new Date()}`, undefined);
     synStore.client.tagDocument(document.documentHash, GAME_SPACE_TAG);
 
-    return new GameSpaceSyn(document, workspace);
+    return new GameSpaceSyn(document, workspace, synStore.client.client.myPubKey);
   }
 
   const gameSpaceDataHashMap = new LazyHoloHashMap((docHash) => {
@@ -208,6 +204,7 @@ export function createGameSpaceStore(appClient: AppClient) {
       return new GameSpaceSyn(
         document,
         new WorkspaceStore(document, Array.from(workspaces.keys())[0]),
+        pubKey,
       );
     });
   });
