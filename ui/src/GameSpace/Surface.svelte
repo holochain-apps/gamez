@@ -6,12 +6,12 @@
 
   export let elements: GElement[];
   export let onMoveElement = (id: string, x: number, y: number, z: number) => {};
+  export let onContextMenu = (id: string, posX: number, posY: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
 
-  let menuForId: string | null = null;
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();
-    menuForId = id;
+    onContextMenu(id, ev.clientX, ev.clientY);
   }
 
   // ██████╗ ██████╗  █████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
@@ -234,11 +234,6 @@
       />
     {/each}
   </div>
-  {#if menuForId}
-    <div class="absolute left-0 top-0 w-40 rounded-md bg-white shadow-md b b-black/10">
-      Edit piece
-    </div>
-  {/if}
 </div>
 
 <style>

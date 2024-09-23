@@ -17,6 +17,7 @@
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import ElementsLibrary from './ElementsLibrary.svelte';
   import PeopleBar from './PeopleBar.svelte';
+  import ElementConfigMenu from './ElementConfigMenu.svelte';
 
   export let gameSpace: GameSpaceSyn;
   $: state = get(gameSpace.state);
@@ -53,6 +54,19 @@
 
   function handleAddElement(el: GElement) {
     gameSpace.change({ type: 'add-element', element: { ...el, z: gameSpace.topZ() } });
+  }
+
+  let contextMenuState: { id: string; x: number; y: number } | null = null;
+  function handleContextMenu(id: string, x: number, y: number) {
+    contextMenuState = { id, x, y };
+  }
+
+  function closeContextMenu() {
+    contextMenuState = null;
+  }
+
+  function handleUpdateElement(el: GElement) {
+    gameSpace.change({ type: 'update-element', element: { ...el } });
   }
 </script>
 
@@ -132,7 +146,17 @@
         onMoveElement={(uuid, x, y, z) => {
           gameSpace.change({ type: 'move-element', uuid, x, y, z });
         }}
+        onContextMenu={handleContextMenu}
       />
     </div>
   </div>
+  {#if contextMenuState}
+    <ElementConfigMenu
+      x={contextMenuState.x}
+      y={contextMenuState.y}
+      onClose={closeContextMenu}
+      el={gameSpace.el(contextMenuState.id)}
+      onUpdateEl={handleUpdateElement}
+    />
+  {/if}
 {/if}

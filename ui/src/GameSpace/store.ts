@@ -34,7 +34,8 @@ export type GameSpaceDelta =
   | { type: 'add-player'; player: AgentPubKeyB64 }
   | { type: 'remove-player'; player: AgentPubKeyB64 }
   | { type: 'add-element'; element: GElement }
-  | { type: 'move-element'; uuid: string; x: number; y: number; z: number };
+  | { type: 'move-element'; uuid: string; x: number; y: number; z: number }
+  | { type: 'update-element'; element: GElement };
 
 const gameSpaceGrammar = {
   initialState(pubKey: Uint8Array) {
@@ -77,6 +78,17 @@ const gameSpaceGrammar = {
             e.z = delta.z;
           }
           // return e;
+        });
+        break;
+      case 'update-element':
+        status.elements.forEach((e) => {
+          if (e.uuid === delta.element.uuid) {
+            for (const key in delta.element) {
+              if (key !== 'wals') {
+                e[key] = delta.element[key];
+              }
+            }
+          }
         });
         break;
     }
@@ -185,6 +197,10 @@ export class GameSpaceSyn {
     const maxZCount = elements.filter((v) => v.z === maxZ).length;
     const shouldIncreaseZ = piece ? piece.z < maxZ || (piece.z === maxZ && maxZCount > 1) : true;
     return shouldIncreaseZ ? maxZ + 1 : piece.z;
+  }
+
+  el(pieceId) {
+    return get(this.state).elements.find((v) => v.uuid === pieceId);
   }
 }
 
