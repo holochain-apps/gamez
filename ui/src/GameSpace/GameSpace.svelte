@@ -9,7 +9,6 @@
   import { decodeHashFromBase64 } from '@holochain/client';
 
   import Input from './ui/Input.svelte';
-  import ElementWrapper from './ElementWrapper.svelte';
   import Surface from './Surface.svelte';
 
   import { type GameSpaceSyn } from './store';
@@ -155,7 +154,10 @@
       x={contextMenuState.x}
       y={contextMenuState.y}
       onClose={closeContextMenu}
-      el={gameSpace.el(contextMenuState.id)}
+      el={(() => {
+        state; // trigger reactivity
+        return gameSpace.el(contextMenuState.id);
+      })()}
       onUpdateEl={handleUpdateElement}
     />
   {/if}
