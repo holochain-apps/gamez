@@ -29,7 +29,7 @@
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
 
   onMount(async () => {
-    await gameSpace.join();
+    await gameSpace.joinSession();
 
     gameSpace.state.subscribe((latestState) => {
       state = latestState;
@@ -41,7 +41,7 @@
   });
 
   onDestroy(() => {
-    gameSpace.leave();
+    gameSpace.leaveSession();
   });
 
   const toggleSidebar = (value: typeof sidebar) => {
@@ -96,8 +96,8 @@
         canLeaveGame={$canLeaveGame}
         players={state.players}
         {participants}
-        onJoin={() => gameSpace.join()}
-        onLeave={() => gameSpace.leave()}
+        onJoin={() => gameSpace.joinGame()}
+        onLeave={() => gameSpace.leaveGame()}
       />
     </div>
     <div class="flex flex-grow">

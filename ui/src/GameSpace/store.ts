@@ -129,7 +129,7 @@ export class GameSpaceSyn {
   //   // return this.state.subscribe(sub, inv);
   // }
 
-  async join() {
+  async joinSession() {
     this.session = await this.workspace.joinSession();
     this.session.state.subscribe((state) => {
       console.log('SESSION STATE', state);
@@ -145,7 +145,7 @@ export class GameSpaceSyn {
     });
   }
 
-  async leave() {
+  async leaveSession() {
     this.session.leaveSession();
     this.session = null;
   }
