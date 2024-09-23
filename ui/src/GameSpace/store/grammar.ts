@@ -60,6 +60,9 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       status.elements.forEach((e) => {
         if (e.uuid === delta.element.uuid) {
           for (const key in delta.element) {
+            // For elements that are objects or arrays
+            // we gotta clone it otherwise Syn complains
+            // about using a reference to an object somewhere else
             const newValue =
               typeof delta.element[key] === 'object'
                 ? cloneDeep(delta.element[key])

@@ -1,9 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+
   import { type GElement } from './types.d';
 
   import PieceConfig from './elements/PieceConfig.svelte';
   import ImageConfig from './elements/ImageConfig.svelte';
+  import CommonConfigButtons from './CommonConfigButtons.svelte';
 
   export let x: number;
   export let y: number;
@@ -27,12 +29,14 @@
 
 <div
   bind:this={element}
-  class="fixed left-0 top-0 min-w-40 rounded-md bg-white shadow-md b b-black/10 p2"
+  class="fixed left-0 top-0 min-w-70 rounded-md bg-white shadow-md b b-black/10 p2"
   style={`
     top: ${y}px;
     left: ${x}px;
   `}
 >
+  <CommonConfigButtons />
+
   {#if el.type == 'Piece'}
     <PieceConfig {el} onUpdate={onUpdateEl} />
   {:else if el.type == 'Image'}
