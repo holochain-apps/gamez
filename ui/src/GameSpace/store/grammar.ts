@@ -1,6 +1,7 @@
+import { cloneDeep } from 'lodash';
 import { v1 as uuidv1 } from 'uuid';
 
-import { AgentPubKeyB64, encodeHashToBase64 } from '@holochain/client';
+import { type AgentPubKeyB64, encodeHashToBase64 } from '@holochain/client';
 
 import type { GameSpace, GElement } from '../types.d';
 
@@ -59,9 +60,11 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       status.elements.forEach((e) => {
         if (e.uuid === delta.element.uuid) {
           for (const key in delta.element) {
-            if (key !== 'wals') {
-              e[key] = delta.element[key];
-            }
+            const newValue =
+              typeof delta.element[key] === 'object'
+                ? cloneDeep(delta.element[key])
+                : delta.element[key];
+            e[key] = newValue;
           }
         }
       });

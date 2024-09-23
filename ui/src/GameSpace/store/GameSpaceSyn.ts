@@ -1,10 +1,10 @@
 import { derived, get, writable } from 'svelte/store';
 
 import { DocumentStore, SessionStore, WorkspaceStore } from '@holochain-syn/core';
-import { AgentPubKey, encodeHashToBase64 } from '@holochain/client';
+import { type AgentPubKey, encodeHashToBase64 } from '@holochain/client';
 
 import { type GameSpace } from '../types.d';
-import { applyDelta, Delta } from './grammar';
+import { applyDelta, type Delta } from './grammar';
 
 export class GameSpaceSyn {
   session: SessionStore<any, any> | null;
