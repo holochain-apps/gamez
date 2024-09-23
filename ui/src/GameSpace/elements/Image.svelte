@@ -4,4 +4,4 @@
   export let el: ImageElement;
 </script>
 
-<img src={el.url} alt="image" draggable={false} width={el.width} height={el.height} />
+<img src={el.url} alt="Board" draggable={false} width={el.width} height={el.height} />

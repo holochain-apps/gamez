@@ -17,7 +17,7 @@
     <img
       style={`width: ${el.width}px; height: ${el.height}px;`}
       src={el.display.value}
-      alt="image"
+      alt="Piece"
       draggable={false}
     />
   {/if}

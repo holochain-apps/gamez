@@ -11,7 +11,7 @@
   import Input from './ui/Input.svelte';
   import Surface from './Surface.svelte';
 
-  import { type GameSpaceSyn } from './store';
+  import { type GameSpaceSyn } from './store/GameSpaceSyn';
   import { type GameSpace, type GElement } from './types.d';
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import ElementsLibrary from './ElementsLibrary.svelte';

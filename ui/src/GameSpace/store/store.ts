@@ -52,7 +52,7 @@ export function createGameSpaceStore(appClient: AppClient) {
     return toPromise(gameSpacesData);
   }
 
-  return { synStore, createGameSpace, getAllGameSpaces };
+  return { createGameSpace, getAllGameSpaces };
 }
 
 export const setContext = (getter: () => GameSpaceStore) =>

@@ -2,7 +2,7 @@ import { v1 as uuidv1 } from 'uuid';
 
 import { AgentPubKeyB64, encodeHashToBase64 } from '@holochain/client';
 
-import type { GameSpace, GElement } from '../types';
+import type { GameSpace, GElement } from '../types.d';
 
 export type Delta =
   | { type: 'set-name'; name: string }

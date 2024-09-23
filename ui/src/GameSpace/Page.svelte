@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  import { getContext, GameSpaceSyn } from './store';
+  import { getContext } from './store/store';
+  import { type GameSpaceSyn } from './store/GameSpaceSyn';
 
   import GameSpaceComp from './GameSpace.svelte';
 
