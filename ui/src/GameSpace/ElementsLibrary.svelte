@@ -34,8 +34,16 @@
       x: -type.initialWidth / 2,
       y: -type.initialHeight / 2,
       z: 0,
+      rotation: 0,
       height: type.initialHeight,
       width: type.initialWidth,
+      lock: {
+        position: false,
+        size: false,
+        rotation: false,
+        wals: false,
+        config: false,
+      },
       wals: [],
     };
     if (type.elementType === 'Piece') {

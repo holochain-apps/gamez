@@ -40,6 +40,7 @@ export type GameSpaceDelta =
 const gameSpaceGrammar = {
   initialState(pubKey: Uint8Array) {
     const state: GameSpace = {
+      version: 1,
       name: 'Game Space',
       creator: encodeHashToBase64(pubKey),
       elements: [],
@@ -134,10 +135,20 @@ export class GameSpaceSyn {
     this.session.state.subscribe((state) => {
       console.log('SESSION STATE', state);
       // Little migration procedure
-      if (!state.players) {
-        this.session.change((state) => {
-          console.log('Migrating!');
-          state.players = [];
+      if (!state.version) {
+        this.session.change((state: GameSpace) => {
+          // @ts-ignore
+          state.version = '1';
+          state.elements.forEach((el) => {
+            el.rotation = 0;
+            el.lock = {
+              position: false,
+              size: false,
+              rotation: false,
+              wals: false,
+              config: false,
+            };
+          });
         });
       } else {
         this.state.set(state);

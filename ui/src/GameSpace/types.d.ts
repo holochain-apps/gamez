@@ -1,6 +1,7 @@
 import type { WeaveUrl } from '@lightningrodlabs/we-applet';
 
 export type GameSpace = {
+  version: 1;
   name: string;
   creator: string;
   elements: GElement[];
@@ -18,8 +19,16 @@ export type GElementBase = {
   x: number;
   y: number;
   z: number;
+  rotation: number;
   width: number;
   height: number;
+  lock: {
+    position: boolean;
+    size: boolean;
+    rotation: boolean;
+    wals: boolean;
+    config: boolean;
+  };
   wals: WeaveUrl[];
 };
 
