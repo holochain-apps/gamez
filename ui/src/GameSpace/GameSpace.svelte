@@ -13,7 +13,7 @@
   import Surface from './Surface.svelte';
 
   import { type GameSpaceSyn } from './store';
-  import { type GameSpace } from './types.d';
+  import { type GameSpace, type GElement } from './types.d';
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import ElementsLibrary from './ElementsLibrary.svelte';
   import PeopleBar from './PeopleBar.svelte';
@@ -51,7 +51,9 @@
     }
   };
 
-  $: console.log('Is steward?', $isSteward);
+  function handleAddElement(el: GElement) {
+    gameSpace.change({ type: 'add-element', element: { ...el, z: gameSpace.topZ() } });
+  }
 </script>
 
 {#if state}
@@ -86,7 +88,7 @@
     </div>
     <div class="flex flex-grow">
       {#if sidebar === 'elementsLibrary' && $isSteward}
-        <ElementsLibrary onAdd={(el) => gameSpace.change({ type: 'add-element', element: el })} />
+        <ElementsLibrary onAdd={handleAddElement} />
       {:else if sidebar === 'configurator'}
         <div class="w-60 bg-main-800 h-full flex-shrink-0">
           {#if state}

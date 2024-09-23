@@ -204,8 +204,6 @@
       window.removeEventListener('resize', centerBoard);
     };
   });
-
-  // $: console.log(panX, panY);
 </script>
 
 <div

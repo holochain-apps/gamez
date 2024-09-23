@@ -29,31 +29,28 @@
   ];
 
   function addElement(type: LibraryElement) {
+    const base = {
+      uuid: '',
+      x: -type.initialWidth / 2,
+      y: -type.initialHeight / 2,
+      z: 0,
+      height: type.initialHeight,
+      width: type.initialWidth,
+      wals: [],
+    };
     if (type.elementType === 'Piece') {
       onAdd({
         type: 'Piece',
-        uuid: '',
         version: 1,
-        x: 0,
-        y: 0,
-        z: 0,
-        width: type.initialWidth,
-        height: type.initialHeight,
-        wals: [],
         display: { mode: 'emoji', value: '🔥' },
+        ...base,
       });
     } else if (type.elementType === 'Image') {
       onAdd({
         type: 'Image',
-        uuid: '',
         version: 1,
-        x: 0,
-        y: 0,
-        z: 0,
-        width: type.initialWidth,
-        height: type.initialHeight,
-        wals: [],
         url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png',
+        ...base,
       });
     }
   }

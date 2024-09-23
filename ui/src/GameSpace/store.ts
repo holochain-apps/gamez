@@ -97,7 +97,7 @@ export class GameSpaceSyn {
     workspace.latestState.subscribe((state) => {
       if (state.status === 'complete') {
         if (!this.session) {
-          console.log('Setting state from latestState', state);
+          // console.log('Setting state from latestState', state);
           this.state.set(state.value);
         }
       }
@@ -105,7 +105,7 @@ export class GameSpaceSyn {
     workspace.latestSnapshot.subscribe((snapshot) => {
       if (snapshot.status === 'complete') {
         if (!this.session) {
-          console.log('Setting state from latestSnapshot', snapshot);
+          // console.log('Setting state from latestSnapshot', snapshot);
           this.state.set(snapshot.value);
         }
       }
@@ -120,7 +120,7 @@ export class GameSpaceSyn {
   async join() {
     this.session = await this.workspace.joinSession();
     this.session.state.subscribe((state) => {
-      console.log('Game Space Session State!', state);
+      console.log('SESSION STATE', state);
       // Little migration procedure
       if (!state.players) {
         this.session.change((state) => {
@@ -177,6 +177,15 @@ export class GameSpaceSyn {
     if (!latestState.isStewarded) return true;
     return latestState.creator === this.pubKeyB64;
   });
+
+  topZ(pieceId: string = null) {
+    const elements = get(this.state).elements;
+    const piece = pieceId ? elements.find((v) => v.uuid === pieceId) : null;
+    const maxZ = elements.reduce((max, el) => (el.z > max ? el.z : max), 0);
+    const maxZCount = elements.filter((v) => v.z === maxZ).length;
+    const shouldIncreaseZ = piece ? piece.z < maxZ || (piece.z === maxZ && maxZCount > 1) : true;
+    return shouldIncreaseZ ? maxZ + 1 : piece.z;
+  }
 }
 
 // export class GameSpaceStore {
