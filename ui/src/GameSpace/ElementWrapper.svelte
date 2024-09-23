@@ -8,7 +8,6 @@
   export let onDragEnd: () => void;
   export let onDrop: (ev: DragEvent) => void;
   export let onDragOver: (ev: DragEvent) => void;
-  export let hidden = false;
   export let onContextMenu: (ev: MouseEvent) => void;
 
   const draggable = true;
@@ -17,10 +16,13 @@
 <div
   class={cx('absolute ', {
     'hover:(brightness-125 saturate-125)': draggable,
-    '[&.dragging-image]:(brightness-125 saturate-125)': draggable,
-    'opacity-0': hidden,
   })}
-  style={`width: ${el.width}px; height: ${el.height}px; transform: translate(${el.x}px, ${el.y}px);`}
+  style={`
+    width: ${el.width}px;
+    height: ${el.height}px;
+    transform: translate(${el.x}px, ${el.y}px);
+    z-index: ${el.z};
+  `}
   on:dragstart={onDragStart}
   on:dragend={onDragEnd}
   on:drop={onDrop}

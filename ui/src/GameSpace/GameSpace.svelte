@@ -54,7 +54,7 @@
 
 <LayoutBar title={state.name || 'Game Space'} />
 <div class="h-full flex flex-col">
-  <div class="bg-main-700 h-14 flex">
+  <div class="bg-main-700 h-14 flex relative">
     <button
       class={cx('h14 w14 flexcc b b-black/10', {
         'bg-black/30 text-white': sidebar === 'configurator',
@@ -124,8 +124,8 @@
     {/if}
     <Surface
       elements={state.elements}
-      onMoveElement={(uuid, x, y) => {
-        gameSpace.change({ type: 'move-element', uuid, x, y });
+      onMoveElement={(uuid, x, y, z) => {
+        gameSpace.change({ type: 'move-element', uuid, x, y, z });
       }}
     />
   </div>

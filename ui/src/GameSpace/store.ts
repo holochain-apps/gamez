@@ -34,7 +34,7 @@ export type GameSpaceDelta =
   | { type: 'add-player'; player: AgentPubKeyB64 }
   | { type: 'remove-player'; player: AgentPubKeyB64 }
   | { type: 'add-element'; element: GElement }
-  | { type: 'move-element'; uuid: string; x: number; y: number };
+  | { type: 'move-element'; uuid: string; x: number; y: number; z: number };
 
 const gameSpaceGrammar = {
   initialState(pubKey: Uint8Array) {
@@ -74,6 +74,7 @@ const gameSpaceGrammar = {
           if (e.uuid === delta.uuid) {
             e.x = delta.x;
             e.y = delta.y;
+            e.z = delta.z;
           }
           // return e;
         });

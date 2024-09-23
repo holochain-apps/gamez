@@ -52,7 +52,7 @@
     </div>
   </button>
   {#if showingParticipants}
-    <div class="bg-main-900 p4 rounded-bl-md top-full w-60 absolute flex flex-col space-y-2">
+    <div class="bg-main-900 p4 rounded-bl-md top-full w-60 absolute flex flex-col space-y-2 z-1000">
       <div>Sync Session Participants</div>
       {#each participants as participant}
         <div class="">

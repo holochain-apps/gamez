@@ -4,7 +4,7 @@
   import { type GElement } from './types.d';
 
   export let elements: GElement[];
-  export let onMoveElement = (id: string, x: number, y: number) => {};
+  export let onMoveElement = (id: string, x: number, y: number, z: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
 
   let menuForId: string | null = null;
@@ -24,82 +24,49 @@
   EMPTY_IMAGE.src =
     'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
-  let dragState:
-    | null
-    | {
-        type: 'add';
-        offsetX: number;
-        offsetY: number;
-        pieceTypeId: string;
-      }
-    | {
-        type: 'move';
-        offsetX: number;
-        offsetY: number;
-        pieceId: string;
-      } = null;
+  type DragState = null | {
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+    pieceId: string;
+    z: number;
+  };
+  let dragState: DragState = null;
 
-  let dragImageEl: HTMLDivElement;
-  const root = document.getElementById('root');
-  function handleDragStart(e: DragEvent, dragType: 'add' | 'move', id: string) {
-    const currentTarget = e.currentTarget as HTMLDivElement;
-    const bounds = currentTarget.getBoundingClientRect();
-    const offsetX = e.clientX - bounds.left;
-    const offsetY = e.clientY - bounds.top;
+  function handleDragStart(e: DragEvent, id: string) {
+    const piece = elements.find((v) => v.uuid === id);
+    const maxZ = elements.reduce((max, el) => (el.z > max ? el.z : max), 0);
+    const maxZCount = elements.filter((v) => v.z === maxZ).length;
+    const shouldIncreaseZ = piece.z < maxZ || (piece.z === maxZ && maxZCount > 1);
+    const newZ = shouldIncreaseZ ? maxZ + 1 : piece.z;
 
     let dragOffsetX, dragOffsetY: number;
     let dragImageZoom: number;
-    if (dragType === 'move') {
-      dragState = {
-        type: 'move',
-        offsetX,
-        offsetY,
-        pieceId: id,
-      };
-      dragOffsetX = dragState.offsetX / zoom;
-      dragOffsetY = dragState.offsetY / zoom;
-      dragImageZoom = zoom;
-    } else if (dragType === 'add') {
-      dragState = {
-        type: 'add',
-        offsetX,
-        offsetY,
-        pieceTypeId: id,
-      };
-      dragOffsetX = dragState.offsetX / zoom;
-      dragOffsetY = dragState.offsetY / zoom;
-      dragImageZoom = 1;
-    }
-
-    dragImageEl = currentTarget.cloneNode(true) as HTMLDivElement;
-    dragImageEl.style.top = '0';
-    dragImageEl.style.left = '0';
-    dragImageEl.style.zIndex = '9999';
-    dragImageEl.style.position = 'absolute';
-    dragImageEl.style.pointerEvents = 'none';
-    dragImageEl.style.transform = `translate(-${dragOffsetX + e.clientX}px, -${dragOffsetY + e.clientY}px) scale(${zoom})`;
-    dragImageEl.style.transformOrigin = `${dragOffsetX}px ${dragOffsetY}px`;
-
-    // Fixes Svelte not setting non-string custom properties on the element
-    const agentAvatarEl = dragImageEl.querySelector('agent-avatar');
-    // @ts-ignore
-    if (agentAvatarEl) agentAvatarEl.setAttribute('size', PLAYER_PIECE_SIZE.toString());
-
-    root.appendChild(dragImageEl);
+    dragState = {
+      startX: e.clientX,
+      startY: e.clientY,
+      offsetX: 0,
+      offsetY: 0,
+      pieceId: id,
+      z: newZ,
+    };
+    dragOffsetX = dragState.offsetX / zoom;
+    dragOffsetY = dragState.offsetY / zoom;
+    dragImageZoom = zoom;
 
     e.dataTransfer.setDragImage(EMPTY_IMAGE, 0, 0);
     e.dataTransfer.effectAllowed = 'move';
   }
 
-  function handleDragOver(e: DragEvent, el: 'source' | 'board') {
+  function handleDragOver(e: DragEvent) {
     e.preventDefault();
     if (!dragState) return;
-    const resolvedOffsetX = dragState.offsetX / zoom;
-    const resolvedOffsetY = dragState.offsetY / zoom;
-    const resolvedZoom = el === 'source' ? 1 : zoom;
-    dragImageEl.style.transform = `translate(${-resolvedOffsetX + e.clientX}px, ${-resolvedOffsetY + e.clientY}px) scale(${resolvedZoom})`;
-    dragImageEl.style.transformOrigin = `${resolvedOffsetX}px ${resolvedOffsetY}px`;
-    dragImageEl.classList.add('dragging-image');
+    dragState = {
+      ...dragState,
+      offsetX: e.clientX - dragState.startX,
+      offsetY: e.clientY - dragState.startY,
+    };
   }
 
   function handleDragDrop(e: DragEvent) {
@@ -108,28 +75,18 @@
       return;
     }
 
-    const [canvasX, canvasY] = screenToCanvasPos(e);
-    const [boardX, boardY] = canvasToBoardPos([
-      canvasX - dragState.offsetX,
-      canvasY - dragState.offsetY,
-    ]);
+    const piece = elements.find((v) => v.uuid === dragState.pieceId);
 
-    if (dragState.type === 'move') {
-      onMoveElement(dragState.pieceId, boardX, boardY);
-    } else if (dragState.type === 'add') {
-      console.log('ADding piece', dragState);
-      // onAddPiece(dragState.pieceTypeId, boardX, boardY);
-    }
+    const newX = piece.x + dragState.offsetX / zoom;
+    const newY = piece.y + dragState.offsetY / zoom;
+
+    onMoveElement(dragState.pieceId, newX, newY, dragState.z);
 
     handleDragEnd();
   }
 
   function handleDragEnd() {
     dragState = null;
-    if (dragImageEl) {
-      dragImageEl.remove();
-      dragImageEl = null;
-    }
   }
 
   // ███████╗ ██████╗  ██████╗ ███╗   ███╗     █████╗ ███╗   ██╗██████╗     ██████╗  █████╗ ███╗   ██╗
@@ -213,6 +170,21 @@
   function canvasToBoardPos([x, y]: [number, number]) {
     return [x / zoom - panX, y / zoom - panY] as [number, number];
   }
+
+  // --------------
+
+  $: offsetDraggedElementPosition = (el: GElement) => {
+    if (dragState && dragState.pieceId === el.uuid) {
+      return {
+        ...el,
+        x: el.x + dragState.offsetX / zoom,
+        y: el.y + dragState.offsetY / zoom,
+        z: dragState.z,
+      };
+    } else {
+      return el;
+    }
+  };
 </script>
 
 <div
@@ -225,24 +197,20 @@
   on:wheel={handleZoomInOut}
   on:mousedown={handlePanningStart}
   on:drop={handleDragDrop}
-  on:dragover={(ev) => handleDragOver(ev, 'board')}
+  on:dragover={handleDragOver}
   style={`background-position: ${panX * zoom}px ${panY * zoom}px; background-size: ${zoom * 150}px`}
 >
   <div
-    style={`
-  height: 100%;
-  width: 100%;
-  transform:scale(${zoom}) translate(${panX}px, ${panY}px);
-  transform-origin: top left;`}
+    class="relative w-full h-full transform-origin-tl"
+    style={`transform:scale(${zoom}) translate(${panX}px, ${panY}px);`}
   >
     {#each elements as element}
       <ElementWrapper
-        onDragStart={(e) => handleDragStart(e, 'move', element.uuid)}
+        onDragStart={(e) => handleDragStart(e, element.uuid)}
         onDragEnd={handleDragEnd}
         onDrop={handleDragDrop}
-        onDragOver={(ev) => handleDragOver(ev, 'board')}
-        hidden={!!(dragState && dragState.type === 'move' && dragState.pieceId === element.uuid)}
-        el={element}
+        onDragOver={handleDragOver}
+        el={offsetDraggedElementPosition(element)}
         onContextMenu={(ev) => handleContextMenu(ev, element.uuid)}
       />
     {/each}
