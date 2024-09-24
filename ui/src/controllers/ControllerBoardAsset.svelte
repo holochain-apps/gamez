@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { EntryHash } from '@holochain/client';
-  import type { AppletView } from '@lightningrodlabs/we-applet';
+  import type { AppletView } from '@theweave/api';
 
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
   import { getStoreContext } from '~/lib/context';

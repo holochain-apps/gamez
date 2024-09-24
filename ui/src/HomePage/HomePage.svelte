@@ -7,7 +7,7 @@
   import FileImportIcon from '~icons/fa6-solid/file-import';
 
   // Organizational
-  import { isWeContext } from '@lightningrodlabs/we-applet';
+  import { isWeaveContext } from '@theweave/api';
 
   // Local
   import { getStoreContext } from '~/lib/context';
@@ -39,7 +39,7 @@
   let fileinput;
 
   onMount(async () => {
-    if (isWeContext() && (await store.weaveClient.myGroupPermissionType()).type === 'Steward')
+    if (isWeaveContext() && (await store.weaveClient.myGroupPermissionType()).type === 'Steward')
       amWeaveSteward = true;
   });
 

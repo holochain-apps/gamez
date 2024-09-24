@@ -3,12 +3,7 @@
   import '@shoelace-style/shoelace/dist/components/button/button.js';
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 
-  import {
-    isWeContext,
-    type WAL,
-    weaveUrlFromWal,
-    type WeaveUrl,
-  } from '@lightningrodlabs/we-applet';
+  import { isWeaveContext, type WAL, weaveUrlFromWal, type WeaveUrl } from '@theweave/api';
 
   import { getStoreContext } from '~/lib/context';
   import type { Board, Piece } from '~/lib/store';
@@ -67,7 +62,7 @@
 </script>
 
 <sl-dialog class="text-black/60!" label="Attached Assets" bind:this={dialog}>
-  {#if isWeContext()}
+  {#if isWeaveContext()}
     <AttachmentsList {attachments} on:remove-attachment={(e) => removeAttachment(e.detail)} />
 
     <div class="flex justify-content:center">

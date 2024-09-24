@@ -1,4 +1,4 @@
-import type { WeaveUrl } from '@lightningrodlabs/we-applet';
+import type { WeaveUrl } from '@theweave/api';
 
 export type GameSpace = {
   version: 1;

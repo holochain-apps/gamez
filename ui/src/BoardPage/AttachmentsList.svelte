@@ -3,7 +3,7 @@
   import TrashIcon from '~icons/fa6-solid/trash';
   import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 
-  import { weaveUrlToWAL, type WeaveUrl } from '@lightningrodlabs/we-applet';
+  import { weaveUrlToWAL, type WeaveUrl } from '@theweave/api';
   import { hrlToString } from '@holochain-open-dev/utils';
 
   import { getStoreContext } from '~/lib/context';

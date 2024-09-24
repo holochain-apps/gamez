@@ -18,9 +18,8 @@
     "@holochain/client": "^0.18.0-dev.8",
     "@iconify-json/fa6-regular": "^1.1.22",
     "@iconify-json/fa6-solid": "^1.1.24",
-    "@lightningrodlabs/we-applet": "^0.17.1",
-    "@lightningrodlabs/we-elements": "^0.6.1",
     "@shoelace-style/shoelace": "^2.16.0",
+    "@theweave/api": "^0.1.0",
     "@types/javascript-time-ago": "^2.0.8",
     "classnames": "^2.5.1",
     "emoji-picker-element": "1.22.2",
@@ -34,6 +33,7 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "@theweave/elements": "^0.1.0",
     "@types/lodash": "^4.17.7",
     "@unocss/vite": "^0.62.1",
     "bestzip": "^2.2.1",

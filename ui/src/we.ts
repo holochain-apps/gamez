@@ -1,7 +1,3 @@
-import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
-import { LazyHoloHashMap } from '@holochain-open-dev/utils';
-import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
-import type { AppClient, RoleName, ZomeName } from '@holochain/client';
 import type {
   AppletHash,
   AppletServices,
@@ -9,7 +5,12 @@ import type {
   RecordInfo,
   WAL,
   WeaveServices,
-} from '@lightningrodlabs/we-applet';
+} from '@theweave/api';
+
+import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
+import { LazyHoloHashMap } from '@holochain-open-dev/utils';
+import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
+import type { AppClient, RoleName, ZomeName } from '@holochain/client';
 
 import type { BoardEphemeralState, BoardState } from './lib/store/board';
 import { BoardType } from './lib/store/boardList';

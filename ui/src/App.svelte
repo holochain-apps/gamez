@@ -8,12 +8,12 @@
   } from '@holochain/client';
   import {
     WeaveClient,
-    isWeContext,
+    isWeaveContext,
     initializeHotReload,
     type Hrl,
     type WAL,
     type AppletView,
-  } from '@lightningrodlabs/we-applet';
+  } from '@theweave/api';
   import '@holochain-open-dev/profiles/dist/elements/profiles-context.js';
   import '@holochain-open-dev/profiles/dist/elements/profile-prompt.js';
   import '@holochain-open-dev/profiles/dist/elements/create-profile.js';
@@ -68,7 +68,7 @@
   initialize();
 
   async function initialize(): Promise<void> {
-    // This must run before using isWeContext
+    // This must run before using isWeaveContext
     if ((import.meta as any).env.DEV) {
       try {
         await initializeHotReload();
@@ -79,7 +79,7 @@
       }
     }
 
-    if (!isWeContext()) {
+    if (!isWeaveContext()) {
       state = { type: 'standalone', ...(await initStandalone()) };
     } else {
       state = { type: 'weave', ...(await initOnWeave()) };

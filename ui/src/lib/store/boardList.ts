@@ -1,3 +1,4 @@
+import type { WeaveClient } from '@theweave/api';
 import { derived, get, type Readable, writable, type Writable } from 'svelte/store';
 
 import type { ProfilesStore } from '@holochain-open-dev/profiles';
@@ -28,7 +29,6 @@ import {
   type EntryHashB64,
   type Timestamp,
 } from '@holochain/client';
-import type { WeaveClient } from '@lightningrodlabs/we-applet';
 
 import { Board } from './board';
 import type { BoardDelta, BoardState } from './board';

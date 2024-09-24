@@ -4,7 +4,7 @@
   import '@shoelace-style/shoelace/dist/components/option/option.js';
 
   import { encodeHashToBase64, type AppClient } from '@holochain/client';
-  import type { AppletView } from '@lightningrodlabs/we-applet';
+  import type { AppletView } from '@theweave/api';
 
   import { getStoreContext } from '~/lib/context';
 

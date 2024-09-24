@@ -1,3 +1,4 @@
+import { isWeaveContext, type WeaveClient } from '@theweave/api';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 
@@ -32,7 +33,6 @@ import {
   type Link,
   type RoleName,
 } from '@holochain/client';
-import { isWeContext, type WeaveClient } from '@lightningrodlabs/we-applet';
 
 import { getMyDna } from '../util';
 import type { BoardState } from './board';
@@ -93,8 +93,8 @@ export class GamezStore {
     this.myAgentPubKeyB64 = encodeHashToBase64(this.myAgentPubKey);
     this.agentIsSteward = lazyLoad(async () => {
       return (
-        !isWeContext() ||
-        (isWeContext() && (await weaveClient.myGroupPermissionType()).type === 'Steward')
+        !isWeaveContext() ||
+        (isWeaveContext() && (await weaveClient.myGroupPermissionType()).type === 'Steward')
       );
     });
 

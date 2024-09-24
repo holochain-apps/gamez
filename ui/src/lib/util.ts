@@ -1,6 +1,7 @@
+import type { WeaveUrl } from '@theweave/api';
+
 import type { AsyncStatus } from '@holochain-open-dev/stores';
 import { type AppClient, CellType, type DnaHash, type EntryHash } from '@holochain/client';
-import type { WeaveUrl } from '@lightningrodlabs/we-applet';
 
 export const hashEqual = (a: EntryHash, b: EntryHash): boolean => {
   if (!a || !b) {

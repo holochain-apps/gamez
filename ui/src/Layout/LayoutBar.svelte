@@ -5,7 +5,7 @@
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import UserGroupIcon from '~icons/fa6-solid/user-group';
 
-  import { isWeContext } from '@lightningrodlabs/we-applet';
+  import { isWeaveContext } from '@theweave/api';
 
   import { type Board } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
@@ -99,7 +99,7 @@
     <UserGroupIcon />
   </button>
 
-  {#if !isWeContext()}
+  {#if !isWeaveContext()}
     <button
       on:click={editAvatar}
       title={myName ? myName : 'Edit Avatar'}
