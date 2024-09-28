@@ -145,6 +145,9 @@
         onMoveElement={(uuid, x, y, z) => {
           gameSpace.change({ type: 'move-element', uuid, x, y, z });
         }}
+        onResizeElement={(uuid, width, height) => {
+          gameSpace.change({ type: 'resize-element', uuid, width, height });
+        }}
         onContextMenu={handleContextMenu}
       />
     </div>

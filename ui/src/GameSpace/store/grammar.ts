@@ -12,6 +12,7 @@ export type Delta =
   | { type: 'remove-player'; player: AgentPubKeyB64 }
   | { type: 'add-element'; element: GElement }
   | { type: 'move-element'; uuid: string; x: number; y: number; z: number }
+  | { type: 'resize-element'; uuid: string; width: number; height: number }
   | { type: 'update-element'; element: GElement };
 
 export function initialState(pubKey: Uint8Array): GameSpace {
@@ -53,7 +54,14 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
           e.y = delta.y;
           e.z = delta.z;
         }
-        // return e;
+      });
+      break;
+    case 'resize-element':
+      status.elements.forEach((e) => {
+        if (e.uuid === delta.uuid) {
+          e.width = delta.width;
+          e.height = delta.height;
+        }
       });
       break;
     case 'update-element':

@@ -5,6 +5,7 @@
   import { type GElement } from './types.d';
 
   export let elements: GElement[];
+  export let onResizeElement = (id: string, width: number, height: number) => {};
   export let onMoveElement = (id: string, x: number, y: number, z: number) => {};
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
@@ -204,6 +205,10 @@
       window.removeEventListener('resize', centerBoard);
     };
   });
+
+  function handleElementResized(id: string, width: number, height: number) {
+    onResizeElement(id, width, height);
+  }
 </script>
 
 <div
@@ -230,6 +235,8 @@
         onDrop={handleDragDrop}
         onDragOver={handleDragOver}
         draggable={!element.lock.position}
+        resizable={!element.lock.size}
+        onResized={(w, h) => handleElementResized(element.uuid, w, h)}
         el={offsetDraggedElementPosition(element)}
         onContextMenu={(ev) => handleContextMenu(ev, element.uuid)}
       />
