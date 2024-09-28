@@ -82,12 +82,13 @@
         return { ...el, width: el.width + dx, height: el.height + dy };
       })()
     : el;
+
+  $: showResizeLayout = (isHovering && resizable && isShiftPressed) || resizingState;
 </script>
 
 <div
   class={cx('absolute ', {
     'hover:(brightness-125 saturate-125)': draggable,
-    'b b-red-500 b-dashed': resizingState,
   })}
   style={`
     width: ${resizedEl.width}px;
@@ -109,12 +110,14 @@
   {:else if resizedEl.type === 'Image'}
     <svelte:component this={elements.Image} el={resizedEl} />
   {/if}
-  {#if isHovering && resizable}
-    <button
-      class="h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-1 -right-1 cursor-nwse-resize"
-      on:mousedown={handleResizeStart}
-    >
-      <ArrowsLeftRight class="rotate-45 text-xs text-white" />
-    </button>
+  {#if showResizeLayout}
+    <div class="absolute inset-0 b b-red-500 b-dashed bg-red-500/10">
+      <button
+        class="h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-1 -right-1 cursor-nwse-resize"
+        on:mousedown={handleResizeStart}
+      >
+        <ArrowsLeftRight class="rotate-45 text-xs text-white" />
+      </button>
+    </div>
   {/if}
 </div>

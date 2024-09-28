@@ -3,7 +3,7 @@
 
   export let el: PieceElement;
 
-  let fontSize = Math.min(el.width, el.height) + 'px';
+  $: fontSize = Math.min(el.width, el.height) + 'px';
 </script>
 
 <div>
