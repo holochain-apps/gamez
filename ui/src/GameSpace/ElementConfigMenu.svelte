@@ -45,7 +45,7 @@
 
 <div
   bind:this={element}
-  class="fixed left-0 top-0 min-w-70 rounded-md bg-white shadow-md b b-black/10 p2"
+  class="fixed left-0 top-0 min-w-70 rounded-md bg-gray-50 shadow-md b b-black/10 p2"
   style={`
     top: ${y}px;
     left: ${x}px;

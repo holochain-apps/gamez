@@ -10,7 +10,7 @@
 
 <div class={`relative ${klass}`}>
   <input
-    class="peer px4 py2 h10 rounded-md block w-full text-black/60 text-lg outline-main-500"
+    class="peer px4 py2 h10 rounded-md block w-full text-black/60 text-lg outline-main-500 b b-black/10"
     placeholder={label}
     {disabled}
     {type}

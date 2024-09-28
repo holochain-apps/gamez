@@ -7,5 +7,10 @@
 </script>
 
 <div>
-  <Input label="URL" value={el.url} onInput={(url) => onUpdate({ ...el, url })} />
+  <Input
+    disabled={el.lock.config}
+    label="URL"
+    value={el.url}
+    onInput={(url) => onUpdate({ ...el, url })}
+  />
 </div>
