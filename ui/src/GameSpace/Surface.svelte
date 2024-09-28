@@ -229,6 +229,7 @@
         onDragEnd={handleDragEnd}
         onDrop={handleDragDrop}
         onDragOver={handleDragOver}
+        draggable={!element.lock.position}
         el={offsetDraggedElementPosition(element)}
         onContextMenu={(ev) => handleContextMenu(ev, element.uuid)}
       />

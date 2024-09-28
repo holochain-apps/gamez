@@ -9,8 +9,7 @@
   export let onDrop: (ev: DragEvent) => void;
   export let onDragOver: (ev: DragEvent) => void;
   export let onContextMenu: (ev: MouseEvent) => void;
-
-  const draggable = true;
+  export let draggable;
 </script>
 
 <div
