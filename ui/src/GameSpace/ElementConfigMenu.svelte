@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  import { type GElement, type LockConfig } from './types.d';
+  import { type WAL, weaveUrlFromWal } from '@theweave/api';
 
+  import { type GElement, type LockConfig } from './types.d';
   import PieceConfig from './elements/PieceConfig.svelte';
   import ImageConfig from './elements/ImageConfig.svelte';
   import CommonConfigButtons from './CommonConfigButtons.svelte';
+  import WalsControls from './WalsControls.svelte';
 
   export let x: number;
   export let y: number;
@@ -30,7 +32,15 @@
     onUpdateEl({ ...el, lock: lockConfig });
   }
 
-  $: console.log('New lock', el.lock);
+  // let pieceAttachmentDialog: PieceAttachmentDialog;
+  async function handleAddAttachment(weaveUrl: string) {
+    onUpdateEl({ ...el, wals: [...el.wals, weaveUrl] });
+  }
+
+  function handleRemoveAttachment(index: number) {
+    const newWals = el.wals.filter((_, i) => i !== index);
+    onUpdateEl({ ...el, wals: newWals });
+  }
 </script>
 
 <div
@@ -41,6 +51,7 @@
     left: ${x}px;
   `}
 >
+  <!-- <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}></PieceAttachmentDialog> -->
   <CommonConfigButtons onLock={handleLockUpdate} lockConfig={el.lock} />
 
   {#if el.type == 'Piece'}
@@ -48,4 +59,11 @@
   {:else if el.type == 'Image'}
     <ImageConfig {el} onUpdate={onUpdateEl} />
   {/if}
+
+  <WalsControls
+    attachments={el.wals}
+    onAddAttachment={handleAddAttachment}
+    onRemoveAttachment={handleRemoveAttachment}
+    locked={el.lock.wals}
+  />
 </div>

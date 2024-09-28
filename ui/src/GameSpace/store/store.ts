@@ -1,3 +1,4 @@
+import { type WeaveClient } from '@theweave/api';
 import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
 
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
@@ -18,7 +19,7 @@ export type GameSpaceStore = ReturnType<typeof createGameSpaceStore>;
 //   }
 // }
 
-export function createGameSpaceStore(appClient: AppClient) {
+export function createGameSpaceStore(appClient: AppClient, weaveClient: WeaveClient | null) {
   const synStore = new SynStore(new SynClient(appClient, 'gamez', 'syn'));
   const pubKey = synStore.client.client.myPubKey;
 
@@ -52,7 +53,7 @@ export function createGameSpaceStore(appClient: AppClient) {
     return toPromise(gameSpacesData);
   }
 
-  return { createGameSpace, getAllGameSpaces };
+  return { createGameSpace, getAllGameSpaces, weaveClient };
 }
 
 export const setContext = (getter: () => GameSpaceStore) =>

@@ -1,3 +1,4 @@
+import { type WeaveClient } from '@theweave/api';
 import { derived, get, writable } from 'svelte/store';
 
 import { DocumentStore, SessionStore, WorkspaceStore } from '@holochain-syn/core';

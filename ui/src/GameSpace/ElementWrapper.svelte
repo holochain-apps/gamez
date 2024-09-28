@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import cx from 'classnames';
-  import type { GElement } from './types';
-  import * as elements from './elements';
   import ArrowsLeftRight from '~icons/fa6-solid/arrows-left-right';
   import RotateIcon from '~icons/fa6-solid/rotate-right';
-  import { onMount } from 'svelte';
+  import { tooltip } from '~/shared/tooltip';
+  import type { GElement } from './types';
+  import * as elements from './elements';
 
   export let el: GElement;
   export let onDragStart: (ev: DragEvent) => void;
@@ -122,17 +123,11 @@
     const rot = el.rotation * (Math.PI / 180);
     const cos = Math.cos(rot);
     const sin = Math.sin(rot);
-    const centerX = el.width / 2 / zoomLevel;
-    const centerY = el.height / 2 / zoomLevel;
     const dx = ((resizingState.endX - resizingState.startX) / zoomLevel) * 2;
     const dy = ((resizingState.endY - resizingState.startY) / zoomLevel) * 2;
-    const offsetX = dx - centerX;
-    const offsetY = dy - centerY;
-    const rotatedDX = dx * cos + dy * sin;
-    const rotatedDY = -dx * sin + dy * cos;
     return {
-      dx: rotatedDX,
-      dy: rotatedDY,
+      dx: dx * cos + dy * sin,
+      dy: -dx * sin + dy * cos,
     };
   };
 
@@ -185,6 +180,14 @@
     <svelte:component this={elements.Piece} el={previewEl} />
   {:else if previewEl.type === 'Image'}
     <svelte:component this={elements.Image} el={previewEl} />
+  {/if}
+  {#if el.wals.length > 0}
+    <button
+      on:click={onContextMenu}
+      use:tooltip={`${el.wals.length} attachments`}
+      class="absolute -top-4 -right-4 rounded-full b b-black/10 shadow-md text-lg font-bold bg-red-500 text-white flexcc h8 w8"
+      >{el.wals.length}</button
+    >
   {/if}
   {#if showResizeLayout}
     <div class="absolute inset-0 b b-red-500 b-dashed bg-red-500/10">

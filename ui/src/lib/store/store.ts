@@ -81,7 +81,7 @@ export class GamezStore {
   agentIsSteward: AsyncReadable<boolean>;
 
   constructor(
-    public weaveClient: WeaveClient, // Used to send notifications so far
+    public weaveClient: WeaveClient,
     public profilesStore: ProfilesStore,
     protected clientIn: AppClient,
     protected roleName: RoleName,

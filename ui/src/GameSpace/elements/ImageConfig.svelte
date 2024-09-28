@@ -6,6 +6,6 @@
   export let onUpdate: (el: ImageElement) => void;
 </script>
 
-<div class="w-80">
+<div>
   <Input label="URL" value={el.url} onInput={(url) => onUpdate({ ...el, url })} />
 </div>
