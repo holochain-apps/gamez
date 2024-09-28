@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
-    "@theweave/elements": "^0.1.0",
+    "@theweave/elements": "^0.1.1",
     "@types/lodash": "^4.17.7",
     "@unocss/vite": "^0.62.1",
     "bestzip": "^2.2.1",
