@@ -5,6 +5,7 @@
   import { type GElement } from './types.d';
 
   export let elements: GElement[];
+  export let onRotateElement = (id: string, rotation: number) => {};
   export let onResizeElement = (id: string, width: number, height: number) => {};
   export let onMoveElement = (id: string, x: number, y: number, z: number) => {};
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
@@ -209,6 +210,10 @@
   function handleElementResized(id: string, width: number, height: number) {
     onResizeElement(id, width, height);
   }
+
+  function handleElementRotated(id: string, rotation: number) {
+    onRotateElement(id, rotation);
+  }
 </script>
 
 <div
@@ -236,9 +241,12 @@
         onDragOver={handleDragOver}
         draggable={!element.lock.position}
         resizable={!element.lock.size}
+        rotatable={!element.lock.rotation}
+        onRotated={(rotation) => handleElementRotated(element.uuid, rotation)}
         onResized={(w, h) => handleElementResized(element.uuid, w, h)}
         el={offsetDraggedElementPosition(element)}
         onContextMenu={(ev) => handleContextMenu(ev, element.uuid)}
+        zoomLevel={zoom}
       />
     {/each}
   </div>

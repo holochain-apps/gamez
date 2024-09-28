@@ -16,9 +16,7 @@
   let element: HTMLDivElement;
   onMount(() => {
     function handleClick(ev: MouseEvent) {
-      console.log('Closing!!!?', element, ev.target, element.contains(ev.target as Node));
       if (element && !element.contains(ev.target as Node)) {
-        console.log('CLOSING!!!');
         onClose();
       }
     }

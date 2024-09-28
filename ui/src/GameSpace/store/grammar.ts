@@ -13,6 +13,7 @@ export type Delta =
   | { type: 'add-element'; element: GElement }
   | { type: 'move-element'; uuid: string; x: number; y: number; z: number }
   | { type: 'resize-element'; uuid: string; width: number; height: number }
+  | { type: 'rotate-element'; uuid: string; rotation: number }
   | { type: 'update-element'; element: GElement };
 
 export function initialState(pubKey: Uint8Array): GameSpace {
@@ -61,6 +62,13 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
         if (e.uuid === delta.uuid) {
           e.width = delta.width;
           e.height = delta.height;
+        }
+      });
+      break;
+    case 'rotate-element':
+      status.elements.forEach((e) => {
+        if (e.uuid === delta.uuid) {
+          e.rotation = delta.rotation;
         }
       });
       break;

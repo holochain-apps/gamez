@@ -3,13 +3,13 @@
   import LockIcon from '~icons/fa6-solid/lock';
   import LockOpenIcon from '~icons/fa6-solid/lock-open';
   import MoveIcon from '~icons/fa6-solid/up-down-left-right';
-  import ResizeIcon from '~icons/fa6-solid/expand';
+  import ArrowsLeftRight from '~icons/fa6-solid/arrows-left-right';
   import RotateIcon from '~icons/fa6-solid/rotate-right';
   import GearIcon from '~icons/fa6-solid/gear';
   import AttachmentIcon from '~icons/fa6-solid/paperclip';
   import ArrowUpIcon from '~icons/fa6-solid/arrow-up';
   import DoubleArrowUpIcon from '~icons/fa6-solid/arrows-up-to-line';
-  import cx from 'classnames';
+
   import { tooltip } from '~/shared/tooltip';
 
   import { type LockConfig } from './types.d';
@@ -124,7 +124,7 @@
         on:click={() => processLocking(0, 1, 0, 0, 0)}
         use:tooltip={'Resizing'}
         class={groupKlassL2}
-        ><ResizeIcon />
+        ><ArrowsLeftRight class="rotate-45" />
         {#if lockConfig.size}
           <div class="text-[8px] absolute top-.5 right-.5 text-red-600 drop-shadow-border">
             <LockIcon />
@@ -135,7 +135,7 @@
         on:click={() => processLocking(0, 0, 1, 0, 0)}
         use:tooltip={'Rotation'}
         class={groupKlassL2}
-        ><RotateIcon />
+        ><RotateIcon class="rotate-45 scale-x-[-1] relative top-.5" />
         {#if lockConfig.rotation}
           <div class="text-[8px] absolute top-.5 right-.5 text-red-600 drop-shadow-border">
             <LockIcon />

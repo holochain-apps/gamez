@@ -148,6 +148,9 @@
         onResizeElement={(uuid, width, height) => {
           gameSpace.change({ type: 'resize-element', uuid, width, height });
         }}
+        onRotateElement={(uuid, rotation) => {
+          gameSpace.change({ type: 'rotate-element', uuid, rotation });
+        }}
         onContextMenu={handleContextMenu}
       />
     </div>

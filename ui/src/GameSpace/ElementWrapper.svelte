@@ -3,6 +3,8 @@
   import type { GElement } from './types';
   import * as elements from './elements';
   import ArrowsLeftRight from '~icons/fa6-solid/arrows-left-right';
+  import RotateIcon from '~icons/fa6-solid/rotate-right';
+  import { onMount } from 'svelte';
 
   export let el: GElement;
   export let onDragStart: (ev: DragEvent) => void;
@@ -11,17 +13,18 @@
   export let onDragOver: (ev: DragEvent) => void;
   export let onContextMenu: (ev: MouseEvent) => void;
   export let onResized: (width: number, height: number) => void;
+  export let onRotated: (rotation: number) => void;
+  export let zoomLevel: number;
 
-  export let draggable;
-  export let resizable;
+  export let draggable: boolean;
+  export let resizable: boolean;
+  export let rotatable: boolean;
 
   let isHovering = false;
-  let isShiftPressed = false;
   let htmlEl: HTMLDivElement;
 
-  function startHovering() {
-    if (!resizable) return;
-    isHovering = true;
+  let isShiftPressed = false;
+  onMount(() => {
     function handleShiftDown(ev: KeyboardEvent) {
       if (ev.key === 'Shift') {
         isShiftPressed = true;
@@ -32,14 +35,21 @@
         isShiftPressed = false;
       }
     }
-    function handleMouseLeave() {
-      htmlEl.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('keydown', handleShiftDown);
-      window.removeEventListener('keyup', handleShiftUp);
-      isHovering = false;
-    }
     window.addEventListener('keydown', handleShiftDown);
     window.addEventListener('keyup', handleShiftUp);
+    return () => {
+      window.removeEventListener('keydown', handleShiftDown);
+      window.removeEventListener('keyup', handleShiftUp);
+    };
+  });
+
+  function startHovering() {
+    if (!resizable && !rotatable) return;
+    isHovering = true;
+    function handleMouseLeave() {
+      htmlEl.removeEventListener('mouseleave', handleMouseLeave);
+      isHovering = false;
+    }
     htmlEl.addEventListener('mouseleave', handleMouseLeave);
   }
 
@@ -62,8 +72,7 @@
     }
 
     function handleResizeEnd() {
-      const dx = resizingState.endX - resizingState.startX;
-      const dy = resizingState.endY - resizingState.startY;
+      const { dx, dy } = calculateResizeDeltas();
       onResized(el.width + dx, el.height + dy);
 
       resizingState = null;
@@ -74,26 +83,93 @@
     window.addEventListener('mouseup', handleResizeEnd);
   }
 
-  $: resizedEl = resizingState
-    ? (() => {
-        const dx = resizingState.endX - resizingState.startX;
-        const dy = resizingState.endY - resizingState.startY;
+  let rotatingState: { startDeg: number; endDeg: number } | null = null;
+  function handleRotateStart(ev: MouseEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const { left, top, width, height } = htmlEl.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
 
-        return { ...el, width: el.width + dx, height: el.height + dy };
-      })()
-    : el;
+    const rad = Math.atan2(ev.clientY - centerY, ev.clientX - centerX);
+    const startDeg = rad * (180 / Math.PI);
 
-  $: showResizeLayout = (isHovering && resizable && isShiftPressed) || resizingState;
+    rotatingState = {
+      startDeg,
+      endDeg: startDeg,
+    };
+    function handleRotateMove(ev: MouseEvent) {
+      const rad = Math.atan2(ev.clientY - centerY, ev.clientX - centerX);
+      const endDeg = rad * (180 / Math.PI);
+      rotatingState = {
+        ...rotatingState,
+        endDeg,
+      };
+    }
+    function handleRotateEnd() {
+      const dDeg = rotatingState.endDeg - rotatingState.startDeg;
+      onRotated(el.rotation + dDeg);
+
+      rotatingState = null;
+      window.removeEventListener('mousemove', handleRotateMove);
+      window.removeEventListener('mouseup', handleRotateEnd);
+    }
+    window.addEventListener('mousemove', handleRotateMove);
+    window.addEventListener('mouseup', handleRotateEnd);
+  }
+
+  $: calculateResizeDeltas = () => {
+    const rot = el.rotation * (Math.PI / 180);
+    const cos = Math.cos(rot);
+    const sin = Math.sin(rot);
+    const centerX = el.width / 2 / zoomLevel;
+    const centerY = el.height / 2 / zoomLevel;
+    const dx = ((resizingState.endX - resizingState.startX) / zoomLevel) * 2;
+    const dy = ((resizingState.endY - resizingState.startY) / zoomLevel) * 2;
+    const offsetX = dx - centerX;
+    const offsetY = dy - centerY;
+    const rotatedDX = dx * cos + dy * sin;
+    const rotatedDY = -dx * sin + dy * cos;
+    return {
+      dx: rotatedDX,
+      dy: rotatedDY,
+    };
+  };
+
+  $: previewEl =
+    resizingState || rotatingState
+      ? (() => {
+          let newEl = el;
+          if (resizingState) {
+            const { dx, dy } = calculateResizeDeltas();
+
+            newEl = { ...el, width: el.width + dx, height: el.height + dy };
+          }
+
+          console.log('Calculating!', rotatingState);
+          if (rotatingState) {
+            const dDeg = rotatingState.endDeg - rotatingState.startDeg;
+            newEl = { ...el, rotation: el.rotation + dDeg };
+          }
+
+          return newEl;
+        })()
+      : el;
+
+  $: showResizeLayout =
+    (isShiftPressed && isHovering && (resizable || rotatable)) || resizingState || rotatingState;
 </script>
 
 <div
-  class={cx('absolute ', {
+  class={cx('absolute transform-origin-center', {
     'hover:(brightness-125 saturate-125)': draggable,
   })}
   style={`
-    width: ${resizedEl.width}px;
-    height: ${resizedEl.height}px;
-    transform: translate(${el.x}px, ${el.y}px);
+    width: ${previewEl.width}px;
+    height: ${previewEl.height}px;
+    top: ${-previewEl.height / 2}px;
+    left: ${-previewEl.width / 2}px;
+    transform: translate(${el.x}px, ${el.y}px) rotate(${previewEl.rotation}deg);
     z-index: ${el.z};
   `}
   bind:this={htmlEl}
@@ -105,19 +181,30 @@
   on:mouseenter={startHovering}
   {draggable}
 >
-  {#if resizedEl.type === 'Piece'}
-    <svelte:component this={elements.Piece} el={resizedEl} />
-  {:else if resizedEl.type === 'Image'}
-    <svelte:component this={elements.Image} el={resizedEl} />
+  {#if previewEl.type === 'Piece'}
+    <svelte:component this={elements.Piece} el={previewEl} />
+  {:else if previewEl.type === 'Image'}
+    <svelte:component this={elements.Image} el={previewEl} />
   {/if}
   {#if showResizeLayout}
     <div class="absolute inset-0 b b-red-500 b-dashed bg-red-500/10">
-      <button
-        class="h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-1 -right-1 cursor-nwse-resize"
-        on:mousedown={handleResizeStart}
-      >
-        <ArrowsLeftRight class="rotate-45 text-xs text-white" />
-      </button>
+      {#if resizable}
+        <button
+          class="z-20 h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-1 -right-1 cursor-nwse-resize"
+          on:mousedown={handleResizeStart}
+        >
+          <ArrowsLeftRight class="rotate-45 text-xs text-white" />
+        </button>
+      {/if}
+      {#if rotatable}
+        <button
+          class="z-20 h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-5 -right-5 cursor-grab"
+          on:mousedown={handleRotateStart}
+        >
+          <RotateIcon class="rotate-45 scale-x-[-1] relative top-.5 text-xs text-white" />
+        </button>
+      {/if}
+      <div class="z-10 w10 h12 -rotate-45 absolute left-full top-full -mt5.5 -ml4.5"></div>
     </div>
   {/if}
 </div>
