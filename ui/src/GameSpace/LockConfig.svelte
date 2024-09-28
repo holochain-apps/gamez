@@ -1,5 +1,4 @@
 <script lang="ts">
-  import TrashIcon from '~icons/fa6-solid/trash';
   import LockIcon from '~icons/fa6-solid/lock';
   import LockOpenIcon from '~icons/fa6-solid/lock-open';
   import MoveIcon from '~icons/fa6-solid/up-down-left-right';
@@ -7,15 +6,14 @@
   import RotateIcon from '~icons/fa6-solid/rotate-right';
   import GearIcon from '~icons/fa6-solid/gear';
   import AttachmentIcon from '~icons/fa6-solid/paperclip';
-  import ArrowUpIcon from '~icons/fa6-solid/arrow-up';
-  import DoubleArrowUpIcon from '~icons/fa6-solid/arrows-up-to-line';
 
   import { tooltip } from '~/shared/tooltip';
 
   import { type LockConfig } from './types.d';
 
   export let lockConfig: LockConfig;
-  export let onLock = (lockConfig: LockConfig) => {};
+  export let onLock: (lockConfig: LockConfig) => void;
+  export let canEditLock: boolean;
 
   const base = 'relative bg-black/10 p2 b b-gray-300 flexcc text-black/60 hover:bg-black/5 z-20';
   const klass = `${base} rounded-md`;
@@ -30,6 +28,7 @@
     config: number,
     wals: number,
   ) => {
+    if (!canEditLock) return;
     console.log('Processing locking', position, size, rotation, config, wals);
     const targetLock: LockConfig = {
       position: !!position,
@@ -82,16 +81,10 @@
   };
 </script>
 
-<div class="flex space-x-2 mb2">
-  <div class="flex flex-grow">
-    <button class={groupKlass}><DoubleArrowUpIcon /></button>
-    <button class={groupKlass}><ArrowUpIcon /></button>
-    <button class={groupKlass}><ArrowUpIcon class="rotate-180" /></button>
-    <button class={groupKlass}><DoubleArrowUpIcon class="rotate-180" /></button>
-  </div>
-  <button class={klass}> <TrashIcon /></button>
-</div>
 <div class="relative flex bg-black/10 b b-gray-300 rounded-md space-x-2 p1 mb2">
+  {#if !canEditLock}
+    <div class="absolute z-100 bg-black/25 rounded-md inset-0"></div>
+  {/if}
   <button
     on:click={() => processLocking(1, 1, 1, 1, 1)}
     use:tooltip={'Everything'}

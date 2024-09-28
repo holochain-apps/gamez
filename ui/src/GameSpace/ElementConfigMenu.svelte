@@ -6,7 +6,8 @@
   import { type GElement, type LockConfig } from './types.d';
   import PieceConfig from './elements/PieceConfig.svelte';
   import ImageConfig from './elements/ImageConfig.svelte';
-  import CommonConfigButtons from './CommonConfigButtons.svelte';
+  import LockConfigEl from './LockConfig.svelte';
+  import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';
 
   export let x: number;
@@ -14,6 +15,18 @@
   export let onUpdateEl: (el: GElement) => void;
   export let onClose: () => void;
   export let el: GElement;
+  export let isCreator: boolean;
+  export let isSteward: boolean;
+  export let isPlaying: boolean;
+
+  $: canEditLock = isCreator || (isSteward && isPlaying);
+  $: everythingLocked = !isCreator && !isPlaying;
+
+  $: resolvedLock = everythingLocked
+    ? { position: true, size: true, rotation: true, config: true, wals: true }
+    : el.lock;
+
+  $: console.log('Resolved lock!', isCreator, isSteward, isPlaying, resolvedLock);
 
   let element: HTMLDivElement;
   onMount(() => {
@@ -52,18 +65,19 @@
   `}
 >
   <!-- <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}></PieceAttachmentDialog> -->
-  <CommonConfigButtons onLock={handleLockUpdate} lockConfig={el.lock} />
+  <ZConfig />
+  <LockConfigEl onLock={handleLockUpdate} lockConfig={el.lock} {canEditLock} />
 
   {#if el.type == 'Piece'}
-    <PieceConfig {el} onUpdate={onUpdateEl} />
+    <PieceConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
   {:else if el.type == 'Image'}
-    <ImageConfig {el} onUpdate={onUpdateEl} />
+    <ImageConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
   {/if}
 
   <WalsControls
     attachments={el.wals}
     onAddAttachment={handleAddAttachment}
     onRemoveAttachment={handleRemoveAttachment}
-    locked={el.lock.wals}
+    locked={resolvedLock.wals}
   />
 </div>

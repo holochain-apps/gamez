@@ -24,6 +24,9 @@
   $: canJoinGame = gameSpace.canJoinGame;
   $: canLeaveGame = gameSpace.canLeaveGame;
   $: isSteward = gameSpace.isSteward;
+  $: isCreator = state.creator === gameSpace.pubKeyB64;
+  $: isPlaying = $canLeaveGame;
+  $: everythingLocked = !isCreator && !isPlaying;
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
 
@@ -152,6 +155,9 @@
           gameSpace.change({ type: 'rotate-element', uuid, rotation });
         }}
         onContextMenu={handleContextMenu}
+        {isCreator}
+        isSteward={$isSteward}
+        {isPlaying}
       />
     </div>
   </div>
@@ -165,6 +171,9 @@
         return gameSpace.el(contextMenuState.id);
       })()}
       onUpdateEl={handleUpdateElement}
+      {isCreator}
+      isSteward={$isSteward}
+      {isPlaying}
     />
   {/if}
 {/if}

@@ -10,6 +10,11 @@
   export let onMoveElement = (id: string, x: number, y: number, z: number) => {};
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
+  export let isCreator: boolean;
+  export let isSteward: boolean;
+  export let isPlaying: boolean;
+
+  $: everythingLocked = !isCreator && !isPlaying;
 
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();
@@ -239,9 +244,9 @@
         onDragEnd={handleDragEnd}
         onDrop={handleDragDrop}
         onDragOver={handleDragOver}
-        draggable={!element.lock.position}
-        resizable={!element.lock.size}
-        rotatable={!element.lock.rotation}
+        draggable={!element.lock.position && !everythingLocked}
+        resizable={!element.lock.size && !everythingLocked}
+        rotatable={!element.lock.rotation && !everythingLocked}
         onRotated={(rotation) => handleElementRotated(element.uuid, rotation)}
         onResized={(w, h) => handleElementResized(element.uuid, w, h)}
         el={offsetDraggedElementPosition(element)}
