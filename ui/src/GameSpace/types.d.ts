@@ -12,6 +12,14 @@ export type GameSpace = {
   players: string[];
 };
 
+export type LockConfig = {
+  position: boolean;
+  size: boolean;
+  rotation: boolean;
+  wals: boolean;
+  config: boolean;
+};
+
 export type GElementBase = {
   type: string;
   version: number;
@@ -22,13 +30,7 @@ export type GElementBase = {
   rotation: number;
   width: number;
   height: number;
-  lock: {
-    position: boolean;
-    size: boolean;
-    rotation: boolean;
-    wals: boolean;
-    config: boolean;
-  };
+  lock: LockConfig;
   wals: WeaveUrl[];
 };
 

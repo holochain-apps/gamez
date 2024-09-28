@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  import { type GElement } from './types.d';
+  import { type GElement, type LockConfig } from './types.d';
 
   import PieceConfig from './elements/PieceConfig.svelte';
   import ImageConfig from './elements/ImageConfig.svelte';
@@ -16,15 +16,23 @@
   let element: HTMLDivElement;
   onMount(() => {
     function handleClick(ev: MouseEvent) {
+      console.log('Closing!!!?', element, ev.target, element.contains(ev.target as Node));
       if (element && !element.contains(ev.target as Node)) {
+        console.log('CLOSING!!!');
         onClose();
       }
     }
-    window.addEventListener('click', handleClick);
+    window.addEventListener('mousedown', handleClick);
     return () => {
-      window.removeEventListener('click', handleClick);
+      window.removeEventListener('mousedown', handleClick);
     };
   });
+
+  function handleLockUpdate(lockConfig: LockConfig) {
+    onUpdateEl({ ...el, lock: lockConfig });
+  }
+
+  $: console.log('New lock', el.lock);
 </script>
 
 <div
@@ -35,7 +43,7 @@
     left: ${x}px;
   `}
 >
-  <CommonConfigButtons />
+  <CommonConfigButtons onLock={handleLockUpdate} lockConfig={el.lock} />
 
   {#if el.type == 'Piece'}
     <PieceConfig {el} onUpdate={onUpdateEl} />
