@@ -15,7 +15,7 @@ export type Delta =
   | { type: 'resize-element'; uuid: string; width: number; height: number }
   | { type: 'rotate-element'; uuid: string; rotation: number }
   | { type: 'move-z'; uuid: string; z: 'top' | 'bottom' | 'up' | 'down' }
-  | { type: 'update-element'; element: GElement }
+  | { type: 'update-element'; element: Partial<GElement> }
   | { type: 'remove-element'; uuid: string };
 
 export function initialState(pubKey: Uint8Array): GameSpace {
@@ -49,7 +49,7 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
     case 'add-element':
       const elements = status.elements;
       const maxZ = elements.reduce((max, el) => (el.z > max ? el.z : max), 0);
-      const elementToAdd = { ...delta.element, uuid: uuidv1(), z: maxZ + 1 };
+      const elementToAdd = { ...delta.element, uuid: delta.element.uuid || uuidv1(), z: maxZ + 1 };
       status.elements.push(elementToAdd);
       break;
     case 'move-element':

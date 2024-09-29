@@ -1,5 +1,6 @@
 <script lang="ts">
   import { cloneDeep } from 'lodash';
+  import { v1 as uuidv1 } from 'uuid';
   import { type GameSpaceSyn } from '../store/GameSpaceSyn';
   import type { PieceSourceElement, PieceElement } from '../types';
   import Piece from './Piece.svelte';
@@ -46,8 +47,18 @@
         config: true,
         remove: false,
       },
+      uuid: uuidv1(),
     };
-    await gameSpace.change({ type: 'add-element', element: newEl });
+    await gameSpace.change([
+      { type: 'add-element', element: newEl },
+      {
+        type: 'update-element',
+        element: {
+          uuid: el.uuid,
+          createdPieces: [...el.createdPieces, newEl.uuid],
+        },
+      },
+    ]);
     console.log('Piece added');
   }
 </script>
