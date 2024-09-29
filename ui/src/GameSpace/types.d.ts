@@ -57,4 +57,10 @@ export type PieceSourceElement = GElementBase & {
   createdPieces: string[];
 };
 
-export type GElement = PieceElement | ImageElement | PieceSourceElement;
+export type EmbedWalElement = GElementBase & {
+  type: 'EmbedWal';
+  version: 1;
+  url: string;
+};
+
+export type GElement = PieceElement | ImageElement | PieceSourceElement | EmbedWalElement;

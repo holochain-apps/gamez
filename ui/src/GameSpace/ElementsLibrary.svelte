@@ -33,6 +33,13 @@
       initialHeight: 100,
       initialWidth: 100,
     },
+    {
+      elementType: 'EmbedWal',
+      label: 'Embed',
+      icon: '📎',
+      initialHeight: 200,
+      initialWidth: 200,
+    },
   ];
 
   function addElement(type: LibraryElement) {
@@ -77,6 +84,13 @@
         pieceH: 30,
         createdPieces: [],
         display: { mode: 'emoji', value: '⚫️' },
+        ...base,
+      });
+    } else if (type.elementType === 'EmbedWal') {
+      onAdd({
+        type: 'EmbedWal',
+        version: 1,
+        url: '',
         ...base,
       });
     }

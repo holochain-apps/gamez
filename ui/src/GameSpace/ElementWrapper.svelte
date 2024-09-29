@@ -182,6 +182,8 @@
     <svelte:component this={elements.Image} el={previewEl} />
   {:else if previewEl.type === 'PieceSource'}
     <svelte:component this={elements.PieceSource} el={previewEl} {gameSpace} />
+  {:else if previewEl.type === 'EmbedWal'}
+    <svelte:component this={elements.EmbedWal} el={previewEl} />
   {/if}
   {#if el.wals.length > 0}
     <button

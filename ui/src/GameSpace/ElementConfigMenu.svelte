@@ -4,12 +4,14 @@
 
   import { type GElement, type LockConfig } from './types.d';
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
-  import PieceConfig from './elements/PieceConfig.svelte';
-  import ImageConfig from './elements/ImageConfig.svelte';
   import LockConfigEl from './LockConfig.svelte';
   import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';
+
+  import PieceConfig from './elements/PieceConfig.svelte';
+  import ImageConfig from './elements/ImageConfig.svelte';
   import PieceSourceConfig from './elements/PieceSourceConfig.svelte';
+  import EmbedWalConfig from './elements/EmbedWalConfig.svelte';
 
   export let x: number;
   export let y: number;
@@ -91,6 +93,8 @@
     <ImageConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
   {:else if el.type === 'PieceSource'}
     <PieceSourceConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
+  {:else if el.type === 'EmbedWal'}
+    <EmbedWalConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
   {/if}
 
   <WalsControls
