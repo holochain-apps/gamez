@@ -59,7 +59,10 @@
     height: el.pieceH,
   };
 
+  $: canAddPiece = el.limit === null || el.limit > el.createdPieces.length;
+
   async function handleAddPiece() {
+    if (!canAddPiece) return;
     const newEl = {
       type: 'Piece' as 'Piece',
       version: 1 as 1,
@@ -97,10 +100,11 @@
 <div class="w-full h-full bg-red-800 shadow-inner b-2 b-white/60 rounded-full flexcc h-full w-full">
   <button
     on:click={handleAddPiece}
-    class="outline-none flexcc flex-wrap relative w-full h-full"
+    class="outline-none flexcc flex-wrap relative w-full h-full disabled:cursor-not-allowed"
+    disabled={!canAddPiece}
     style={``}
   >
-    {#each { length: el.limit } as _, i}
+    {#each { length: el.limit - el.createdPieces.length } as _, i}
       <div
         class="absolute"
         style={`transform: translate(-50%, -50%); top: ${piecesPositions[i].y}px; left: ${piecesPositions[i].x}px`}

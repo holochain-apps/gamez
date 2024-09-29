@@ -126,6 +126,14 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       const index = status.elements.findIndex((e) => e.uuid === delta.uuid);
       if (index === -1) return;
       status.elements.splice(index, 1);
+
+      // Maybe each componenent can have a grammar plugin to do this?
+      const piecesSources = status.elements.filter((e) => e.type === 'PieceSource');
+      piecesSources.forEach((ps) => {
+        if (ps.createdPieces.includes(delta.uuid)) {
+          ps.createdPieces = ps.createdPieces.filter((p) => p !== delta.uuid);
+        }
+      });
       break;
   }
 };

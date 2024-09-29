@@ -5,7 +5,7 @@
   let klass: string = '';
   export { klass as class };
 
-  $: fontSize = Math.min(el.width, el.height) * 0.8 + 'px';
+  $: fontSize = Math.min(el.width, el.height) + 'px';
 </script>
 
 <div class={klass}>
