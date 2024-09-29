@@ -3,7 +3,9 @@
   import { onMount } from 'svelte';
   import ElementWrapper from './ElementWrapper.svelte';
   import { type GElement } from './types.d';
+  import { type GameSpaceSyn } from './store/GameSpaceSyn';
 
+  export let gameSpace: GameSpaceSyn;
   export let elements: GElement[];
   export let onRotateElement = (id: string, rotation: number) => {};
   export let onResizeElement = (id: string, width: number, height: number) => {};
@@ -231,6 +233,7 @@
   >
     {#each elements as element (element.uuid)}
       <ElementWrapper
+        {gameSpace}
         onDragStart={(e) => handleDragStart(e, element.uuid)}
         onDragEnd={handleDragEnd}
         onDrop={handleDragDrop}

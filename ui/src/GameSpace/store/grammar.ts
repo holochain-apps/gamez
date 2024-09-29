@@ -47,8 +47,10 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       status.players = status.players.filter((p) => p !== delta.player);
       break;
     case 'add-element':
-      const elemenToAdd = { ...delta.element, uuid: uuidv1() };
-      status.elements.push(elemenToAdd);
+      const elements = status.elements;
+      const maxZ = elements.reduce((max, el) => (el.z > max ? el.z : max), 0);
+      const elementToAdd = { ...delta.element, uuid: uuidv1(), z: maxZ + 1 };
+      status.elements.push(elementToAdd);
       break;
     case 'move-element':
       status.elements.forEach((e) => {

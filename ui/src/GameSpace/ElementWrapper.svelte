@@ -6,7 +6,9 @@
   import { tooltip } from '~/shared/tooltip';
   import type { GElement } from './types';
   import * as elements from './elements';
+  import { type GameSpaceSyn } from './store/GameSpaceSyn';
 
+  export let gameSpace: GameSpaceSyn;
   export let el: GElement;
   export let onDragStart: (ev: DragEvent) => void;
   export let onDragEnd: () => void;
@@ -179,7 +181,7 @@
   {:else if previewEl.type === 'Image'}
     <svelte:component this={elements.Image} el={previewEl} />
   {:else if previewEl.type === 'PieceSource'}
-    <svelte:component this={elements.PieceSource} el={previewEl} />
+    <svelte:component this={elements.PieceSource} el={previewEl} {gameSpace} />
   {/if}
   {#if el.wals.length > 0}
     <button

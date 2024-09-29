@@ -55,7 +55,7 @@
   };
 
   function handleAddElement(el: GElement) {
-    gameSpace.change({ type: 'add-element', element: { ...el, z: gameSpace.topZ() } });
+    gameSpace.change({ type: 'add-element', element: el });
   }
 
   let contextMenuState: { id: string; x: number; y: number } | null = null;
@@ -154,6 +154,7 @@
         </div>
       {/if}
       <Surface
+        {gameSpace}
         elements={state.elements}
         onMoveElement={(uuid, x, y) => {
           gameSpace.change({ type: 'move-element', uuid, x, y });
