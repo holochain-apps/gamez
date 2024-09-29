@@ -145,8 +145,8 @@
       {/if}
       <Surface
         elements={state.elements}
-        onMoveElement={(uuid, x, y, z) => {
-          gameSpace.change({ type: 'move-element', uuid, x, y, z });
+        onMoveElement={(uuid, x, y) => {
+          gameSpace.change({ type: 'move-element', uuid, x, y });
         }}
         onResizeElement={(uuid, width, height) => {
           gameSpace.change({ type: 'resize-element', uuid, width, height });
@@ -170,10 +170,13 @@
         state; // trigger reactivity
         return gameSpace.el(contextMenuState.id);
       })()}
+      {gameSpace}
+      allElements={state.elements}
       onUpdateEl={handleUpdateElement}
       {isCreator}
       isSteward={$isSteward}
       {isPlaying}
+      onMoveZ={(z) => gameSpace.change({ type: 'move-z', uuid: contextMenuState.id, z })}
     />
   {/if}
 {/if}

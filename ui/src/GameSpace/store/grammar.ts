@@ -11,9 +11,10 @@ export type Delta =
   | { type: 'add-player'; player: AgentPubKeyB64 }
   | { type: 'remove-player'; player: AgentPubKeyB64 }
   | { type: 'add-element'; element: GElement }
-  | { type: 'move-element'; uuid: string; x: number; y: number; z: number }
+  | { type: 'move-element'; uuid: string; x: number; y: number }
   | { type: 'resize-element'; uuid: string; width: number; height: number }
   | { type: 'rotate-element'; uuid: string; rotation: number }
+  | { type: 'move-z'; uuid: string; z: 'top' | 'bottom' | 'up' | 'down' }
   | { type: 'update-element'; element: GElement };
 
 export function initialState(pubKey: Uint8Array): GameSpace {
@@ -53,7 +54,6 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
         if (e.uuid === delta.uuid) {
           e.x = delta.x;
           e.y = delta.y;
-          e.z = delta.z;
         }
       });
       break;
@@ -86,6 +86,37 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
             e[key] = newValue;
           }
         }
+      });
+      break;
+    case 'move-z':
+      if (status.elements.length < 2) return;
+      const el = status.elements.find((e) => e.uuid === delta.uuid);
+      if (!el) return; // This could happen with some weird race condition if an element is deleted
+
+      // Normalize the Z numbers to be sequential without spaces
+      let sorted = [...status.elements];
+      sorted.sort((a, b) => a.z - b.z);
+      sorted.forEach((e, i) => {
+        e.z = i; // This actually mutates the element
+      });
+      sorted = sorted.filter((e) => e.uuid !== el.uuid);
+
+      if (delta.z === 'top') {
+        sorted.push(el);
+      } else if (delta.z === 'bottom') {
+        sorted.unshift(el);
+      } else if (delta.z === 'up') {
+        const index = sorted.findIndex((e) => e.z > el.z);
+        sorted.splice(index + 1, 0, el);
+      } else if (delta.z === 'down') {
+        sorted.reverse();
+        const index = sorted.findIndex((e) => e.z < el.z);
+        sorted.splice(index + 1, 0, el);
+        sorted.reverse();
+      }
+
+      sorted.forEach((e, i) => {
+        e.z = i; // This actually mutates the element
       });
       break;
   }

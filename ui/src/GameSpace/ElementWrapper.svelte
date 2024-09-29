@@ -140,8 +140,6 @@
 
             newEl = { ...el, width: el.width + dx, height: el.height + dy };
           }
-
-          console.log('Calculating!', rotatingState);
           if (rotatingState) {
             const dDeg = rotatingState.endDeg - rotatingState.startDeg;
             newEl = { ...el, rotation: el.rotation + dDeg };

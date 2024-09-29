@@ -7,7 +7,7 @@
   export let elements: GElement[];
   export let onRotateElement = (id: string, rotation: number) => {};
   export let onResizeElement = (id: string, width: number, height: number) => {};
-  export let onMoveElement = (id: string, x: number, y: number, z: number) => {};
+  export let onMoveElement = (id: string, x: number, y: number) => {};
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
   export let isCreator: boolean;
@@ -38,17 +38,10 @@
     offsetX: number;
     offsetY: number;
     pieceId: string;
-    z: number;
   };
   let dragState: DragState = null;
 
   function handleDragStart(e: DragEvent, id: string) {
-    const piece = elements.find((v) => v.uuid === id);
-    const maxZ = elements.reduce((max, el) => (el.z > max ? el.z : max), 0);
-    const maxZCount = elements.filter((v) => v.z === maxZ).length;
-    const shouldIncreaseZ = piece.z < maxZ || (piece.z === maxZ && maxZCount > 1);
-    const newZ = shouldIncreaseZ ? maxZ + 1 : piece.z;
-
     let dragOffsetX, dragOffsetY: number;
     let dragImageZoom: number;
     dragState = {
@@ -57,7 +50,6 @@
       offsetX: 0,
       offsetY: 0,
       pieceId: id,
-      z: newZ,
     };
     dragOffsetX = dragState.offsetX / zoom;
     dragOffsetY = dragState.offsetY / zoom;
@@ -88,7 +80,7 @@
     const newX = piece.x + dragState.offsetX / zoom;
     const newY = piece.y + dragState.offsetY / zoom;
 
-    onMoveElement(dragState.pieceId, newX, newY, dragState.z);
+    onMoveElement(dragState.pieceId, newX, newY);
 
     handleDragEnd();
   }
@@ -187,7 +179,6 @@
         ...el,
         x: el.x + dragState.offsetX / zoom,
         y: el.y + dragState.offsetY / zoom,
-        z: dragState.z,
       };
     } else {
       return el;
