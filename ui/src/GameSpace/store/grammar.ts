@@ -3,7 +3,7 @@ import { v1 as uuidv1 } from 'uuid';
 
 import { type AgentPubKeyB64, encodeHashToBase64 } from '@holochain/client';
 
-import type { GameSpace, GElement } from '../types.d';
+import type { GameSpace, GElement, PieceElement, PieceSourceElement } from '../types.d';
 
 export type Delta =
   | { type: 'set-name'; name: string }
@@ -88,6 +88,21 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
                 : delta.element[key];
             e[key] = newValue;
           }
+
+          // PieceSource
+          if (e.type === 'PieceSource') {
+            if (e.createdPieces.length === 0) return;
+            const pieceSourceDelta = delta.element as Partial<PieceSourceElement>;
+            const updates: Partial<PieceElement> = {};
+            if (pieceSourceDelta.pieceW) updates.width = pieceSourceDelta.pieceW;
+            if (pieceSourceDelta.pieceH) updates.height = pieceSourceDelta.pieceH;
+            if (pieceSourceDelta.display) updates.display = cloneDeep(pieceSourceDelta.display);
+            status.elements.forEach((el) => {
+              if (e.createdPieces.indexOf(el.uuid) !== -1) {
+                Object.assign(el, updates);
+              }
+            });
+          }
         }
       });
       break;
@@ -128,6 +143,7 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       status.elements.splice(index, 1);
 
       // Maybe each componenent can have a grammar plugin to do this?
+      // PieceSource
       const piecesSources = status.elements.filter((e) => e.type === 'PieceSource');
       piecesSources.forEach((ps) => {
         if (ps.createdPieces.includes(delta.uuid)) {

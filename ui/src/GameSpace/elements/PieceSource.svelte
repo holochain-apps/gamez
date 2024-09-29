@@ -106,7 +106,7 @@
   >
     {#each { length: el.limit - el.createdPieces.length } as _, i}
       <div
-        class="absolute"
+        class="absolute z-20"
         style={`transform: translate(-50%, -50%); top: ${piecesPositions[i].y}px; left: ${piecesPositions[i].x}px`}
       >
         <Piece class="relative z-20 flexcc" el={displayPieceEl} />
