@@ -157,7 +157,7 @@
 
 <div
   class={cx('absolute transform-origin-center', {
-    'hover:(brightness-125 saturate-125)': draggable,
+    'hover:(brightness-125 saturate-125)': draggable && el.type !== 'EmbedWal',
   })}
   style={`
     width: ${previewEl.width}px;
