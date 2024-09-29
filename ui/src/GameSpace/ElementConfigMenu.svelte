@@ -65,7 +65,7 @@
   `}
 >
   <!-- <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}></PieceAttachmentDialog> -->
-  <ZConfig {onMoveZ} />
+  <ZConfig {onMoveZ} disabled={resolvedLock.position} />
   <LockConfigEl onLock={handleLockUpdate} lockConfig={el.lock} {canEditLock} />
 
   {#if el.type == 'Piece'}
