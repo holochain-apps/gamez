@@ -1,6 +1,7 @@
 <script lang="ts">
   import EmojiPicker from '~/shared/EmojiPicker.svelte';
   import { type PieceSourceElement } from '../types.d';
+  import IntegerInput from '../ui/IntegerInput.svelte';
 
   export let el: PieceSourceElement;
   export let onUpdate: (el: PieceSourceElement) => void;
@@ -33,3 +34,10 @@
     bind:this={emojiPickerTarget}>{el.display.value}</button
   >
 {/if}
+
+<IntegerInput
+  class="mt4"
+  label="Limit"
+  value={el.limit}
+  onInput={(limit) => onUpdate({ ...el, limit })}
+/>

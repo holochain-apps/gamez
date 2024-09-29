@@ -24,8 +24,8 @@
     type: 'Piece' as 'Piece',
     version: 1 as 1,
     ...clearSourceData(el),
-    width: el.width * 0.8,
-    height: el.height * 0.8,
+    width: (el.width * 0.8) / el.limit,
+    height: (el.height * 0.8) / el.limit,
   };
 
   async function handleAddPiece() {
@@ -64,7 +64,9 @@
 </script>
 
 <div class="w-full h-full b-2 b-white rounded-md bg-white/10 flexcc">
-  <button on:click={handleAddPiece}>
-    <Piece el={displayPieceEl} />
+  <button on:click={handleAddPiece} class="flex flex-wrap">
+    {#each { length: el.limit } as _, i}
+      <Piece class="mr2 mb2 flexcc" el={displayPieceEl} />
+    {/each}
   </button>
 </div>

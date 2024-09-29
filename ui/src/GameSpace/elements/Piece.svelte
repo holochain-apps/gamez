@@ -2,11 +2,13 @@
   import type { PieceElement } from '../types';
 
   export let el: PieceElement;
+  let klass: string = '';
+  export { klass as class };
 
-  $: fontSize = Math.min(el.width, el.height) + 'px';
+  $: fontSize = Math.min(el.width, el.height) * 0.8 + 'px';
 </script>
 
-<div>
+<div class={klass}>
   {#if el.display.mode === 'emoji'}
     <div
       class="flexcc text-black/100"
