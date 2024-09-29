@@ -13,7 +13,7 @@
 
   export let x: number;
   export let y: number;
-  export let onUpdateEl: (el: GElement) => void;
+  export let onUpdateEl: (el: Partial<GElement>) => void;
   export let onMoveZ: (z: 'top' | 'bottom' | 'up' | 'down') => void;
   export let onRemoveEl: () => void;
   export let onClose: () => void;
@@ -45,17 +45,17 @@
   });
 
   function handleLockUpdate(lockConfig: LockConfig) {
-    onUpdateEl({ ...el, lock: lockConfig });
+    onUpdateEl({ uuid: el.uuid, lock: lockConfig });
   }
 
   // let pieceAttachmentDialog: PieceAttachmentDialog;
   async function handleAddAttachment(weaveUrl: string) {
-    onUpdateEl({ ...el, wals: [...el.wals, weaveUrl] });
+    onUpdateEl({ uuid: el.uuid, wals: [...el.wals, weaveUrl] });
   }
 
   function handleRemoveAttachment(index: number) {
     const newWals = el.wals.filter((_, i) => i !== index);
-    onUpdateEl({ ...el, wals: newWals });
+    onUpdateEl({ uuid: el.uuid, wals: newWals });
   }
 </script>
 

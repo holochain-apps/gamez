@@ -67,7 +67,7 @@
     contextMenuState = null;
   }
 
-  function handleUpdateElement(el: GElement) {
+  function handleUpdateElement(el: Partial<GElement>) {
     gameSpace.change({ type: 'update-element', element: { ...el } });
   }
 

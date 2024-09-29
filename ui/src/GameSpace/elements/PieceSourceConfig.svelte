@@ -4,7 +4,7 @@
   import IntegerInput from '../ui/IntegerInput.svelte';
 
   export let el: PieceSourceElement;
-  export let onUpdate: (el: PieceSourceElement) => void;
+  export let onUpdate: (el: Partial<PieceSourceElement>) => void;
 
   let emojiPickerTarget: HTMLButtonElement;
   let emojiPickerOpen = false;
@@ -14,7 +14,7 @@
 
   function pickedEmoji(emoji: string) {
     emojiPickerOpen = false;
-    onUpdate({ ...el, display: { mode: 'emoji', value: emoji } });
+    onUpdate({ uuid: el.uuid, display: { mode: 'emoji', value: emoji } });
   }
 
   function cancelPickEmoji() {

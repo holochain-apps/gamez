@@ -93,7 +93,6 @@
         },
       },
     ]);
-    console.log('Piece added');
   }
 </script>
 
