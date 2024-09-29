@@ -6,6 +6,7 @@
   import RotateIcon from '~icons/fa6-solid/rotate-right';
   import GearIcon from '~icons/fa6-solid/gear';
   import AttachmentIcon from '~icons/fa6-solid/paperclip';
+  import TrashIcon from '~icons/fa6-solid/trash';
 
   import { tooltip } from '~/shared/tooltip';
 
@@ -27,19 +28,21 @@
     rotation: number,
     config: number,
     wals: number,
+    remove: number,
   ) => {
     if (!canEditLock) return;
-    console.log('Processing locking', position, size, rotation, config, wals);
+    console.log('Processing locking', position, size, rotation, config, wals, remove);
     const targetLock: LockConfig = {
       position: !!position,
       size: !!size,
       rotation: !!rotation,
       config: !!config,
       wals: !!wals,
+      remove: !!remove,
     };
 
     const newLock = { ...lockConfig };
-    if (!isLocked(position, size, rotation, config, wals)) {
+    if (!isLocked(position, size, rotation, config, wals, remove)) {
       Object.entries(targetLock).forEach(([k, v]) => {
         if (v) {
           newLock[k as keyof LockConfig] = true;
@@ -62,6 +65,7 @@
     rotation: number,
     config: number,
     wals: number,
+    remove: number,
   ) => {
     const targetLock: LockConfig = {
       position: !!position,
@@ -69,6 +73,7 @@
       rotation: !!rotation,
       config: !!config,
       wals: !!wals,
+      remove: !!remove,
     };
 
     return Object.entries(targetLock).every(([k, v]) => {
@@ -86,11 +91,11 @@
     <div class="absolute z-100 bg-black/25 rounded-md inset-0"></div>
   {/if}
   <button
-    on:click={() => processLocking(1, 1, 1, 1, 1)}
+    on:click={() => processLocking(1, 1, 1, 1, 1, 1)}
     use:tooltip={'Everything'}
     class="p2 w-10 flex-shrink-0 flexcc group"
   >
-    {#if isLocked(1, 1, 1, 1, 1)}
+    {#if isLocked(1, 1, 1, 1, 1, 1)}
       <div class="text-red-600 drop-shadow-border">
         <LockIcon class="relative z-20 " />
       </div>
@@ -102,7 +107,7 @@
   <div class="relative z-20 flex bg-black/10 b b-gray-400 rounded-md p1 flex-basis-4">
     <div class="flex bg-black/10 rounded-md flex-basis-3 z-20">
       <button
-        on:click={() => processLocking(1, 0, 0, 0, 0)}
+        on:click={() => processLocking(1, 0, 0, 0, 0, 0)}
         use:tooltip={'Movement'}
         class={groupKlassL2}
       >
@@ -114,7 +119,7 @@
         {/if}
       </button>
       <button
-        on:click={() => processLocking(0, 1, 0, 0, 0)}
+        on:click={() => processLocking(0, 1, 0, 0, 0, 0)}
         use:tooltip={'Resizing'}
         class={groupKlassL2}
         ><ArrowsLeftRight class="rotate-45" />
@@ -125,7 +130,7 @@
         {/if}</button
       >
       <button
-        on:click={() => processLocking(0, 0, 1, 0, 0)}
+        on:click={() => processLocking(0, 0, 1, 0, 0, 0)}
         use:tooltip={'Rotation'}
         class={groupKlassL2}
         ><RotateIcon class="rotate-45 scale-x-[-1] relative top-.5" />
@@ -137,7 +142,7 @@
       </button>
     </div>
     <button
-      on:click={() => processLocking(1, 1, 1, 0, 0)}
+      on:click={() => processLocking(1, 1, 1, 0, 0, 0)}
       use:tooltip={'Positioning'}
       class="p1 w-10 flex-shrink-0 flexcc group"
     >
@@ -152,7 +157,7 @@
     </button>
   </div>
   <button
-    on:click={() => processLocking(0, 0, 0, 1, 0)}
+    on:click={() => processLocking(0, 0, 0, 1, 0, 0)}
     use:tooltip={'Configuration'}
     class={klassL2}
     ><GearIcon />
@@ -163,12 +168,20 @@
     {/if}
   </button>
   <button
-    on:click={() => processLocking(0, 0, 0, 0, 1)}
+    on:click={() => processLocking(0, 0, 0, 0, 1, 0)}
     use:tooltip={'Attachments'}
     class={klassL2}
   >
     <AttachmentIcon />
     {#if lockConfig.wals}
+      <div class="text-[8px] absolute top-.5 right-.5 text-red-600 drop-shadow-border">
+        <LockIcon />
+      </div>
+    {/if}
+  </button>
+  <button on:click={() => processLocking(0, 0, 0, 0, 0, 1)} use:tooltip={'Removal'} class={klassL2}>
+    <TrashIcon />
+    {#if lockConfig.remove}
       <div class="text-[8px] absolute top-.5 right-.5 text-red-600 drop-shadow-border">
         <LockIcon />
       </div>

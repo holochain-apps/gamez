@@ -1,7 +1,7 @@
 import type { WeaveUrl } from '@theweave/api';
 
 export type GameSpace = {
-  version: 1;
+  version: 2;
   name: string;
   creator: string;
   elements: GElement[];
@@ -18,6 +18,7 @@ export type LockConfig = {
   rotation: boolean;
   wals: boolean;
   config: boolean;
+  remove: boolean;
 };
 
 export type GElementBase = {

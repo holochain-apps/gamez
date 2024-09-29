@@ -70,6 +70,16 @@
   function handleUpdateElement(el: GElement) {
     gameSpace.change({ type: 'update-element', element: { ...el } });
   }
+
+  function handleRemoveElement(id: string) {
+    gameSpace.change({ type: 'remove-element', uuid: id });
+  }
+
+  $: {
+    if (contextMenuState && !state.elements.find((e) => e.uuid === contextMenuState.id)) {
+      closeContextMenu();
+    }
+  }
 </script>
 
 {#if state}
@@ -177,6 +187,7 @@
       isSteward={$isSteward}
       {isPlaying}
       onMoveZ={(z) => gameSpace.change({ type: 'move-z', uuid: contextMenuState.id, z })}
+      onRemoveEl={() => handleRemoveElement(contextMenuState.id)}
     />
   {/if}
 {/if}

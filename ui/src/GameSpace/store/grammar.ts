@@ -15,11 +15,12 @@ export type Delta =
   | { type: 'resize-element'; uuid: string; width: number; height: number }
   | { type: 'rotate-element'; uuid: string; rotation: number }
   | { type: 'move-z'; uuid: string; z: 'top' | 'bottom' | 'up' | 'down' }
-  | { type: 'update-element'; element: GElement };
+  | { type: 'update-element'; element: GElement }
+  | { type: 'remove-element'; uuid: string };
 
 export function initialState(pubKey: Uint8Array): GameSpace {
   return {
-    version: 1,
+    version: 2,
     name: 'Game Space',
     creator: encodeHashToBase64(pubKey),
     elements: [],
@@ -118,6 +119,11 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       sorted.forEach((e, i) => {
         e.z = i; // This actually mutates the element
       });
+      break;
+    case 'remove-element':
+      const index = status.elements.findIndex((e) => e.uuid === delta.uuid);
+      if (index === -1) return;
+      status.elements.splice(index, 1);
       break;
   }
 };

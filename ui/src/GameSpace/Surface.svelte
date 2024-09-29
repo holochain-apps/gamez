@@ -229,7 +229,7 @@
     class="relative w-full h-full transform-origin-tl"
     style={`transform:scale(${zoom}) translate(${panX}px, ${panY}px);`}
   >
-    {#each elements as element}
+    {#each elements as element (element.uuid)}
       <ElementWrapper
         onDragStart={(e) => handleDragStart(e, element.uuid)}
         onDragEnd={handleDragEnd}

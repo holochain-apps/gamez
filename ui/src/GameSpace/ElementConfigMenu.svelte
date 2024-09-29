@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import TrashIcon from '~icons/fa6-solid/trash';
 
   import { type GElement, type LockConfig } from './types.d';
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
@@ -13,6 +14,7 @@
   export let y: number;
   export let onUpdateEl: (el: GElement) => void;
   export let onMoveZ: (z: 'top' | 'bottom' | 'up' | 'down') => void;
+  export let onRemoveEl: () => void;
   export let onClose: () => void;
   export let el: GElement;
   export let isCreator: boolean;
@@ -25,7 +27,7 @@
   $: everythingLocked = !isCreator && !isPlaying;
 
   $: resolvedLock = everythingLocked
-    ? { position: true, size: true, rotation: true, config: true, wals: true }
+    ? { position: true, size: true, rotation: true, config: true, wals: true, remove: true }
     : el.lock;
 
   let element: HTMLDivElement;
@@ -65,7 +67,21 @@
   `}
 >
   <!-- <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}></PieceAttachmentDialog> -->
-  <ZConfig {onMoveZ} disabled={resolvedLock.position} />
+  <div class="flex space-x-2 mb2">
+    <ZConfig {onMoveZ} disabled={resolvedLock.position} />
+    <button
+      on:click={onRemoveEl}
+      disabled={resolvedLock.remove}
+      class={`
+        flexcc
+        w-12
+      text-black/60 hover:text-red-500
+        disabled:(opacity-50 saturate-50 text-black/60)
+      `}
+    >
+      <TrashIcon /></button
+    >
+  </div>
   <LockConfigEl onLock={handleLockUpdate} lockConfig={el.lock} {canEditLock} />
 
   {#if el.type == 'Piece'}
