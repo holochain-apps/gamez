@@ -146,7 +146,7 @@
       use:tooltip={'Positioning'}
       class="p1 w-10 flex-shrink-0 flexcc group"
     >
-      {#if isLocked(1, 1, 1, 0, 0)}
+      {#if isLocked(1, 1, 1, 0, 0, 0)}
         <div class="text-red-600 drop-shadow-border">
           <LockIcon class="relative z-20 " />
         </div>
