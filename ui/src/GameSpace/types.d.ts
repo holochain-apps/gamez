@@ -1,7 +1,7 @@
 import type { WeaveUrl } from '@theweave/api';
 
 export type GameSpace = {
-  version: 2;
+  version: 3;
   name: string;
   creator: string;
   elements: GElement[];
@@ -49,8 +49,10 @@ export type ImageElement = GElementBase & {
 
 export type PieceSourceElement = GElementBase & {
   type: 'PieceSource';
-  version: 1;
+  version: 2;
   display: { mode: 'emoji'; value: string } | { mode: 'url'; value: string };
+  pieceW: number;
+  pieceH: number;
   limit: number | null;
   createdPieces: string[];
 };

@@ -20,7 +20,7 @@ export type Delta =
 
 export function initialState(pubKey: Uint8Array): GameSpace {
   return {
-    version: 2,
+    version: 3,
     name: 'Game Space',
     creator: encodeHashToBase64(pubKey),
     elements: [],

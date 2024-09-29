@@ -46,12 +46,18 @@ export class GameSpaceSyn {
     this.session.state.subscribe((state) => {
       console.log('SESSION STATE', state);
       // Little migration procedure
-      if (state.version === 1) {
+      if (state.version === 2) {
+        console.log('MIGRATION');
         this.session.change((state: GameSpace) => {
           // @ts-ignore
-          state.version = '2';
+          state.version = 3;
           state.elements.forEach((el) => {
-            el.lock = { ...el.lock, remove: false };
+            if (el.type === 'PieceSource' && (el.version as any) === 1) {
+              console.log('Migrating piece!');
+              el.version = 2;
+              el.pieceW = 30;
+              el.pieceH = 30;
+            }
           });
         });
       } else {

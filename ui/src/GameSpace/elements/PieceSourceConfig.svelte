@@ -35,9 +35,23 @@
   >
 {/if}
 
-<IntegerInput
-  class="mt4"
-  label="Limit"
-  value={el.limit}
-  onInput={(limit) => onUpdate({ ...el, limit })}
-/>
+<div class="flex mt4 space-x-2">
+  <IntegerInput
+    class="flex-1 w-0"
+    label="Limit"
+    value={el.limit}
+    onInput={(limit) => onUpdate({ ...el, limit: limit || null })}
+  />
+  <IntegerInput
+    class="flex-1 w-0"
+    label="Width"
+    value={el.pieceW}
+    onInput={(pieceW) => onUpdate({ ...el, pieceW })}
+  />
+  <IntegerInput
+    class="flex-1 w-0"
+    label="Height"
+    value={el.pieceH}
+    onInput={(pieceH) => onUpdate({ ...el, pieceH })}
+  />
+</div>

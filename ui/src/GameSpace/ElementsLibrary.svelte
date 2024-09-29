@@ -71,8 +71,10 @@
     } else if (type.elementType === 'PieceSource') {
       onAdd({
         type: 'PieceSource',
-        version: 1,
+        version: 2,
         limit: 3,
+        pieceW: 30,
+        pieceH: 30,
         createdPieces: [],
         display: { mode: 'emoji', value: '⚫️' },
         ...base,
