@@ -47,4 +47,12 @@ export type ImageElement = GElementBase & {
   url: string;
 };
 
-export type GElement = PieceElement | ImageElement;
+export type PieceSourceElement = GElementBase & {
+  type: 'PieceSource';
+  version: 1;
+  display: { mode: 'emoji'; value: string } | { mode: 'url'; value: string };
+  limit: number | null;
+  createdPieces: string[];
+};
+
+export type GElement = PieceElement | ImageElement | PieceSourceElement;

@@ -26,6 +26,13 @@
       initialHeight: 250,
       initialWidth: 250,
     },
+    {
+      elementType: 'PieceSource',
+      label: 'Pieces source',
+      icon: '📤',
+      initialHeight: 100,
+      initialWidth: 100,
+    },
   ];
 
   function addElement(type: LibraryElement) {
@@ -43,6 +50,7 @@
         rotation: false,
         wals: false,
         config: false,
+        remove: false,
       },
       wals: [],
     };
@@ -58,6 +66,15 @@
         type: 'Image',
         version: 1,
         url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png',
+        ...base,
+      });
+    } else if (type.elementType === 'PieceSource') {
+      onAdd({
+        type: 'PieceSource',
+        version: 1,
+        limit: 3,
+        createdPieces: [],
+        display: { mode: 'emoji', value: '⚫️' },
         ...base,
       });
     }

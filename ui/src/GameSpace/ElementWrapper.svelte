@@ -178,6 +178,8 @@
     <svelte:component this={elements.Piece} el={previewEl} />
   {:else if previewEl.type === 'Image'}
     <svelte:component this={elements.Image} el={previewEl} />
+  {:else if previewEl.type === 'PieceSource'}
+    <svelte:component this={elements.PieceSource} el={previewEl} />
   {/if}
   {#if el.wals.length > 0}
     <button

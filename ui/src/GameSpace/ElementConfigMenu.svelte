@@ -9,6 +9,7 @@
   import LockConfigEl from './LockConfig.svelte';
   import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';
+  import PieceSourceConfig from './elements/PieceSourceConfig.svelte';
 
   export let x: number;
   export let y: number;
@@ -88,6 +89,8 @@
     <PieceConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
   {:else if el.type == 'Image'}
     <ImageConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
+  {:else if el.type === 'PieceSource'}
+    <PieceSourceConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
   {/if}
 
   <WalsControls
