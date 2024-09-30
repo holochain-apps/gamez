@@ -4,11 +4,7 @@
   import { get } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
-  import Avatar from '~/shared/Avatar.svelte';
 
-  import { decodeHashFromBase64 } from '@holochain/client';
-
-  import Input from './ui/Input.svelte';
   import Surface from './Surface.svelte';
 
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
@@ -17,6 +13,7 @@
   import ElementsLibrary from './ElementsLibrary.svelte';
   import PeopleBar from './PeopleBar.svelte';
   import ElementConfigMenu from './ElementConfigMenu.svelte';
+  import SpaceConfigurator from './SpaceConfigurator.svelte';
 
   export let gameSpace: GameSpaceSyn;
   $: state = get(gameSpace.state);
@@ -26,7 +23,6 @@
   $: isSteward = gameSpace.isSteward;
   $: isCreator = state.creator === gameSpace.pubKeyB64;
   $: isPlaying = $canLeaveGame;
-  $: everythingLocked = !isCreator && !isPlaying;
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
 
@@ -75,6 +71,7 @@
     gameSpace.change({ type: 'remove-element', uuid: id });
   }
 
+  // Handle closing the context menu if an item was deleted
   $: {
     if (contextMenuState && !state.elements.find((e) => e.uuid === contextMenuState.id)) {
       closeContextMenu();
@@ -116,42 +113,17 @@
       {#if sidebar === 'elementsLibrary' && $isSteward}
         <ElementsLibrary onAdd={handleAddElement} />
       {:else if sidebar === 'configurator'}
-        <div class="w-60 bg-main-800 h-full flex-shrink-0">
-          {#if state}
-            <div class="h16 p2 relative bg-white/10 b b-black/10 flexcs">
-              <div class="absolute right-2 top-1 opacity-50">Creator</div>
-              <Avatar
-                showNickname={true}
-                size={32}
-                agentPubKey={decodeHashFromBase64(state.creator)}
-              />
-            </div>
-            <div class="p4 flex flex-col space-y-4">
-              <Input
-                value={state.name}
-                label="Name"
-                disabled={!$isSteward}
-                onInput={(value) => {
-                  gameSpace.change({ type: 'set-name', name: value });
-                }}
-              />
-              <label>
-                <input
-                  type="checkbox"
-                  checked={state.isStewarded}
-                  disabled={!$isSteward}
-                  class="mr2"
-                  on:change={({ currentTarget }) => {
-                    gameSpace.change({
-                      type: 'set-is-stewarded',
-                      isStewarded: currentTarget.checked,
-                    });
-                  }}
-                /> Stewarded?
-              </label>
-            </div>
-          {/if}
-        </div>
+        {#if state}
+          <SpaceConfigurator
+            isSteward={$isSteward}
+            creator={state.creator}
+            name={state.name}
+            onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
+            isStewarded={state.isStewarded}
+            onIsStewardedChange={(isStewarded) =>
+              gameSpace.change({ type: 'set-is-stewarded', isStewarded })}
+          />
+        {/if}
       {/if}
       <Surface
         {gameSpace}
