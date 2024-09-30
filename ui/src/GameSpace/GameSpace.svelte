@@ -14,6 +14,7 @@
   import PeopleBar from './PeopleBar.svelte';
   import ElementConfigMenu from './ElementConfigMenu.svelte';
   import SpaceConfigurator from './SpaceConfigurator.svelte';
+  import SidebarToggleButton from './SidebarToggleButton.svelte';
 
   export let gameSpace: GameSpaceSyn;
   $: state = get(gameSpace.state);
@@ -83,21 +84,13 @@
   <LayoutBar title={state.name || 'Game Space'} />
   <div class="h-full flex flex-col">
     <div class="bg-main-700 h-14 flex relative">
-      <button
-        class={cx('h14 w14 flexcc b b-black/10', {
-          'bg-black/30 text-white': sidebar === 'configurator',
-          'bg-white/20': sidebar !== 'configurator',
-        })}
-        on:click={() => toggleSidebar('configurator')}><GearIcon /></button
-      >
+      <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
+        <GearIcon />
+      </SidebarToggleButton>
       {#if $isSteward}
-        <button
-          class={cx('h14 w14 flexcc b b-black/10', {
-            'bg-black/30 text-white': sidebar === 'elementsLibrary',
-            'bg-white/20': sidebar !== 'elementsLibrary',
-          })}
-          on:click={() => toggleSidebar('elementsLibrary')}><CubesIcon /></button
-        >
+        <SidebarToggleButton current={sidebar} value="elementsLibrary" onClick={toggleSidebar}>
+          <CubesIcon />
+        </SidebarToggleButton>
       {/if}
 
       <PeopleBar
