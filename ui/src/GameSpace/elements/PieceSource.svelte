@@ -71,7 +71,7 @@
       height: el.pieceH,
       x: -el.pieceW / 2,
       y: -el.pieceH / 2,
-      z: 0,
+      z: gameSpace.topZ(),
       wals: [],
       lock: {
         position: false,
