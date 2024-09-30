@@ -15,6 +15,7 @@
   import ElementConfigMenu from './ElementConfigMenu.svelte';
   import SpaceConfigurator from './SpaceConfigurator.svelte';
   import SidebarToggleButton from './SidebarToggleButton.svelte';
+  import { type LibraryElement, createElement } from './store/library';
 
   export let gameSpace: GameSpaceSyn;
   $: state = get(gameSpace.state);
@@ -51,10 +52,6 @@
     }
   };
 
-  function handleAddElement(el: GElement) {
-    gameSpace.change({ type: 'add-element', element: el });
-  }
-
   let contextMenuState: { id: string; x: number; y: number } | null = null;
   function handleContextMenu(id: string, x: number, y: number) {
     contextMenuState = { id, x, y };
@@ -76,6 +73,19 @@
   $: {
     if (contextMenuState && !state.elements.find((e) => e.uuid === contextMenuState.id)) {
       closeContextMenu();
+    }
+  }
+
+  let surfaceEl: Surface;
+  function handleAddElementFromLibrary(element: LibraryElement, x?: number, y?: number) {
+    const surfaceCoords =
+      x && y ? surfaceEl.getSurfaceCoordinates(x, y) : surfaceEl.getCurrentCenter();
+    console.log('SURFACE COORDs', surfaceCoords);
+    if (surfaceCoords) {
+      gameSpace.change({
+        type: 'add-element',
+        element: createElement(element, surfaceCoords.x, surfaceCoords.y),
+      });
     }
   }
 </script>
@@ -104,7 +114,7 @@
     </div>
     <div class="flex flex-grow">
       {#if sidebar === 'elementsLibrary' && $isSteward}
-        <ElementsLibrary onAdd={handleAddElement} />
+        <ElementsLibrary onAdd={handleAddElementFromLibrary} />
       {:else if sidebar === 'configurator'}
         {#if state}
           <SpaceConfigurator
@@ -119,6 +129,7 @@
         {/if}
       {/if}
       <Surface
+        bind:this={surfaceEl}
         {gameSpace}
         elements={state.elements}
         onMoveElement={(uuid, x, y) => {

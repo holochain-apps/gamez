@@ -1,110 +1,55 @@
 <script lang="ts">
-  import { type GElement } from './types.d';
+  import cx from 'classnames';
+  import { LIBRARY, type LibraryElement } from './store/library';
 
-  export let onAdd: (el: GElement) => void;
+  export let onAdd: (libraryElement: LibraryElement, x?: number, y?: number) => void;
 
-  type LibraryElement = {
-    elementType: string;
-    label: string;
-    icon: string;
-    initialWidth: number;
-    initialHeight: number;
-  };
+  let dragState: {
+    element: LibraryElement;
+    x: number;
+    y: number;
+  } | null = null;
+  function handleDragStart(elementType: string, ev: DragEvent) {
+    const element = LIBRARY.find((el) => el.elementType === elementType);
 
-  const LIBRARY: LibraryElement[] = [
-    {
-      elementType: 'Piece',
-      label: 'Piece',
-      icon: '♟',
-      initialHeight: 30,
-      initialWidth: 30,
-    },
-    {
-      elementType: 'Image',
-      label: 'Image',
-      icon: '🖼',
-      initialHeight: 250,
-      initialWidth: 250,
-    },
-    {
-      elementType: 'PieceSource',
-      label: 'Pieces source',
-      icon: '📤',
-      initialHeight: 100,
-      initialWidth: 100,
-    },
-    {
-      elementType: 'EmbedWal',
-      label: 'Embed',
-      icon: '📎',
-      initialHeight: 200,
-      initialWidth: 200,
-    },
-  ];
+    dragState = { element, x: ev.clientX, y: ev.clientY };
 
-  function addElement(type: LibraryElement) {
-    const base = {
-      uuid: '',
-      x: -type.initialWidth / 2,
-      y: -type.initialHeight / 2,
-      z: 0,
-      rotation: 0,
-      height: type.initialHeight,
-      width: type.initialWidth,
-      lock: {
-        position: false,
-        size: false,
-        rotation: false,
-        wals: false,
-        config: false,
-        remove: false,
-      },
-      wals: [],
-    };
-    if (type.elementType === 'Piece') {
-      onAdd({
-        type: 'Piece',
-        version: 1,
-        display: { mode: 'emoji', value: '🔥' },
-        ...base,
-      });
-    } else if (type.elementType === 'Image') {
-      onAdd({
-        type: 'Image',
-        version: 1,
-        url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png',
-        ...base,
-      });
-    } else if (type.elementType === 'PieceSource') {
-      onAdd({
-        type: 'PieceSource',
-        version: 2,
-        limit: 3,
-        pieceW: 30,
-        pieceH: 30,
-        createdPieces: [],
-        display: { mode: 'emoji', value: '⚫️' },
-        ...base,
-      });
-    } else if (type.elementType === 'EmbedWal') {
-      onAdd({
-        type: 'EmbedWal',
-        version: 1,
-        url: '',
-        ...base,
-      });
+    function handleDragMove(e: MouseEvent) {
+      dragState = { element, x: e.clientX, y: e.clientY };
     }
+    function handleDragEnd() {
+      onAdd(dragState.element, dragState.x, dragState.y);
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+      dragState = null;
+    }
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
   }
 </script>
 
 <div class="w-60 bg-main-800 h-full p2 space-y-2 flex-shrink-0">
   {#each LIBRARY as libraryElement}
     <button
-      class="b b-black/10 rounded-md bg-black/5 flexcc w-full"
-      on:click={() => addElement(libraryElement)}
+      class="relative b b-black/10 rounded-md bg-black/5 w-full"
+      on:click={() => onAdd(libraryElement)}
     >
-      <div class="text-4xl h12 w12 flexcc">{libraryElement.icon}</div>
-      <div class="flex-grow text-left text-lg">{libraryElement.label}</div>
+      <div
+        on:dragstart={(ev) => handleDragStart(libraryElement.elementType, ev)}
+        draggable={true}
+        class={cx('text-4xl h12 absolute left-0 top-0 w-full', {})}
+      >
+        <div class="flexcc h12 w12">{libraryElement.icon}</div>
+      </div>
+      <div class="flex-grow text-left text-lg ml12 h12 w-full flexcs">{libraryElement.label}</div>
     </button>
   {/each}
 </div>
+{#if dragState}
+  <div
+    class="fixed z-100 flexcc h12 w12 -top-6 -left-6 text-4xl cursor-pointer text-black/100"
+    style={`transform: translate(${dragState.x}px, ${dragState.y}px)`}
+  >
+    {dragState.element.icon}
+  </div>
+{/if}

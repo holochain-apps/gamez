@@ -23,6 +23,21 @@
     onContextMenu(id, ev.clientX, ev.clientY);
   }
 
+  export function getSurfaceCoordinates(clientX, clientY): { x: number; y: number } | null {
+    const { left, top, width, height } = boardContainer.getBoundingClientRect();
+    if (clientX < left || clientX > left + width || clientY < top || clientY > top + height) {
+      return null;
+    }
+    const surfaceX = clientX - left;
+    const surfaceY = clientY - top;
+    return { x: surfaceX / zoom - panX, y: surfaceY / zoom - panY };
+  }
+
+  export function getCurrentCenter(): { x: number; y: number } {
+    const { width, height } = boardContainer.getBoundingClientRect();
+    return { x: width / 2 / zoom - panX, y: height / 2 / zoom - panY };
+  }
+
   // ██████╗ ██████╗  █████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
   // ██╔══██╗██╔══██╗██╔══██╗██╔════╝ ██╔════╝ ██║████╗  ██║██╔════╝
   // ██║  ██║██████╔╝███████║██║  ███╗██║  ███╗██║██╔██╗ ██║██║  ███╗
