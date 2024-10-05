@@ -6,9 +6,17 @@ import { type AgentPubKey, encodeHashToBase64 } from '@holochain/client';
 import { type GameSpace } from '../types.d';
 import { applyDelta, type Delta } from './grammar';
 
+type UiState = {
+  zoom: number;
+  panX: number;
+  panY: number;
+  surfaceContainer: HTMLDivElement;
+};
+
 export class GameSpaceSyn {
   session: SessionStore<any, any> | null;
   state = writable<GameSpace>(null);
+  ui: UiState = { zoom: 1, panX: 0, panY: 0, surfaceContainer: null };
   pubKeyB64: string;
 
   constructor(
@@ -33,6 +41,29 @@ export class GameSpaceSyn {
         }
       }
     });
+  }
+
+  updateUiState(uiState: UiState) {
+    console.log('Updating UI state');
+    this.ui = uiState;
+  }
+
+  getSurfaceCoordinates(clientX, clientY): { x: number; y: number } | null {
+    const { left, top, width, height } = this.ui.surfaceContainer.getBoundingClientRect();
+    if (clientX < left || clientX > left + width || clientY < top || clientY > top + height) {
+      return null;
+    }
+    const surfaceX = clientX - left;
+    const surfaceY = clientY - top;
+    return { x: surfaceX / this.ui.zoom - this.ui.panX, y: surfaceY / this.ui.zoom - this.ui.panY };
+  }
+
+  getCurrentCenter(): { x: number; y: number } {
+    const { width, height } = this.ui.surfaceContainer.getBoundingClientRect();
+    return {
+      x: width / 2 / this.ui.zoom - this.ui.panX,
+      y: height / 2 / this.ui.zoom - this.ui.panY,
+    };
   }
 
   // subscribe(sub: any, inv: any) {

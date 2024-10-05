@@ -181,7 +181,7 @@
   {:else if previewEl.type === 'Image'}
     <svelte:component this={elements.Image} el={previewEl} />
   {:else if previewEl.type === 'PieceSource'}
-    <svelte:component this={elements.PieceSource} el={previewEl} {gameSpace} />
+    <svelte:component this={elements.PieceSource} el={previewEl} {gameSpace} {zoomLevel} />
   {:else if previewEl.type === 'EmbedWal'}
     <svelte:component this={elements.EmbedWal} el={previewEl} />
   {/if}

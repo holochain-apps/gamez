@@ -17,6 +17,9 @@
   export let isPlaying: boolean;
 
   $: everythingLocked = !isCreator && !isPlaying;
+  $: {
+    gameSpace.updateUiState({ zoom, panX, panY, surfaceContainer: boardContainer });
+  }
 
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();
@@ -117,9 +120,9 @@
   const minZoom = 0.5;
   const zoomStep = 0.001; // % zoomed for each deltaY
   let boardContainer: HTMLDivElement;
-  let zoom = 1; // From 1 to maxZoom
-  let panX = 0;
-  let panY = 0;
+  let zoom = gameSpace.ui.zoom; // From 1 to maxZoom
+  let panX = gameSpace.ui.panX;
+  let panY = gameSpace.ui.panY;
   let isPanning = false;
 
   const handleZoomInOut = (ev: WheelEvent) => {
