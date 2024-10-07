@@ -7,15 +7,15 @@
 
   import Surface from './Surface.svelte';
 
-  import { type GameSpaceSyn } from './store/GameSpaceSyn';
   import { type GameSpace, type GElement } from './types.d';
-  import LayoutBar from '~/Layout/LayoutBar.svelte';
-  import ElementsLibrary from './ElementsLibrary.svelte';
-  import PeopleBar from './PeopleBar.svelte';
-  import ElementConfigMenu from './ElementConfigMenu.svelte';
-  import SpaceConfigurator from './SpaceConfigurator.svelte';
-  import SidebarToggleButton from './SidebarToggleButton.svelte';
+  import { type GameSpaceSyn } from './store/GameSpaceSyn';
   import { type LibraryElement, createElement } from './store/library';
+  import LayoutBar from '~/Layout/LayoutBar.svelte';
+  import PeopleBar from './topbar/PeopleBar.svelte';
+  import SidebarToggleButton from './topbar/SidebarToggleButton.svelte';
+  import ElementsLibrary from './sidebar/ElementsLibrary.svelte';
+  import SpaceConfigurator from './sidebar/SpaceConfigurator.svelte';
+  import ConfigMenu from './ConfigMenu';
 
   export let gameSpace: GameSpaceSyn;
   $: state = get(gameSpace.state);
@@ -149,7 +149,7 @@
     </div>
   </div>
   {#if contextMenuState}
-    <ElementConfigMenu
+    <ConfigMenu
       x={contextMenuState.x}
       y={contextMenuState.y}
       onClose={closeContextMenu}

@@ -4,9 +4,9 @@
   import ArrowsLeftRight from '~icons/fa6-solid/arrows-left-right';
   import RotateIcon from '~icons/fa6-solid/rotate-right';
   import { tooltip } from '~/shared/tooltip';
-  import type { GElement } from './types';
-  import * as elements from './elements';
-  import { type GameSpaceSyn } from './store/GameSpaceSyn';
+  import type { GElement } from '../types';
+  import * as elements from '../elements';
+  import { type GameSpaceSyn } from '../store/GameSpaceSyn';
 
   export let gameSpace: GameSpaceSyn;
   export let el: GElement;
@@ -177,13 +177,13 @@
   {draggable}
 >
   {#if previewEl.type === 'Piece'}
-    <svelte:component this={elements.Piece} el={previewEl} />
+    <svelte:component this={elements.Piece.Element} el={previewEl} />
   {:else if previewEl.type === 'Image'}
-    <svelte:component this={elements.Image} el={previewEl} />
+    <svelte:component this={elements.Image.Element} el={previewEl} />
   {:else if previewEl.type === 'PieceSource'}
-    <svelte:component this={elements.PieceSource} el={previewEl} {gameSpace} {zoomLevel} />
+    <svelte:component this={elements.PieceSource.Element} el={previewEl} {gameSpace} {zoomLevel} />
   {:else if previewEl.type === 'EmbedWal'}
-    <svelte:component this={elements.EmbedWal} el={previewEl} />
+    <svelte:component this={elements.EmbedWal.Element} el={previewEl} />
   {/if}
   {#if el.wals.length > 0}
     <button

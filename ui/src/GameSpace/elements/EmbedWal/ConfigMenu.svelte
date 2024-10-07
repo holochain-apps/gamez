@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { type EmbedWalElement } from '../types.d';
-  import Input from '../ui/Input.svelte';
+  import { type EmbedWalElement } from '../../types.d';
+  import Input from '../../ui/Input.svelte';
 
   export let el: EmbedWalElement;
   export let onUpdate: (el: Partial<EmbedWalElement>) => void;

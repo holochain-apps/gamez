@@ -2,9 +2,9 @@
   import { cloneDeep } from 'lodash';
   import { v1 as uuidv1 } from 'uuid';
   import cx from 'classnames';
-  import { type GameSpaceSyn } from '../store/GameSpaceSyn';
-  import type { PieceSourceElement, PieceElement } from '../types';
-  import Piece from './Piece.svelte';
+  import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
+  import type { PieceSourceElement, PieceElement } from '../../types';
+  import Piece from '../Piece/Element.svelte';
 
   export let el: PieceSourceElement;
   export let gameSpace: GameSpaceSyn;

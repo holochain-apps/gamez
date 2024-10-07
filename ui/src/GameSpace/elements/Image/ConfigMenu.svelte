@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { type ImageElement } from '../types.d';
-  import Input from '../ui/Input.svelte';
+  import { type ImageElement } from './type';
+  import Input from '../../ui/Input.svelte';
 
   export let el: ImageElement;
   export let onUpdate: (el: ImageElement) => void;

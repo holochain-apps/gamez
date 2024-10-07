@@ -2,16 +2,13 @@
   import { onMount } from 'svelte';
   import TrashIcon from '~icons/fa6-solid/trash';
 
-  import { type GElement, type LockConfig } from './types.d';
-  import { type GameSpaceSyn } from './store/GameSpaceSyn';
+  import { type GElement, type LockConfig } from '../types.d';
+  import { type GameSpaceSyn } from '../store/GameSpaceSyn';
   import LockConfigEl from './LockConfig.svelte';
   import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';
 
-  import PieceConfig from './elements/PieceConfig.svelte';
-  import ImageConfig from './elements/ImageConfig.svelte';
-  import PieceSourceConfig from './elements/PieceSourceConfig.svelte';
-  import EmbedWalConfig from './elements/EmbedWalConfig.svelte';
+  import * as E from '../elements';
 
   export let x: number;
   export let y: number;
@@ -59,6 +56,8 @@
     const newWals = el.wals.filter((_, i) => i !== index);
     onUpdateEl({ uuid: el.uuid, wals: newWals });
   }
+
+  $: resolvedEl = { ...el, lock: resolvedLock };
 </script>
 
 <div
@@ -87,14 +86,14 @@
   </div>
   <LockConfigEl onLock={handleLockUpdate} lockConfig={el.lock} {canEditLock} />
 
-  {#if el.type == 'Piece'}
-    <PieceConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
-  {:else if el.type == 'Image'}
-    <ImageConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
-  {:else if el.type === 'PieceSource'}
-    <PieceSourceConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
-  {:else if el.type === 'EmbedWal'}
-    <EmbedWalConfig el={{ ...el, lock: resolvedLock }} onUpdate={onUpdateEl} />
+  {#if resolvedEl.type == 'Piece'}
+    <svelte:component this={E.Piece.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
+  {:else if resolvedEl.type == 'Image'}
+    <svelte:component this={E.Image.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
+  {:else if resolvedEl.type === 'PieceSource'}
+    <svelte:component this={E.PieceSource.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
+  {:else if resolvedEl.type === 'EmbedWal'}
+    <svelte:component this={E.EmbedWal.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
   {/if}
 
   <WalsControls

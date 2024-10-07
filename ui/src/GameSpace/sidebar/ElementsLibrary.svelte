@@ -1,6 +1,6 @@
 <script lang="ts">
   import cx from 'classnames';
-  import { LIBRARY, type LibraryElement } from './store/library';
+  import { LIBRARY, type LibraryElement } from '../store/library';
 
   export let onAdd: (libraryElement: LibraryElement, x?: number, y?: number) => void;
 

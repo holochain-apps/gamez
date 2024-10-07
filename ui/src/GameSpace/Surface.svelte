@@ -1,7 +1,7 @@
 <script lang="ts">
   import cx from 'classnames';
   import { onMount } from 'svelte';
-  import ElementWrapper from './ElementWrapper.svelte';
+  import Element from './Element';
   import { type GElement } from './types.d';
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
 
@@ -250,7 +250,7 @@
     style={`transform:scale(${zoom}) translate(${panX}px, ${panY}px);`}
   >
     {#each elements as element (element.uuid)}
-      <ElementWrapper
+      <Element
         {gameSpace}
         onDragStart={(e) => handleDragStart(e, element.uuid)}
         onDragEnd={handleDragEnd}

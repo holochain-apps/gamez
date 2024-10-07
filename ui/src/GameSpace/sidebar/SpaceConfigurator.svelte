@@ -1,7 +1,7 @@
 <script lang="ts">
   import { decodeHashFromBase64 } from '@holochain/client';
   import Avatar from '~/shared/Avatar.svelte';
-  import Input from './ui/Input.svelte';
+  import Input from '../ui/Input.svelte';
 
   export let isSteward: boolean;
   export let creator: string;

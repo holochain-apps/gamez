@@ -1,6 +1,6 @@
 <script lang="ts">
   import EmojiPicker from '~/shared/EmojiPicker.svelte';
-  import { type PieceElement } from '../types.d';
+  import { type PieceElement } from './type';
 
   export let el: PieceElement;
   export let onUpdate: (el: PieceElement) => void;
