@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ImageElement } from '../../types';
+  import type { ImageElement } from './type';
 
   export let el: ImageElement;
 </script>

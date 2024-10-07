@@ -3,7 +3,7 @@ import { derived, get, writable } from 'svelte/store';
 import { DocumentStore, SessionStore, WorkspaceStore } from '@holochain-syn/core';
 import { type AgentPubKey, encodeHashToBase64 } from '@holochain/client';
 
-import { type GameSpace } from '../types.d';
+import { type GameSpace } from '../types';
 import { applyDelta, type Delta } from './grammar';
 
 type UiState = {

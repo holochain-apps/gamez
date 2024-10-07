@@ -2,7 +2,7 @@
   import cx from 'classnames';
   import { onMount } from 'svelte';
   import Element from './Element';
-  import { type GElement } from './types.d';
+  import { type GElement } from './types';
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
 
   export let gameSpace: GameSpaceSyn;

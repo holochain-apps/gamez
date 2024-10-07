@@ -1,4 +1,4 @@
-import { type GElement } from '../types.d';
+import { type GElement } from '../types';
 
 export type LibraryElement = {
   elementType: string;

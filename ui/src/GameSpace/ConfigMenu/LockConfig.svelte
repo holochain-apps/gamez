@@ -10,7 +10,7 @@
 
   import { tooltip } from '~/shared/tooltip';
 
-  import { type LockConfig } from '../types.d';
+  import { type LockConfig } from '../types';
 
   export let lockConfig: LockConfig;
   export let onLock: (lockConfig: LockConfig) => void;

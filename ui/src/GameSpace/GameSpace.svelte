@@ -7,7 +7,7 @@
 
   import Surface from './Surface.svelte';
 
-  import { type GameSpace, type GElement } from './types.d';
+  import { type GameSpace, type GElement } from './types';
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
   import { type LibraryElement, createElement } from './store/library';
   import LayoutBar from '~/Layout/LayoutBar.svelte';

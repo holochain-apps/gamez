@@ -1,4 +1,4 @@
-import { type GElementBase } from '../../types.d';
+import { type GElementBase } from '../../types';
 
 export type PieceElement = GElementBase & {
   type: 'Piece';

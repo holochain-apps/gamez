@@ -2,7 +2,7 @@
   import MoveIcon from '~icons/fa6-solid/up-down-left-right';
   import { weaveUrlToLocation, stringifyHrl, encodeContext } from '@theweave/api';
   import { urlFromAppletHash, appletOrigin } from '@theweave/elements/dist/utils';
-  import type { EmbedWalElement } from '../../types';
+  import type { EmbedWalElement } from './type';
   import { getContext } from '../../store/store';
 
   export let el: EmbedWalElement;

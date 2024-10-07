@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type EmbedWalElement } from '../../types.d';
+  import { type EmbedWalElement } from './type';
   import Input from '../../ui/Input.svelte';
 
   export let el: EmbedWalElement;

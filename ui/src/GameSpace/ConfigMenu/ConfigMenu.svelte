@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import TrashIcon from '~icons/fa6-solid/trash';
 
-  import { type GElement, type LockConfig } from '../types.d';
+  import { type GElement, type LockConfig } from '../types';
   import { type GameSpaceSyn } from '../store/GameSpaceSyn';
   import LockConfigEl from './LockConfig.svelte';
   import ZConfig from './ZConfig.svelte';
@@ -47,7 +47,6 @@
     onUpdateEl({ uuid: el.uuid, lock: lockConfig });
   }
 
-  // let pieceAttachmentDialog: PieceAttachmentDialog;
   async function handleAddAttachment(weaveUrl: string) {
     onUpdateEl({ uuid: el.uuid, wals: [...el.wals, weaveUrl] });
   }
@@ -57,7 +56,7 @@
     onUpdateEl({ uuid: el.uuid, wals: newWals });
   }
 
-  $: resolvedEl = { ...el, lock: resolvedLock };
+  $: resolvedEl = { ...el, lock: resolvedLock } as any;
 </script>
 
 <div
@@ -68,7 +67,6 @@
     left: ${x}px;
   `}
 >
-  <!-- <PieceAttachmentDialog {activeBoard} bind:this={pieceAttachmentDialog}></PieceAttachmentDialog> -->
   <div class="flex space-x-2 mb2">
     <ZConfig {onMoveZ} disabled={resolvedLock.position} />
     <button
@@ -86,15 +84,7 @@
   </div>
   <LockConfigEl onLock={handleLockUpdate} lockConfig={el.lock} {canEditLock} />
 
-  {#if resolvedEl.type == 'Piece'}
-    <svelte:component this={E.Piece.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
-  {:else if resolvedEl.type == 'Image'}
-    <svelte:component this={E.Image.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
-  {:else if resolvedEl.type === 'PieceSource'}
-    <svelte:component this={E.PieceSource.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
-  {:else if resolvedEl.type === 'EmbedWal'}
-    <svelte:component this={E.EmbedWal.ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
-  {/if}
+  <svelte:component this={E[resolvedEl.type].ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
 
   <WalsControls
     attachments={el.wals}

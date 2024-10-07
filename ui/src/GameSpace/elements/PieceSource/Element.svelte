@@ -3,7 +3,7 @@
   import { v1 as uuidv1 } from 'uuid';
   import cx from 'classnames';
   import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
-  import type { PieceSourceElement, PieceElement } from '../../types';
+  import type { PieceSourceElement } from './type';
   import Piece from '../Piece/Element.svelte';
 
   export let el: PieceSourceElement;

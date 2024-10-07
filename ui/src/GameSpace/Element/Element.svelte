@@ -153,6 +153,8 @@
 
   $: showResizeLayout =
     (isShiftPressed && isHovering && (resizable || rotatable)) || resizingState || rotatingState;
+
+  $: Element = elements[previewEl.type].Element as any;
 </script>
 
 <div
@@ -176,15 +178,8 @@
   on:mouseenter={startHovering}
   {draggable}
 >
-  {#if previewEl.type === 'Piece'}
-    <svelte:component this={elements.Piece.Element} el={previewEl} />
-  {:else if previewEl.type === 'Image'}
-    <svelte:component this={elements.Image.Element} el={previewEl} />
-  {:else if previewEl.type === 'PieceSource'}
-    <svelte:component this={elements.PieceSource.Element} el={previewEl} {gameSpace} {zoomLevel} />
-  {:else if previewEl.type === 'EmbedWal'}
-    <svelte:component this={elements.EmbedWal.Element} el={previewEl} />
-  {/if}
+  <svelte:component this={Element} el={previewEl} {gameSpace} {zoomLevel} />
+
   {#if el.wals.length > 0}
     <button
       on:click={onContextMenu}

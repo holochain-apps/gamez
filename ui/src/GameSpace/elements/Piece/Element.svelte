@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PieceElement } from '../../types';
+  import type { PieceElement } from './type';
 
   export let el: PieceElement;
   let klass: string = '';
