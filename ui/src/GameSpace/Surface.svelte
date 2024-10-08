@@ -230,6 +230,12 @@
   function handleElementRotated(id: string, rotation: number) {
     onRotateElement(id, rotation);
   }
+
+  let mouseCoords: { x: number; y: number } = { x: 0, y: 0 };
+  function handleUpdateCoords(ev: MouseEvent) {
+    const [x, y] = canvasToBoardPos(screenToCanvasPos(ev));
+    mouseCoords = { x, y };
+  }
 </script>
 
 <div
@@ -243,6 +249,7 @@
   on:mousedown={handlePanningStart}
   on:drop={handleDragDrop}
   on:dragover={handleDragOver}
+  on:mousemove={handleUpdateCoords}
   style={`background-position: ${panX * zoom}px ${panY * zoom}px; background-size: ${zoom * 150}px`}
 >
   <div
@@ -266,6 +273,11 @@
         zoomLevel={zoom}
       />
     {/each}
+    <div class="absolute w-[1px] h-full bg-white/25 left-0 top-[-50%]"></div>
+    <div class="absolute h-[1px] w-full bg-white/25 left-[-50%] top-0"></div>
+  </div>
+  <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">
+    {Math.floor(mouseCoords.x)}, {Math.floor(mouseCoords.y)}
   </div>
 </div>
 
