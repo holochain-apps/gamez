@@ -84,7 +84,7 @@
     if (surfaceCoords) {
       gameSpace.change({
         type: 'add-element',
-        element: createElement(element, surfaceCoords.x, surfaceCoords.y),
+        element: createElement(element, surfaceCoords.x, surfaceCoords.y, gameSpace),
       });
     }
   }

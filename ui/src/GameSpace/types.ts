@@ -41,4 +41,5 @@ export type GElement =
   | elements.Piece.ElType
   | elements.Image.ElType
   | elements.PieceSource.ElType
-  | elements.EmbedWal.ElType;
+  | elements.EmbedWal.ElType
+  | elements.PlayerPiece.ElType;

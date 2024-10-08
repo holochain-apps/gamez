@@ -87,7 +87,7 @@
 
     const weaveClient = state.type === 'weave' ? state.weaveClient : undefined;
     store = new GamezStore(weaveClient, state.profilesStore, state.client, roleName);
-    gameSpaceStore = createGameSpaceStore(state.client, weaveClient || null);
+    gameSpaceStore = createGameSpaceStore(state.client, state.profilesStore, weaveClient || null);
   }
 
   async function initStandalone(): Promise<{ profilesStore: ProfilesStore; client: AppWebsocket }> {
