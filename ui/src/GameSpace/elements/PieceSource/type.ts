@@ -2,7 +2,7 @@ import { type GElementBase } from '../../types';
 
 export type PieceSourceElement = GElementBase & {
   type: 'PieceSource';
-  version: 2;
+  version: number;
   display: { mode: 'emoji'; value: string } | { mode: 'url'; value: string };
   pieceW: number;
   pieceH: number;

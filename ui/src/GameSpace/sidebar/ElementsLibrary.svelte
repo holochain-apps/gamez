@@ -10,7 +10,7 @@
     y: number;
   } | null = null;
   function handleDragStart(elementType: string, ev: DragEvent) {
-    const element = LIBRARY.find((el) => el.elementType === elementType);
+    const element = LIBRARY.find((el) => el.type === elementType);
 
     dragState = { element, x: ev.clientX, y: ev.clientY };
 
@@ -35,7 +35,7 @@
       on:click={() => onAdd(libraryElement)}
     >
       <div
-        on:dragstart={(ev) => handleDragStart(libraryElement.elementType, ev)}
+        on:dragstart={(ev) => handleDragStart(libraryElement.type, ev)}
         draggable={true}
         class={cx('text-4xl h12 absolute left-0 top-0 w-full', {})}
       >
