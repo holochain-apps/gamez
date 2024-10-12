@@ -42,7 +42,6 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
     case 'move-element': {
       const el = status.elements.find((e) => e.uuid === delta.uuid);
       if (el.type === 'Piece') {
-        console.log('Checking!');
         forEachPieceSourceContainingElement(status, delta.uuid, (ps) => {
           console.log(ps);
           if (isWithinVisualBoundary(el, ps)) {

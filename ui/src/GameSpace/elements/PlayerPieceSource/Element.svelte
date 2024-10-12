@@ -14,6 +14,20 @@
 
   $: state = gameSpace.state;
 
+  $: playedPiecesCountByAgent = (() => {
+    const result: { [key: string]: number } = {};
+    el.createdPieces.forEach((pieceUuid) => {
+      const piece = $state.elements.find((e) => e.uuid === pieceUuid) as PlayerPieceType;
+      if (piece) {
+        if (!result[piece.agent]) {
+          result[piece.agent] = 0;
+        }
+        result[piece.agent]++;
+      }
+    });
+    return result;
+  })();
+
   // Overlap pieces to fit container width
   let piecesContainer: HTMLDivElement[] = [];
   let timeout: NodeJS.Timeout;
@@ -120,6 +134,8 @@
       },
     ]);
   }
+
+  $: console.log('Played pieces', playedPiecesCountByAgent);
 </script>
 
 <div class={cx(klass, 'h-full w-full bg-main-900 rounded-md p2')}>
@@ -141,14 +157,20 @@
         on:dragstart={(ev) => handleDragStart(ev, player)}
         bind:this={piecesContainer[i]}
       >
-        <div class="whitespace-nowrap">
+        <div class="flex">
           {#each { length: el.limit || 1 } as _, j}
+            {@const isPlayed = el.limit
+              ? playedPiecesCountByAgent[player] +
+                  (dragState && dragState.agent === player ? 1 : 0) >
+                el.limit - j
+              : false}
             <div
-              class={`inline-block overlap mr.5 last:mr0`}
-              style={j > 0 ? `margin-left: var(--overlap);` : ''}
+              class={cx(`block overlap mr.5 last:mr0 relative`, {
+                'saturate-0 opacity-50': isPlayed,
+              })}
+              style={j > 0 ? `margin-left: var(--overlap); z-index: ${10 + j}` : ''}
             >
               <PlayerPieceEl
-                class="inline-block"
                 el={{
                   width: el.size,
                   height: el.size,
