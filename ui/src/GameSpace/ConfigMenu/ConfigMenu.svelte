@@ -84,7 +84,12 @@
   </div>
   <LockConfigEl onLock={handleLockUpdate} lockConfig={el.lock} {canEditLock} />
 
-  <svelte:component this={E[resolvedEl.type].ConfigMenu} el={resolvedEl} onUpdate={onUpdateEl} />
+  <svelte:component
+    this={E[resolvedEl.type].ConfigMenu}
+    el={resolvedEl}
+    onUpdate={onUpdateEl}
+    {gameSpace}
+  />
 
   <WalsControls
     attachments={el.wals}

@@ -252,7 +252,7 @@
       {#each players as player, index}
         <div class="flexce">
           <div class="text-right mr2 flex-grow">
-            <PlayerName agentPubKey={decodeHashFromBase64(player)} />
+            <PlayerName agentPubKey={player} />
           </div>
           <div class="p2">
             <PieceEl

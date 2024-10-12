@@ -2,6 +2,7 @@
   import { decodeHashFromBase64 } from '@holochain/client';
   import Avatar from '~/shared/Avatar.svelte';
   import Input from '../ui/Input.svelte';
+  import Checkbox from '../ui/Checkbox.svelte';
 
   export let isSteward: boolean;
   export let creator: string;
@@ -18,16 +19,11 @@
   </div>
   <div class="p4 flex flex-col space-y-4">
     <Input value={name} label="Name" disabled={!isSteward} onInput={onNameChange} />
-    <label>
-      <input
-        type="checkbox"
-        checked={isStewarded}
-        disabled={!isSteward}
-        class="mr2"
-        on:change={({ currentTarget }) => {
-          onIsStewardedChange(currentTarget.checked);
-        }}
-      /> Stewarded?
-    </label>
+    <Checkbox
+      value={isStewarded}
+      label="Stewarded?"
+      disabled={!isSteward}
+      onInput={onIsStewardedChange}
+    />
   </div>
 </div>

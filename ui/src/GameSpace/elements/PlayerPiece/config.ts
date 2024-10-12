@@ -6,7 +6,7 @@ const config = {
   type: 'PlayerPiece',
   version: 1,
   label: 'Player Piece',
-  icon: '🐵',
+  icon: '👤',
   build: (gameSpace: GameSpaceSyn): Partial<PlayerPieceElement> => ({
     height: 30,
     width: 30,
