@@ -28,6 +28,7 @@
     "sanitize-filename": "1.6.3",
     "svelte-dnd-list": "^0.1.8",
     "svelte-moveable": "0.45.0",
+    "svelte-portal": "^2.2.1",
     "tslib": "^2.6.3",
     "uuid": "^10.0.0"
   },

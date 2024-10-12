@@ -1,29 +1,21 @@
 <script lang="ts">
-  import { encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
-  import '@holochain-open-dev/profiles/dist/elements/agent-avatar.js';
-  import { getContext } from '~/GameSpace/store/store';
+  import cx from 'classnames';
   import type { PlayerPieceElement } from './type';
+  import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
-  export let el: PlayerPieceElement;
+  export let el: Pick<PlayerPieceElement, 'width' | 'height' | 'agent' | 'colorRing'>;
   let klass: string = '';
   export { klass as class };
+  export let style = '';
 
-  const { profilesStore } = getContext();
-
-  // $: agentHash = decodeHashFromBase64(el.agent);
-  // $: profile = profilesStore.profiles.get(agentHash);
+  $: size = Math.min(el.width, el.height) - (el.colorRing ? 6 : 0);
 </script>
 
-<code class={`${klass} w-100 h-100 bg-red-500`}>
-  <!-- {JSON.stringify($profile, null, 2)} -->
-  <!-- {#if $profile.status == 'complete'} -->
-  <agent-avatar
-    class:disable-ptr-events={true}
-    disable-tooltip={true}
-    disable-copy={true}
-    size={Math.min(el.width, el.height)}
-    agent-pub-key={el.agent}
-  ></agent-avatar>
-  <div></div>
-  <!-- {/if} -->
-</code>
+<AgentAvatar
+  pubKey={el.agent}
+  {size}
+  class={cx(klass, 'w-full h-full', {
+    'inline-block outline-solid outline-red outline-3 m[3px]': !!el.colorRing,
+  })}
+  style={`${style} ${el.colorRing ? `outline-color: ${el.colorRing}` : ''}`}
+/>
