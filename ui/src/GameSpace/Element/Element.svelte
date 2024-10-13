@@ -13,8 +13,6 @@
   export let dragging: boolean = false;
   export let onDragStart: (ev: DragEvent) => void;
   export let onDragEnd: () => void;
-  export let onDrop: (ev: DragEvent) => void;
-  export let onDragOver: (ev: DragEvent) => void;
   export let onContextMenu: (ev: MouseEvent) => void;
   export let onResized: (width: number, height: number) => void;
   export let onRotated: (rotation: number) => void;
@@ -202,13 +200,11 @@
   bind:this={htmlEl}
   on:dragstart={onDragStart}
   on:dragend={onDragEnd}
-  on:drop={onDrop}
-  on:dragover={onDragOver}
   on:contextmenu={onContextMenu}
   on:mouseenter={startHovering}
   {draggable}
 >
-  <svelte:component this={Element} el={previewEl} {gameSpace} {zoomLevel} />
+  <svelte:component this={Element} el={previewEl} {gameSpace} />
 
   {#if el.wals.length > 0}
     <button

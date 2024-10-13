@@ -2,6 +2,7 @@
   import type { PieceElement } from './type';
 
   export let el: Pick<PieceElement, 'display' | 'width' | 'height'>;
+  export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
 

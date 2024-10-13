@@ -6,6 +6,7 @@
   import { getContext } from '../../store/store';
 
   export let el: EmbedWalElement;
+  export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
 

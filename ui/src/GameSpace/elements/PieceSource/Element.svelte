@@ -8,7 +8,9 @@
 
   export let el: PieceSourceElement;
   export let gameSpace: GameSpaceSyn;
-  export let zoomLevel: number;
+
+  $: ui = gameSpace.ui;
+  $: zoomLevel = $ui.zoom;
 
   function stringToHashCode(str: string) {
     let hash = 0;

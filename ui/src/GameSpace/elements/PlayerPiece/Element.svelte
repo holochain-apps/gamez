@@ -4,6 +4,7 @@
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
   export let el: Pick<PlayerPieceElement, 'width' | 'height' | 'agent' | 'colorRing'>;
+  export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
   export let style = '';

@@ -4,6 +4,7 @@
   import Element from './Element';
   import { type GElement } from './types';
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
+  import { get } from 'svelte/store';
 
   export let gameSpace: GameSpaceSyn;
   export let elements: GElement[];
@@ -90,7 +91,7 @@
   }
 
   function handleDragDrop(e: DragEvent) {
-    e.preventDefault();
+    // e.preventDefault();
     if (!dragState) {
       return;
     }
@@ -120,9 +121,10 @@
   const minZoom = 0.5;
   const zoomStep = 0.001; // % zoomed for each deltaY
   let boardContainer: HTMLDivElement;
-  let zoom = gameSpace.ui.zoom; // From 1 to maxZoom
-  let panX = gameSpace.ui.panX;
-  let panY = gameSpace.ui.panY;
+  let ui = get(gameSpace.ui);
+  let zoom = ui.zoom; // From 1 to maxZoom
+  let panX = ui.panX;
+  let panY = ui.panY;
   let isPanning = false;
 
   const handleZoomInOut = (ev: WheelEvent) => {
@@ -262,8 +264,6 @@
         dragging={dragState && dragState.pieceId === element.uuid}
         onDragStart={(e) => handleDragStart(e, element.uuid)}
         onDragEnd={handleDragEnd}
-        onDrop={handleDragDrop}
-        onDragOver={handleDragOver}
         draggable={!element.lock.position && !everythingLocked}
         resizable={!element.lock.size && !everythingLocked}
         rotatable={!element.lock.rotation && !everythingLocked}

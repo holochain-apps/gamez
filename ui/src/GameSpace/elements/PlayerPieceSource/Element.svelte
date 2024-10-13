@@ -14,6 +14,10 @@
 
   $: state = gameSpace.state;
   $: elements = $state.elements;
+
+  $: ui = gameSpace.ui;
+  $: zoomLevel = $ui.zoom;
+
   let playedPiecesCountByAgent: { [key: string]: number } = {};
   let prevCreatedPieces: string[] = [];
   $: {
@@ -53,7 +57,7 @@
           if (piecesContainer[0]) {
             const ref = piecesContainer[0];
             const scrollWidth = ref.scrollWidth;
-            const { width } = ref.getBoundingClientRect();
+            const width = ref.clientWidth;
             const diff = scrollWidth - width;
             if (diff > 0) {
               overlapPieces = diff / (el.limit - 1);
@@ -62,6 +66,7 @@
         }
       }
       piecesContainer.forEach((el) => {
+        console.log('Setting diffs', overlapPieces);
         if (el) {
           el.style.setProperty('--overlap', -overlapPieces + 'px');
         }
@@ -198,7 +203,7 @@
     <div class="fixed z-100 top-0 left-0">
       <PlayerPieceEl
         class="inline-block fixed z-100 cursor-grabbing"
-        style={`transform: translate(${dragState.x - el.size / 2}px, ${dragState.y - el.size / 2}px);`}
+        style={`transform: translate(${dragState.x - el.size / 2}px, ${dragState.y - el.size / 2}px) scale(${zoomLevel});`}
         el={{ width: el.size, height: el.size, agent: dragState.agent, colorRing }}
       />
     </div>

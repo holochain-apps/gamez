@@ -43,7 +43,6 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       const el = status.elements.find((e) => e.uuid === delta.uuid);
       if (el.type === 'Piece') {
         forEachPieceSourceContainingElement(status, delta.uuid, (ps) => {
-          console.log(ps);
           if (isWithinVisualBoundary(el, ps)) {
             // Piece was dragged into piece source, delete it
             ps.createdPieces = ps.createdPieces.filter((p) => p !== el.uuid);
