@@ -158,6 +158,9 @@
   >
     {#each $state.players as player, i}
       {@const hasPiecesLeft = el.limit ? el.limit - playedPiecesCountByAgent[player] > 0 : true}
+      {@const ownPieces = player === gameSpace.pubKeyB64}
+      {@const isAllowedToGrab =
+        hasPiecesLeft && ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece)}
       {#if el.showNames}
         <div class="flexce text-xs">
           <PlayerName agentPubKey={player} />
@@ -165,11 +168,11 @@
       {/if}
       <div
         class={cx('flexcs min-w-0 overflow-hidden', {
-          'cursor-not-allowed': !hasPiecesLeft,
-          'cursor-grab': hasPiecesLeft,
+          'cursor-not-allowed': !isAllowedToGrab,
+          'cursor-grab': isAllowedToGrab,
         })}
         draggable={true}
-        on:dragstart={(ev) => (hasPiecesLeft ? handleDragStart(ev, player) : null)}
+        on:dragstart={(ev) => (isAllowedToGrab ? handleDragStart(ev, player) : null)}
         bind:this={piecesContainer[i]}
       >
         <div class="flex">
