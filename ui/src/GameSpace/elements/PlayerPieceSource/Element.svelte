@@ -157,15 +157,19 @@
     })}
   >
     {#each $state.players as player, i}
+      {@const hasPiecesLeft = el.limit ? el.limit - playedPiecesCountByAgent[player] > 0 : true}
       {#if el.showNames}
         <div class="flexce text-xs">
           <PlayerName agentPubKey={player} />
         </div>
       {/if}
       <div
-        class="flexcs min-w-0 overflow-hidden cursor-grab"
+        class={cx('flexcs min-w-0 overflow-hidden', {
+          'cursor-not-allowed': !hasPiecesLeft,
+          'cursor-grab': hasPiecesLeft,
+        })}
         draggable={true}
-        on:dragstart={(ev) => handleDragStart(ev, player)}
+        on:dragstart={(ev) => (hasPiecesLeft ? handleDragStart(ev, player) : null)}
         bind:this={piecesContainer[i]}
       >
         <div class="flex">
