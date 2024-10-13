@@ -13,20 +13,25 @@
   export { klass as class };
 
   $: state = gameSpace.state;
-
-  $: playedPiecesCountByAgent = (() => {
-    const result: { [key: string]: number } = {};
-    el.createdPieces.forEach((pieceUuid) => {
-      const piece = $state.elements.find((e) => e.uuid === pieceUuid) as PlayerPieceType;
-      if (piece) {
-        if (!result[piece.agent]) {
-          result[piece.agent] = 0;
+  $: elements = $state.elements;
+  let playedPiecesCountByAgent: { [key: string]: number } = {};
+  let prevCreatedPieces: string[] = [];
+  $: {
+    if (el.createdPieces !== prevCreatedPieces) {
+      const result: { [key: string]: number } = {};
+      el.createdPieces.forEach((pieceUuid) => {
+        const piece = elements.find((e) => e.uuid === pieceUuid) as PlayerPieceType;
+        if (piece) {
+          if (!result[piece.agent]) {
+            result[piece.agent] = 0;
+          }
+          result[piece.agent]++;
         }
-        result[piece.agent]++;
-      }
-    });
-    return result;
-  })();
+        playedPiecesCountByAgent = result;
+      });
+      prevCreatedPieces = el.createdPieces;
+    }
+  }
 
   // Overlap pieces to fit container width
   let piecesContainer: HTMLDivElement[] = [];
@@ -134,11 +139,12 @@
       },
     ]);
   }
-
-  $: console.log('Played pieces', playedPiecesCountByAgent);
 </script>
 
 <div class={cx(klass, 'h-full w-full bg-main-900 rounded-md p2')}>
+  {#if $state.players.length === 0}
+    <div class="opacity-70 flexcc h-full w-full">No players</div>
+  {/if}
   <div
     class={cx(`w-full grid gap-2`, {
       'grid-cols-[auto_1fr]': el.showNames,
@@ -161,7 +167,7 @@
           {#each { length: el.limit || 1 } as _, j}
             {@const isPlayed = el.limit
               ? playedPiecesCountByAgent[player] +
-                  (dragState && dragState.agent === player ? 1 : 0) >
+                  (dragState && dragState.agent === player ? 1 : 0) >=
                 el.limit - j
               : false}
             <div

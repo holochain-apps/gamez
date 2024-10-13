@@ -259,6 +259,7 @@
     {#each elements as element (element.uuid)}
       <Element
         {gameSpace}
+        dragging={dragState && dragState.pieceId === element.uuid}
         onDragStart={(e) => handleDragStart(e, element.uuid)}
         onDragEnd={handleDragEnd}
         onDrop={handleDragDrop}

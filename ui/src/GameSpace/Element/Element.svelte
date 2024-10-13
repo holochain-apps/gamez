@@ -10,6 +10,7 @@
 
   export let gameSpace: GameSpaceSyn;
   export let el: GElement;
+  export let dragging: boolean = false;
   export let onDragStart: (ev: DragEvent) => void;
   export let onDragEnd: () => void;
   export let onDrop: (ev: DragEvent) => void;
@@ -155,12 +156,41 @@
     (isShiftPressed && isHovering && (resizable || rotatable)) || resizingState || rotatingState;
 
   $: Element = elements[previewEl.type].Element as any;
+
+  let highlighted = false;
+  function handleMouseOver(ev: MouseEvent) {
+    if (!draggable) {
+      highlighted = false;
+      return;
+    }
+    let target: HTMLElement = ev.target as HTMLElement;
+    while (true) {
+      if (target === ev.currentTarget) {
+        highlighted = true;
+        break;
+      } else if (target.draggable) {
+        highlighted = false;
+        break;
+      } else if (target.tagName === 'IFRAME') {
+        highlighted = false;
+        break;
+      } else {
+        target = target.parentElement as HTMLElement;
+      }
+    }
+  }
+
+  function handleMouseLeave() {
+    highlighted = false;
+  }
 </script>
 
 <div
   class={cx('absolute transform-origin-center', {
-    'hover:(brightness-125 saturate-125)': draggable && el.type !== 'EmbedWal',
+    'hover:(brightness-125 saturate-125) cursor-pointer': highlighted,
   })}
+  on:mouseover={handleMouseOver}
+  on:mouseleave={handleMouseLeave}
   style={`
     width: ${previewEl.width}px;
     height: ${previewEl.height}px;
@@ -189,7 +219,10 @@
     >
   {/if}
   {#if showResizeLayout}
-    <div class="absolute inset-0 b b-red-500 b-dashed bg-red-500/10">
+    <div
+      class="absolute inset-0 b b-red-500 b-dashed bg-red-500/50 z-100 cursor-pointer"
+      draggable={true}
+    >
       {#if resizable}
         <button
           class="z-20 h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-1 -right-1 cursor-nwse-resize"
@@ -206,7 +239,10 @@
           <RotateIcon class="rotate-45 scale-x-[-1] relative top-.5 text-xs text-white" />
         </button>
       {/if}
-      <div class="z-10 w10 h12 -rotate-45 absolute left-full top-full -mt5.5 -ml4.5"></div>
+      <div
+        class="z-10 w10 h12 -rotate-45 absolute left-full top-full -mt5.5 -ml4.5 bg-green-500"
+        draggable="true"
+      ></div>
     </div>
   {/if}
 </div>

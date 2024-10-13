@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PieceElement } from './type';
 
-  export let el: PieceElement;
+  export let el: Pick<PieceElement, 'display' | 'width' | 'height'>;
   let klass: string = '';
   export { klass as class };
 
