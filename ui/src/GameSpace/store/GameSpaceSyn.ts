@@ -3,7 +3,7 @@ import { derived, get, writable } from 'svelte/store';
 import { DocumentStore, SessionStore, WorkspaceStore } from '@holochain-syn/core';
 import { type AgentPubKey, encodeHashToBase64 } from '@holochain/client';
 
-import { type GameSpace } from '../types';
+import { type GameSpace, type GElement } from '../types';
 import { applyDelta, type Delta } from './grammar';
 
 type UiState = {
@@ -18,6 +18,15 @@ export class GameSpaceSyn {
   state = writable<GameSpace>(null);
   ui = writable<UiState>({ zoom: 1, panX: 0, panY: 0, surfaceContainer: null });
   pubKeyB64: string;
+  elements = derived(this.state, (state) => {
+    return state.elements.reduce(
+      (el, next) => {
+        el[next.uuid] = next;
+        return el;
+      },
+      {} as { [key: string]: GElement },
+    );
+  });
 
   constructor(
     public document: DocumentStore<any, any>,

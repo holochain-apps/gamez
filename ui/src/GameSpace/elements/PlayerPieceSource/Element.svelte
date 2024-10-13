@@ -6,6 +6,7 @@
   import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
   import type { PlayerPieceSourceElement } from './type';
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
+  import { playerColor as playerColorUtil } from './utils';
 
   export let gameSpace: GameSpaceSyn;
   export let el: PlayerPieceSourceElement;
@@ -66,7 +67,6 @@
         }
       }
       piecesContainer.forEach((el) => {
-        console.log('Setting diffs', overlapPieces);
         if (el) {
           el.style.setProperty('--overlap', -overlapPieces + 'px');
         }
@@ -74,11 +74,7 @@
     }, 50);
   }
 
-  $: playerColor = (i: number) => {
-    if (i === -1) return '';
-    const hue = (i / $state.players.length) * 360;
-    return `hsl(${hue}, 60%, 50%)`;
-  };
+  $: playerColor = (i: number) => (el.colorCoded ? playerColorUtil(i, $state.players.length) : '');
 
   type DragState = { agent: string; x: number; y: number } | null;
   let dragState: DragState = null;
@@ -157,13 +153,16 @@
     })}
   >
     {#each $state.players as player, i}
-      {@const hasPiecesLeft = el.limit ? el.limit - playedPiecesCountByAgent[player] > 0 : true}
+      {@const hasPiecesLeft = el.limit
+        ? el.limit - (playedPiecesCountByAgent[player] || 0) > 0
+        : true}
       {@const ownPieces = player === gameSpace.pubKeyB64}
       {@const isAllowedToGrab =
         hasPiecesLeft && ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece)}
       {#if el.showNames}
         <div class="flexce text-xs">
           <PlayerName agentPubKey={player} />
+          {hasPiecesLeft}
         </div>
       {/if}
       <div
@@ -178,13 +177,13 @@
         <div class="flex">
           {#each { length: el.limit || 1 } as _, j}
             {@const isPlayed = el.limit
-              ? playedPiecesCountByAgent[player] +
+              ? (playedPiecesCountByAgent[player] || 0) +
                   (dragState && dragState.agent === player ? 1 : 0) >=
                 el.limit - j
               : false}
             <div
               class={cx(`block overlap mr.5 last:mr0 relative`, {
-                'saturate-0 opacity-50': isPlayed,
+                'saturate-0': isPlayed,
               })}
               style={j > 0 ? `margin-left: var(--overlap); z-index: ${10 + j}` : ''}
             >

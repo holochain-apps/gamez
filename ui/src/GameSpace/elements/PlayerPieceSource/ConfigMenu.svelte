@@ -5,28 +5,24 @@
   import { type PlayerPieceSourceElement } from './type';
 
   export let el: PlayerPieceSourceElement;
-  export let onUpdate: (el: PlayerPieceSourceElement) => void;
+  export let onUpdate: (el: Partial<PlayerPieceSourceElement>) => void;
   export let gameSpace: GameSpaceSyn;
 
   $: state = gameSpace.state;
 </script>
 
 <div class="flex flex-col space-y-4">
-  <Checkbox
-    value={el.showNames}
-    label="Show names"
-    onInput={(v) => onUpdate({ ...el, showNames: v })}
-  />
+  <Checkbox value={el.showNames} label="Show names" onInput={(v) => onUpdate({ showNames: v })} />
   <Checkbox
     value={el.canOnlyPickOwnPiece}
     label="Can only pick own piece"
-    onInput={(v) => onUpdate({ ...el, canOnlyPickOwnPiece: v })}
+    onInput={(v) => onUpdate({ canOnlyPickOwnPiece: v })}
   />
   <Checkbox
     value={el.colorCoded}
     label="Color coded"
-    onInput={(v) => onUpdate({ ...el, colorCoded: v })}
+    onInput={(v) => onUpdate({ colorCoded: v })}
   />
-  <IntegerInput value={el.limit} label="Limit" onInput={(limit) => onUpdate({ ...el, limit })} />
-  <IntegerInput value={el.size} label="Size" onInput={(size) => onUpdate({ ...el, size })} />
+  <IntegerInput value={el.limit} label="Limit" onInput={(limit) => onUpdate({ limit })} />
+  <IntegerInput value={el.size} label="Size" onInput={(size) => onUpdate({ size })} />
 </div>

@@ -87,7 +87,7 @@
   <svelte:component
     this={E[resolvedEl.type].ConfigMenu}
     el={resolvedEl}
-    onUpdate={onUpdateEl}
+    onUpdate={(el) => onUpdateEl({ ...el, uuid: resolvedEl.uuid })}
     {gameSpace}
   />
 

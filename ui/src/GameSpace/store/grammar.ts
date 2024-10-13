@@ -133,7 +133,6 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
   for (let e in elements) {
     const El = elements[e];
     if (typeof El['applyDelta'] === 'function') {
-      console.log('Applying delta', El);
       El['applyDelta'](delta, status);
     }
   }

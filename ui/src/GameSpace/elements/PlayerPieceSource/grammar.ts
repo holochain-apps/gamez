@@ -1,6 +1,8 @@
 import type { Delta } from '../../store/grammar';
 import type { GameSpace } from '../../types';
+import { type PlayerPieceElement } from '../PlayerPiece/type';
 import type { PlayerPieceSourceElement } from './type';
+import { playerColor } from './utils';
 
 function forEachPieceSourceContainingElement(
   status: GameSpace,
@@ -12,6 +14,13 @@ function forEachPieceSourceContainingElement(
     if (ps.createdPieces.includes(uuid)) {
       cb(ps);
     }
+  });
+}
+
+function forEachPieceSource(status: GameSpace, cb: (el: PlayerPieceSourceElement) => void) {
+  const piecesSources = status.elements.filter((e) => e.type === 'PlayerPieceSource');
+  piecesSources.forEach((ps) => {
+    cb(ps);
   });
 }
 
@@ -27,13 +36,48 @@ function isWithinRectangle(
 }
 
 export const applyDelta = (delta: Delta, status: GameSpace) => {
-  console.log('ARSNTENARSIETN');
   switch (delta.type) {
+    case 'add-player':
+    case 'remove-player':
+      forEachPieceSource(status, (ps) => {
+        ps.createdPieces.forEach((pieceUuid) => {
+          const piece = status.elements.find((e) => e.uuid === pieceUuid) as PlayerPieceElement;
+          if (piece) {
+            const playerIndex = status.players.indexOf(piece.agent);
+            piece.colorRing = playerColor(playerIndex, status.players.length);
+          }
+        });
+      });
+      break;
+    case 'update-element':
+      {
+        const el = status.elements.find((e) => e.uuid === delta.element.uuid);
+        if (el.type === 'PlayerPieceSource') {
+          if (el.createdPieces.length === 0) return;
+          const pieceSourceDelta = delta.element as Partial<PlayerPieceSourceElement>;
+
+          status.elements.forEach((eachEl) => {
+            if (el.createdPieces.indexOf(eachEl.uuid) !== -1) {
+              const piece = eachEl as PlayerPieceElement;
+              if (pieceSourceDelta.size) {
+                piece.width = pieceSourceDelta.size;
+                piece.height = pieceSourceDelta.size;
+              }
+
+              if (pieceSourceDelta.colorCoded !== undefined) {
+                const playerIndex = status.players.indexOf(piece.agent);
+                piece.colorRing = pieceSourceDelta.colorCoded
+                  ? playerColor(playerIndex, status.players.length)
+                  : '';
+              }
+            }
+          });
+        }
+      }
+      break;
     case 'move-element': {
-      console.log('ARSNTENARSIETN');
       const el = status.elements.find((e) => e.uuid === delta.uuid);
       if (el.type === 'PlayerPiece') {
-        console.log('MMMM');
         forEachPieceSourceContainingElement(status, delta.uuid, (ps) => {
           if (
             isWithinRectangle(
