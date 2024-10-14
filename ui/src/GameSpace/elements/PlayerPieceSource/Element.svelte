@@ -162,7 +162,6 @@
       {#if el.showNames}
         <div class="flexce text-xs">
           <PlayerName agentPubKey={player} />
-          {hasPiecesLeft}
         </div>
       {/if}
       <div
