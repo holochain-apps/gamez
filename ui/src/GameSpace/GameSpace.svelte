@@ -76,10 +76,9 @@
     }
   }
 
-  let surfaceEl: Surface;
   function handleAddElementFromLibrary(element: LibraryElement, x?: number, y?: number) {
     const surfaceCoords =
-      x && y ? surfaceEl.getSurfaceCoordinates(x, y) : surfaceEl.getCurrentCenter();
+      x && y ? gameSpace.getSurfaceCoordinates(x, y) : gameSpace.getCurrentCenter();
     console.log('SURFACE COORDs', surfaceCoords);
     if (surfaceCoords) {
       gameSpace.change({
@@ -129,7 +128,6 @@
         {/if}
       {/if}
       <Surface
-        bind:this={surfaceEl}
         {gameSpace}
         elements={state.elements}
         onMoveElement={(uuid, x, y) => {

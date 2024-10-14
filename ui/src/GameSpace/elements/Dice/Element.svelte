@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { DicesElement } from './type';
+  import type { DiceElement } from './type';
 
-  export let el: DicesElement;
+  export let el: DiceElement;
   export let gameSpace: any = null;
 
   // $: diceSize = el.width / 3;
@@ -12,9 +12,9 @@
 >
   <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
   <div class="relative z-20 flexcc content-center h-full flex-wrap">
-    {#each el.dices as dice}
+    {#each el.dice as die}
       <div class="bg-white w12 h12 rounded-md flexcc text-xl font-black m2">
-        {dice.faces}
+        {die.faces}
       </div>
     {/each}
   </div>

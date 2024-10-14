@@ -43,4 +43,5 @@ export type GElement =
   | elements.PieceSource.ElType
   | elements.EmbedWal.ElType
   | elements.PlayerPiece.ElType
-  | elements.PlayerPieceSource.ElType;
+  | elements.PlayerPieceSource.ElType
+  | elements.Dice.ElType;

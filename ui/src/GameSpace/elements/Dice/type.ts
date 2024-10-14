@@ -1,8 +1,8 @@
 import { type GElementBase } from '../../types';
 
-export type DicesElement = GElementBase & {
-  type: 'Dices';
+export type DiceElement = GElementBase & {
+  type: 'Dice';
   version: number;
-  dices: { faces: number }[];
+  dice: { faces: number }[];
   rolls: { faces: number; result: number }[][];
 };
