@@ -44,4 +44,5 @@ export type GElement =
   | elements.EmbedWal.ElType
   | elements.PlayerPiece.ElType
   | elements.PlayerPieceSource.ElType
-  | elements.Dice.ElType;
+  | elements.Dice.ElType
+  | elements.TurnTracker.ElType;
