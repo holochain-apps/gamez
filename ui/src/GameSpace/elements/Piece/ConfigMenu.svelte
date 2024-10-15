@@ -4,6 +4,7 @@
 
   export let el: PieceElement;
   export let onUpdate: (el: PieceElement) => void;
+  export let gameSpace: any = null;
 
   let emojiPickerTarget: HTMLButtonElement;
   let emojiPickerOpen = false;

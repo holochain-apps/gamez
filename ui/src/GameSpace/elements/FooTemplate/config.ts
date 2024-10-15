@@ -1,9 +1,9 @@
 import { type FooTemplateElement } from './type';
 
 const config = {
-  type: 'Foo',
+  type: 'FooTemplate',
   version: 1,
-  label: 'Foo',
+  label: 'FooTemplate',
   icon: '💡',
   build: (): Partial<FooTemplateElement> => ({
     height: 100,

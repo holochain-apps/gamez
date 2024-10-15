@@ -167,6 +167,10 @@
         highlighted = true;
         break;
       } else if (target.draggable) {
+        console.log('DRAGGABLE');
+        highlighted = false;
+        break;
+      } else if (target.tagName === 'BUTTON') {
         highlighted = false;
         break;
       } else if (target.tagName === 'IFRAME') {

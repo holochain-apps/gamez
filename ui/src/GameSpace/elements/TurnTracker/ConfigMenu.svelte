@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Checkbox from '~/GameSpace/ui/Checkbox.svelte';
   import { type TurnTrackerElement } from './type';
 
   export let el: TurnTrackerElement;
@@ -7,5 +8,9 @@
 </script>
 
 <div>
-  {JSON.stringify(el)}
+  <Checkbox
+    value={el.showTimers}
+    label="Show timers"
+    onInput={(v) => onUpdate({ showTimers: v })}
+  />
 </div>

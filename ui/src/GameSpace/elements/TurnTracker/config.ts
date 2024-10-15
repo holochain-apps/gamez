@@ -1,13 +1,15 @@
 import { type TurnTrackerElement } from './type';
 
 const config = {
-  type: 'Foo',
+  type: 'TurnTracker',
   version: 1,
-  label: 'Foo',
-  icon: '💡',
+  label: 'Turn Tracker',
+  icon: '⏱',
   build: (): Partial<TurnTrackerElement> => ({
-    height: 100,
-    width: 100,
+    height: 200,
+    width: 150,
+    turnsLog: [],
+    showTimers: true,
   }),
 };
 
