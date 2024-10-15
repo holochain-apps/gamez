@@ -10,38 +10,50 @@
     return dices.map((d) => `d${d.faces}`).join(' ');
   }
 
+  let diceStringInputValue = diceToString(el.dice);
+  let stringHasErrors = false;
+  let dice: { faces: number }[] = el.dice;
+
   function processInputString(diceString: string) {
     diceStringInputValue = diceString;
-    const diceArray = diceString
+    const diceDefArray = diceString
       .trim()
       .split(/\s+/)
-      .map((d) => d.replace(/^d([0-9]+)$/, '$1'))
-      .map((d) => parseInt(d, 10))
-      .filter((d) => !isNaN(d))
-      .map((d) => ({ faces: d }));
+      .map((d) => d.match(/^(\d+)?d(\d+)$/));
 
-    if (
-      el.dice.length !== diceArray.length ||
-      el.dice.some((d, i) => d.faces !== diceArray[i].faces)
-    ) {
-      onUpdate({ dice: diceArray });
-    }
+    let diceErr = false;
+
+    const newDice = diceDefArray.reduce<{ faces: number }[]>((acc, next) => {
+      if (next && next[2]) {
+        const count = parseInt(next[1] || '1', 10);
+        const faces = parseInt(next[2], 10);
+        for (let i = 0; i < count; i++) {
+          acc.push({ faces });
+        }
+      } else {
+        diceErr = true;
+      }
+      return acc;
+    }, []);
+
+    stringHasErrors = diceErr;
+    dice = newDice;
   }
 
-  $: convertedDiceString = diceToString(el.dice);
-  let diceStringInputValue = diceToString(el.dice);
-  let isEditing = false;
-
   function handleFinishEditing() {
-    isEditing = false;
-    diceStringInputValue = convertedDiceString;
+    if (
+      (!stringHasErrors && el.dice.length !== dice.length) ||
+      el.dice.some((d, i) => d.faces !== dice[i].faces)
+    ) {
+      onUpdate({ dice });
+    }
   }
 </script>
 
 <div class="py2">
   <Input
+    error={stringHasErrors}
     label="Dice"
-    on:focus={() => (isEditing = true)}
     on:blur={handleFinishEditing}
     value={diceStringInputValue}
     onInput={processInputString}

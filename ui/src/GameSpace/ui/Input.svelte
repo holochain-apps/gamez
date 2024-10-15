@@ -1,16 +1,24 @@
 <script lang="ts">
+  import cx from 'classnames';
   export let label: string;
   export let value: string | number = '';
   export let type: string = 'text';
   export let onInput: (value: string) => void = () => {};
   export let disabled = false;
+  export let error = false;
   let klass: string = '';
   export { klass as class };
 </script>
 
 <div class={`relative ${klass}`}>
   <input
-    class="peer px4 py2 h10 rounded-md block w-full text-black/60 text-lg outline-main-500 b b-black/10"
+    class={cx(
+      'peer px4 py2 h10 rounded-md block w-full text-black/60 text-lg outline-main-500 b b-black/10',
+      {
+        'outline-red-500 bg-red-500/5': error,
+        'outline-main-500': !error,
+      },
+    )}
     placeholder={label}
     {disabled}
     {type}
