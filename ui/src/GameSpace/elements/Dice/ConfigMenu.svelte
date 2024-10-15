@@ -7,7 +7,23 @@
   export let gameSpace: any = null;
 
   function diceToString(dices: { faces: number }[]) {
-    return dices.map((d) => `d${d.faces}`).join(' ');
+    return dices
+      .toSorted((a, b) => a.faces - b.faces)
+      .reduce<[number, number][]>((acc, next, i) => {
+        if (i === 0) {
+          acc.push([1, next.faces]);
+        } else {
+          const last = acc[acc.length - 1];
+          if (last[1] === next.faces) {
+            last[0]++;
+          } else {
+            acc.push([1, next.faces]);
+          }
+        }
+        return acc;
+      }, [])
+      .map(([count, faces]) => `${count === 1 ? '' : count}d${faces}`)
+      .join(' ');
   }
 
   let diceStringInputValue = diceToString(el.dice);
@@ -37,7 +53,7 @@
     }, []);
 
     stringHasErrors = diceErr;
-    dice = newDice;
+    dice = newDice.toSorted((a, b) => a.faces - b.faces);
   }
 
   function handleFinishEditing() {
@@ -46,16 +62,19 @@
       el.dice.some((d, i) => d.faces !== dice[i].faces)
     ) {
       onUpdate({ dice });
+      diceStringInputValue = diceToString(dice);
     }
   }
 </script>
 
 <div class="py2">
   <Input
+    disabled={el.lock.config}
     error={stringHasErrors}
     label="Dice"
     on:blur={handleFinishEditing}
     value={diceStringInputValue}
     onInput={processInputString}
+    on:keydown={({ key }) => key === 'Enter' && handleFinishEditing()}
   />
 </div>

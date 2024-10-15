@@ -26,6 +26,7 @@
     on:input={({ currentTarget }) => onInput(currentTarget.value)}
     on:focus
     on:blur
+    on:keydown
   />
   <div
     class="peer-placeholder-shown:hidden absolute -left-1 -top-3 bg-main-400 text-white text-sm rounded-md px1"
