@@ -30,6 +30,25 @@
   }
 
   $: turnMarkerTopPos = currentTurn ? players.indexOf(currentTurn.player) * 2.5 : null;
+  let turnsTime: { [key: string]: number } = {};
+  $: {
+    const now = Date.now();
+    turnsTime = el.turnsLog.reduce<{ [key: string]: number }>((acc, current, i) => {
+      const next = el.turnsLog[i + 1];
+      if (next) {
+        acc[current.player] = next.time - current.time;
+      } else {
+        acc[current.player] = now - current.time;
+      }
+      return acc;
+    }, {});
+  }
+
+  function formatTime(time: number) {
+    const minutes = Math.floor(time / 1000 / 60);
+    const seconds = Math.floor((time / 1000) % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
 </script>
 
 <div class="h-full w-full bg-blue-100 b-4 b-b-6 b-black/20 rounded-lg p2 flex flex-col">
@@ -37,7 +56,12 @@
     {#each players as player}
       <div class="flexcs relative h10">
         <AgentAvatar pubKey={player} size={28} class="mr2" />
-        <PlayerName agentPubKey={player} />
+        <PlayerName agentPubKey={player} class="flex-grow" />
+        <div
+          class="ml2 flex-shrink-0 w12 h6 b b-black/10 bg-white rounded-md font-mono text-xs flexcc"
+        >
+          {formatTime(turnsTime[player] || 0)}
+        </div>
       </div>
     {/each}
     {#if turnMarkerTopPos !== null}
