@@ -3,16 +3,17 @@
   import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
   import type { DiceElement } from './type';
   import Die from './Die.svelte';
-  import { roleNameForCellId } from '@holochain-open-dev/utils';
+  import PlayerName from '~/shared/PlayerName.svelte';
 
   export let el: DiceElement;
   export let gameSpace: GameSpaceSyn;
 
   function handleContainerClick() {
-    const roll = el.dice.map((d) => ({
+    const rolledDice = el.dice.map((d) => ({
       faces: d.faces,
       result: Math.floor(Math.random() * d.faces + 1),
     }));
+    const roll = { dice: rolledDice, player: gameSpace.pubKeyB64 };
     const rolls = el.rolls.concat([roll]);
     // Optimization for snappier interface
     lastRoll = roll;
@@ -21,12 +22,11 @@
     }, 50);
   }
 
-  let lastRoll: { faces: number; result?: number }[];
-  $: {
-    lastRoll = el.rolls[el.rolls.length - 1] || el.dice;
-  }
+  let lastRoll: { dice: { faces: number; result?: number }[]; player?: string };
+  $: lastRoll = el.rolls[el.rolls.length - 1] || { dice: el.dice };
+  $: console.log(lastRoll);
 
-  let showLog = true;
+  let showLog = false;
   function handleToggleLog(ev: MouseEvent) {
     ev.stopPropagation();
     showLog = !showLog;
@@ -39,14 +39,16 @@
 >
   <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
   <div class="relative z-20 flexcc content-center h-full flex-wrap">
-    {#each lastRoll as roll}
+    {#each lastRoll.dice as roll}
       <Die faces={roll.faces} result={roll.result} />
     {/each}
   </div>
-  <button
-    class="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-100 rounded-md h8 w8 z-30 flexcc"
-    on:click={handleToggleLog}><RectangleListIcon /></button
-  >
+  {#if el.rolls.length > 0}
+    <button
+      class="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-100 rounded-md h8 w8 z-30 flexcc"
+      on:click={handleToggleLog}><RectangleListIcon /></button
+    >
+  {/if}
   {#if showLog}
     <div
       class="absolute -top-2 right-8 z-30 bg-gray-200 rounded-md p1 text-[8px] text-right font-mono overflow-auto whitespace-nowrap"
@@ -54,7 +56,8 @@
     >
       {#each el.rolls.toReversed() as roll}
         <div>
-          {roll.map((r) => `${r.result}/${r.faces}`).join(', ')}
+          {roll.dice.map((r) => `${r.result}/${r.faces}`).join(', ')}
+          <PlayerName agentPubKey={roll.player} />
         </div>
       {/each}
     </div>
