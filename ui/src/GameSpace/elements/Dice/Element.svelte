@@ -1,12 +1,13 @@
 <script lang="ts">
+  import RectangleListIcon from '~icons/fa6-solid/rectangle-list';
   import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
   import type { DiceElement } from './type';
   import Die from './Die.svelte';
+  import { roleNameForCellId } from '@holochain-open-dev/utils';
 
   export let el: DiceElement;
   export let gameSpace: GameSpaceSyn;
 
-  // $: diceSize = el.width / 3;
   function handleContainerClick() {
     const roll = el.dice.map((d) => ({
       faces: d.faces,
@@ -24,6 +25,12 @@
   $: {
     lastRoll = el.rolls[el.rolls.length - 1] || el.dice;
   }
+
+  let showLog = true;
+  function handleToggleLog(ev: MouseEvent) {
+    ev.stopPropagation();
+    showLog = !showLog;
+  }
 </script>
 
 <div
@@ -36,4 +43,20 @@
       <Die faces={roll.faces} result={roll.result} />
     {/each}
   </div>
+  <button
+    class="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-100 rounded-md h8 w8 z-30 flexcc"
+    on:click={handleToggleLog}><RectangleListIcon /></button
+  >
+  {#if showLog}
+    <div
+      class="absolute -top-2 right-8 z-30 bg-gray-200 rounded-md p1 text-[8px] text-right font-mono overflow-auto whitespace-nowrap"
+      style={`max-height: ${el.height}px;`}
+    >
+      {#each el.rolls.toReversed() as roll}
+        <div>
+          {roll.map((r) => `${r.result}/${r.faces}`).join(', ')}
+        </div>
+      {/each}
+    </div>
+  {/if}
 </div>
