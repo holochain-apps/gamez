@@ -9,6 +9,7 @@ const config = {
     height: 120,
     width: 120,
     dice: [{ faces: 6 }, { faces: 6 }],
+    rolls: [],
   }),
 };
 

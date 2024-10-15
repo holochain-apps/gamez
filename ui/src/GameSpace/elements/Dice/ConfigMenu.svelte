@@ -38,7 +38,7 @@
   }
 </script>
 
-<div>
+<div class="py2">
   <Input
     label="Dice"
     on:focus={() => (isEditing = true)}

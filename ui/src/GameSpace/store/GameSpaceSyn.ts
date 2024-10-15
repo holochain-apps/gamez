@@ -115,11 +115,15 @@ export class GameSpaceSyn {
     const deltas = Array.isArray(delta) ? delta : [delta];
     console.log('GameSpace changes', deltas);
     if (this.session) {
+      console.time('Running session change');
       this.session.change((state, _eph) => {
+        console.time('Running deltas');
         for (const delta of deltas) {
           applyDelta(delta, state);
         }
+        console.timeEnd('Running deltas');
       });
+      console.timeEnd('Running session change');
     }
   }
 
