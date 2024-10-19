@@ -6,8 +6,8 @@ const config = {
   label: 'Turn Tracker',
   icon: '⏱',
   build: (): Partial<TurnTrackerElement> => ({
-    height: 200,
-    width: 150,
+    height: 250,
+    width: 200,
     turnsLog: [],
     showTimers: true,
   }),

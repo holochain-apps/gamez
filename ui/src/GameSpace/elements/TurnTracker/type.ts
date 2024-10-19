@@ -1,7 +1,7 @@
 import { type GElementBase } from '../../types';
 
 export type TurnStarted = {
-  player: string;
+  player: string | null;
   time: number;
 };
 
