@@ -108,5 +108,7 @@
     >
       <Avatar size={38} agentPubKey={store.myAgentPubKey} showNickname={false} />
     </button>
+  {:else}
+    <Avatar size={38} agentPubKey={store.myAgentPubKey} showNickname={false} />
   {/if}
 </div>
