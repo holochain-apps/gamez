@@ -58,7 +58,7 @@ export function createGameSpaceStore(
     return toPromise(gameSpacesData);
   }
 
-  return { createGameSpace, getAllGameSpaces, weaveClient, profilesStore };
+  return { createGameSpace, getAllGameSpaces, weaveClient, profilesStore, pubKey };
 }
 
 export const setContext = (getter: () => GameSpaceStore) =>

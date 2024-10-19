@@ -1,13 +1,19 @@
 <script lang="ts">
   import LayoutBar from '../Layout/LayoutBar.svelte';
+  import GamesList from './GamesList.svelte';
   import TabButton from './TabButton.svelte';
   import { nav } from '~/lib/routes';
 
   type Tab = 'active' | 'groupLibrary' | 'globalLibrary' | 'draft' | 'archived';
-  let activeTab = 'active';
+  let activeTab: Tab = 'active';
   function setActiveTab(tab: Tab) {
     activeTab = tab;
   }
+
+  // let activeTab2: Tab = 'groupLibrary';
+  // function setActiveTab2(tab: Tab) {
+  //   activeTab2 = tab;
+  // }
 </script>
 
 <LayoutBar title={'P2P Play Space'} />
@@ -31,6 +37,9 @@
   >
 </div>
 <div class="flex-grow bg-main-500 p1 pt0">
-  <div class="w-full h-full rounded-md bg-main-700 b b-white/20 b-t-white/30 shadow-[0_0_5px_#0003]"
-  ></div>
+  <div
+    class="w-full h-full rounded-md bg-main-700 b b-white/20 b-t-white/30 shadow-[0_0_5px_#0003]"
+  >
+    <GamesList tag={activeTab} />
+  </div>
 </div>
