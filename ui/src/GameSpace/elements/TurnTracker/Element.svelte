@@ -1,10 +1,13 @@
 <script lang="ts">
   import PlayIcon from '~icons/fa6-solid/play';
   import PauseIcon from '~icons/fa6-solid/pause';
+  import RectangleListIcon from '~icons/fa6-solid/rectangle-list';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
   import type { TurnTrackerElement, TurnStarted } from './type';
   import PlayerName from '~/shared/PlayerName.svelte';
+  import TurnsLog from './TurnsLog.svelte';
+  import { formatTime } from './utils';
 
   export let el: TurnTrackerElement;
   export let gameSpace: GameSpaceSyn;
@@ -85,21 +88,34 @@
       return acc;
     }, {});
 
-    if (nextSecondIn > 0 && !isPaused) {
+    if (nextSecondIn > 0 && !isPaused && el.showTimers) {
       setTimeout(() => {
         timerTick++;
       }, nextSecondIn);
     }
   }
 
-  function formatTime(time: number) {
-    const minutes = Math.floor(time / 1000 / 60);
-    const seconds = Math.floor((time / 1000) % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  let showLog = false;
+  function handleToggleLog(ev: MouseEvent) {
+    ev.stopPropagation();
+    showLog = !showLog;
   }
 </script>
 
 <div class="relative h-full w-full bg-blue-100 b-4 b-b-6 b-black/20 rounded-lg p2 flex flex-col">
+  {#if el.turnsLog.length > 0}
+    <button
+      class="absolute -top-2 -right-2 text-xs bg-gray-200 hover:bg-gray-100 rounded-md h6 w6 z-30 flexcc b b-black/10"
+      on:click={handleToggleLog}><RectangleListIcon /></button
+    >
+  {/if}
+  {#if showLog}
+    <TurnsLog
+      class="absolute -top-1 right-8 z-110 w-50"
+      style={`max-height: ${el.height}px;`}
+      turnsLog={el.turnsLog}
+    />
+  {/if}
   {#if isPaused}
     <div
       class="absolute text-xs bg-orange-300 text-white -top-4 uppercase rounded-md p1 left-1/2 transform -translate-x-1/2 shadow-md b-2 b-black/10"
@@ -111,11 +127,13 @@
       <div class="flexcs relative h10">
         <AgentAvatar pubKey={player} size={28} class="mr2" />
         <PlayerName agentPubKey={player} class="flex-grow" />
-        <div
-          class="ml2 flex-shrink-0 w12 h6 b b-black/10 bg-white rounded-md font-mono text-xs flexcc"
-        >
-          {formatTime(turnsTime[player] || 0)}
-        </div>
+        {#if el.showTimers}
+          <div
+            class="ml2 flex-shrink-0 w12 h6 b b-black/10 bg-white rounded-md font-mono text-xs flexcc"
+          >
+            {formatTime(turnsTime[player] || 0)}
+          </div>
+        {/if}
       </div>
     {/each}
     {#if turnMarkerTopPos !== null}
@@ -150,13 +168,15 @@
       >
         {isPaused ? 'Continue' : isPlayerTurn ? 'End turn' : '...'}
       </button>
-      <button
-        on:click={handlePauseTurn}
-        disabled={!canPauseGame}
-        class="h10 w10 flex-shrink-0 flexcc bg-blue-400 hover:bg-blue-300 disabled:(saturate-0 hover:bg-blue-400) text-white rounded-md b b-black/10"
-      >
-        <PauseIcon />
-      </button>
+      {#if el.showTimers}
+        <button
+          on:click={handlePauseTurn}
+          disabled={!canPauseGame}
+          class="h10 w10 flex-shrink-0 flexcc bg-blue-400 hover:bg-blue-300 disabled:(saturate-0 hover:bg-blue-400) text-white rounded-md b b-black/10"
+        >
+          <PauseIcon />
+        </button>
+      {/if}
     </div>
   {/if}
 </div>

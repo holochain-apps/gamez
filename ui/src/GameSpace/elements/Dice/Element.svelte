@@ -70,7 +70,7 @@
   </div>
   {#if el.rolls.length > 0}
     <button
-      class="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-100 rounded-md h8 w8 z-30 flexcc"
+      class="absolute -top-2 -right-2 text-xs bg-gray-200 hover:bg-gray-100 rounded-md h6 w6 z-30 flexcc b b-black/10"
       on:click={handleToggleLog}><RectangleListIcon /></button
     >
   {/if}
