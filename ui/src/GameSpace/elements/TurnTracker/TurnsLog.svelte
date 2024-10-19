@@ -39,9 +39,9 @@
   {#each turnsLogWithRelativeTime.toReversed() as turn}
     <div use:tooltip={formatDateInt(turn.time)}>
       {#if turn.player}
-        <PlayerName agentPubKey={turn.player} />: {formatTime(turn.elapsed)}
+        <PlayerName class="font-bold" agentPubKey={turn.player} />: {formatTime(turn.elapsed)}
       {:else}
-        [PAUSED]: {formatTime(turn.elapsed)}
+        <strong class="opacity-50">[PAUSED]</strong>: {formatTime(turn.elapsed)}
       {/if}
     </div>
   {/each}

@@ -76,14 +76,15 @@
   {/if}
   {#if showLog}
     <div
-      class="absolute -top-2 right-8 z-110 bg-gray-200 rounded-md p1 text-[8px] text-right font-mono overflow-auto whitespace-nowrap"
+      class="absolute -top-1 right-8 z-110 bg-gray-200 rounded-md p1 text-[8px] b b-black/10 shadow-md text-right font-mono overflow-auto whitespace-nowrap"
       on:wheel={(ev) => ev.stopPropagation()}
       style={`max-height: ${el.height}px;`}
     >
       {#each el.rolls.toReversed() as roll}
         <div>
-          {roll.dice.map((r) => `${r.result}/${r.faces}`).join(', ')}
-          <PlayerName agentPubKey={roll.player} />
+          <PlayerName class="font-bold" agentPubKey={roll.player} />: {roll.dice
+            .map((r) => `${r.result}/${r.faces}`)
+            .join(', ')}
         </div>
       {/each}
     </div>
