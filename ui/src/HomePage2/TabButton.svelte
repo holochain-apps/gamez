@@ -9,15 +9,15 @@
 <button
   on:click={() => onClick(value)}
   class={cx(
-    'relative flexcc bg-white/10 hover:bg-white/20 h-full px2  b b-b-0 rounded-t-md b-white/10 uppercase text-sm tracking-wider',
+    'relative flexcc bg-white/10 hover:bg-white/20 h-full px2  b b-b-0 b-t-white/20 rounded-t-md b-white/10 uppercase text-sm tracking-wider',
     {
-      'bg-white/30 text-white/100': isActive,
+      'bg-white/30 text-white/100  bg-gradient-to-b from-white/10 to-white/0': isActive,
       'bg-white/10 text-white/80': !isActive,
     },
   )}
 >
   {#if isActive}
-    <div class="absolute inset-0 flexcc font-bold"><slot /></div>
+    <div class="drop-shadow-[0_1px_0_#0002] absolute inset-0 flexcc font-bold"><slot /></div>
   {/if}
   <div class={cx({ 'opacity-0': isActive })}>
     <slot />

@@ -1,6 +1,7 @@
 <script lang="ts">
   import LayoutBar from '../Layout/LayoutBar.svelte';
   import TabButton from './TabButton.svelte';
+  import { nav } from '~/lib/routes';
 
   type Tab = 'active' | 'groupLibrary' | 'globalLibrary' | 'draft' | 'archived';
   let activeTab = 'active';
@@ -24,10 +25,12 @@
     <TabButton active={activeTab} value={'archived'} onClick={setActiveTab}>Archived</TabButton>
   </div>
   <button
-    class="bg-white/10 my1 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
+    on:click={() => nav({ id: 'gameSpace', gameSpaceHash: null })}
+    class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
     >New Space</button
   >
 </div>
 <div class="flex-grow bg-main-500 p1 pt0">
-  <div class="w-full h-full rounded-md bg-main-700 b b-white/20 shadow-md"></div>
+  <div class="w-full h-full rounded-md bg-main-700 b b-white/20 b-t-white/30 shadow-[0_0_5px_#0003]"
+  ></div>
 </div>
