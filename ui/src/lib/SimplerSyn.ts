@@ -17,7 +17,10 @@ export default class SimplerSyn {
   docs = writable<{ [key: string]: SynDoc }>({});
   pubKey: string;
 
-  constructor(appClient: AppClient) {
+  constructor(
+    private appClient: AppClient,
+    private onDocsLoaded: (synDoc: SynDoc[]) => void,
+  ) {
     this.synClient = new SynClient(appClient, 'gamez', 'syn');
     this.synStore = new SynStore(this.synClient);
 
@@ -52,6 +55,7 @@ export default class SimplerSyn {
           });
           return newVal;
         });
+        this.onDocsLoaded(synDocs);
       }
     });
   }
@@ -64,6 +68,7 @@ export default class SimplerSyn {
     this.docs.update((val) => {
       return { ...val, [synDoc.hash]: synDoc };
     });
+    this.onDocsLoaded([synDoc]);
     return synDoc;
   }
 }
@@ -76,6 +81,9 @@ export class SynDoc {
   private workspace: WorkspaceStore<any, any>;
   hash: string;
   pubKey: string;
+  participants = writable<{ active: Uint8Array[]; idle: Uint8Array[]; offline: Uint8Array[] }>(
+    null,
+  );
 
   constructor(
     pubKey: string,
@@ -113,12 +121,16 @@ export class SynDoc {
       console.log('SESSION STATE', state);
       this.state.set(state);
     });
+    this.session.participants.subscribe(($participants) => {
+      this.participants.set($participants);
+    });
   }
 
   public async leaveSession() {
     if (this.session) {
       this.session.leaveSession();
       this.session = null;
+      this.participants.set(null);
     }
   }
 
@@ -128,9 +140,5 @@ export class SynDoc {
 
   public change(updateFn: (state: any, ephState: any) => void) {
     return this.session.change(updateFn);
-  }
-
-  public get participants() {
-    return this.session.participants;
   }
 }

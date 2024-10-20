@@ -10,7 +10,7 @@
 </script>
 
 <div class="flex flex-col p2 space-y-2">
-  {#each Object.entries($gameDocs) as [hash, gameSpace]}
+  {#each Object.entries($gameDocs) as [hash, gameSpace] (hash)}
     <GamesListItem {gameSpace} />
   {/each}
 </div>

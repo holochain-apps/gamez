@@ -19,7 +19,7 @@
 
   $: everythingLocked = !isCreator && !isPlaying;
   $: {
-    gameSpace.updateUiState({ zoom, panX, panY, surfaceContainer: boardContainer });
+    gameSpace.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
   }
 
   function handleContextMenu(ev: MouseEvent, id: string) {

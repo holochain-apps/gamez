@@ -8,7 +8,7 @@ import { type AppClient } from '@holochain/client';
 
 import SimplerSyn from '~/lib/SimplerSyn';
 
-import { GameSpaceSyn } from './GameSpaceSyn';
+import { createGameSpaceSynStore, type GameSpaceSyn } from './GameSpaceSyn';
 import { initialState } from './grammar';
 
 export type GameSpaceStore = ReturnType<typeof createGameSpaceStore>;
@@ -22,31 +22,38 @@ export function createGameSpaceStore(
   const synStore = new SynStore(synClient);
   const pubKey = synStore.client.client.myPubKey;
 
-  const simplerSyn = new SimplerSyn(appClient);
   const gameDocs = writable<{ [key: string]: GameSpaceSyn }>({});
-
-  simplerSyn.docs.subscribe((docs) => {
-    const currentGameDocs = get(gameDocs);
-    const newDocsHashes = Object.keys(docs).filter((key) => !currentGameDocs[key]);
-    if (newDocsHashes.length) {
-      gameDocs.update((val) => {
-        const newVal = { ...val };
-        newDocsHashes.forEach((hash) => {
-          newVal[hash] = new GameSpaceSyn(docs[hash]);
-        });
-        return newVal;
-      });
-    }
+  const simplerSyn = new SimplerSyn(appClient, (synDocs) => {
+    gameDocs.update((val) => {
+      const newVal = { ...val };
+      synDocs.forEach((doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc)));
+      return newVal;
+    });
   });
+
+  // simplerSyn.docs.subscribe((docs) => {
+  //   const currentGameDocs = get(gameDocs);
+  //   const newDocsHashes = Object.keys(docs).filter((key) => !currentGameDocs[key]);
+  //   if (newDocsHashes.length) {
+  //     gameDocs.update((val) => {
+  //       const newVal = { ...val };
+  //       newDocsHashes.forEach((hash) => {
+  //         newVal[hash] = createGameSpaceSynStore(docs[hash]);
+  //       });
+  //       return newVal;
+  //     });
+  //   }
+  // });
 
   async function createGameSpace() {
     const doc = await simplerSyn.createDoc(initialState(pubKey));
-    gameDocs.update((val) => {
-      const newVal = { ...val };
-      newVal[doc.hash] = new GameSpaceSyn(doc);
-      return newVal;
-    });
-    return doc;
+    return doc.hash;
+    // gameDocs.update((val) => {
+    //   const newVal = { ...val };
+    //   newVal[doc.hash] = createGameSpaceSynStore(doc);
+    //   return newVal;
+    // });
+    // return doc;
   }
 
   const a = { createGameSpace, gameDocs, weaveClient, profilesStore, pubKey };
