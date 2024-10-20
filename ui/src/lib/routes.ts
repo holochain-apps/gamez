@@ -22,7 +22,7 @@ export type Route =
     }
   | {
       id: 'gameSpace';
-      gameSpaceHash: Uint8Array;
+      gameSpaceHash: string;
     };
 
 const route = writable<Route>({ id: 'home' });

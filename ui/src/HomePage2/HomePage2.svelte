@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { getContext } from '~/GameSpace/store/store';
   import LayoutBar from '../Layout/LayoutBar.svelte';
   import GamesList from './GamesList.svelte';
   import TabButton from './TabButton.svelte';
   import { nav } from '~/lib/routes';
+
+  const store = getContext();
 
   type Tab = 'active' | 'groupLibrary' | 'globalLibrary' | 'draft' | 'archived';
   let activeTab: Tab = 'active';
@@ -14,6 +17,10 @@
   // function setActiveTab2(tab: Tab) {
   //   activeTab2 = tab;
   // }
+
+  async function handleCreateNewSpace() {
+    await store.createGameSpace();
+  }
 </script>
 
 <LayoutBar title={'P2P Play Space'} />
@@ -31,14 +38,14 @@
     <TabButton active={activeTab} value={'archived'} onClick={setActiveTab}>Archived</TabButton>
   </div>
   <button
-    on:click={() => nav({ id: 'gameSpace', gameSpaceHash: null })}
+    on:click={handleCreateNewSpace}
     class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
     >New Space</button
   >
 </div>
-<div class="flex-grow bg-main-500 p1 pt0">
+<div class="flex-grow bg-main-500 p1 pt0 h-0">
   <div
-    class="w-full h-full rounded-md bg-main-700 b b-white/20 b-t-white/30 shadow-[0_0_5px_#0003]"
+    class="w-full h-full rounded-md bg-main-700 b b-white/20 b-t-white/30 shadow-[0_0_5px_#0003] h-full overflow-auto"
   >
     <GamesList tag={activeTab} />
   </div>

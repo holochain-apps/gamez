@@ -38,7 +38,7 @@
   // $: activeBoard = store.boardList.activeBoard;
 </script>
 
-<div class="flex flex-col min-h-full">
+<div class="flex flex-col h-100vh">
   <!-- {#if (store && $route.id === 'board' && $activeBoard) || $route.id !== 'board'} -->
   <!-- {#if $route.id !== 'gameSpace'}<LayoutBar {title} activeBoard={$activeBoard} />{/if} -->
   <!-- {#if $route.id === 'board'} -->
@@ -46,7 +46,7 @@
   {#if $route.id === 'home'}
     <HomePage2 />
   {:else if $route.id === 'gameSpace'}
-    <GameSpacePage />
+    <GameSpacePage hash={$route.gameSpaceHash} />
     <!-- {:else if $route.id === 'newGameDef'}
       <BoardEditorPage />
     {:else if $route.id === 'editGameDef'}

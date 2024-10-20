@@ -5,23 +5,23 @@
   import { type GameSpaceSyn } from './store/GameSpaceSyn';
 
   import GameSpaceComp from './GameSpace.svelte';
+  import { toPromise } from '@holochain-open-dev/stores';
 
   const store = getContext();
 
+  export let hash: string;
+
   let gameSpace: GameSpaceSyn;
   $: state = gameSpace?.state;
+  $: gameSpaces = store.gameDocs;
 
-  onMount(async () => {
-    // If there is no game space, create one
-    const gameSpaces = await store.getAllGameSpaces();
-    if (gameSpaces.size === 0) {
-      gameSpace = await store.createGameSpace();
-    } else {
-      gameSpace = gameSpaces.values().next().value;
+  $: {
+    if ($gameSpaces[hash] && gameSpace !== $gameSpaces[hash]) {
+      gameSpace = $gameSpaces[hash];
     }
-  });
+  }
 </script>
 
-{#if gameSpace && $state}
+{#if gameSpace}
   <GameSpaceComp {gameSpace} />
 {/if}

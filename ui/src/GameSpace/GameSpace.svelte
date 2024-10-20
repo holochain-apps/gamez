@@ -35,7 +35,7 @@
       state = latestState;
     });
 
-    gameSpace.session.participants.subscribe((allParticipants) => {
+    gameSpace.participants.subscribe((allParticipants) => {
       participants = allParticipants.active;
     });
   });

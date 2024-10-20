@@ -2,63 +2,57 @@ import { type WeaveClient } from '@theweave/api';
 import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
 
 import { ProfilesStore } from '@holochain-open-dev/profiles';
-import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
-import { LazyHoloHashMap } from '@holochain-open-dev/utils';
-import { SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
+import { get, writable } from '@holochain-open-dev/stores';
+import { SynClient, SynStore } from '@holochain-syn/core';
 import { type AppClient } from '@holochain/client';
+
+import SimplerSyn from '~/lib/SimplerSyn';
 
 import { GameSpaceSyn } from './GameSpaceSyn';
 import { initialState } from './grammar';
 
-const GAME_SPACE_TAG = 'game-space';
-
 export type GameSpaceStore = ReturnType<typeof createGameSpaceStore>;
-
-// export class GameSpaceStore {
-//   constructor(private appClient: AppClient) {
-
-//   }
-// }
 
 export function createGameSpaceStore(
   appClient: AppClient,
   profilesStore: ProfilesStore,
   weaveClient: WeaveClient | null,
 ) {
-  const synStore = new SynStore(new SynClient(appClient, 'gamez', 'syn'));
+  const synClient = new SynClient(appClient, 'gamez', 'syn');
+  const synStore = new SynStore(synClient);
   const pubKey = synStore.client.client.myPubKey;
 
-  async function createGameSpace() {
-    const document = await synStore.createDocument(initialState(pubKey), {});
-    const workspace = await document.createWorkspace(`${new Date()}`, undefined);
-    synStore.client.tagDocument(document.documentHash, GAME_SPACE_TAG);
+  const simplerSyn = new SimplerSyn(appClient);
+  const gameDocs = writable<{ [key: string]: GameSpaceSyn }>({});
 
-    return new GameSpaceSyn(document, workspace, synStore.client.client.myPubKey);
-  }
-
-  const gameSpaceDataHashMap = new LazyHoloHashMap((docHash) => {
-    const document = synStore.documents.get(docHash);
-    return pipe(document.allWorkspaces, (workspaces) => {
-      return new GameSpaceSyn(
-        document,
-        new WorkspaceStore(document, Array.from(workspaces.keys())[0]),
-        pubKey,
-      );
-    });
+  simplerSyn.docs.subscribe((docs) => {
+    const currentGameDocs = get(gameDocs);
+    const newDocsHashes = Object.keys(docs).filter((key) => !currentGameDocs[key]);
+    if (newDocsHashes.length) {
+      gameDocs.update((val) => {
+        const newVal = { ...val };
+        newDocsHashes.forEach((hash) => {
+          newVal[hash] = new GameSpaceSyn(docs[hash]);
+        });
+        return newVal;
+      });
+    }
   });
 
-  function getAllGameSpaces() {
-    const gameSpacesHashes = asyncDerived(synStore.documentsByTag.get(GAME_SPACE_TAG), (x) =>
-      Array.from(x.keys()),
-    );
-
-    const gameSpacesData = pipe(gameSpacesHashes, (docHashes) =>
-      sliceAndJoin(gameSpaceDataHashMap, docHashes),
-    );
-    return toPromise(gameSpacesData);
+  async function createGameSpace() {
+    const doc = await simplerSyn.createDoc(initialState(pubKey));
+    gameDocs.update((val) => {
+      const newVal = { ...val };
+      newVal[doc.hash] = new GameSpaceSyn(doc);
+      return newVal;
+    });
+    return doc;
   }
 
-  return { createGameSpace, getAllGameSpaces, weaveClient, profilesStore, pubKey };
+  const a = { createGameSpace, gameDocs, weaveClient, profilesStore, pubKey };
+  //@ts-ignore
+  window.store = a;
+  return a;
 }
 
 export const setContext = (getter: () => GameSpaceStore) =>
