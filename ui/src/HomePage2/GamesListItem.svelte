@@ -3,9 +3,47 @@
   import { nav } from '~/lib/routes';
   import PlayerStatus from './PlayerStatus.svelte';
   import { type GameSpaceSyn } from '~/GameSpace/store/GameSpaceSyn';
+  import { encodeHashToBase64 } from '@holochain/client';
 
   export let gameSpace: GameSpaceSyn;
   $: state = gameSpace.state;
+  $: participants = gameSpace.participants;
+
+  let players: { [key: string]: PlayerStatus } = {};
+  type PlayerStatus = {
+    inRoom: boolean;
+    isPlaying: boolean;
+    isCreator: boolean;
+  };
+  function setPS(
+    agent: string,
+    inRoom: boolean | null,
+    isPlaying: boolean | null,
+    isCreator: boolean | null,
+  ) {
+    const val = players[agent]
+      ? { ...players[agent] }
+      : { inRoom: false, isPlaying: false, isCreator: false };
+    if (inRoom !== null) val.inRoom = inRoom;
+    if (isPlaying !== null) val.isPlaying = isPlaying;
+    if (isCreator !== null) val.isCreator = isCreator;
+
+    players = { ...players, [agent]: val };
+  }
+
+  $: {
+    if ($state) {
+      $state.players.forEach((agent) => {
+        setPS(agent, null, true, null);
+      });
+      setPS($state.creator, null, null, true);
+      if ($participants) {
+        $participants.active.forEach((agent) => {
+          setPS(encodeHashToBase64(agent), true, null, null);
+        });
+      }
+    }
+  }
 </script>
 
 {#if $state}
@@ -30,35 +68,12 @@
         <div class="flexcs flex-grow h8">
           <div
             class="text-sm mt1 mr2 bg-main-500 shadow-[inset_0_1px_0_#0003,inset_0_-1px_0_#fff8,inset_0_0_3px_#0005] bg-gradient-to-b from-white/10 to-white-0 rounded-full px2 py1 mr1 text-white/80"
-            >6/8</div
+            >{$state.players.length}/{$state.minMaxPlayers[1]}</div
           >
-          <PlayerStatus agent={gameSpace.pubKey} inRoom={true} isPlaying={true} isCreator={true} />
-          <PlayerStatus
-            agent={gameSpace.pubKey}
-            inRoom={false}
-            isPlaying={true}
-            isCreator={false}
-          />
-          <PlayerStatus agent={gameSpace.pubKey} inRoom={true} isPlaying={true} isCreator={false} />
-          <PlayerStatus agent={gameSpace.pubKey} inRoom={true} isPlaying={true} isCreator={false} />
-          <PlayerStatus
-            agent={gameSpace.pubKey}
-            inRoom={true}
-            isPlaying={false}
-            isCreator={false}
-          />
-          <PlayerStatus
-            agent={gameSpace.pubKey}
-            inRoom={true}
-            isPlaying={false}
-            isCreator={false}
-          />
-          <PlayerStatus
-            agent={gameSpace.pubKey}
-            inRoom={true}
-            isPlaying={false}
-            isCreator={false}
-          />
+
+          {#each Object.entries(players) as [agent, { inRoom, isPlaying, isCreator }] (agent)}
+            <PlayerStatus {agent} {inRoom} {isPlaying} {isCreator} />
+          {/each}
         </div>
         <button
           on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}

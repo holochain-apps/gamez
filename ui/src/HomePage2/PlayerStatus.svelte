@@ -16,7 +16,7 @@
 >
   <AgentAvatar
     class={cx('relative z-20', {
-      'opacity-30': !inRoom,
+      // 'opacity-30': !inRoom,
       'outline outline-4 outline-yellow-400 outline-dashed': isCreator,
     })}
     pubKey={agent}

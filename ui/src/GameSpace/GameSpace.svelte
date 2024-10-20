@@ -23,7 +23,7 @@
   $: canJoinGame = gameSpace.canJoinGame;
   $: canLeaveGame = gameSpace.canLeaveGame;
   $: isSteward = gameSpace.isSteward;
-  $: isCreator = state.creator === gameSpace.pubKeyB64;
+  $: isCreator = state.creator === gameSpace.pubKey;
   $: isPlaying = $canLeaveGame;
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
@@ -36,7 +36,9 @@
     });
 
     gameSpace.participants.subscribe((allParticipants) => {
-      participants = allParticipants.active;
+      if (allParticipants) {
+       participants = allParticipants.active;
+      }
     });
   });
 
