@@ -115,6 +115,10 @@
     }
     console.log('appPort and Id is', appPort, appId);
     const client = await AppWebsocket.connect(params);
+
+    // Use this to create a cross-group DHT
+    // client.createCloneCell()
+
     return {
       client,
       profilesStore: new ProfilesStore(new ProfilesClient(client, appId)),

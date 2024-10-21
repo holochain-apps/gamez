@@ -31,13 +31,13 @@
       }
     }
   }
-  $: isPlayerTurn = activePlayer === gameSpace.pubKeyB64;
-  $: isPlaying = $state.players.indexOf(gameSpace.pubKeyB64) !== -1;
+  $: isPlayerTurn = activePlayer === gameSpace.pubKey;
+  $: isPlaying = $state.players.indexOf(gameSpace.pubKey) !== -1;
   $: isPaused = currentTurn && !currentTurn.player;
   $: canPauseGame = isPlayerTurn && !isPaused;
 
   function handleStart() {
-    const turn = { player: gameSpace.pubKeyB64, time: Date.now() };
+    const turn = { player: gameSpace.pubKey, time: Date.now() };
     gameSpace.change({ type: 'update-element', element: { uuid: el.uuid, turnsLog: [turn] } });
   }
 

@@ -1,3 +1,5 @@
+import { isEqual } from 'lodash';
+
 import { asyncDerived, get, pipe, toPromise, writable } from '@holochain-open-dev/stores';
 import {
   DocumentStore,
@@ -20,6 +22,8 @@ export default class SimplerSyn {
   constructor(
     private appClient: AppClient,
     private onDocsLoaded: (synDoc: SynDoc[]) => void,
+    private migrationFun: (state: any) => any = (state) => state,
+    private documentVersion: number = 0,
   ) {
     this.synClient = new SynClient(appClient, 'gamez', 'syn');
     this.synStore = new SynStore(this.synClient);
@@ -36,11 +40,16 @@ export default class SimplerSyn {
         const synDocs = await Promise.all(
           newDocs
             .map((doc) => {
-              doc.documentHash;
               return pipe(doc.allWorkspaces, (workspacesMap) => {
                 const firstWorkspaceHash = Array.from(workspacesMap.keys())[0];
                 const workspace = new WorkspaceStore(doc, firstWorkspaceHash);
-                const synDoc = new SynDoc(this.pubKey, doc, workspace);
+                const synDoc = new SynDoc(
+                  this.pubKey,
+                  doc,
+                  workspace,
+                  this.migrationFun,
+                  this.documentVersion,
+                );
                 return synDoc;
               });
             })
@@ -63,7 +72,13 @@ export default class SimplerSyn {
   public async createDoc(initialState: any) {
     const document = await this.synStore.createDocument(initialState, {});
     const workspace = await document.createWorkspace(`${new Date()}`, undefined);
-    const synDoc = new SynDoc(this.pubKey, document, workspace);
+    const synDoc = new SynDoc(
+      this.pubKey,
+      document,
+      workspace,
+      this.migrationFun,
+      this.documentVersion,
+    );
     this.synStore.client.tagDocument(document.documentHash, ROOT_TAG);
     this.docs.update((val) => {
       return { ...val, [synDoc.hash]: synDoc };
@@ -75,6 +90,7 @@ export default class SimplerSyn {
 
 export class SynDoc {
   state = writable<any>(null);
+  migratedState = writable<any>(null);
   private session: SessionStore<any, any> | null = null;
 
   private document: DocumentStore<any, any>;
@@ -89,6 +105,8 @@ export class SynDoc {
     pubKey: string,
     document: DocumentStore<any, any>,
     workspace: WorkspaceStore<any, any>,
+    private migrationFun: (state: any) => any = (state) => state,
+    private documentVersion: number = 0,
   ) {
     this.pubKey = pubKey;
     this.document = document;
@@ -99,24 +117,38 @@ export class SynDoc {
     workspace.latestState.subscribe((state) => {
       if (state.status === 'complete') {
         if (!this.session) {
-          console.log('Setting state from latestState', state);
-          this.state.set(state.value);
+          const $state = get(this.state);
+          if (!isEqual(state.value, $state)) {
+            // console.log(state.value, $state);
+            console.log('Setting state from latestState', state.value, $state);
+            this.state.set(state.value);
+          }
         }
       }
     });
 
-    workspace.latestSnapshot.subscribe((snapshot) => {
-      if (snapshot.status === 'complete') {
-        if (!this.session) {
-          console.log('Setting state from latestSnapshot', snapshot);
-          this.state.set(snapshot.value);
+    // workspace.latestSnapshot.subscribe((snapshot) => {
+    //   if (snapshot.status === 'complete') {
+    //     if (!this.session) {
+    //       console.log('Setting state from latestSnapshot', snapshot);
+    //       this.state.set(snapshot.value);
+    //     }
+    //   }
+    // });
+
+    // If the document has a different version from the document version, run migration
+    this.state.subscribe((state) => {
+      if (state) {
+        if (state.version !== undefined && state.version !== this.documentVersion) {
+          this.forceMigration();
         }
       }
     });
   }
 
   public async joinSession() {
-    this.session = await this.workspace.joinSession();
+    if (!this.session) this.session = await this.workspace.joinSession();
+    // Should I clean up after the session is left?
     this.session.state.subscribe((state) => {
       console.log('SESSION STATE', state);
       this.state.set(state);
@@ -140,5 +172,25 @@ export class SynDoc {
 
   public change(updateFn: (state: any, ephState: any) => void) {
     return this.session.change(updateFn);
+  }
+
+  private async forceMigration() {
+    console.log('Running migration');
+    const wasInSession = !!this.session;
+    if (!wasInSession) {
+      console.log('Joining session for migration');
+      await this.joinSession();
+    }
+    this.session.change(this.migrationFun);
+
+    // How do I wait until the changes are finished?
+    setTimeout(async () => {
+      if (!wasInSession) {
+        console.log('Leaving session for migration');
+        await this.leaveSession();
+      }
+    }, 2000);
+
+    console.log('Migration done');
   }
 }

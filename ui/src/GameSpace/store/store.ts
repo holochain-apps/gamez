@@ -8,8 +8,10 @@ import { type AppClient } from '@holochain/client';
 
 import SimplerSyn from '~/lib/SimplerSyn';
 
+import type { GameSpace } from '../types';
 import { createGameSpaceSynStore, type GameSpaceSyn } from './GameSpaceSyn';
 import { initialState } from './grammar';
+import migration from './migration';
 
 export type GameSpaceStore = ReturnType<typeof createGameSpaceStore>;
 
@@ -23,13 +25,18 @@ export function createGameSpaceStore(
   const pubKey = synStore.client.client.myPubKey;
 
   const gameDocs = writable<{ [key: string]: GameSpaceSyn }>({});
-  const simplerSyn = new SimplerSyn(appClient, (synDocs) => {
-    gameDocs.update((val) => {
-      const newVal = { ...val };
-      synDocs.forEach((doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc)));
-      return newVal;
-    });
-  });
+  const simplerSyn = new SimplerSyn(
+    appClient,
+    (synDocs) => {
+      gameDocs.update((val) => {
+        const newVal = { ...val };
+        synDocs.forEach((doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc)));
+        return newVal;
+      });
+    },
+    migration,
+    4,
+  );
 
   // simplerSyn.docs.subscribe((docs) => {
   //   const currentGameDocs = get(gameDocs);
@@ -48,12 +55,6 @@ export function createGameSpaceStore(
   async function createGameSpace() {
     const doc = await simplerSyn.createDoc(initialState(pubKey));
     return doc.hash;
-    // gameDocs.update((val) => {
-    //   const newVal = { ...val };
-    //   newVal[doc.hash] = createGameSpaceSynStore(doc);
-    //   return newVal;
-    // });
-    // return doc;
   }
 
   const a = { createGameSpace, gameDocs, weaveClient, profilesStore, pubKey };

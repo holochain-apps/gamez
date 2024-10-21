@@ -156,7 +156,7 @@
       {@const hasPiecesLeft = el.limit
         ? el.limit - (playedPiecesCountByAgent[player] || 0) > 0
         : true}
-      {@const ownPieces = player === gameSpace.pubKeyB64}
+      {@const ownPieces = player === gameSpace.pubKey}
       {@const isAllowedToGrab =
         hasPiecesLeft && ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece)}
       {#if el.showNames}

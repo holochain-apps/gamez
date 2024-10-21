@@ -21,7 +21,7 @@ export type Delta =
 
 export function initialState(pubKey: Uint8Array): GameSpace {
   return {
-    version: 3,
+    version: 4,
     name: 'Game Space',
     creator: encodeHashToBase64(pubKey),
     elements: [],
@@ -30,6 +30,7 @@ export function initialState(pubKey: Uint8Array): GameSpace {
     status: 'draft',
     minMaxPlayers: [1, 4],
     players: [],
+    lastChangeAt: Date.now(),
   };
 }
 
@@ -136,4 +137,7 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       El['applyDelta'](delta, status);
     }
   }
+
+  status.lastChangeAt = Date.now();
+  status.version = 4;
 };

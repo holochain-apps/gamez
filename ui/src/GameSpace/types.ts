@@ -3,15 +3,16 @@ import type { WeaveUrl } from '@theweave/api';
 import * as elements from './elements';
 
 export type GameSpace = {
-  version: 3;
+  version: 4;
   name: string;
   creator: string;
   elements: GElement[];
   wals: WeaveUrl[];
   isStewarded: boolean;
-  status: 'draft' | 'ready' | 'archived' | 'deleted';
+  status: 'draft' | 'active' | 'archived' | 'deleted' | 'library';
   minMaxPlayers: [number, number];
   players: string[];
+  lastChangeAt: number;
 };
 
 export type LockConfig = {

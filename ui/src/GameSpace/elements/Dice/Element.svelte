@@ -10,7 +10,7 @@
   export let gameSpace: GameSpaceSyn;
   $: state = gameSpace.state;
 
-  $: canPlay = $state.players.includes(gameSpace.pubKeyB64);
+  $: canPlay = $state.players.includes(gameSpace.pubKey);
 
   function handleContainerClick() {
     if (!canPlay) return;
@@ -18,7 +18,7 @@
       faces: d.faces,
       result: Math.floor(Math.random() * d.faces + 1),
     }));
-    const roll = { dice: rolledDice, player: gameSpace.pubKeyB64 };
+    const roll = { dice: rolledDice, player: gameSpace.pubKey };
     const rolls = el.rolls.concat([roll]);
     // Optimization for snappier interface
     lastRoll = roll;
