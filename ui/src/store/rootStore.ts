@@ -61,7 +61,7 @@ export function createRootStore(
     return doc.hash;
   }
 
-  async function cloneGameSpace(hash: string) {
+  async function cloneGameSpace(hash: string, extendWith: Partial<GameSpace> = {}) {
     const $statesMap = get(statesMap);
     const $state = $statesMap[hash];
     const $clonedState = cloneDeep($state);
@@ -76,7 +76,7 @@ export function createRootStore(
       $clonedState.name = `Clone of ${$state.name} ${number}`;
     }
 
-    const doc = await simplerSyn.createDoc($clonedState);
+    const doc = await simplerSyn.createDoc({ ...$clonedState, ...extendWith });
     return doc.hash;
   }
 

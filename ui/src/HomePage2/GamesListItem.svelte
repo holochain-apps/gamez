@@ -109,6 +109,11 @@
   function onOpenMenu() {
     menuOpen = true;
   }
+
+  async function onCreateFromLibrary() {
+    const newHash = await cloneGameSpace(gameSpace.hash, { status: 'draft', name: $state.name });
+    nav({ id: 'gameSpace', gameSpaceHash: newHash });
+  }
 </script>
 
 <div class="bg-white/10 p2 b b-white/10 rounded-md max-w-screen-sm mx-auto w-full flex">
@@ -144,12 +149,13 @@
       </div>
       {#if $state.status === 'library'}
         <button
+          on:click={onCreateFromLibrary}
           class="flexcc bg-main-500 hover:bg-main-600 rounded-md h8 px2 mr2 b b-black/10 text-white uppercase text-sm tracking-wider"
           >Draft from this</button
         >
         <button
           class="flexcc bg-main-500 hover:bg-main-600 rounded-md h8 px2 mr2 b b-black/10 text-white uppercase text-sm tracking-wider"
-          >EDIT</button
+          on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}>EDIT</button
         >
       {:else if $state.status === 'archived'}
         <button
