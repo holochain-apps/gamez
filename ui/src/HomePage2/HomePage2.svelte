@@ -3,6 +3,7 @@
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import GamesList from './GamesList.svelte';
   import TabButton from './TabButton.svelte';
+  import { nav } from '~/lib/routes';
 
   const store = getContext();
 
@@ -18,7 +19,8 @@
   // }
 
   async function handleCreateNewSpace() {
-    await store.createGameSpace();
+    const hash = await store.createGameSpace();
+    nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 </script>
 

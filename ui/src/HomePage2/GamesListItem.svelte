@@ -13,6 +13,8 @@
   export let gameSpace: GameSpaceSyn;
   $: state = gameSpace.state; // <GamesList> ensures the state is initialized, not null
 
+  const { cloneGameSpace, deleteGameSpace } = getContext();
+
   type PlayerStatus = {
     inRoom: boolean;
     isPlaying: boolean;
@@ -58,7 +60,8 @@
     draft: [
       ['clone', 'Clone'],
       ['active', 'To Active'],
-      ['library', 'To Library'][('archive', 'To Archive')],
+      ['library', 'To Library'],
+      ['archive', 'To Archive'],
       ['delete', 'Delete'],
     ],
     archived: [
@@ -75,17 +78,28 @@
   //   ['archived', 'To Archive'],
   //   ['delete', 'Delete'],
   // ] ;
-  function onSelectMenu(item: string) {
-    if (item === 'active') {
-      gameSpace.change({ type: 'set-status', status: 'active' });
-    } else if (item === 'library') {
-      gameSpace.change({ type: 'set-status', status: 'library' });
-    } else if (item === 'draft') {
-      gameSpace.change({ type: 'set-status', status: 'draft' });
-    } else if (item === 'archive') {
-      gameSpace.change({ type: 'set-status', status: 'archived' });
-    } else if (item === 'delete') {
-      // TODO
+  async function onSelectMenu(item: string) {
+    switch (item) {
+      case 'clone':
+        // TODO
+        await cloneGameSpace(gameSpace.hash);
+        break;
+      case 'active':
+        gameSpace.change({ type: 'set-status', status: 'active' });
+        break;
+      case 'library':
+        gameSpace.change({ type: 'set-status', status: 'library' });
+        break;
+      case 'draft':
+        gameSpace.change({ type: 'set-status', status: 'draft' });
+        break;
+      case 'archive':
+        gameSpace.change({ type: 'set-status', status: 'archived' });
+        break;
+      case 'delete':
+        // TODO
+        await deleteGameSpace(gameSpace.hash);
+        break;
     }
     menuOpen = false;
   }

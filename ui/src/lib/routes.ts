@@ -1,5 +1,4 @@
-import { getContext, setContext } from 'svelte';
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 
 export type Route =
   | {
@@ -25,17 +24,14 @@ export type Route =
       gameSpaceHash: string;
     };
 
+const history: Route[] = [];
 const route = writable<Route>({ id: 'home' });
 const nav = (newRoute: Route) => {
+  history.push(get(route));
   route.set(newRoute);
 };
+const goBack = () => {
+  nav(history.pop());
+};
 
-export { route, nav };
-
-// export function setRouteContext(props: { nav: (newRoute: Route) => void; getRoute: () => Route }) {
-//   setContext('route', props);
-// }
-
-// export function getRouteContext() {
-//   return getContext<{ getRoute: () => Route; nav: (newRoute: Route) => void }>('route');
-// }
+export { route, nav, goBack };

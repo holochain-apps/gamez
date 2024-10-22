@@ -4,7 +4,7 @@
   export let suggestCreateGameType: boolean = true;
 </script>
 
-<div class="bg-main-500 @dark:(bg-main-300 b-black/10) mb4 p4 rounded-md shadow-md">
+<div class="bg-main-500 mb4 p4 rounded-md shadow-md">
   <h3 class="mb4 font-black text-lg">Welcome to Board Gamez!</h3>
   <p class="mb2">
     <DiamondIcon class="float-left mr2 text-main-700 mt1 text-xs" />

@@ -8,7 +8,7 @@ import {
   SynStore,
   WorkspaceStore,
 } from '@holochain-syn/core';
-import { type AppClient, encodeHashToBase64 } from '@holochain/client';
+import { type AppClient, decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
 
 const ROOT_TAG = 'simpler-syn';
 
@@ -21,18 +21,20 @@ export default class SimplerSyn {
 
   constructor(
     private appClient: AppClient,
-    private onDocsLoaded: (synDoc: SynDoc[]) => void,
+    private onDocsLoaded: (synDocs: SynDoc[], deletedDocs: string[]) => void,
     private migrationFun: (state: any) => any = (state) => state,
     private documentVersion: number = 0,
   ) {
-    this.synClient = new SynClient(appClient, 'gamez', 'syn');
+    this.synClient = new SynClient(this.appClient, 'gamez', 'syn');
     this.synStore = new SynStore(this.synClient);
 
     this.pubKey = encodeHashToBase64(this.synClient.client.myPubKey);
 
+    let prevDocsHashes: string[] = null;
     this.synStore.documentsByTag.get(ROOT_TAG).subscribe(async (latestDocs) => {
       if (latestDocs.status === 'complete') {
         const currentDocs = get(this.docs);
+
         const newDocs = latestDocs.value
           .values()
           .filter((doc) => !currentDocs[encodeHashToBase64(doc.documentHash)]);
@@ -47,6 +49,7 @@ export default class SimplerSyn {
                   this.pubKey,
                   doc,
                   workspace,
+                  null,
                   this.migrationFun,
                   this.documentVersion,
                 );
@@ -57,6 +60,21 @@ export default class SimplerSyn {
             .toArray(),
         );
 
+        // Find deleted docs
+        const newDocsHashes = latestDocs.value.keys().toArray().map(encodeHashToBase64);
+        let deletedDocs: string[] = [];
+        if (!prevDocsHashes) {
+          prevDocsHashes = newDocsHashes;
+        } else {
+          deletedDocs = [...prevDocsHashes];
+          newDocsHashes.forEach((hash) => {
+            if (deletedDocs.includes(hash)) {
+              deletedDocs.splice(deletedDocs.indexOf(hash), 1);
+            }
+          });
+          prevDocsHashes = newDocsHashes;
+        }
+
         this.docs.update((val) => {
           const newVal = { ...val };
           synDocs.forEach((synDoc) => {
@@ -64,7 +82,7 @@ export default class SimplerSyn {
           });
           return newVal;
         });
-        this.onDocsLoaded(synDocs);
+        this.onDocsLoaded(synDocs, deletedDocs);
       }
     });
   }
@@ -76,6 +94,7 @@ export default class SimplerSyn {
       this.pubKey,
       document,
       workspace,
+      initialState,
       this.migrationFun,
       this.documentVersion,
     );
@@ -83,8 +102,13 @@ export default class SimplerSyn {
     this.docs.update((val) => {
       return { ...val, [synDoc.hash]: synDoc };
     });
-    this.onDocsLoaded([synDoc]);
+    this.onDocsLoaded([synDoc], []);
     return synDoc;
+  }
+
+  public async removeDoc(hash: string) {
+    await this.synClient.removeDocumentTag(decodeHashFromBase64(hash), ROOT_TAG);
+    this.onDocsLoaded([], [hash]);
   }
 }
 
@@ -105,6 +129,7 @@ export class SynDoc {
     pubKey: string,
     document: DocumentStore<any, any>,
     workspace: WorkspaceStore<any, any>,
+    preloadedState: any,
     private migrationFun: (state: any) => any = (state) => state,
     private documentVersion: number = 0,
   ) {
@@ -113,6 +138,7 @@ export class SynDoc {
     this.workspace = workspace;
 
     this.hash = encodeHashToBase64(this.document.documentHash);
+    if (preloadedState) this.state.set(preloadedState);
 
     workspace.latestState.subscribe((state) => {
       if (state.status === 'complete') {
@@ -120,7 +146,7 @@ export class SynDoc {
           const $state = get(this.state);
           if (!isEqual(state.value, $state)) {
             // console.log(state.value, $state);
-            console.log('Setting state from latestState', state.value, $state);
+            console.log('Setting state from latestState', state.value);
             this.state.set(state.value);
           }
         }

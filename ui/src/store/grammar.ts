@@ -20,11 +20,11 @@ export type Delta =
   | { type: 'update-element'; element: Partial<GElement> }
   | { type: 'remove-element'; uuid: string };
 
-export function initialState(pubKey: Uint8Array): GameSpace {
+export function initialState(pubKey: string): GameSpace {
   return {
     version: 4,
     name: 'Game Space',
-    creator: encodeHashToBase64(pubKey),
+    creator: pubKey,
     elements: [],
     wals: [],
     isStewarded: false,

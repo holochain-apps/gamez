@@ -9,7 +9,7 @@
 
   import { type Board } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
-  import { nav, route } from '~/lib/routes';
+  import { nav, route, goBack } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
   import Avatar from '~/shared/Avatar.svelte';
 
@@ -30,17 +30,6 @@
   $: myProfile = get(store.profilesStore.myProfile).value;
   $: myName = myProfile ? myProfile.nickname : '';
 
-  const handleBack = async () => {
-    if ($route.id === 'board') {
-      await store.boardList.closeActiveBoard(false);
-    }
-    if ($route.id === 'editBoard') {
-      nav({ id: 'board', boardHash: $route.boardHash });
-    } else {
-      nav({ id: 'home' });
-    }
-  };
-
   const editAvatar = () => {
     editAvatarDialog.open();
   };
@@ -50,13 +39,11 @@
 <AvatarDialog bind:this={editAvatarDialog} />
 <ParticipantsDialog bind:this={participantsDialog} />
 
-<div
-  class="flexcc flex-shrink-0 bg-main-400 @dark:bg-main-300 b-black/10 0 b text-white px6 h-16 space-x-2"
->
+<div class="flexcc flex-shrink-0 bg-main-400 b-black/10 0 b text-white px6 h-16 space-x-2">
   <!-- LEFT SIDE BUTTONS -->
 
   {#if $route.id != 'home'}
-    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={handleBack}>
+    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={goBack}>
       <ArrowLeftIcon />
     </button>
   {/if}

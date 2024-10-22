@@ -3,21 +3,13 @@
 
   import GameSpaceComp from './GameSpace.svelte';
 
-  const store = getContext();
+  const { readyGameSpace } = getContext();
 
   export let hash: string;
 
-  let gameSpace: GameSpaceSyn;
-  $: state = gameSpace?.state;
-  $: gameSpaces = store.gameDocs;
-
-  $: {
-    if ($gameSpaces[hash] && gameSpace !== $gameSpaces[hash]) {
-      gameSpace = $gameSpaces[hash];
-    }
-  }
+  let gameSpace = readyGameSpace(hash);
 </script>
 
-{#if gameSpace}
-  <GameSpaceComp {gameSpace} />
+{#if $gameSpace}
+  <GameSpaceComp gameSpace={$gameSpace} />
 {/if}
