@@ -1,6 +1,6 @@
 <script lang="ts">
   import RectangleListIcon from '~icons/fa6-solid/rectangle-list';
-  import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
+  import { type GameSpaceSyn } from '~/store';
   import type { DiceElement, Roll, Die as DieType } from './type';
   import Die from './Die.svelte';
   import PlayerName from '~/shared/PlayerName.svelte';

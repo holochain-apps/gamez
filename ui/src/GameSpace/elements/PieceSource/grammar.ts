@@ -1,7 +1,8 @@
 import { cloneDeep } from 'lodash';
 
-import type { Delta } from '../../store/grammar';
-import type { GameSpace } from '../../types';
+import type { GameSpace } from '~/store';
+import type { Delta } from '~/store';
+
 import type { PieceElement } from '../Piece/type';
 import type { PieceSourceElement } from './type';
 import { isWithinVisualBoundary } from './utils';

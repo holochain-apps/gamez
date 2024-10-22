@@ -4,9 +4,8 @@
   import ArrowsLeftRight from '~icons/fa6-solid/arrows-left-right';
   import RotateIcon from '~icons/fa6-solid/rotate-right';
   import { tooltip } from '~/shared/tooltip';
-  import type { GElement } from '../types';
+  import type { GElement, GameSpaceSyn } from '~/store';
   import * as elements from '../elements';
-  import { type GameSpaceSyn } from '../store/GameSpaceSyn';
 
   export let gameSpace: GameSpaceSyn;
   export let el: GElement;

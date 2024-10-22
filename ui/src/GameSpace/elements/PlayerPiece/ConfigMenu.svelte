@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
+  import { type GameSpaceSyn } from '~/store';
   import { type PlayerPieceElement } from './type';
 
   export let el: PlayerPieceElement;

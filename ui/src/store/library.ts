@@ -1,6 +1,6 @@
-import * as elements from '../elements';
-import { type GElement } from '../types';
-import { type GameSpaceSyn } from './GameSpaceSyn';
+import * as elements from '../GameSpace/elements';
+import { type GameSpaceSyn } from './gameSpaceStore';
+import { type GElement } from './types';
 
 export type LibraryElement = {
   type: string;

@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { getContext } from '~/GameSpace/store/store';
-  import LayoutBar from '../Layout/LayoutBar.svelte';
+  import { getContext } from '~/store';
+  import LayoutBar from '~/Layout/LayoutBar.svelte';
   import GamesList from './GamesList.svelte';
   import TabButton from './TabButton.svelte';
-  import { nav } from '~/lib/routes';
 
   const store = getContext();
 

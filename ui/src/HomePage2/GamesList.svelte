@@ -1,12 +1,11 @@
 <script lang="ts">
   import { get, derived } from 'svelte/store';
+  import { zip } from 'lodash';
+  import { getContext } from '~/store';
+  import GamesListItem from './GamesListItem.svelte';
 
   type Tag = 'active' | 'library' | 'globalLibrary' | 'draft' | 'archived';
   export let tag: Tag;
-
-  import { getContext } from '../GameSpace/store/store';
-  import GamesListItem from './GamesListItem.svelte';
-  import { zip } from 'lodash';
 
   const store = getContext();
   $: gameDocs = store.gameDocs;

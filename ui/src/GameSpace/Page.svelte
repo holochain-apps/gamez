@@ -1,11 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-
-  import { getContext } from './store/store';
-  import { type GameSpaceSyn } from './store/GameSpaceSyn';
+  import { getContext, type GameSpaceSyn } from '~/store';
 
   import GameSpaceComp from './GameSpace.svelte';
-  import { toPromise } from '@holochain-open-dev/stores';
 
   const store = getContext();
 

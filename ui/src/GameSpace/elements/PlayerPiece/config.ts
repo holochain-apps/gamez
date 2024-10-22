@@ -1,4 +1,4 @@
-import { type GameSpaceSyn } from '~/GameSpace/store/GameSpaceSyn';
+import { type GameSpaceSyn } from '~/store';
 
 import { type PlayerPieceElement } from './type';
 
@@ -10,7 +10,7 @@ const config = {
   build: (gameSpace: GameSpaceSyn): Partial<PlayerPieceElement> => ({
     height: 30,
     width: 30,
-    agent: gameSpace.pubKeyB64,
+    agent: gameSpace.pubKey,
     colorRing: '',
   }),
 };

@@ -2,10 +2,12 @@
   import cx from 'classnames';
   import Portal from 'svelte-portal';
   import { v1 as uuidv1 } from 'uuid';
+
   import PlayerName from '~/shared/PlayerName.svelte';
-  import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
-  import type { PlayerPieceSourceElement } from './type';
+  import { type GameSpaceSyn } from '~/store';
+
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
+  import type { PlayerPieceSourceElement } from './type';
   import { playerColor as playerColorUtil } from './utils';
 
   export let gameSpace: GameSpaceSyn;

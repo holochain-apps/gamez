@@ -2,7 +2,7 @@
   import { type WeaveUrl, weaveUrlFromWal, weaveUrlToWAL, type WAL } from '@theweave/api';
   import AttachmentIcon from '~icons/fa6-solid/paperclip';
   import TrashIcon from '~icons/fa6-solid/trash';
-  import { getContext } from '../store/store';
+  import { getContext } from '~/store';
   import { hrlToString } from '@holochain-open-dev/utils';
 
   export let onAddAttachment: (WeaveUrl: string) => void;

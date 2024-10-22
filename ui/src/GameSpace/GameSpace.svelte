@@ -1,16 +1,13 @@
 <script lang="ts">
-  import cx from 'classnames';
   import { onMount, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
 
-  import Surface from './Surface.svelte';
-
-  import { type GameSpace, type GElement } from './types';
-  import { type GameSpaceSyn } from './store/GameSpaceSyn';
-  import { type LibraryElement, createElement } from './store/library';
   import LayoutBar from '~/Layout/LayoutBar.svelte';
+  import { type GameSpaceSyn, type GElement, type LibraryElement, createElement } from '~/store';
+
+  import Surface from './Surface.svelte';
   import PeopleBar from './topbar/PeopleBar.svelte';
   import SidebarToggleButton from './topbar/SidebarToggleButton.svelte';
   import ElementsLibrary from './sidebar/ElementsLibrary.svelte';
@@ -37,7 +34,7 @@
 
     gameSpace.participants.subscribe((allParticipants) => {
       if (allParticipants) {
-       participants = allParticipants.active;
+        participants = allParticipants.active;
       }
     });
   });

@@ -2,8 +2,7 @@
   import { onMount } from 'svelte';
   import TrashIcon from '~icons/fa6-solid/trash';
 
-  import { type GElement, type LockConfig } from '../types';
-  import { type GameSpaceSyn } from '../store/GameSpaceSyn';
+  import { type GElement, type LockConfig, type GameSpaceSyn } from '~/store';
   import LockConfigEl from './LockConfig.svelte';
   import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';

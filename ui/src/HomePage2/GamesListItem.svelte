@@ -4,10 +4,11 @@
 
   import { encodeHashToBase64 } from '@holochain/client';
 
+  import { type GameSpaceSyn, getContext } from '~/store';
   import { nav } from '~/lib/routes';
-  import PlayerStatus from './PlayerStatus.svelte';
-  import { type GameSpaceSyn } from '~/GameSpace/store/GameSpaceSyn';
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
+
+  import PlayerStatus from './PlayerStatus.svelte';
 
   export let gameSpace: GameSpaceSyn;
   $: state = gameSpace.state; // <GamesList> ensures the state is initialized, not null

@@ -1,4 +1,4 @@
-import { type GameSpace } from '../types';
+import { type GameSpace } from './types';
 
 export default function migration(gottenState: GameSpace): GameSpace {
   if ((gottenState.version as 3) === 3) {

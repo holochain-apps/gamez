@@ -2,10 +2,12 @@
   import PlayIcon from '~icons/fa6-solid/play';
   import PauseIcon from '~icons/fa6-solid/pause';
   import RectangleListIcon from '~icons/fa6-solid/rectangle-list';
+
+  import { type GameSpaceSyn } from '~/store';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
-  import { type GameSpaceSyn } from '../../store/GameSpaceSyn';
-  import type { TurnTrackerElement, TurnStarted } from './type';
   import PlayerName from '~/shared/PlayerName.svelte';
+
+  import type { TurnTrackerElement, TurnStarted } from './type';
   import TurnsLog from './TurnsLog.svelte';
   import { formatTime } from './utils';
 

@@ -1,10 +1,9 @@
 <script lang="ts">
   import cx from 'classnames';
   import { onMount } from 'svelte';
-  import Element from './Element';
-  import { type GElement } from './types';
-  import { type GameSpaceSyn } from './store/GameSpaceSyn';
   import { get } from 'svelte/store';
+  import { type GElement, type GameSpaceSyn } from '~/store';
+  import Element from './Element';
 
   export let gameSpace: GameSpaceSyn;
   export let elements: GElement[];

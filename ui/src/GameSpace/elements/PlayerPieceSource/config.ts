@@ -1,4 +1,4 @@
-import { type GameSpaceSyn } from '~/GameSpace/store/GameSpaceSyn';
+import { type GameSpaceSyn } from '~/store';
 
 import { type PlayerPieceSourceElement } from './type';
 

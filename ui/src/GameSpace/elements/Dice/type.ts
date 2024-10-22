@@ -1,4 +1,4 @@
-import { type GElementBase } from '../../types';
+import { type GElementBase } from '~/store';
 
 export type Die = { faces: number };
 export type RolledDie = { faces: number; result: number };

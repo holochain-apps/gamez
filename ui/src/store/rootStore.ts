@@ -1,4 +1,5 @@
 import { type WeaveClient } from '@theweave/api';
+import { clone } from 'lodash';
 import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
 
 import { ProfilesStore } from '@holochain-open-dev/profiles';
@@ -8,14 +9,13 @@ import { type AppClient } from '@holochain/client';
 
 import SimplerSyn from '~/lib/SimplerSyn';
 
-import type { GameSpace } from '../types';
-import { createGameSpaceSynStore, type GameSpaceSyn } from './GameSpaceSyn';
+import { createGameSpaceSynStore, type GameSpaceSyn } from './gameSpaceStore';
 import { initialState } from './grammar';
 import migration from './migration';
 
-export type GameSpaceStore = ReturnType<typeof createGameSpaceStore>;
+export type RootStore = ReturnType<typeof createRootStore>;
 
-export function createGameSpaceStore(
+export function createRootStore(
   appClient: AppClient,
   profilesStore: ProfilesStore,
   weaveClient: WeaveClient | null,
@@ -38,32 +38,18 @@ export function createGameSpaceStore(
     4,
   );
 
-  // simplerSyn.docs.subscribe((docs) => {
-  //   const currentGameDocs = get(gameDocs);
-  //   const newDocsHashes = Object.keys(docs).filter((key) => !currentGameDocs[key]);
-  //   if (newDocsHashes.length) {
-  //     gameDocs.update((val) => {
-  //       const newVal = { ...val };
-  //       newDocsHashes.forEach((hash) => {
-  //         newVal[hash] = createGameSpaceSynStore(docs[hash]);
-  //       });
-  //       return newVal;
-  //     });
-  //   }
-  // });
-
   async function createGameSpace() {
     const doc = await simplerSyn.createDoc(initialState(pubKey));
     return doc.hash;
   }
 
-  const a = { createGameSpace, gameDocs, weaveClient, profilesStore, pubKey };
+  function cloneGameSpace(hash: string) {}
+
+  const a = { createGameSpace, gameDocs, weaveClient, profilesStore, pubKey, cloneGameSpace };
   //@ts-ignore
   window.store = a;
   return a;
 }
 
-export const setContext = (getter: () => GameSpaceStore) =>
-  sSetContext('gameSpaceStore', { store: getter });
-export const getContext = () =>
-  sGetContext<{ store: () => GameSpaceStore }>('gameSpaceStore').store();
+export const setContext = (getter: () => RootStore) => sSetContext('rootStore', { store: getter });
+export const getContext = () => sGetContext<{ store: () => RootStore }>('rootStore').store();

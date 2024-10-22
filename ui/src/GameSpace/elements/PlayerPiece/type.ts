@@ -1,4 +1,4 @@
-import { type GElementBase } from '../../types';
+import { type GElementBase } from '~/store';
 
 export type PlayerPieceElement = GElementBase & {
   type: 'PlayerPiece';

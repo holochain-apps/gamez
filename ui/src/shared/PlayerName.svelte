@@ -1,7 +1,7 @@
 <script lang="ts">
   import { encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
   import { type AgentPubKey } from '@holochain/client';
-  import { getContext } from '~/GameSpace/store/store';
+  import { getContext } from '~/store';
 
   const { profilesStore } = getContext();
 

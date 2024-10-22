@@ -3,8 +3,8 @@ import { v1 as uuidv1 } from 'uuid';
 
 import { type AgentPubKeyB64, encodeHashToBase64 } from '@holochain/client';
 
-import * as elements from '../elements';
-import type { GameSpace, GElement } from '../types';
+import * as elements from '../GameSpace/elements';
+import type { GameSpace, GElement } from './types';
 
 export type Delta =
   | { type: 'set-status'; status: GameSpace['status'] }

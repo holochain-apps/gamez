@@ -1,5 +1,5 @@
-import type { Delta } from '../../store/grammar';
-import type { GameSpace } from '../../types';
+import type { Delta, GameSpace } from '~/store';
+
 import { type PlayerPieceElement } from '../PlayerPiece/type';
 import type { PlayerPieceSourceElement } from './type';
 import { playerColor } from './utils';

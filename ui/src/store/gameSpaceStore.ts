@@ -2,8 +2,8 @@ import { derived, get, type Writable, writable } from 'svelte/store';
 
 import { type SynDoc } from '~/lib/SimplerSyn';
 
-import { type GameSpace } from '../types';
 import { applyDelta, type Delta } from './grammar';
+import { type GameSpace } from './types';
 
 type UiState = {
   zoom: number;
