@@ -7,7 +7,7 @@
 
   const store = getContext();
 
-  type Tab = 'active' | 'groupLibrary' | 'globalLibrary' | 'draft' | 'archived';
+  type Tab = 'active' | 'library' | 'globalLibrary' | 'draft' | 'archived';
   let activeTab: Tab = 'active';
   function setActiveTab(tab: Tab) {
     activeTab = tab;
@@ -28,12 +28,10 @@
 <div class="h12 flex bg-main-500">
   <div class="h-full flex-grow flexcs space-x-2 pt2 pl2">
     <TabButton active={activeTab} value={'active'} onClick={setActiveTab}>Active</TabButton>
-    <TabButton active={activeTab} value={'groupLibrary'} onClick={setActiveTab}
-      >Group Library</TabButton
-    >
-    <TabButton active={activeTab} value={'globalLibrary'} onClick={setActiveTab}
+    <TabButton active={activeTab} value={'library'} onClick={setActiveTab}>Group Library</TabButton>
+    <!-- <TabButton active={activeTab} value={'globalLibrary'} onClick={setActiveTab}
       >Global Library</TabButton
-    >
+    > -->
     <TabButton active={activeTab} value={'draft'} onClick={setActiveTab}>Draft</TabButton>
     <TabButton active={activeTab} value={'archived'} onClick={setActiveTab}>Archived</TabButton>
   </div>
