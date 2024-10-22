@@ -38,7 +38,7 @@
   <button
     on:click={handleCreateNewSpace}
     class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
-    >New Space</button
+    >New</button
   >
 </div>
 <div class="flex-grow bg-main-500 p1 pt0 h-0">

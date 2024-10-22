@@ -137,10 +137,12 @@ export class SynDoc {
     // });
 
     // If the document has a different version from the document version, run migration
-    this.state.subscribe((state) => {
+    this.state.subscribe(async (state) => {
       if (state) {
         if (state.version !== undefined && state.version !== this.documentVersion) {
-          this.forceMigration();
+          console.log("Document version doesn't match, running migration");
+          await this.change(this.migrationFun);
+          console.log('Migration done');
         }
       }
     });
@@ -170,27 +172,22 @@ export class SynDoc {
     return !!this.session;
   }
 
-  public change(updateFn: (state: any, ephState: any) => void) {
-    return this.session.change(updateFn);
-  }
-
-  private async forceMigration() {
-    console.log('Running migration');
+  public async change(updateFn: (state: any, ephState: any) => void) {
     const wasInSession = !!this.session;
     if (!wasInSession) {
-      console.log('Joining session for migration');
+      console.log('Joining session temporarily for change');
       await this.joinSession();
     }
-    this.session.change(this.migrationFun);
+    this.session.change(updateFn);
 
-    // How do I wait until the changes are finished?
-    setTimeout(async () => {
-      if (!wasInSession) {
-        console.log('Leaving session for migration');
-        await this.leaveSession();
-      }
-    }, 2000);
-
-    console.log('Migration done');
+    if (!wasInSession) {
+      // How do I wait until the changes are finished?
+      setTimeout(async () => {
+        if (!wasInSession) {
+          console.log('Leaving session temporarily for change');
+          await this.leaveSession();
+        }
+      }, 2000);
+    }
   }
 }

@@ -116,17 +116,15 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     const deltas = Array.isArray(delta) ? delta : [delta];
     console.log('GameSpace changes', deltas);
 
-    if (synDoc.inSession()) {
-      console.time('Running session change');
-      synDoc.change((state, _eph) => {
-        console.time('Running deltas');
-        for (const delta of deltas) {
-          applyDelta(delta, state);
-        }
-        console.timeEnd('Running deltas');
-      });
-      console.timeEnd('Running session change');
-    }
+    console.time('Running session change');
+    synDoc.change((state, _eph) => {
+      console.time('Running deltas');
+      for (const delta of deltas) {
+        applyDelta(delta, state);
+      }
+      console.timeEnd('Running deltas');
+    });
+    console.timeEnd('Running session change');
   }
 
   function joinGame() {

@@ -7,6 +7,7 @@ import * as elements from '../elements';
 import type { GameSpace, GElement } from '../types';
 
 export type Delta =
+  | { type: 'set-status'; status: GameSpace['status'] }
   | { type: 'set-name'; name: string }
   | { type: 'set-is-stewarded'; isStewarded: boolean }
   | { type: 'add-player'; player: AgentPubKeyB64 }
@@ -34,28 +35,31 @@ export function initialState(pubKey: Uint8Array): GameSpace {
   };
 }
 
-export const applyDelta = (delta: Delta, status: GameSpace) => {
+export const applyDelta = (delta: Delta, $state: GameSpace) => {
   switch (delta.type) {
+    case 'set-status':
+      $state.status = delta.status;
+      break;
     case 'set-name':
-      status.name = delta.name;
+      $state.name = delta.name;
       break;
     case 'set-is-stewarded':
-      status.isStewarded = delta.isStewarded;
+      $state.isStewarded = delta.isStewarded;
       break;
     case 'add-player':
-      status.players.push(delta.player);
+      $state.players.push(delta.player);
       break;
     case 'remove-player':
-      status.players = status.players.filter((p) => p !== delta.player);
+      $state.players = $state.players.filter((p) => p !== delta.player);
       break;
     case 'add-element':
-      const elements = status.elements;
+      const elements = $state.elements;
       const maxZ = elements.reduce((max, el) => (el.z > max ? el.z : max), 0);
       const elementToAdd = { ...delta.element, uuid: delta.element.uuid || uuidv1(), z: maxZ + 1 };
-      status.elements.push(elementToAdd);
+      $state.elements.push(elementToAdd);
       break;
     case 'move-element':
-      status.elements.forEach((e) => {
+      $state.elements.forEach((e) => {
         if (e.uuid === delta.uuid) {
           e.x = delta.x;
           e.y = delta.y;
@@ -63,7 +67,7 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       });
       break;
     case 'resize-element':
-      status.elements.forEach((e) => {
+      $state.elements.forEach((e) => {
         if (e.uuid === delta.uuid) {
           e.width = delta.width;
           e.height = delta.height;
@@ -71,14 +75,14 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       });
       break;
     case 'rotate-element':
-      status.elements.forEach((e) => {
+      $state.elements.forEach((e) => {
         if (e.uuid === delta.uuid) {
           e.rotation = delta.rotation;
         }
       });
       break;
     case 'update-element':
-      status.elements.forEach((e) => {
+      $state.elements.forEach((e) => {
         if (e.uuid === delta.element.uuid) {
           for (const key in delta.element) {
             // For elements that are objects or arrays
@@ -94,12 +98,12 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       });
       break;
     case 'move-z':
-      if (status.elements.length < 2) return;
-      const el = status.elements.find((e) => e.uuid === delta.uuid);
+      if ($state.elements.length < 2) return;
+      const el = $state.elements.find((e) => e.uuid === delta.uuid);
       if (!el) return; // This could happen with some weird race condition if an element is deleted
 
       // Normalize the Z numbers to be sequential without spaces
-      let sorted = [...status.elements];
+      let sorted = [...$state.elements];
       sorted.sort((a, b) => a.z - b.z);
       sorted.forEach((e, i) => {
         e.z = i; // This actually mutates the element
@@ -125,19 +129,19 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       });
       break;
     case 'remove-element':
-      const index = status.elements.findIndex((e) => e.uuid === delta.uuid);
+      const index = $state.elements.findIndex((e) => e.uuid === delta.uuid);
       if (index === -1) return;
-      status.elements.splice(index, 1);
+      $state.elements.splice(index, 1);
       break;
   }
 
   for (let e in elements) {
     const El = elements[e];
     if (typeof El['applyDelta'] === 'function') {
-      El['applyDelta'](delta, status);
+      El['applyDelta'](delta, $state);
     }
   }
 
-  status.lastChangeAt = Date.now();
-  status.version = 4;
+  $state.lastChangeAt = Date.now();
+  $state.version = 4;
 };
