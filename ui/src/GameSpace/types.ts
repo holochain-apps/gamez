@@ -3,8 +3,7 @@ import type { WeaveUrl } from '@theweave/api';
 import * as elements from './elements';
 
 export type GameSpace = {
-  version: 5;
-  uuid: string;
+  version: 4;
   name: string;
   creator: string;
   elements: GElement[];
