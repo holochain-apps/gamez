@@ -35,9 +35,9 @@ export default class SimplerSyn {
       if (latestDocs.status === 'complete') {
         const currentDocs = get(this.docs);
 
-        const newDocs = latestDocs.value
-          .values()
-          .filter((doc) => !currentDocs[encodeHashToBase64(doc.documentHash)]);
+        const newDocs = Array.from(latestDocs.value.values()).filter(
+          (doc) => !currentDocs[encodeHashToBase64(doc.documentHash)],
+        );
 
         const synDocs = await Promise.all(
           newDocs
@@ -56,12 +56,11 @@ export default class SimplerSyn {
                 return synDoc;
               });
             })
-            .map(toPromise)
-            .toArray(),
+            .map(toPromise),
         );
 
         // Find deleted docs
-        const newDocsHashes = latestDocs.value.keys().toArray().map(encodeHashToBase64);
+        const newDocsHashes = Array.from(latestDocs.value.keys()).map(encodeHashToBase64);
         let deletedDocs: string[] = [];
         if (!prevDocsHashes) {
           prevDocsHashes = newDocsHashes;
