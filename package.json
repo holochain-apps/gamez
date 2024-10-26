@@ -21,19 +21,19 @@
     "format": "prettier --write \"ui/**/*.{js,ts,css,svelte}\" --ignore-path ./ui/.gitignore"
   },
   "devDependencies": {
-    "@holochain-playground/cli": "^0.2",
-    "@holochain/hc-spin": "^0.300.1",
-    "@theweave/cli": "^0.13.0-beta.6",
+    "@holochain-playground/cli": "^0.300",
+    "@holochain/hc-spin": "^0.300.3",
+    "@theweave/cli": "^0.13.0-gamma.5",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "bestzip": "^2.2.0",
-    "concurrently": "^6.2.1",
+    "bestzip": "^2.2.1",
+    "concurrently": "^9.0.1",
     "concurrently-repeat": "^0.0.1",
     "cross-env": "^7.0.3",
     "json-parse-better-errors": "^1.0.2",
     "new-port-cli": "^1.0.0",
     "prettier": "^3.3.3",
-    "prettier-plugin-svelte": "^3.2.6",
-    "rimraf": "^3.0.2"
+    "prettier-plugin-svelte": "^3.2.7",
+    "rimraf": "^6.0.1"
   },
   "engines": {
     "npm": ">=7.0.0"

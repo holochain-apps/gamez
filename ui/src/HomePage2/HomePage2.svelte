@@ -24,7 +24,7 @@
   }
 </script>
 
-<LayoutBar title={'P2P Play Space'} />
+<LayoutBar title={'Gamez'} />
 
 <div class="h12 flex bg-main-500">
   <div class="h-full flex-grow flexcs space-x-2 pt2 pl2">
