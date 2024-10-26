@@ -6,14 +6,7 @@
     AdminWebsocket,
     type AppWebsocketConnectionOptions,
   } from '@holochain/client';
-  import {
-    WeaveClient,
-    isWeContext,
-    initializeHotReload,
-    type Hrl,
-    type WAL,
-    type AppletView,
-  } from '@lightningrodlabs/we-applet';
+  import { WeaveClient, isWeaveContext, initializeHotReload, type AppletView } from '@theweave/api';
   import '@holochain-open-dev/profiles/dist/elements/profiles-context.js';
   import '@holochain-open-dev/profiles/dist/elements/profile-prompt.js';
   import '@holochain-open-dev/profiles/dist/elements/create-profile.js';
@@ -28,6 +21,7 @@
   import ControllerCreatable from './controllers/ControllerCreatable.svelte';
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
   import { appletServices } from './we';
+  import { createRootStore, type RootStore, setContext as setRootStoreContext } from '~/store';
 
   const appId = import.meta.env.VITE_APP_ID ?? 'gamez';
   const roleName = 'gamez';
@@ -58,10 +52,12 @@
   let state: State = { type: 'pending' };
   let store: GamezStore;
   setStoreContext(() => store);
+  let gameSpaceStore: RootStore;
+  setRootStoreContext(() => gameSpaceStore);
   initialize();
 
   async function initialize(): Promise<void> {
-    // This must run before using isWeContext
+    // This must run before using isWeaveContext
     if ((import.meta as any).env.DEV) {
       try {
         await initializeHotReload();
@@ -72,18 +68,15 @@
       }
     }
 
-    if (!isWeContext()) {
+    if (!isWeaveContext()) {
       state = { type: 'standalone', ...(await initStandalone()) };
     } else {
       state = { type: 'weave', ...(await initOnWeave()) };
     }
 
-    store = new GamezStore(
-      state.type === 'weave' ? state.weaveClient : undefined,
-      state.profilesStore,
-      state.client,
-      roleName,
-    );
+    const weaveClient = state.type === 'weave' ? state.weaveClient : undefined;
+    store = new GamezStore(weaveClient, state.profilesStore, state.client, roleName);
+    gameSpaceStore = createRootStore(state.client, state.profilesStore, weaveClient || null);
   }
 
   async function initStandalone(): Promise<{ profilesStore: ProfilesStore; client: AppWebsocket }> {
@@ -111,6 +104,10 @@
     }
     console.log('appPort and Id is', appPort, appId);
     const client = await AppWebsocket.connect(params);
+
+    // Use this to create a cross-group DHT
+    // client.createCloneCell()
+
     return {
       client,
       profilesStore: new ProfilesStore(new ProfilesClient(client, appId)),

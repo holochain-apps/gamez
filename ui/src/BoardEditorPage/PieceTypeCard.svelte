@@ -3,9 +3,10 @@
   import GripVerticalIcon from '~icons/fa6-solid/grip-vertical';
   import TrashIcon from '~icons/fa6-solid/trash';
   import { PieceDef, PieceType } from '~/lib/store';
+  import EmojiPicker from '~/shared/EmojiPicker.svelte';
+
   import Input from './BoardEditorInput.svelte';
   import IntegerInput from './IntegerInput.svelte';
-  import EmojiPicker from './EmojiPicker.svelte';
   // import { cloneDeep } from 'lodash';
 
   const D = createEventDispatcher<{

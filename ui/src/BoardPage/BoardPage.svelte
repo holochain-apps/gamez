@@ -2,7 +2,7 @@
   import { cloneDeep } from 'lodash';
   import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
 
-  import { isWeContext, weaveUrlFromWal, type WAL } from '@lightningrodlabs/we-applet';
+  import { isWeaveContext, weaveUrlFromWal, type WAL } from '@theweave/api';
 
   import { PieceDef, Board, type Piece, type BoardProps } from '~/lib/store';
   import { getStoreContext } from '~/lib/context';
@@ -126,7 +126,7 @@
 
   let pieceAttachmentDialog: PieceAttachmentDialog;
   function handleEditPieceAttachment(piece: Piece) {
-    if (isWeContext()) pieceAttachmentDialog.open(piece);
+    if (isWeaveContext()) pieceAttachmentDialog.open(piece);
   }
 
   let walSpace: WalSpace;

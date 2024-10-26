@@ -1,19 +1,23 @@
 <script lang="ts">
-  import { encodeHashToBase64 } from '@holochain/client';
+  import { encodeHashToBase64, decodeHashFromBase64 } from '@holochain/client';
   import { type AgentPubKey } from '@holochain/client';
+  import { getContext } from '~/store';
 
-  import { getStoreContext } from '~/lib/context';
+  const { profilesStore } = getContext();
 
-  const store = getStoreContext();
+  export let agentPubKey: AgentPubKey | string;
+  let klass = '';
+  export { klass as class };
 
-  export let agentPubKey: AgentPubKey;
-
-  $: agentPubKeyB64 = encodeHashToBase64(agentPubKey);
-  $: profile = store.profilesStore.profiles.get(agentPubKey);
+  $: agentPubKeyB64 =
+    typeof agentPubKey == 'string' ? agentPubKey : encodeHashToBase64(agentPubKey);
+  $: agentPubKeyHash =
+    typeof agentPubKey == 'string' ? decodeHashFromBase64(agentPubKey) : agentPubKey;
+  $: profile = profilesStore.profiles.get(agentPubKeyHash);
   $: nickname =
     $profile.status == 'complete' && $profile.value
       ? $profile.value.entry.nickname
       : agentPubKeyB64.slice(5, 9) + '...';
 </script>
 
-<span>{nickname}</span>
+<span class={klass}>{nickname}</span>

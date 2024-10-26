@@ -7,7 +7,7 @@
   import FileImportIcon from '~icons/fa6-solid/file-import';
 
   // Organizational
-  import { isWeContext } from '@lightningrodlabs/we-applet';
+  import { isWeaveContext } from '@theweave/api';
 
   // Local
   import { getStoreContext } from '~/lib/context';
@@ -39,7 +39,7 @@
   let fileinput;
 
   onMount(async () => {
-    if (isWeContext() && (await store.weaveClient.myGroupPermissionType()).type === 'Steward')
+    if (isWeaveContext() && (await store.weaveClient.myGroupPermissionType()).type === 'Steward')
       amWeaveSteward = true;
   });
 
@@ -183,6 +183,15 @@
   <!-- SIDEBAR -->
 
   <div class="bg-main-900 @dark:bg-main-400 p4 w-70 flex-shrink-0">
+    <SidebarButton
+      class="w-full mb4"
+      mode={'lg'}
+      on:click={() => nav({ id: 'gameSpace', gameSpaceHash: null })}
+    >
+      <PlusIcon class="text-sm mr2" />
+      <div class="flex-grow">Game Space</div>
+    </SidebarButton>
+
     <!-- AVAILABLE GAMES -->
 
     {#if $myProfile.status == 'complete'}

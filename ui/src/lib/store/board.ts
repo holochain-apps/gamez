@@ -1,3 +1,4 @@
+import type { WeaveUrl } from '@theweave/api';
 import { get, type Readable } from 'svelte/store';
 import { v1 as uuidv1 } from 'uuid';
 
@@ -10,7 +11,6 @@ import {
   type EntryHashB64,
   type Timestamp,
 } from '@holochain/client';
-import type { WeaveUrl } from '@lightningrodlabs/we-applet';
 
 import type { AssetSpec } from '~/lib/util';
 

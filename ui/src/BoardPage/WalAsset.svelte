@@ -4,8 +4,8 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import Moveable from 'svelte-moveable';
 
-  import '@lightningrodlabs/we-elements/dist/elements/wal-embed.js';
-  import { type WeaveUrl } from '@lightningrodlabs/we-applet';
+  import '@theweave/elements/dist/elements/wal-embed.js';
+  import { type WeaveUrl } from '@theweave/api';
 
   import { type Position, type Size } from '~/lib/util';
 
