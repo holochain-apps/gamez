@@ -20,7 +20,6 @@
   export let isSteward: boolean;
   export let isPlaying: boolean;
   export let gameSpace: GameSpaceSyn;
-  export let allElements: GElement[];
 
   $: canEditLock = isCreator || (isSteward && isPlaying);
   $: everythingLocked = !isCreator && !isPlaying;

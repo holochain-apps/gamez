@@ -4,7 +4,8 @@
 
   export let el: DiceElement;
   export let onUpdate: (el: Partial<DiceElement>) => void;
-  export let gameSpace: any = null;
+  // export let gameSpace: any = null;
+  $$restProps; // This prevents Svelte warnings from unused props
 
   function diceToString(dices: { faces: number }[]) {
     return dices

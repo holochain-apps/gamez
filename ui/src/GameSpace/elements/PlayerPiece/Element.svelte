@@ -4,10 +4,11 @@
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
   export let el: Pick<PlayerPieceElement, 'width' | 'height' | 'agent' | 'colorRing'>;
-  export let gameSpace: any = null;
+  // export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
   export let style = '';
+  $$restProps; // This prevents Svelte warnings from unused props
 
   $: size = Math.min(el.width, el.height) - (el.colorRing ? 6 : 0);
 </script>

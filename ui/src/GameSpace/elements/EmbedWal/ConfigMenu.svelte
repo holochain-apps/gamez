@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { type EmbedWalElement } from './type';
-  import Input from '../../ui/Input.svelte';
+  // import { type EmbedWalElement } from './type';
+  // import Input from '../../ui/Input.svelte';
 
-  export let el: EmbedWalElement;
-  export let onUpdate: (el: Partial<EmbedWalElement>) => void;
+  // export let el: EmbedWalElement;
+  // export let onUpdate: (el: Partial<EmbedWalElement>) => void;
+  $$restProps; // This prevents Svelte warnings from unused props
 </script>
 
 <div>

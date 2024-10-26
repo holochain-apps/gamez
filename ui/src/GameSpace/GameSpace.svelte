@@ -140,7 +140,6 @@
         }}
         onContextMenu={handleContextMenu}
         {isCreator}
-        isSteward={$isSteward}
         {isPlaying}
       />
     </div>
@@ -155,7 +154,6 @@
         return gameSpace.el(contextMenuState.id);
       })()}
       {gameSpace}
-      allElements={state.elements}
       onUpdateEl={handleUpdateElement}
       {isCreator}
       isSteward={$isSteward}

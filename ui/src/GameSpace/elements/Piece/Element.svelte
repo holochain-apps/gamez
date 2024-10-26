@@ -2,9 +2,10 @@
   import type { PieceElement } from './type';
 
   export let el: Pick<PieceElement, 'display' | 'width' | 'height'>;
-  export let gameSpace: any = null;
+  // export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
+  $$restProps; // This prevents Svelte warnings from unused props
 
   $: fontSize = Math.min(el.width, el.height) + 'px';
 </script>

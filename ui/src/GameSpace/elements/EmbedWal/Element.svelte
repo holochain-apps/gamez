@@ -6,9 +6,10 @@
   import type { EmbedWalElement } from './type';
 
   export let el: EmbedWalElement;
-  export let gameSpace: any = null;
+  // export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
+  $$restProps; // This prevents Svelte warnings from unused props
 
   const { weaveClient } = getContext();
 
@@ -64,6 +65,7 @@
 <div class={`${klass} bg-gray-100 rounded-md w-full h-full flex`}>
   {#if el.url}
     <iframe
+      title="Embedded URL"
       class="h-full w-full"
       src={el.url}
       frameborder="0"
@@ -73,6 +75,7 @@
     ></iframe>
   {:else if firstValidAssetSrc}
     <iframe
+      title="Embedded WAL"
       class="h-full w-full"
       src={firstValidAssetSrc}
       frameborder="0"

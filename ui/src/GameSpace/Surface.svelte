@@ -13,7 +13,7 @@
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
   export let isCreator: boolean;
-  export let isSteward: boolean;
+  // export let isSteward: boolean;
   export let isPlaying: boolean;
 
   $: everythingLocked = !isCreator && !isPlaying;

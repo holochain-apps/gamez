@@ -188,7 +188,7 @@
 
 <div
   class={cx('absolute transform-origin-center', {
-    'cursor-pointer': highlighted,
+    'cursor-pointer': highlighted || dragging,
   })}
   on:mouseover={handleMouseOver}
   on:mouseleave={handleMouseLeave}
@@ -208,7 +208,7 @@
   {draggable}
 >
   <svelte:component this={Element} el={previewEl} {gameSpace} />
-  {#if highlighted}
+  {#if highlighted || dragging}
     <div
       class="absolute z-100 -inset-1 pointer-events-none bg-blue-5/10 b b-dashed b-blue-5/40 rounded-md"
     ></div>
