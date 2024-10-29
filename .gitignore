@@ -11,3 +11,4 @@
 .hc
 .running
 *.code-workspace
+.DS_Store

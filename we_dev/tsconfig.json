@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",           // or "CommonJS" if you're targeting Node.js in CommonJS mode
+    "target": "ES2020",           // specify a target version
+    "moduleResolution": "node",   // align with Node.js-style module resolution
+    "esModuleInterop": true,      // enables compatibility for CommonJS modules
+    "allowSyntheticDefaultImports": true
+  }
+}
