@@ -110,57 +110,62 @@
   $: {
     console.log('EPH change', ephemeralState);
   }
+  $: isArchived = $state.status === 'archived';
 </script>
 
 {#if $state}
   {#if !asAsset}
-    <LayoutBar title={$state.name || 'Game Spaceeee'} />
+    <LayoutBar title={$state.name + (isArchived ? ' (archived)' : '')} />
   {/if}
   <div class="h-full flex flex-col">
-    <div class="bg-main-700 h-14 flex relative">
-      <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
-        <GearIcon />
-      </SidebarToggleButton>
-      {#if $isSteward}
-        <SidebarToggleButton current={sidebar} value="elementsLibrary" onClick={toggleSidebar}>
-          <CubesIcon />
+    {#if !isArchived}
+      <div class="bg-main-700 h-14 flex relative">
+        <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
+          <GearIcon />
         </SidebarToggleButton>
-      {/if}
-      {#if !asAsset}
-        <div class="flexcc px2">
-          <button
-            on:click={handleAddToPocket}
-            use:tooltip={'Add to pocket'}
-            class="h-10 w-10 p2 bg-main-400 b b-black/10 hover:bg-main-500 rounded-md text-white"
-          >
-            <PocketIcon class="h-full w-full" />
-          </button>
-        </div>
-      {/if}
+        {#if $isSteward}
+          <SidebarToggleButton current={sidebar} value="elementsLibrary" onClick={toggleSidebar}>
+            <CubesIcon />
+          </SidebarToggleButton>
+        {/if}
+        {#if !asAsset}
+          <div class="flexcc px2">
+            <button
+              on:click={handleAddToPocket}
+              use:tooltip={'Add to pocket'}
+              class="h-10 w-10 p2 bg-main-400 b b-black/10 hover:bg-main-500 rounded-md text-white"
+            >
+              <PocketIcon class="h-full w-full" />
+            </button>
+          </div>
+        {/if}
 
-      <PeopleBar
-        canJoinGame={$canJoinGame}
-        canLeaveGame={$canLeaveGame}
-        players={$state.players}
-        participants={$participants}
-        onJoin={() => gameSpace.joinGame()}
-        onLeave={() => gameSpace.leaveGame()}
-      />
-    </div>
+        <PeopleBar
+          canJoinGame={$canJoinGame}
+          canLeaveGame={$canLeaveGame}
+          players={$state.players}
+          participants={$participants}
+          onJoin={() => gameSpace.joinGame()}
+          onLeave={() => gameSpace.leaveGame()}
+        />
+      </div>
+    {/if}
     <div class="flex flex-grow relative">
-      {#if sidebar === 'elementsLibrary' && $isSteward}
-        <ElementsLibrary onAdd={handleAddElementFromLibrary} />
-      {:else if sidebar === 'configurator'}
-        {#if state}
-          <SpaceConfigurator
-            isSteward={$isSteward}
-            creator={$state.creator}
-            name={$state.name}
-            onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
-            isStewarded={$state.isStewarded}
-            onIsStewardedChange={(isStewarded) =>
-              gameSpace.change({ type: 'set-is-stewarded', isStewarded })}
-          />
+      {#if !isArchived}
+        {#if sidebar === 'elementsLibrary' && $isSteward}
+          <ElementsLibrary onAdd={handleAddElementFromLibrary} />
+        {:else if sidebar === 'configurator'}
+          {#if state}
+            <SpaceConfigurator
+              isSteward={$isSteward}
+              creator={$state.creator}
+              name={$state.name}
+              onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
+              isStewarded={$state.isStewarded}
+              onIsStewardedChange={(isStewarded) =>
+                gameSpace.change({ type: 'set-is-stewarded', isStewarded })}
+            />
+          {/if}
         {/if}
       {/if}
       <Surface

@@ -16,7 +16,9 @@
   // export let isSteward: boolean;
   export let isPlaying: boolean;
 
-  $: everythingLocked = !isCreator && !isPlaying;
+  $: state = gameSpace.state;
+  $: isArchived = $state.status === 'archived';
+  $: everythingLocked = (!isCreator && !isPlaying) || isArchived;
   $: {
     gameSpace.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
     // const { width, height } = boardContainer.getBoundingClientRect();
@@ -34,8 +36,8 @@
     // This is absolutely not performant enough to do with Syn
   }
 
-  $: ephemeral = gameSpace.ephemeral;
-  $: playersPositions = $ephemeral?.playersPositions || {};
+  // $: ephemeral = gameSpace.ephemeral;
+  // $: playersPositions = $ephemeral?.playersPositions || {};
 
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();
