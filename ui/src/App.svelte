@@ -12,13 +12,11 @@
   import '@holochain-open-dev/profiles/dist/elements/create-profile.js';
   import { ProfilesClient, ProfilesStore } from '@holochain-open-dev/profiles';
 
-  import { GamezStore } from '~/lib/store';
-  import { setStoreContext } from '~/lib/context';
   import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
   import LogoIcon from '~/shared/icons/LogoIcon.svelte';
 
   import ControllerMain from './controllers/ControllerMain.svelte';
-  import ControllerCreatable from './controllers/ControllerCreatable.svelte';
+  // import ControllerCreatable from './controllers/ControllerCreatable.svelte';
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
   import { appletServices } from './we';
   import { createRootStore, type RootStore, setContext as setRootStoreContext } from '~/store';
@@ -50,8 +48,6 @@
       };
 
   let state: State = { type: 'pending' };
-  let store: GamezStore;
-  setStoreContext(() => store);
   let gameSpaceStore: RootStore;
   setRootStoreContext(() => gameSpaceStore);
   initialize();
@@ -75,7 +71,6 @@
     }
 
     const weaveClient = state.type === 'weave' ? state.weaveClient : undefined;
-    store = new GamezStore(weaveClient, state.profilesStore, state.client, roleName);
     gameSpaceStore = createRootStore(state.client, state.profilesStore, weaveClient || null);
   }
 
@@ -174,7 +169,7 @@
 </script>
 
 <svelte:head></svelte:head>
-{#if state.type !== 'pending' && store}
+{#if state.type !== 'pending'}
   <profiles-context store={state.profilesStore} id="root">
     {#if $prof.status == 'pending'}
       <LoadingIndicator textual={false} class="mt40" />

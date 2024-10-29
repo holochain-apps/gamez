@@ -139,6 +139,7 @@ export function createRootStore(
     deleteGameSpace,
     statesMap,
     addToPocket,
+    dnaHash,
   };
 }
 

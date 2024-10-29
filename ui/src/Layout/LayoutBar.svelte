@@ -8,16 +8,16 @@
   import { isWeaveContext } from '@theweave/api';
 
   import { type Board } from '~/lib/store';
-  import { getStoreContext } from '~/lib/context';
-  import { nav, route, goBack } from '~/lib/routes';
+  import { route, goBack } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
-  import Avatar from '~/shared/Avatar.svelte';
 
   import AboutDialog from './AboutDialog.svelte';
   import AvatarDialog from './AvatarDialog.svelte';
   import ParticipantsDialog from './ParticipantsDialog.svelte';
+  import { getContext } from '~/store';
+  import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
-  const store = getStoreContext();
+  const { profilesStore, pubKey } = getContext();
 
   export let activeBoard: Board = null;
   export let title = 'Board Gamez';
@@ -25,9 +25,8 @@
   let aboutDialog;
   let editAvatarDialog;
   let participantsDialog;
-  $: boardState = activeBoard ? activeBoard.readableState() : undefined;
   //@ts-ignore
-  $: myProfile = get(store.profilesStore.myProfile).value;
+  $: myProfile = get(profilesStore.myProfile).value;
   $: myName = myProfile ? myProfile.nickname : '';
 
   const editAvatar = () => {
@@ -48,8 +47,7 @@
     </button>
   {/if}
   <h1 class="font-bold text-2xl" style="text-shadow: 0 1px 0 rgba(0,0,0,.5)">
-    {#if activeBoard && $boardState}{$boardState.name}
-    {:else}{title}{/if}
+    {title}
   </h1>
 
   <div class="flex-grow"></div>
@@ -93,9 +91,9 @@
       class="ml4! flexcc hover:brightness-120"
       use:tooltip={'Edit profile'}
     >
-      <Avatar size={38} agentPubKey={store.myAgentPubKey} showNickname={false} />
+      <AgentAvatar size={38} {pubKey} />
     </button>
   {:else}
-    <Avatar size={38} agentPubKey={store.myAgentPubKey} showNickname={false} />
+    <AgentAvatar size={38} {pubKey} />
   {/if}
 </div>

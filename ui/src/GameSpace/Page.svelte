@@ -13,5 +13,5 @@
 </script>
 
 {#if $gameSpace}
-  <GameSpace gameSpace={$gameSpace} asAsset={true} />
+  <GameSpace gameSpace={$gameSpace} {asAsset} />
 {/if}

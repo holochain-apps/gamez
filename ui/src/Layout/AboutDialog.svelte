@@ -1,11 +1,10 @@
 <script lang="ts">
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 
-  import { encodeHashToBase64 } from '@holochain/client';
+  import { hashToB64 } from '~/lib/util';
+  import { getContext } from '~/store';
 
-  import { getStoreContext } from '~/lib/context';
-
-  const store = getStoreContext();
+  const { dnaHash } = getContext();
 
   const handleKeydown = (e) => {
     if (e.key === 'Escape') {
@@ -16,7 +15,6 @@
   export const open = () => {
     dialog.show();
   };
-  let dnaHash = store.dnaHash;
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -38,11 +36,7 @@
       >Copyright © 2023-2024 Holochain Foundation. This software is distributed under the MIT
       License</p
     >
-    <p class="small"
-      >DNA Hash: {$dnaHash.status === 'complete'
-        ? encodeHashToBase64($dnaHash.value)
-        : 'Loading...'}</p
-    >
+    <p class="small">DNA Hash: {$dnaHash ? hashToB64($dnaHash) : 'Loading...'}</p>
   </div>
 </sl-dialog>
 
