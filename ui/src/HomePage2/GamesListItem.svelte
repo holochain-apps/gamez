@@ -85,16 +85,16 @@
         await cloneGameSpace(gameSpace.hash);
         break;
       case 'active':
-        gameSpace.change({ type: 'set-status', status: 'active' });
+        gameSpace.change({ type: 'set-status', status: 'active' }, true);
         break;
       case 'library':
-        gameSpace.change({ type: 'set-status', status: 'library' });
+        gameSpace.change({ type: 'set-status', status: 'library' }, true);
         break;
       case 'draft':
-        gameSpace.change({ type: 'set-status', status: 'draft' });
+        gameSpace.change({ type: 'set-status', status: 'draft' }, true);
         break;
       case 'archive':
-        gameSpace.change({ type: 'set-status', status: 'archived' });
+        gameSpace.change({ type: 'set-status', status: 'archived' }, true);
         break;
       case 'delete':
         // TODO

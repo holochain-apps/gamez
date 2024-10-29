@@ -1,4 +1,5 @@
 import { isEqual } from 'lodash';
+import { derived } from 'svelte/store';
 
 import { asyncDerived, get, pipe, toPromise, writable } from '@holochain-open-dev/stores';
 import {
@@ -113,6 +114,8 @@ export default class SimplerSyn {
 
 export class SynDoc {
   state = writable<any>(null);
+  private _ephemeral = writable<any>(null);
+  ephemeral = derived(this._ephemeral, ($ephemeral) => $ephemeral);
   migratedState = writable<any>(null);
   private session: SessionStore<any, any> | null = null;
 
@@ -177,8 +180,11 @@ export class SynDoc {
     if (!this.session) this.session = await this.workspace.joinSession();
     // Should I clean up after the session is left?
     this.session.state.subscribe((state) => {
-      console.log('SESSION STATE', state);
+      // console.log('SESSION STATE', state);
       this.state.set(state);
+    });
+    this.session.ephemeral.subscribe((state) => {
+      this._ephemeral.set(state);
     });
     this.session.participants.subscribe(($participants) => {
       this.participants.set($participants);
@@ -197,8 +203,14 @@ export class SynDoc {
     return !!this.session;
   }
 
-  public async change(updateFn: (state: any, ephState: any) => void) {
+  public async change(updateFn: (state: any, ephState: any) => void, force: boolean = false) {
     const wasInSession = !!this.session;
+    if (!wasInSession && !force) {
+      console.warn(
+        'Attempting to run a change while not in session; use force = true for this; which will join the session temporarily',
+      );
+      return;
+    }
     if (!wasInSession) {
       console.log('Joining session temporarily for change');
       await this.joinSession();

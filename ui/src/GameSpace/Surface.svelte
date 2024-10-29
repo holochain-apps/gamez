@@ -19,7 +19,23 @@
   $: everythingLocked = !isCreator && !isPlaying;
   $: {
     gameSpace.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
+    // const { width, height } = boardContainer.getBoundingClientRect();
+    // gameSpace.ephemerealChange({
+    //   type: 'update-player-position',
+    //   player: gameSpace.pubKey,
+    //   playerPosition: {
+    //     panX: panX - width / 2 / zoom,
+    //     panY: panY - height / zoom,
+    //     zoom: zoom,
+    //     cursorX: mouseCoords.x,
+    //     cursorY: mouseCoords.y,
+    //   },
+    // });
+    // This is absolutely not performant enough to do with Syn
   }
+
+  $: ephemeral = gameSpace.ephemeral;
+  $: playersPositions = $ephemeral?.playersPositions || {};
 
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();
@@ -260,6 +276,12 @@
     {/each}
     <div class="absolute w-[1px] h-full bg-white/25 left-0 top-[-50%]"></div>
     <div class="absolute h-[1px] w-full bg-white/25 left-[-50%] top-0"></div>
+    <!-- {#each Object.entries(playersPositions) as [hash, player] (hash)}
+      <div
+        class="absolute -left-6 -top-6 h12 w12 bg-red-500 rounded-full"
+        style={`transform: scale(${player.zoom}) translate(${-player.panX}px, ${-player.panY}px);`}
+      ></div>
+    {/each} -->
   </div>
   <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">
     {Math.floor(mouseCoords.x)}, {Math.floor(mouseCoords.y)}
