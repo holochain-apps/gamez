@@ -1,11 +1,18 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { get } from 'svelte/store';
+  import { derived, get } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
+  import PocketIcon from '~/shared/icons/PocketIcon.svelte';
 
   import LayoutBar from '~/Layout/LayoutBar.svelte';
-  import { type GameSpaceSyn, type GElement, type LibraryElement, createElement } from '~/store';
+  import {
+    type GameSpaceSyn,
+    type GElement,
+    type LibraryElement,
+    createElement,
+    getContext,
+  } from '~/store';
 
   import Surface from './Surface.svelte';
   import PeopleBar from './topbar/PeopleBar.svelte';
@@ -13,30 +20,26 @@
   import ElementsLibrary from './sidebar/ElementsLibrary.svelte';
   import SpaceConfigurator from './sidebar/SpaceConfigurator.svelte';
   import ConfigMenu from './ConfigMenu';
+  import { tooltip } from '~/shared/tooltip';
+  import type { WAL } from '@theweave/api';
+  import { decodeHashFromBase64 } from '@holochain/client';
 
   export let gameSpace: GameSpaceSyn;
-  $: state = get(gameSpace.state);
-  $: participants = [] as Uint8Array[];
+  $: state = gameSpace.state;
+  $: allParticipants = gameSpace.participants;
+  $: participants = derived(allParticipants, ($p) => $p?.active || []);
   $: canJoinGame = gameSpace.canJoinGame;
   $: canLeaveGame = gameSpace.canLeaveGame;
   $: isSteward = gameSpace.isSteward;
-  $: isCreator = state.creator === gameSpace.pubKey;
+  $: isCreator = $state.creator === gameSpace.pubKey;
   $: isPlaying = $canLeaveGame;
+
+  const { weaveClient, dnaHash } = getContext();
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
 
   onMount(async () => {
     await gameSpace.joinSession();
-
-    gameSpace.state.subscribe((latestState) => {
-      state = latestState;
-    });
-
-    gameSpace.participants.subscribe((allParticipants) => {
-      if (allParticipants) {
-        participants = allParticipants.active;
-      }
-    });
   });
 
   onDestroy(() => {
@@ -70,7 +73,7 @@
 
   // Handle closing the context menu if an item was deleted
   $: {
-    if (contextMenuState && !state.elements.find((e) => e.uuid === contextMenuState.id)) {
+    if (contextMenuState && !$state.elements.find((e) => e.uuid === contextMenuState.id)) {
       closeContextMenu();
     }
   }
@@ -86,10 +89,40 @@
       });
     }
   }
+
+  function handleAddToPocket() {
+    if ($dnaHash && weaveClient) {
+      const attachment: WAL = {
+        hrl: [$dnaHash, decodeHashFromBase64(gameSpace.hash)],
+        context: {},
+      };
+      weaveClient.walToPocket(attachment);
+    } else {
+      console.log('Tried adding to pocket before the DNA hash was loaded');
+    }
+  }
+
+  // Some debug info
+
+  $: ephemeralState = gameSpace.ephemeral;
+  $: ephemeralStateChangesCount = 0;
+  $: stateChangesCount = 0;
+  $: {
+    $ephemeralState;
+    ephemeralStateChangesCount++;
+  }
+  $: {
+    $state;
+    stateChangesCount++;
+  }
+
+  $: {
+    console.log('EPH change', ephemeralState);
+  }
 </script>
 
-{#if state}
-  <LayoutBar title={state.name || 'Game Space'} />
+{#if $state}
+  <LayoutBar title={$state.name || 'Game Space'} />
   <div class="h-full flex flex-col">
     <div class="bg-main-700 h-14 flex relative">
       <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
@@ -100,27 +133,36 @@
           <CubesIcon />
         </SidebarToggleButton>
       {/if}
+      <div class="flexcc px2">
+        <button
+          on:click={handleAddToPocket}
+          use:tooltip={'Add to pocket'}
+          class="h-10 w-10 p2 bg-main-400 b b-black/10 hover:bg-main-500 rounded-md text-white"
+        >
+          <PocketIcon class="h-full w-full" />
+        </button>
+      </div>
 
       <PeopleBar
         canJoinGame={$canJoinGame}
         canLeaveGame={$canLeaveGame}
-        players={state.players}
-        {participants}
+        players={$state.players}
+        participants={$participants}
         onJoin={() => gameSpace.joinGame()}
         onLeave={() => gameSpace.leaveGame()}
       />
     </div>
-    <div class="flex flex-grow">
+    <div class="flex flex-grow relative">
       {#if sidebar === 'elementsLibrary' && $isSteward}
         <ElementsLibrary onAdd={handleAddElementFromLibrary} />
       {:else if sidebar === 'configurator'}
         {#if state}
           <SpaceConfigurator
             isSteward={$isSteward}
-            creator={state.creator}
-            name={state.name}
+            creator={$state.creator}
+            name={$state.name}
             onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
-            isStewarded={state.isStewarded}
+            isStewarded={$state.isStewarded}
             onIsStewardedChange={(isStewarded) =>
               gameSpace.change({ type: 'set-is-stewarded', isStewarded })}
           />
@@ -128,7 +170,7 @@
       {/if}
       <Surface
         {gameSpace}
-        elements={state.elements}
+        elements={$state.elements}
         onMoveElement={(uuid, x, y) => {
           gameSpace.change({ type: 'move-element', uuid, x, y });
         }}
@@ -142,6 +184,9 @@
         {isCreator}
         {isPlaying}
       />
+      <div class="absolute bottom-0 left-0 bg-black/50 text-white rounded-tr-md z-100 p1">
+        [{stateChangesCount}] [{ephemeralStateChangesCount}]</div
+      >
     </div>
   </div>
   {#if contextMenuState}

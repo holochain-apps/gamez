@@ -5,9 +5,10 @@ import { derived, get, type Readable, writable } from 'svelte/store';
 
 import { ProfilesStore } from '@holochain-open-dev/profiles';
 import { SynClient, SynStore } from '@holochain-syn/core';
-import { type AppClient, encodeHashToBase64 } from '@holochain/client';
+import { type AppClient, type DnaHash, encodeHashToBase64 } from '@holochain/client';
 
 import SimplerSyn from '~/lib/SimplerSyn';
+import { getMyDna } from '~/lib/util';
 
 import { createGameSpaceSynStore, type GameSpaceSyn } from './gameSpaceStore';
 import { initialState } from './grammar';
@@ -16,14 +17,18 @@ import { type GameSpace } from './types';
 
 export type RootStore = ReturnType<typeof createRootStore>;
 
+const ROLE_NAME = 'gamez';
+
 export function createRootStore(
   appClient: AppClient,
   profilesStore: ProfilesStore,
   weaveClient: WeaveClient | null,
 ) {
-  const synClient = new SynClient(appClient, 'gamez', 'syn');
+  const synClient = new SynClient(appClient, ROLE_NAME, 'syn');
   const synStore = new SynStore(synClient);
   const pubKey = encodeHashToBase64(synStore.client.client.myPubKey);
+  const _dnaHash = writable<DnaHash | null>(null);
+  const dnaHash = derived(_dnaHash, ($dnaHash) => $dnaHash);
 
   const gameDocs = writable<{ [key: string]: GameSpaceSyn }>({});
   const statesMap = writable<{ [key: string]: GameSpace }>({});
@@ -55,6 +60,10 @@ export function createRootStore(
     migration,
     4,
   );
+
+  getMyDna(ROLE_NAME, appClient).then((hash) => {
+    _dnaHash.set(hash);
+  });
 
   async function createGameSpace() {
     const doc = await simplerSyn.createDoc(initialState(pubKey));
@@ -109,6 +118,7 @@ export function createRootStore(
     cloneGameSpace,
     deleteGameSpace,
     statesMap,
+    dnaHash,
   };
 }
 

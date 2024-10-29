@@ -21,7 +21,7 @@
 <div class="flex-grow flexce space-x-2 relative">
   {#if canJoinGame}
     <button
-      class="bg-main-400 h10 px2 py1 rounded-md text-white"
+      class="bg-main-400 h10 px2 py1 rounded-md text-white hover:bg-main-500 b b-black/10"
       on:click={() => {
         onJoin();
       }}>Join Game</button
@@ -29,7 +29,7 @@
   {/if}
   {#if canLeaveGame}
     <button
-      class="bg-gray-400 h10 px2 py1 rounded-md text-white"
+      class="bg-gray-400 h10 px2 py1 rounded-md text-white b b-black/10 hover:brightness-110"
       on:click={() => {
         onLeave();
       }}>Leave Game</button
