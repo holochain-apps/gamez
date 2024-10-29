@@ -1,7 +1,14 @@
 import type { WeaveUrl } from '@theweave/api';
 
 import type { AsyncStatus } from '@holochain-open-dev/stores';
-import { type AppClient, CellType, type DnaHash, type EntryHash } from '@holochain/client';
+import {
+  type AppClient,
+  CellType,
+  decodeHashFromBase64,
+  type DnaHash,
+  encodeHashToBase64,
+  type EntryHash,
+} from '@holochain/client';
 
 export const hashEqual = (a: EntryHash, b: EntryHash): boolean => {
   if (!a || !b) {
@@ -37,3 +44,7 @@ export type AssetSpec = {
 export function isComplete<T>(data: AsyncStatus<T>): data is { status: 'complete'; value: T } {
   return data.status === 'complete';
 }
+
+export const hashToB64 = encodeHashToBase64;
+
+export const b64ToHash = decodeHashFromBase64;

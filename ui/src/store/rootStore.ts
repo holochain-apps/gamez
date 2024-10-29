@@ -1,11 +1,16 @@
-import { type WeaveClient } from '@theweave/api';
+import { type WAL, type WeaveClient } from '@theweave/api';
 import { cloneDeep, zipObject } from 'lodash';
 import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
 import { derived, get, type Readable, writable } from 'svelte/store';
 
 import { ProfilesStore } from '@holochain-open-dev/profiles';
 import { SynClient, SynStore } from '@holochain-syn/core';
-import { type AppClient, type DnaHash, encodeHashToBase64 } from '@holochain/client';
+import {
+  type AppClient,
+  decodeHashFromBase64,
+  type DnaHash,
+  encodeHashToBase64,
+} from '@holochain/client';
 
 import SimplerSyn from '~/lib/SimplerSyn';
 import { getMyDna } from '~/lib/util';
@@ -105,7 +110,22 @@ export function createRootStore(
   }
 
   function readyGameSpace(hash: string): Readable<GameSpaceSyn | null> {
-    return derived(gameDocs, ($gameDocs) => ($gameDocs[hash]?.state ? $gameDocs[hash] : null));
+    return derived([gameDocs, statesMap], ([$gameDocs, $statesMap]) =>
+      $statesMap[hash] ? $gameDocs[hash] : null,
+    );
+  }
+
+  function addToPocket(gameSpace: GameSpaceSyn) {
+    const $dnaHash = get(dnaHash);
+    if ($dnaHash && weaveClient) {
+      const attachment: WAL = {
+        hrl: [$dnaHash, decodeHashFromBase64(gameSpace.hash)],
+        context: {},
+      };
+      weaveClient.walToPocket(attachment);
+    } else {
+      console.log('Tried adding to pocket before the DNA hash was loaded');
+    }
   }
 
   return {
@@ -118,7 +138,7 @@ export function createRootStore(
     cloneGameSpace,
     deleteGameSpace,
     statesMap,
-    dnaHash,
+    addToPocket,
   };
 }
 

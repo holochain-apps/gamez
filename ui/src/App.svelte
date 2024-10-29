@@ -191,7 +191,7 @@
       {:else if state.view.type === 'asset'}
         <ControllerBoardAsset view={state.view} />
       {:else if state.view.type === 'creatable'}
-        <ControllerCreatable view={state.view} />
+        <!-- <ControllerCreatable view={state.view} /> -->
       {/if}
     {/if}
   </profiles-context>

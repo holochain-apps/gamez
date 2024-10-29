@@ -21,10 +21,9 @@
   import SpaceConfigurator from './sidebar/SpaceConfigurator.svelte';
   import ConfigMenu from './ConfigMenu';
   import { tooltip } from '~/shared/tooltip';
-  import type { WAL } from '@theweave/api';
-  import { decodeHashFromBase64 } from '@holochain/client';
 
   export let gameSpace: GameSpaceSyn;
+  export let asAsset: boolean = false;
   $: state = gameSpace.state;
   $: allParticipants = gameSpace.participants;
   $: participants = derived(allParticipants, ($p) => $p?.active || []);
@@ -34,9 +33,9 @@
   $: isCreator = $state.creator === gameSpace.pubKey;
   $: isPlaying = $canLeaveGame;
 
-  const { weaveClient, dnaHash } = getContext();
+  const { addToPocket } = getContext();
 
-  let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
+  let sidebar: 'none' | 'elementsLibrary' | 'configurator' = asAsset ? 'none' : 'elementsLibrary';
 
   onMount(async () => {
     await gameSpace.joinSession();
@@ -91,15 +90,7 @@
   }
 
   function handleAddToPocket() {
-    if ($dnaHash && weaveClient) {
-      const attachment: WAL = {
-        hrl: [$dnaHash, decodeHashFromBase64(gameSpace.hash)],
-        context: {},
-      };
-      weaveClient.walToPocket(attachment);
-    } else {
-      console.log('Tried adding to pocket before the DNA hash was loaded');
-    }
+    addToPocket(gameSpace);
   }
 
   // Some debug info
@@ -122,7 +113,9 @@
 </script>
 
 {#if $state}
-  <LayoutBar title={$state.name || 'Game Space'} />
+  {#if !asAsset}
+    <LayoutBar title={$state.name || 'Game Spaceeee'} />
+  {/if}
   <div class="h-full flex flex-col">
     <div class="bg-main-700 h-14 flex relative">
       <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
@@ -133,15 +126,17 @@
           <CubesIcon />
         </SidebarToggleButton>
       {/if}
-      <div class="flexcc px2">
-        <button
-          on:click={handleAddToPocket}
-          use:tooltip={'Add to pocket'}
-          class="h-10 w-10 p2 bg-main-400 b b-black/10 hover:bg-main-500 rounded-md text-white"
-        >
-          <PocketIcon class="h-full w-full" />
-        </button>
-      </div>
+      {#if !asAsset}
+        <div class="flexcc px2">
+          <button
+            on:click={handleAddToPocket}
+            use:tooltip={'Add to pocket'}
+            class="h-10 w-10 p2 bg-main-400 b b-black/10 hover:bg-main-500 rounded-md text-white"
+          >
+            <PocketIcon class="h-full w-full" />
+          </button>
+        </div>
+      {/if}
 
       <PeopleBar
         canJoinGame={$canJoinGame}
