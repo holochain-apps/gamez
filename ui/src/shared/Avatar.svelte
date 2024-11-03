@@ -5,11 +5,11 @@
   import { encodeHashToBase64, type AgentPubKey } from '@holochain/client';
   import '@holochain-open-dev/profiles/dist/elements/agent-avatar.js';
 
-  import { getStoreContext } from '~/lib/context';
+  import { getContext } from '~/store';
 
   import { tooltip as tooltipDirective } from './tooltip';
 
-  const store = getStoreContext();
+  const { profilesStore } = getContext();
 
   export let agentPubKey: AgentPubKey;
   export let size = 32;
@@ -24,7 +24,7 @@
 
   $: agentPubKey;
   $: agentPubKeyB64 = encodeHashToBase64(agentPubKey);
-  $: profile = store.profilesStore.profiles.get(agentPubKey);
+  $: profile = profilesStore.profiles.get(agentPubKey);
   $: nickname =
     $profile.status == 'complete' && $profile.value
       ? $profile.value.entry.nickname

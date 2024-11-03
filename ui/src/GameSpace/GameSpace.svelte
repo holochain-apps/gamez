@@ -1,11 +1,18 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { get } from 'svelte/store';
+  import { derived, get } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
+  import PocketIcon from '~/shared/icons/PocketIcon.svelte';
 
   import LayoutBar from '~/Layout/LayoutBar.svelte';
-  import { type GameSpaceSyn, type GElement, type LibraryElement, createElement } from '~/store';
+  import {
+    type GameSpaceSyn,
+    type GElement,
+    type LibraryElement,
+    createElement,
+    getContext,
+  } from '~/store';
 
   import Surface from './Surface.svelte';
   import PeopleBar from './topbar/PeopleBar.svelte';
@@ -13,30 +20,24 @@
   import ElementsLibrary from './sidebar/ElementsLibrary.svelte';
   import SpaceConfigurator from './sidebar/SpaceConfigurator.svelte';
   import ConfigMenu from './ConfigMenu';
+  import { tooltip } from '~/shared/tooltip';
 
   export let gameSpace: GameSpaceSyn;
-  $: state = get(gameSpace.state);
-  $: participants = [] as Uint8Array[];
+  export let asAsset: boolean = false;
+  $: state = gameSpace.state;
+  $: allParticipants = gameSpace.participants;
+  $: participants = derived(allParticipants, ($p) => $p?.active || []);
   $: canJoinGame = gameSpace.canJoinGame;
   $: canLeaveGame = gameSpace.canLeaveGame;
   $: isSteward = gameSpace.isSteward;
-  $: isCreator = state.creator === gameSpace.pubKey;
-  $: isPlaying = $canLeaveGame;
+  $: permissions = gameSpace.permissions;
 
-  let sidebar: 'none' | 'elementsLibrary' | 'configurator' = 'elementsLibrary';
+  const { addToPocket } = getContext();
+
+  let sidebar: 'none' | 'elementsLibrary' | 'configurator' = asAsset ? 'none' : 'elementsLibrary';
 
   onMount(async () => {
     await gameSpace.joinSession();
-
-    gameSpace.state.subscribe((latestState) => {
-      state = latestState;
-    });
-
-    gameSpace.participants.subscribe((allParticipants) => {
-      if (allParticipants) {
-        participants = allParticipants.active;
-      }
-    });
   });
 
   onDestroy(() => {
@@ -70,7 +71,7 @@
 
   // Handle closing the context menu if an item was deleted
   $: {
-    if (contextMenuState && !state.elements.find((e) => e.uuid === contextMenuState.id)) {
+    if (contextMenuState && !$state.elements.find((e) => e.uuid === contextMenuState.id)) {
       closeContextMenu();
     }
   }
@@ -86,49 +87,70 @@
       });
     }
   }
+
+  function handleAddToPocket() {
+    addToPocket(gameSpace);
+  }
 </script>
 
-{#if state}
-  <LayoutBar title={state.name || 'Game Space'} />
+{#if $state}
+  {#if !asAsset}
+    <LayoutBar title={$state.name + ($permissions.isArchived ? ' (view only)' : '')} />
+  {/if}
   <div class="h-full flex flex-col">
-    <div class="bg-main-700 h-14 flex relative">
-      <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
-        <GearIcon />
-      </SidebarToggleButton>
-      {#if $isSteward}
-        <SidebarToggleButton current={sidebar} value="elementsLibrary" onClick={toggleSidebar}>
-          <CubesIcon />
+    {#if !$permissions.isArchived}
+      <div class="bg-main-700 h-14 flex relative">
+        <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
+          <GearIcon />
         </SidebarToggleButton>
-      {/if}
+        {#if $isSteward}
+          <SidebarToggleButton current={sidebar} value="elementsLibrary" onClick={toggleSidebar}>
+            <CubesIcon />
+          </SidebarToggleButton>
+        {/if}
+        {#if !asAsset}
+          <div class="flexcc px2">
+            <button
+              on:click={handleAddToPocket}
+              use:tooltip={'Add to pocket'}
+              class="h-10 w-10 p2 bg-main-400 b b-black/10 hover:bg-main-500 rounded-md text-white"
+            >
+              <PocketIcon class="h-full w-full" />
+            </button>
+          </div>
+        {/if}
 
-      <PeopleBar
-        canJoinGame={$canJoinGame}
-        canLeaveGame={$canLeaveGame}
-        players={state.players}
-        {participants}
-        onJoin={() => gameSpace.joinGame()}
-        onLeave={() => gameSpace.leaveGame()}
-      />
-    </div>
-    <div class="flex flex-grow">
-      {#if sidebar === 'elementsLibrary' && $isSteward}
-        <ElementsLibrary onAdd={handleAddElementFromLibrary} />
-      {:else if sidebar === 'configurator'}
-        {#if state}
-          <SpaceConfigurator
-            isSteward={$isSteward}
-            creator={state.creator}
-            name={state.name}
-            onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
-            isStewarded={state.isStewarded}
-            onIsStewardedChange={(isStewarded) =>
-              gameSpace.change({ type: 'set-is-stewarded', isStewarded })}
+        <PeopleBar
+          canJoinGame={$canJoinGame}
+          canLeaveGame={$canLeaveGame}
+          players={$state.players}
+          participants={$participants}
+          onJoin={() => gameSpace.joinGame()}
+          onLeave={() => gameSpace.leaveGame()}
+        />
+      </div>
+    {/if}
+    <div class="flex flex-grow relative">
+      {#if !$permissions.isArchived}
+        {#if sidebar === 'elementsLibrary' && $isSteward}
+          <ElementsLibrary
+            onAdd={handleAddElementFromLibrary}
+            canAdd={$permissions.canAddComponents}
           />
+        {:else if sidebar === 'configurator'}
+          {#if state}
+            <SpaceConfigurator
+              creator={$state.creator}
+              name={$state.name}
+              onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
+              canEdit={$permissions.canEditSpace}
+            />
+          {/if}
         {/if}
       {/if}
       <Surface
         {gameSpace}
-        elements={state.elements}
+        elements={$state.elements}
         onMoveElement={(uuid, x, y) => {
           gameSpace.change({ type: 'move-element', uuid, x, y });
         }}
@@ -139,8 +161,6 @@
           gameSpace.change({ type: 'rotate-element', uuid, rotation });
         }}
         onContextMenu={handleContextMenu}
-        {isCreator}
-        {isPlaying}
       />
     </div>
   </div>
@@ -155,9 +175,6 @@
       })()}
       {gameSpace}
       onUpdateEl={handleUpdateElement}
-      {isCreator}
-      isSteward={$isSteward}
-      {isPlaying}
       onMoveZ={(z) => gameSpace.change({ type: 'move-z', uuid: contextMenuState.id, z })}
       onRemoveEl={() => handleRemoveElement(contextMenuState.id)}
     />

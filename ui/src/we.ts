@@ -6,15 +6,18 @@ import type {
   WAL,
   WeaveServices,
 } from '@theweave/api';
+import { get } from 'svelte/store';
 
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
 import { LazyHoloHashMap } from '@holochain-open-dev/utils';
 import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
 import type { AppClient, RoleName, ZomeName } from '@holochain/client';
 
+import { SynDoc } from './lib/SimplerSyn';
 import type { BoardEphemeralState, BoardState } from './lib/store/board';
 import { BoardType } from './lib/store/boardList';
-import { getMyDna } from './lib/util';
+import { getMyDna, hashToB64, waitUntilAvailable } from './lib/util';
+import { type GameSpace, getContext } from './store';
 
 const ROLE_NAME = 'gamez';
 const ZOME_NAME = 'syn';
@@ -25,10 +28,11 @@ const ICON =
 export const appletServices: AppletServices = {
   // Types of attachment that this Applet offers for other Applets to be created
   creatables: {
-    game: {
-      label: 'Game',
-      icon_src: ICON,
-    },
+    // Disable for now
+    // game: {
+    //   label: 'Game',
+    //   icon_src: ICON,
+    // },
   },
   // Types of UI widgets/blocks that this Applet supports
   blockTypes: {},
@@ -50,7 +54,14 @@ export const appletServices: AppletServices = {
         const synClient = new SynClient(appletClient, roleName, ZOME_NAME);
         const synStore = new SynStore(synClient);
         const documentHash = wal.hrl[1];
-        const docStore = new DocumentStore<BoardState, BoardEphemeralState>(synStore, documentHash);
+
+        // This doesn't work. Gotta move initialization of the store outside the App component
+        // const { statesMap } = getContext();
+        // const $statesMap = await waitUntilAvailable(statesMap);
+        // const $state = $statesMap[hashToB64(documentHash)];
+        // const name = $state.name || '...';
+
+        const docStore = new DocumentStore<GameSpace, unknown>(synStore, documentHash);
         const workspaces = await toPromise(docStore.allWorkspaces);
         const workspace = new WorkspaceStore(docStore, Array.from(workspaces.keys())[0]);
         const latestSnapshot = await toPromise(workspace.latestSnapshot);

@@ -41,17 +41,20 @@
     label="Limit"
     value={el.limit}
     onInput={(limit) => onUpdate({ ...el, limit: limit || null })}
+    disabled={el.lock.config}
   />
   <IntegerInput
     class="flex-1 w-0"
     label="Width"
     value={el.pieceW}
     onInput={(pieceW) => onUpdate({ ...el, pieceW })}
+    disabled={el.lock.config}
   />
   <IntegerInput
     class="flex-1 w-0"
     label="Height"
     value={el.pieceH}
     onInput={(pieceH) => onUpdate({ ...el, pieceH })}
+    disabled={el.lock.config}
   />
 </div>

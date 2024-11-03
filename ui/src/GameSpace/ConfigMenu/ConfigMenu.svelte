@@ -16,15 +16,10 @@
   export let onRemoveEl: () => void;
   export let onClose: () => void;
   export let el: GElement;
-  export let isCreator: boolean;
-  export let isSteward: boolean;
-  export let isPlaying: boolean;
   export let gameSpace: GameSpaceSyn;
 
-  $: canEditLock = isCreator || (isSteward && isPlaying);
-  $: everythingLocked = !isCreator && !isPlaying;
-
-  $: resolvedLock = everythingLocked
+  $: permissions = gameSpace.permissions;
+  $: resolvedLock = !$permissions.canEditComponents
     ? { position: true, size: true, rotation: true, config: true, wals: true, remove: true }
     : el.lock;
 
@@ -80,7 +75,11 @@
       <TrashIcon /></button
     >
   </div>
-  <LockConfigEl onLock={handleLockUpdate} lockConfig={el.lock} {canEditLock} />
+  <LockConfigEl
+    onLock={handleLockUpdate}
+    lockConfig={el.lock}
+    canEditLock={$permissions.canEditComponents}
+  />
 
   <svelte:component
     this={E[resolvedEl.type].ConfigMenu}

@@ -13,5 +13,6 @@
     value={el.showTimers}
     label="Show timers"
     onInput={(v) => onUpdate({ showTimers: v })}
+    disabled={el.lock.config}
   />
 </div>

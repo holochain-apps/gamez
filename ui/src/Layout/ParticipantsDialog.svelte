@@ -7,11 +7,12 @@
 
   import { getStoreContext } from '~/lib/context';
   import Avatar from '~/shared/Avatar.svelte';
+  import { getContext } from '~/store';
 
-  const store = getStoreContext();
+  const { profilesStore } = getContext();
 
-  $: agents = store.profilesStore.agentsWithProfile;
-  $: agentBoards = store.boardList.allAgentBoards;
+  $: agents = profilesStore.agentsWithProfile;
+  // $: agentBoards = store.boardList.allAgentBoards;
 
   //__debugStore(store.boardList.allAgentBoards)
   //.status=="complete" ? sliceAndJoin( store.boardList.boardParticipants, $agents.value): undefined
@@ -36,7 +37,7 @@
             <div class="bg-main-900 p2">
               <Avatar {agentPubKey} size={40} namePosition="row" />
             </div>
-            {#if $agentBoards.status == 'complete' && $agentBoards.value.get(agentPubKey).length}
+            <!-- {#if $agentBoards.status == 'complete' && $agentBoards.value.get(agentPubKey).length}
               <div class="relative p2 py4 flex flexcc flex-wrap bg-main-600 text-white">
                 <div
                   class="absolute top-0 right-2 -translate-y-1/2 text-xl bg-main-700 px2 py1 rounded-md b b-main-600"
@@ -57,7 +58,7 @@
                   </button>
                 {/each}
               </div>
-            {/if}
+            {/if} -->
           </div>
         {/each}
       {/if}

@@ -4,6 +4,7 @@
 
   export let el: FooTemplateElement;
   // export let gameSpace: GameSpaceSyn;
+  // export let isLocked: boolean
   $$restProps; // This prevents Svelte warnings from unused props
 </script>
 

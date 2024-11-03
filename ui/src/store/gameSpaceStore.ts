@@ -1,7 +1,8 @@
-import { derived, get, type Writable, writable } from 'svelte/store';
+import { derived, get, type Readable, type Writable, writable } from 'svelte/store';
 
 import { type SynDoc } from '~/lib/SimplerSyn';
 
+import * as eph from './ephemeralState';
 import { applyDelta, type Delta } from './grammar';
 import { type GameSpace } from './types';
 
@@ -17,6 +18,7 @@ export type GameSpaceSyn = ReturnType<typeof createGameSpaceSynStore>;
 export function createGameSpaceSynStore(synDoc: SynDoc) {
   console.log('SYN DOC', synDoc);
   const state = synDoc.state as Writable<GameSpace>;
+  const ephemeral = synDoc.ephemeral as Readable<eph.State>;
   const pubKey = synDoc.pubKey;
   const hash = synDoc.hash;
   const participants = synDoc.participants;
@@ -64,8 +66,28 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
 
   const isSteward = derived(state, ($state) => {
     if (!$state.isStewarded) return true;
-    return $state.creator === this.pubKeyB64;
+    return $state.creator === pubKey;
   });
+
+  const permissions = derived(
+    [canLeaveGame, state, canJoinGame],
+    ([$canLeaveGame, $state, $canJoinGame]) => {
+      const params = {
+        isCreator: $state.creator === pubKey,
+        isPlaying: $canLeaveGame,
+        isArchived: $state.status === 'archived',
+      };
+      const canEdit = (params.isCreator || params.isPlaying) && !params.isArchived;
+      return {
+        ...params,
+        canJoin: $canJoinGame,
+        canLeave: $canLeaveGame,
+        canEditComponents: canEdit,
+        canAddComponents: canEdit,
+        canEditSpace: canEdit,
+      };
+    },
+  );
 
   // ██╗   ██╗██╗    ███████╗████████╗ █████╗ ████████╗███████╗
   // ██║   ██║██║    ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██╔════╝
@@ -112,19 +134,30 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
   // ╚██████╗██║  ██║██║  ██║██║ ╚████║╚██████╔╝███████╗███████║
   //  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚══════╝
 
-  async function change(delta: Delta | Delta[]) {
+  async function change(delta: Delta | Delta[], force: boolean = false) {
     const deltas = Array.isArray(delta) ? delta : [delta];
     console.log('GameSpace changes', deltas);
 
     console.time('Running session change');
-    synDoc.change((state, _eph) => {
+    await synDoc.change((state, _eph) => {
       console.time('Running deltas');
       for (const delta of deltas) {
         applyDelta(delta, state);
       }
       console.timeEnd('Running deltas');
-    });
+    }, force);
     console.timeEnd('Running session change');
+  }
+
+  async function ephemerealChange(delta: eph.Delta | eph.Delta[]) {
+    const deltas = Array.isArray(delta) ? delta : [delta];
+    // console.time('Running ephemeral state change');
+    await synDoc.change((_state, ephemerealState) => {
+      for (const delta of deltas) {
+        eph.applyDelta(delta, ephemerealState);
+      }
+    }, false);
+    // console.time('Running ephemeral state change');
   }
 
   function joinGame() {
@@ -157,6 +190,7 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     canJoinGame,
     canLeaveGame,
     isSteward,
+    permissions,
 
     // UI STATE
     ui,
@@ -166,6 +200,8 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
 
     // CHANGES
     change,
+    ephemerealChange,
+    ephemeral,
     joinGame,
     leaveGame,
   };
