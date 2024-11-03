@@ -10,6 +10,7 @@
   import { type Board } from '~/lib/store';
   import { route, goBack } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
+  import { cx } from '~/lib/util';
 
   import AboutDialog from './AboutDialog.svelte';
   import AvatarDialog from './AvatarDialog.svelte';
@@ -21,6 +22,9 @@
 
   export let activeBoard: Board = null;
   export let title = 'Board Gamez';
+  export let canChangeTitle: boolean = false;
+  export let onChangeTitle = (name: string) => {};
+  export let sub: string = null;
 
   let aboutDialog;
   let editAvatarDialog;
@@ -32,6 +36,16 @@
   const editAvatar = () => {
     editAvatarDialog.open();
   };
+
+  function handleTitleBlur(ev: { currentTarget: HTMLHeadingElement }) {
+    onChangeTitle(ev.currentTarget.innerText);
+  }
+
+  function handleTitleKeydown(ev: KeyboardEvent & { currentTarget: HTMLHeadingElement }) {
+    if (ev.key === 'Enter') {
+      ev.currentTarget.blur();
+    }
+  }
 </script>
 
 <AboutDialog bind:this={aboutDialog} />
@@ -46,9 +60,20 @@
       <ArrowLeftIcon />
     </button>
   {/if}
-  <h1 class="font-bold text-2xl" style="text-shadow: 0 1px 0 rgba(0,0,0,.5)">
+  <h1
+    class={cx('font-bold text-2xl px2 py1 rounded-md outline-main-500', {
+      'hocus:(bg-gray-100 text-black/80 text-shadow-none!)': canChangeTitle,
+    })}
+    on:keydown={handleTitleKeydown}
+    style="text-shadow: 0 1px 0 rgba(0,0,0,.5)"
+    contenteditable={canChangeTitle}
+    on:blur={handleTitleBlur}
+  >
     {title}
   </h1>
+  {#if sub}
+    <span class="opacity-50">{sub}</span>
+  {/if}
 
   <div class="flex-grow"></div>
 

@@ -1,4 +1,5 @@
 import type { WeaveUrl } from '@theweave/api';
+import classnames from 'classnames';
 import { readable } from 'svelte/store';
 import type { Readable } from 'svelte/store';
 
@@ -65,3 +66,5 @@ export function waitUntilAvailable<T>(readable: Readable<T | null>): Promise<T> 
     }, 5000);
   });
 }
+
+export const cx = classnames;

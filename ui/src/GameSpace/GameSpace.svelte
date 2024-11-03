@@ -91,11 +91,20 @@
   function handleAddToPocket() {
     addToPocket(gameSpace);
   }
+
+  function handleNameChange(name: string) {
+    gameSpace.change({ type: 'set-name', name });
+  }
 </script>
 
 {#if $state}
   {#if !asAsset}
-    <LayoutBar title={$state.name + ($permissions.isArchived ? ' (view only)' : '')} />
+    <LayoutBar
+      onChangeTitle={handleNameChange}
+      canChangeTitle={$permissions.canEditSpace}
+      title={$state.name}
+      sub={$permissions.isArchived ? ' (view only)' : ''}
+    />
   {/if}
   <div class="h-full flex flex-col">
     {#if !$permissions.isArchived}
@@ -142,7 +151,7 @@
             <SpaceConfigurator
               creator={$state.creator}
               name={$state.name}
-              onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
+              onNameChange={handleNameChange}
               canEdit={$permissions.canEditSpace}
             />
           {/if}
