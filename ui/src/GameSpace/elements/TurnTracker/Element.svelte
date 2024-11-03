@@ -13,6 +13,7 @@
 
   export let el: TurnTrackerElement;
   export let gameSpace: GameSpaceSyn;
+  export let isLocked: boolean;
   $: state = gameSpace.state;
   $: players = $state.players;
 
@@ -157,7 +158,7 @@
     <button
       on:click={handleStart}
       class="w-full h10 flexcc bg-blue-400 hover:bg-blue-300 rounded-md disabled:(saturate-0 hover:bg-blue-400) text-white uppercase tracking-wider b b-black/10"
-      disabled={!isPlaying}
+      disabled={!isPlaying || isLocked}
     >
       {isPlaying ? 'Start' : '...'}
     </button>
@@ -165,7 +166,7 @@
     <div class="flex space-x-2">
       <button
         on:click={handleNextTurn}
-        disabled={!isPlayerTurn && !isPaused}
+        disabled={(!isPlayerTurn && !isPaused) || isLocked}
         class="flex-grow w-full h10 flexcc bg-blue-400 hover:bg-blue-300 rounded-md disabled:(saturate-0 hover:bg-blue-400) text-white uppercase tracking-wider b b-black/10"
       >
         {isPaused ? 'Continue' : isPlayerTurn ? 'End turn' : '...'}
@@ -173,7 +174,7 @@
       {#if el.showTimers}
         <button
           on:click={handlePauseTurn}
-          disabled={!canPauseGame}
+          disabled={!canPauseGame || isLocked}
           class="h10 w10 flex-shrink-0 flexcc bg-blue-400 hover:bg-blue-300 disabled:(saturate-0 hover:bg-blue-400) text-white rounded-md b b-black/10"
         >
           <PauseIcon />

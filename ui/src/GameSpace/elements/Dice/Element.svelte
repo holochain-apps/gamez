@@ -8,9 +8,10 @@
 
   export let el: DiceElement;
   export let gameSpace: GameSpaceSyn;
+  export let isLocked: boolean;
   $: state = gameSpace.state;
 
-  $: canPlay = $state.players.includes(gameSpace.pubKey);
+  $: canPlay = $state.players.includes(gameSpace.pubKey) && !isLocked;
 
   function handleContainerClick() {
     if (!canPlay) return;

@@ -8,6 +8,7 @@
 
   export let el: PieceSourceElement;
   export let gameSpace: GameSpaceSyn;
+  export let isLocked: boolean;
 
   $: ui = gameSpace.ui;
   $: zoomLevel = $ui.zoom;
@@ -49,7 +50,7 @@
     height: el.pieceH,
   };
 
-  $: canAddPiece = el.limit === null || el.limit > el.createdPieces.length;
+  $: canAddPiece = (el.limit === null || el.limit > el.createdPieces.length) && !isLocked;
 
   async function handleAddPiece(clientX: number, clientY: number) {
     if (!canAddPiece) return;
@@ -107,6 +108,7 @@
   type DragState = { x: number; y: number } | null;
   let dragState: DragState = null;
   function handleDragStart(ev: DragEvent) {
+    if (!canAddPiece) return;
     console.log('Drag starting!');
     ev.preventDefault();
 
@@ -139,6 +141,7 @@
 
   let hovering: { x: number; y: number } | null = null;
   function handleMouseMove(ev: MouseEvent) {
+    if (!canAddPiece) return false;
     if (isWithinContainerRadius(ev.clientX, ev.clientY)) {
       container.draggable = true;
       if (!hovering) {
@@ -195,7 +198,7 @@
       'cursor-grab': canAddPiece && hovering && !dragState,
       'cursor-grabbing': dragState,
     })}
-    draggable={true}
+    draggable={canAddPiece}
     on:dragstart={handleDragStart}
     on:mousemove={handleMouseMove}
     on:mouseleave={handleMouseLeave}

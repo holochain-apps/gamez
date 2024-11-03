@@ -6,6 +6,7 @@
   export let onInput: (value: number) => void = () => {};
   let klass: string = '';
   export { klass as class };
+  export let disabled: boolean = false;
 </script>
 
 <Input
@@ -14,4 +15,5 @@
   {label}
   {value}
   onInput={(newVal) => onInput(parseInt(newVal))}
+  {disabled}
 />

@@ -66,8 +66,28 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
 
   const isSteward = derived(state, ($state) => {
     if (!$state.isStewarded) return true;
-    return $state.creator === this.pubKeyB64;
+    return $state.creator === pubKey;
   });
+
+  const permissions = derived(
+    [canLeaveGame, state, canJoinGame],
+    ([$canLeaveGame, $state, $canJoinGame]) => {
+      const params = {
+        isCreator: $state.creator === pubKey,
+        isPlaying: $canLeaveGame,
+        isArchived: $state.status === 'archived',
+      };
+      const canEdit = (params.isCreator || params.isPlaying) && !params.isArchived;
+      return {
+        ...params,
+        canJoin: $canJoinGame,
+        canLeave: $canLeaveGame,
+        canEditComponents: canEdit,
+        canAddComponents: canEdit,
+        canEditSpace: canEdit,
+      };
+    },
+  );
 
   // ██╗   ██╗██╗    ███████╗████████╗ █████╗ ████████╗███████╗
   // ██║   ██║██║    ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██╔════╝
@@ -170,6 +190,7 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     canJoinGame,
     canLeaveGame,
     isSteward,
+    permissions,
 
     // UI STATE
     ui,

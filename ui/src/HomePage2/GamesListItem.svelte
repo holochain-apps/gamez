@@ -167,7 +167,7 @@
         <button
           on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}
           class="h-full bg-main-500 hover:bg-main-600 b b-black/10 rounded-md uppercase text-sm tracking-wider px2 text-white"
-          >Join space</button
+          >Enter space</button
         >
       {/if}
     </div>

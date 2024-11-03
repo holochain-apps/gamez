@@ -12,13 +12,14 @@
   export let onMoveElement = (id: string, x: number, y: number) => {};
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
   // export let onAddPiece = (id: string, x: number, y: number) => {};
-  export let isCreator: boolean;
+  // export let isCreator: boolean;
   // export let isSteward: boolean;
-  export let isPlaying: boolean;
+  // export let isPlaying: boolean;
 
   $: state = gameSpace.state;
-  $: isArchived = $state.status === 'archived';
-  $: everythingLocked = (!isCreator && !isPlaying) || isArchived;
+  $: permissions = gameSpace.permissions;
+  // $: isArchived = $state.status === 'archived';
+  $: everythingLocked = !$permissions.canEditComponents;
   $: {
     gameSpace.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
     // const { width, height } = boardContainer.getBoundingClientRect();
@@ -65,6 +66,11 @@
   let dragState: DragState = null;
 
   function handleDragStart(e: DragEvent, id: string) {
+    console.log('DRAG START!');
+    if (!$permissions.canEditComponents) {
+      e.preventDefault();
+      return;
+    }
     let dragOffsetX, dragOffsetY: number;
     let dragImageZoom: number;
     dragState = {

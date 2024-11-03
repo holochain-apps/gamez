@@ -12,6 +12,7 @@
 
   export let gameSpace: GameSpaceSyn;
   export let el: PlayerPieceSourceElement;
+  export let isLocked: boolean;
   let klass: string = '';
   export { klass as class };
 
@@ -81,6 +82,7 @@
   type DragState = { agent: string; x: number; y: number } | null;
   let dragState: DragState = null;
   function handleDragStart(ev: MouseEvent, agent: string) {
+    if (isLocked) return;
     ev.stopPropagation();
     ev.preventDefault();
     dragState = { agent, x: ev.clientX, y: ev.clientY };
@@ -160,7 +162,9 @@
         : true}
       {@const ownPieces = player === gameSpace.pubKey}
       {@const isAllowedToGrab =
-        hasPiecesLeft && ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece)}
+        hasPiecesLeft &&
+        ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece) &&
+        !isLocked}
       {#if el.showNames}
         <div class="flexce text-xs">
           <PlayerName agentPubKey={player} />

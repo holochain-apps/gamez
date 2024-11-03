@@ -30,8 +30,7 @@
   $: canJoinGame = gameSpace.canJoinGame;
   $: canLeaveGame = gameSpace.canLeaveGame;
   $: isSteward = gameSpace.isSteward;
-  $: isCreator = $state.creator === gameSpace.pubKey;
-  $: isPlaying = $canLeaveGame;
+  $: permissions = gameSpace.permissions;
 
   const { addToPocket } = getContext();
 
@@ -92,33 +91,14 @@
   function handleAddToPocket() {
     addToPocket(gameSpace);
   }
-
-  // Some debug info
-
-  $: ephemeralState = gameSpace.ephemeral;
-  $: ephemeralStateChangesCount = 0;
-  $: stateChangesCount = 0;
-  $: {
-    $ephemeralState;
-    ephemeralStateChangesCount++;
-  }
-  $: {
-    $state;
-    stateChangesCount++;
-  }
-
-  $: {
-    console.log('EPH change', ephemeralState);
-  }
-  $: isArchived = $state.status === 'archived';
 </script>
 
 {#if $state}
   {#if !asAsset}
-    <LayoutBar title={$state.name + (isArchived ? ' (archived)' : '')} />
+    <LayoutBar title={$state.name + ($permissions.isArchived ? ' (archived)' : '')} />
   {/if}
   <div class="h-full flex flex-col">
-    {#if !isArchived}
+    {#if !$permissions.isArchived}
       <div class="bg-main-700 h-14 flex relative">
         <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
           <GearIcon />
@@ -151,19 +131,19 @@
       </div>
     {/if}
     <div class="flex flex-grow relative">
-      {#if !isArchived}
+      {#if !$permissions.isArchived}
         {#if sidebar === 'elementsLibrary' && $isSteward}
-          <ElementsLibrary onAdd={handleAddElementFromLibrary} />
+          <ElementsLibrary
+            onAdd={handleAddElementFromLibrary}
+            canAdd={$permissions.canAddComponents}
+          />
         {:else if sidebar === 'configurator'}
           {#if state}
             <SpaceConfigurator
-              isSteward={$isSteward}
               creator={$state.creator}
               name={$state.name}
               onNameChange={(name) => gameSpace.change({ type: 'set-name', name })}
-              isStewarded={$state.isStewarded}
-              onIsStewardedChange={(isStewarded) =>
-                gameSpace.change({ type: 'set-is-stewarded', isStewarded })}
+              canEdit={$permissions.canEditSpace}
             />
           {/if}
         {/if}
@@ -181,12 +161,7 @@
           gameSpace.change({ type: 'rotate-element', uuid, rotation });
         }}
         onContextMenu={handleContextMenu}
-        {isCreator}
-        {isPlaying}
       />
-      <div class="absolute bottom-0 left-0 bg-black/50 text-white rounded-tr-md z-100 p1">
-        [{stateChangesCount}] [{ephemeralStateChangesCount}]</div
-      >
     </div>
   </div>
   {#if contextMenuState}
@@ -200,9 +175,6 @@
       })()}
       {gameSpace}
       onUpdateEl={handleUpdateElement}
-      {isCreator}
-      isSteward={$isSteward}
-      {isPlaying}
       onMoveZ={(z) => gameSpace.change({ type: 'move-z', uuid: contextMenuState.id, z })}
       onRemoveEl={() => handleRemoveElement(contextMenuState.id)}
     />

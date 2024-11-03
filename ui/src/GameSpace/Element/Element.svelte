@@ -21,6 +21,8 @@
   export let resizable: boolean;
   export let rotatable: boolean;
 
+  $: permissions = gameSpace.permissions;
+
   let isHovering = false;
   let htmlEl: HTMLDivElement;
 
@@ -45,6 +47,7 @@
   });
 
   function startHovering() {
+    if (!$permissions.canEditComponents) return;
     if (!resizable && !rotatable) return;
     isHovering = true;
     function handleMouseLeave() {
@@ -155,43 +158,42 @@
   $: Element = elements[previewEl.type].Element as any;
 
   let highlighted = false;
-  function handleMouseOver(ev: MouseEvent) {
-    if (!draggable) {
-      highlighted = false;
-      return;
-    }
-    let target: HTMLElement = ev.target as HTMLElement;
-    while (true) {
-      if (target === ev.currentTarget) {
-        highlighted = true;
-        break;
-      } else if (target.draggable) {
-        console.log('DRAGGABLE');
-        highlighted = false;
-        break;
-      } else if (target.tagName === 'BUTTON') {
-        highlighted = false;
-        break;
-      } else if (target.tagName === 'IFRAME') {
-        highlighted = false;
-        break;
-      } else {
-        target = target.parentElement as HTMLElement;
-      }
-    }
-  }
+  // function handleMouseOver(ev: MouseEvent) {
+  //   if (!$permissions.canEditComponents) return;
+  //   if (!draggable) {
+  //     highlighted = false;
+  //     return;
+  //   }
+  //   let target: HTMLElement = ev.target as HTMLElement;
+  //   while (true) {
+  //     if (target === ev.currentTarget) {
+  //       highlighted = true;
+  //       break;
+  //     } else if (target.draggable) {
+  //       console.log('DRAGGABLE');
+  //       highlighted = false;
+  //       break;
+  //     } else if (target.tagName === 'BUTTON') {
+  //       highlighted = false;
+  //       break;
+  //     } else if (target.tagName === 'IFRAME') {
+  //       highlighted = false;
+  //       break;
+  //     } else {
+  //       target = target.parentElement as HTMLElement;
+  //     }
+  //   }
+  // }
 
-  function handleMouseLeave() {
-    highlighted = false;
-  }
+  // function handleMouseLeave() {
+  //   highlighted = false;
+  // }
 </script>
 
 <div
   class={cx('absolute transform-origin-center', {
-    'cursor-pointer': highlighted || dragging,
+    'cursor-pointer': dragging,
   })}
-  on:mouseover={handleMouseOver}
-  on:mouseleave={handleMouseLeave}
   style={`
     width: ${previewEl.width}px;
     height: ${previewEl.height}px;
@@ -207,8 +209,13 @@
   on:mouseenter={startHovering}
   {draggable}
 >
-  <svelte:component this={Element} el={previewEl} {gameSpace} />
-  {#if highlighted || dragging}
+  <svelte:component
+    this={Element}
+    el={previewEl}
+    {gameSpace}
+    isLocked={!$permissions.canEditComponents}
+  />
+  {#if highlighted}
     <div
       class="absolute z-100 -inset-1 pointer-events-none bg-blue-5/10 b b-dashed b-blue-5/40 rounded-md"
     ></div>
