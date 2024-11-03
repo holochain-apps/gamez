@@ -173,12 +173,12 @@
           class="flexcc bg-main-500 hover:bg-main-600 rounded-md h8 px2 mr2 b b-black/10 text-white uppercase text-sm tracking-wider"
           >Use as template</button
         >
-        <button
-          on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}
-          class="h-full bg-main-500 hover:bg-main-600 b b-black/10 rounded-md uppercase text-sm tracking-wider px2 text-white"
-          >Enter space</button
-        >
       {/if}
+      <button
+        on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}
+        class="h-full bg-main-500 hover:bg-main-600 b b-black/10 rounded-md uppercase text-sm tracking-wider px2 text-white"
+        >Enter space</button
+      >
     </div>
   </div>
 </div>
