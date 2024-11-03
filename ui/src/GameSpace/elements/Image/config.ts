@@ -6,8 +6,8 @@ const config = {
   label: 'Image',
   icon: '🖼',
   build: (): Partial<ImageElement> => ({
-    height: 250,
-    width: 250,
+    height: 300,
+    width: 300,
     url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png',
   }),
 };

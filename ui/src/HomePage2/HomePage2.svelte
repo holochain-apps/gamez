@@ -29,17 +29,17 @@
 <div class="h12 flex bg-main-500">
   <div class="h-full flex-grow flexcs space-x-2 pt2 pl2">
     <TabButton active={activeTab} value={'active'} onClick={setActiveTab}>Active</TabButton>
-    <TabButton active={activeTab} value={'library'} onClick={setActiveTab}>Group Library</TabButton>
+    <TabButton active={activeTab} value={'library'} onClick={setActiveTab}>Library</TabButton>
     <!-- <TabButton active={activeTab} value={'globalLibrary'} onClick={setActiveTab}
       >Global Library</TabButton
     > -->
-    <TabButton active={activeTab} value={'draft'} onClick={setActiveTab}>Draft</TabButton>
+    <!-- <TabButton active={activeTab} value={'draft'} onClick={setActiveTab}>Draft</TabButton> -->
     <TabButton active={activeTab} value={'archived'} onClick={setActiveTab}>Archived</TabButton>
   </div>
   <button
     on:click={handleCreateNewSpace}
     class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
-    >New</button
+    >New Draft</button
   >
 </div>
 <div class="flex-grow bg-main-500 p1 pt0 h-0">

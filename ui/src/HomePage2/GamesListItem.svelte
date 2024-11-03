@@ -1,6 +1,7 @@
 <script lang="ts">
   import EllipsisIcon from '~icons/fa6-solid/ellipsis';
   import { derived } from 'svelte/store';
+  import cx from 'classnames';
 
   import { encodeHashToBase64 } from '@holochain/client';
 
@@ -9,6 +10,7 @@
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
 
   import PlayerStatus from './PlayerStatus.svelte';
+  import { tooltip } from '~/shared/tooltip';
 
   export let gameSpace: GameSpaceSyn;
   $: state = gameSpace.state; // <GamesList> ensures the state is initialized, not null
@@ -116,12 +118,30 @@
   }
 </script>
 
-<div class="bg-white/10 p2 b b-white/10 rounded-md max-w-screen-sm mx-auto w-full flex">
-  <div class="h32 w32 flex-shrink-0 mr2">
+<div
+  class={cx('bg-white/10 p2 b b-white/10 rounded-md max-w-screen-sm mx-auto w-full flex', {
+    'opacity-80': $state.status === 'draft',
+  })}
+>
+  <div class="h32 w32 flex-shrink-0 mr2 relative">
     <img
       src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717"
       alt=""
     />
+    {#if $state.status === 'draft'}
+      <div
+        use:tooltip={'Only you can see this space'}
+        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-500 text-white rounded-md px2 py1 b b-black/10"
+      >
+        DRAFT
+      </div>
+    {:else if $state.status === 'archived'}
+      <div
+        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-500 text-white rounded-md px2 py1 b b-black/10"
+      >
+        ARCHIVED
+      </div>
+    {/if}
   </div>
   <div class="flex flex-col flex-grow">
     <div class="flexcs w-full h-8">
@@ -151,19 +171,8 @@
         <button
           on:click={onCreateFromLibrary}
           class="flexcc bg-main-500 hover:bg-main-600 rounded-md h8 px2 mr2 b b-black/10 text-white uppercase text-sm tracking-wider"
-          >Draft from this</button
+          >Use as template</button
         >
-        <button
-          class="flexcc bg-main-500 hover:bg-main-600 rounded-md h8 px2 mr2 b b-black/10 text-white uppercase text-sm tracking-wider"
-          on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}>EDIT</button
-        >
-      {:else if $state.status === 'archived'}
-        <button
-          on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}
-          class="h-full bg-main-500 hover:bg-main-600 b b-black/10 rounded-md uppercase text-sm tracking-wider px2 text-white"
-          >View space</button
-        >
-      {:else}
         <button
           on:click={() => nav({ id: 'gameSpace', gameSpaceHash: gameSpace.hash })}
           class="h-full bg-main-500 hover:bg-main-600 b b-black/10 rounded-md uppercase text-sm tracking-wider px2 text-white"

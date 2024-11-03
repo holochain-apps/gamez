@@ -95,7 +95,7 @@
 
 {#if $state}
   {#if !asAsset}
-    <LayoutBar title={$state.name + ($permissions.isArchived ? ' (archived)' : '')} />
+    <LayoutBar title={$state.name + ($permissions.isArchived ? ' (view only)' : '')} />
   {/if}
   <div class="h-full flex flex-col">
     {#if !$permissions.isArchived}
