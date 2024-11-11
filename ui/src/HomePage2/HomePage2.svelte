@@ -22,6 +22,11 @@
     const hash = await store.createGameSpace();
     nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
+
+  async function handleImport() {
+    const hash = await store.importFromJson();
+    nav({ id: 'gameSpace', gameSpaceHash: hash });
+  }
 </script>
 
 <LayoutBar title={'Gamez'} />
@@ -36,6 +41,11 @@
     <!-- <TabButton active={activeTab} value={'draft'} onClick={setActiveTab}>Draft</TabButton> -->
     <TabButton active={activeTab} value={'archived'} onClick={setActiveTab}>Archived</TabButton>
   </div>
+  <button
+    on:click={handleImport}
+    class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
+    >Import</button
+  >
   <button
     on:click={handleCreateNewSpace}
     class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"

@@ -168,6 +168,28 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     change({ type: 'remove-player', player: pubKey });
   }
 
+  //  ██████╗ ████████╗██╗  ██╗███████╗██████╗
+  // ██╔═══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗
+  // ██║   ██║   ██║   ███████║█████╗  ██████╔╝
+  // ██║   ██║   ██║   ██╔══██║██╔══╝  ██╔══██╗
+  // ╚██████╔╝   ██║   ██║  ██║███████╗██║  ██║
+  //  ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+
+  function exportAsJson() {
+    const $state = get(state);
+    if ($state) {
+      const filename = $state.name.toLocaleLowerCase().replaceAll(/\s+/g, '-') + '.json';
+      const jsonString = JSON.stringify($state, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+
   // ██████╗ ██╗   ██╗██████╗ ██╗     ██╗ ██████╗
   // ██╔══██╗██║   ██║██╔══██╗██║     ██║██╔════╝
   // ██████╔╝██║   ██║██████╔╝██║     ██║██║
@@ -197,6 +219,9 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     getSurfaceCoordinates,
     getCurrentCenter,
     topZ,
+
+    // OTHER
+    exportAsJson,
 
     // CHANGES
     change,

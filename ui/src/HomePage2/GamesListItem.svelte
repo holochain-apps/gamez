@@ -51,12 +51,14 @@
       ['clone', 'Clone'],
       ['draft', 'To Draft'],
       ['archive', 'To Archive'],
+      ['export', 'Export'],
       ['delete', 'Delete'],
     ],
     library: [
       ['clone', 'Clone'],
       ['draft', 'To Draft'],
       ['archive', 'To Archive'],
+      ['export', 'Export'],
       ['delete', 'Delete'],
     ],
     draft: [
@@ -64,6 +66,7 @@
       ['active', 'To Active'],
       ['library', 'To Library'],
       ['archive', 'To Archive'],
+      ['export', 'Export'],
       ['delete', 'Delete'],
     ],
     archived: [
@@ -74,16 +77,9 @@
     ],
   }[$state.status];
 
-  //   ['active', 'To Active'],
-  //   ['library', 'To Library'],
-  //   ['draft', 'To Draft'],
-  //   ['archived', 'To Archive'],
-  //   ['delete', 'Delete'],
-  // ] ;
   async function onSelectMenu(item: string) {
     switch (item) {
       case 'clone':
-        // TODO
         await cloneGameSpace(gameSpace.hash);
         break;
       case 'active':
@@ -99,8 +95,10 @@
         gameSpace.change({ type: 'set-status', status: 'archived' }, true);
         break;
       case 'delete':
-        // TODO
         await deleteGameSpace(gameSpace.hash);
+        break;
+      case 'export':
+        gameSpace.exportAsJson();
         break;
     }
     menuOpen = false;

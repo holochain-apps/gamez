@@ -19,6 +19,7 @@ import { createGameSpaceSynStore, type GameSpaceSyn } from './gameSpaceStore';
 import { initialState } from './grammar';
 import migration from './migration';
 import { type GameSpace } from './types';
+import validateGameSpace from './validateGameSpace';
 
 export type RootStore = ReturnType<typeof createRootStore>;
 
@@ -70,8 +71,8 @@ export function createRootStore(
     _dnaHash.set(hash);
   });
 
-  async function createGameSpace() {
-    const doc = await simplerSyn.createDoc(initialState(pubKey));
+  async function createGameSpace(from: GameSpace = null) {
+    const doc = await simplerSyn.createDoc(from || initialState(pubKey));
     return doc.hash;
   }
 
@@ -109,6 +110,32 @@ export function createRootStore(
     await simplerSyn.removeDoc(hash);
   }
 
+  function importFromJson(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.addEventListener('change', (e: any) => {
+        console.log('READING!');
+        const file = e.currentTarget.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const text = e.target.result as string;
+          const state = JSON.parse(text) as GameSpace;
+          const validState = validateGameSpace(state);
+          if (validState) {
+            validState.creator = pubKey;
+            resolve(createGameSpace(validState));
+          } else {
+            reject(new Error('Invalid game space'));
+          }
+        };
+        reader.readAsText(file);
+      });
+      input.click();
+    });
+  }
+
   function readyGameSpace(hash: string): Readable<GameSpaceSyn | null> {
     return derived([gameDocs, statesMap], ([$gameDocs, $statesMap]) =>
       $statesMap[hash] ? $gameDocs[hash] : null,
@@ -137,6 +164,7 @@ export function createRootStore(
     readyGameSpace,
     cloneGameSpace,
     deleteGameSpace,
+    importFromJson,
     statesMap,
     addToPocket,
     dnaHash,

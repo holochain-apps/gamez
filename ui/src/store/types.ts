@@ -2,6 +2,9 @@ import type { WeaveUrl } from '@theweave/api';
 
 import * as elements from '~/GameSpace/elements';
 
+export const STATUS_ENUM = ['draft', 'active', 'archived', 'deleted', 'library'] as const;
+export const VERSION = 4;
+
 export type GameSpace = {
   version: 4;
   name: string;
