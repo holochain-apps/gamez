@@ -1,7 +1,7 @@
 import type { GameSpace } from '../types';
 
 export default {
-  creator: 'uhCAklTnHzbmUozGs_HpyzujdF4QKIZV77jBxuPotj7422aS453ZG',
+  creator: '',
   elements: [
     {
       height: 440,
