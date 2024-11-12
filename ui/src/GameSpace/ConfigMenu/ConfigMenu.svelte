@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import TrashIcon from '~icons/fa6-solid/trash';
+  import CloneIcon from '~icons/fa6-solid/clone';
 
   import { type GElement, type LockConfig, type GameSpaceSyn } from '~/store';
   import LockConfigEl from './LockConfig.svelte';
@@ -8,6 +9,7 @@
   import WalsControls from './WalsControls.svelte';
 
   import * as E from '../elements';
+  import { tooltip } from '~/shared/tooltip';
 
   export let x: number;
   export let y: number;
@@ -51,8 +53,6 @@
   }
 
   $: resolvedEl = { ...el, lock: resolvedLock } as any;
-
-  $: console.log(el.wals);
 </script>
 
 <div
@@ -66,8 +66,20 @@
   <div class="flex space-x-2 mb2">
     <ZConfig {onMoveZ} disabled={resolvedLock.position} />
     <button
+      on:click={onDuplicate}
+      use:tooltip={'Duplicate'}
+      class={`
+      flexcc
+      w-12
+    text-black/60 hover:text-main-600
+    `}
+    >
+      <CloneIcon />
+    </button>
+    <button
       on:click={onRemoveEl}
       disabled={resolvedLock.remove}
+      use:tooltip={'Delete'}
       class={`
         flexcc
         w-12
@@ -97,5 +109,4 @@
     onRemoveAttachment={handleRemoveAttachment}
     locked={resolvedLock.wals}
   />
-  <button on:click={() => onDuplicate()}>Duplicate</button>
 </div>
