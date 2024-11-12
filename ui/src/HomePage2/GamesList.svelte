@@ -1,7 +1,7 @@
 <script lang="ts">
   import { get, derived } from 'svelte/store';
   import { zip } from 'lodash';
-  import { getContext, defaultSpaces } from '~/store';
+  import { getContext, presets } from '~/store';
   import GamesListItem from './GamesListItem.svelte';
   import DefaultGameItem from './DefaultGameItem.svelte';
 
@@ -30,9 +30,11 @@
       .map(([gameSpace, _]) => gameSpace);
   });
 
-  $: allNames = derived(gameDocsStates, ($states) => $states.map(($state) => $state.name));
+  $: allNames = derived(gameDocsStates, ($states) =>
+    $states.filter((s) => s).map(($state) => $state?.name),
+  );
   $: unimportedGlobalLibrary = derived(allNames, ($names) => {
-    return Object.values(defaultSpaces).filter((space) => $names.indexOf(space.name) === -1);
+    return Object.values(presets).filter((space) => $names.indexOf(space.name) === -1);
   });
 </script>
 
@@ -46,7 +48,10 @@
   {#if tag === 'library' && $unimportedGlobalLibrary.length > 0}
     <h2 class="text-center py4 text-lg">Global library</h2>
     {#each $unimportedGlobalLibrary as gameSpace (gameSpace.name)}
-      <DefaultGameItem {gameSpace} onImport={() => store.createGameSpace(gameSpace)} />
+      <DefaultGameItem
+        {gameSpace}
+        onImport={() => store.createGameSpace({ ...gameSpace, creator: store.pubKey })}
+      />
     {/each}
   {/if}
 </div>

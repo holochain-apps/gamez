@@ -15,6 +15,7 @@
   export let onMoveZ: (z: 'top' | 'bottom' | 'up' | 'down') => void;
   export let onRemoveEl: () => void;
   export let onClose: () => void;
+  export let onDuplicate: () => void;
   export let el: GElement;
   export let gameSpace: GameSpaceSyn;
 
@@ -50,6 +51,8 @@
   }
 
   $: resolvedEl = { ...el, lock: resolvedLock } as any;
+
+  $: console.log(el.wals);
 </script>
 
 <div
@@ -94,4 +97,5 @@
     onRemoveAttachment={handleRemoveAttachment}
     locked={resolvedLock.wals}
   />
+  <button on:click={() => onDuplicate()}>Duplicate</button>
 </div>

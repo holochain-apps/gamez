@@ -21,6 +21,8 @@
   import SpaceConfigurator from './sidebar/SpaceConfigurator.svelte';
   import ConfigMenu from './ConfigMenu';
   import { tooltip } from '~/shared/tooltip';
+  import { cloneDeep } from 'lodash';
+  import { uuid } from '~/lib/util';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -67,13 +69,19 @@
 
   function handleRemoveElement(id: string) {
     gameSpace.change({ type: 'remove-element', uuid: id });
+    closeContextMenu();
   }
 
-  // Handle closing the context menu if an item was deleted
-  $: {
-    if (contextMenuState && !$state.elements.find((e) => e.uuid === contextMenuState.id)) {
-      closeContextMenu();
-    }
+  function handleDuplicateElement(id: string) {
+    const el = $state.elements.find((el) => el.uuid === id);
+    if (!el) return;
+    const newEl = cloneDeep(el);
+    newEl.uuid = uuid();
+    newEl.x += 5;
+    newEl.y += 5;
+    console.log(newEl);
+    gameSpace.change({ type: 'add-element', element: newEl });
+    contextMenuState = { id: newEl.uuid, x: contextMenuState.x + 5, y: contextMenuState.y + 5 };
   }
 
   function handleAddElementFromLibrary(element: LibraryElement, x?: number, y?: number) {
@@ -186,6 +194,7 @@
       onUpdateEl={handleUpdateElement}
       onMoveZ={(z) => gameSpace.change({ type: 'move-z', uuid: contextMenuState.id, z })}
       onRemoveEl={() => handleRemoveElement(contextMenuState.id)}
+      onDuplicate={() => handleDuplicateElement(contextMenuState.id)}
     />
   {/if}
 {/if}

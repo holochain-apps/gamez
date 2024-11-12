@@ -13,6 +13,8 @@ import {
   type EntryHash,
 } from '@holochain/client';
 
+export { v1 as uuid } from 'uuid';
+
 export const hashEqual = (a: EntryHash, b: EntryHash): boolean => {
   if (!a || !b) {
     return !a && !b;
