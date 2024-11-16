@@ -71,8 +71,8 @@ export function createRootStore(
     _dnaHash.set(hash);
   });
 
-  async function createGameSpace(from: GameSpace = null) {
-    const doc = await simplerSyn.createDoc(from || initialState(pubKey));
+  async function createGameSpace(from: Partial<GameSpace> = {}) {
+    const doc = await simplerSyn.createDoc({ ...initialState(pubKey), ...from });
     return doc.hash;
   }
 
