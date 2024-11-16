@@ -56,7 +56,8 @@ export default {
   minMaxPlayers: [1, 4],
   name: 'World',
   players: [],
-  status: 'library',
-  version: 4,
+  isLibraryItem: true,
+  isArchived: false,
+  version: 5,
   wals: [],
 } as const satisfies GameSpace;

@@ -15,14 +15,14 @@
   $: sortedTaggedGameSpaces = derived(gameDocsStates, ($states) => {
     const loadedGameDocs = zip(Object.values($gameDocs), $states);
     return loadedGameDocs
-      .filter(([_, $state]) => $state !== null && $state.status === 'library')
+      .filter(([_, $state]) => $state !== null && $state.isLibraryItem)
       .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
   });
 
   $: archivedGameSpaces = derived(gameDocsStates, ($states) => {
     const loadedGameDocs = zip(Object.values($gameDocs), $states);
     return loadedGameDocs
-      .filter(([_, $state]) => $state !== null && $state.status === 'archived')
+      .filter(([_, $state]) => $state !== null && $state.isLibraryItem && $state.isArchived)
       .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
   });
 
@@ -38,7 +38,7 @@
   async function handlePlayFromLibrary(gameSpace: GameSpace) {
     const newGameSpace: GameSpace = {
       ...cloneDeep(gameSpace),
-      status: 'active',
+      isLibraryItem: false,
       creator: store.pubKey,
     };
     const hash = await store.createGameSpace(newGameSpace);
@@ -68,11 +68,11 @@
   }
 
   async function handleArchive(gameSpace: GameSpaceSyn) {
-    gameSpace.change({ type: 'set-status', status: 'archived' }, true);
+    gameSpace.change({ type: 'set-is-archived', value: true }, true);
   }
 
   async function handleUnarchive(gameSpace: GameSpaceSyn) {
-    gameSpace.change({ type: 'set-status', status: 'library' }, true);
+    gameSpace.change({ type: 'set-is-archived', value: false }, true);
   }
 
   let showArchive = false;

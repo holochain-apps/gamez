@@ -7,7 +7,8 @@ import * as elements from '../GameSpace/elements';
 import type { GameSpace, GElement } from './types';
 
 export type Delta =
-  | { type: 'set-status'; status: GameSpace['status'] }
+  | { type: 'set-is-archived'; value: boolean }
+  | { type: 'set-is-library-item'; value: boolean }
   | { type: 'set-name'; name: string }
   | { type: 'set-is-stewarded'; isStewarded: boolean }
   | { type: 'add-player'; player: AgentPubKeyB64 }
@@ -22,13 +23,14 @@ export type Delta =
 
 export function initialState(pubKey: string): GameSpace {
   return {
-    version: 4,
+    version: 5,
     name: 'Game Space',
     creator: pubKey,
     elements: [],
     wals: [],
     isStewarded: false,
-    status: 'draft',
+    isLibraryItem: false,
+    isArchived: false,
     minMaxPlayers: [1, 4],
     players: [],
     lastChangeAt: Date.now(),
@@ -37,8 +39,11 @@ export function initialState(pubKey: string): GameSpace {
 
 export const applyDelta = (delta: Delta, $state: GameSpace) => {
   switch (delta.type) {
-    case 'set-status':
-      $state.status = delta.status;
+    case 'set-is-archived':
+      $state.isArchived = delta.value;
+      break;
+    case 'set-is-library-item':
+      $state.isLibraryItem = delta.value;
       break;
     case 'set-name':
       $state.name = delta.name;
@@ -143,5 +148,5 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
   }
 
   $state.lastChangeAt = Date.now();
-  $state.version = 4;
+  $state.version = 5;
 };

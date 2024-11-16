@@ -2,17 +2,17 @@ import type { WeaveUrl } from '@theweave/api';
 
 import * as elements from '~/GameSpace/elements';
 
-export const STATUS_ENUM = ['draft', 'active', 'archived', 'deleted', 'library'] as const;
-export const VERSION = 4;
+export const VERSION = 5;
 
 export type GameSpace = {
-  version: 4;
+  version: 5;
   name: string;
   creator: string;
   elements: GElement[];
   wals: WeaveUrl[];
   isStewarded: boolean;
-  status: 'draft' | 'active' | 'archived' | 'deleted' | 'library';
+  isLibraryItem: boolean;
+  isArchived: boolean;
   minMaxPlayers: [number, number];
   players: string[];
   lastChangeAt: number;

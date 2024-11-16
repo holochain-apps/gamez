@@ -1,5 +1,5 @@
 import migration from './migration';
-import { type GameSpace, STATUS_ENUM, VERSION } from './types';
+import { type GameSpace, VERSION } from './types';
 
 export default function validateGameSpace(inputData: any): GameSpace | null {
   let data = { ...inputData };
@@ -16,8 +16,8 @@ export default function validateGameSpace(inputData: any): GameSpace | null {
     throw new Error(`'elements' must be an array`);
   if (!data.wals || !Array.isArray(data.wals)) throw new Error(`'wals' must be an array`);
   if (typeof data.isStewarded !== 'boolean') throw new Error(`'isStewarded' must be a boolean`);
-  if (typeof data.status !== 'string' || STATUS_ENUM.indexOf(data.status) === -1)
-    throw new Error(`'status' must be one of ${STATUS_ENUM.join(', ')}`);
+  if (typeof data.isArchived !== 'boolean') throw new Error(`'isArchived' must be a boolean`);
+  if (typeof data.isLibraryItem !== 'boolean') throw new Error(`'isLibraryItem' must be a boolean`);
   if (!data.minMaxPlayers || !Array.isArray(data.minMaxPlayers) || data.minMaxPlayers.length !== 2)
     throw new Error(`'minMaxPlayers' must be an array with two numbers: [minPlayers, maxPlayers]`);
   if (!data.players || !Array.isArray(data.players)) throw new Error(`'players' must be an array`);

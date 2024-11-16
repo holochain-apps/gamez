@@ -16,8 +16,6 @@
   export let onDelete = () => {};
   export let onUnarchive = () => {};
 
-  $: isArchived = gameSpace.status === 'archived';
-
   let menuOpen = false;
   let menuButtonEl: HTMLButtonElement;
 
@@ -50,9 +48,9 @@
 
 <div class={'bg-white/10 h16  b b-white/10 rounded-md w-full flex relative'}>
   <button
-    disabled={isArchived}
+    disabled={gameSpace.isArchived}
     class="flexcc group hover:bg-white/10 disabled:pointer-events-none flex-grow"
-    on:click={isArchived ? null : onPlay}
+    on:click={gameSpace.isArchived ? null : onPlay}
   >
     <div class="h14 w14 flex-shrink-0 ml.5 relative b b-black/20 rounded-md overflow-hidden">
       <img
@@ -91,7 +89,7 @@
           ['edit-copy', 'Edit copy'],
           ['duplicate', 'Duplicate'],
         ]
-      : isArchived
+      : gameSpace.isArchived
         ? [
             ['edit', 'Inspect'],
             ['unarchive', 'Unarchive'],

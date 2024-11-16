@@ -75,7 +75,7 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
       const params = {
         isCreator: $state.creator === pubKey,
         isPlaying: $canLeaveGame,
-        isArchived: $state.status === 'archived',
+        isArchived: $state.isArchived,
       };
       const canEdit = (params.isCreator || params.isPlaying) && !params.isArchived;
       return {

@@ -30,7 +30,7 @@
   }
 
   async function handleNewLibraryItem() {
-    const hash = await store.createGameSpace({ status: 'library', name: 'New Library Space' });
+    const hash = await store.createGameSpace({ isLibraryItem: true, name: 'New Library Space' });
     nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 </script>

@@ -18,7 +18,7 @@ import { getMyDna } from '~/lib/util';
 import { createGameSpaceSynStore, type GameSpaceSyn } from './gameSpaceStore';
 import { initialState } from './grammar';
 import migration from './migration';
-import { type GameSpace } from './types';
+import { type GameSpace, VERSION } from './types';
 import validateGameSpace from './validateGameSpace';
 
 export type RootStore = ReturnType<typeof createRootStore>;
@@ -64,7 +64,7 @@ export function createRootStore(
       });
     },
     migration,
-    4,
+    VERSION,
   );
 
   getMyDna(ROLE_NAME, appClient).then((hash) => {
