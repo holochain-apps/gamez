@@ -49,6 +49,10 @@
     gameSpace.change({ type: 'set-is-archived', value: false }, true);
   }
 
+  function handleExport(gameSpace: GameSpaceSyn) {
+    gameSpace.exportAsJson();
+  }
+
   let showArchive = false;
 </script>
 
@@ -60,6 +64,7 @@
       onDuplicate={() => handleDuplicate($state)}
       onArchive={() => handleArchive(gameSpace)}
       onDelete={() => handleDelete(gameSpace.hash)}
+      onExport={() => handleExport(gameSpace)}
     />
   {/each}
 

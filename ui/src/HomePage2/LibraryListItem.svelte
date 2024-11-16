@@ -15,11 +15,19 @@
   export let onArchive = () => {};
   export let onDelete = () => {};
   export let onUnarchive = () => {};
+  export let onExport = () => {};
 
   let menuOpen = false;
   let menuButtonEl: HTMLButtonElement;
 
-  type MenuCommands = 'edit' | 'edit-copy' | 'duplicate' | 'archive' | 'delete' | 'unarchive';
+  type MenuCommands =
+    | 'edit'
+    | 'edit-copy'
+    | 'duplicate'
+    | 'archive'
+    | 'delete'
+    | 'unarchive'
+    | 'export';
 
   function onSelectMenu(command: MenuCommands) {
     switch (command) {
@@ -40,6 +48,9 @@
         break;
       case 'unarchive':
         onUnarchive();
+        break;
+      case 'export':
+        onExport();
         break;
     }
     menuOpen = false;
@@ -98,6 +109,7 @@
         : [
             ['edit', 'Edit'],
             ['duplicate', 'Duplicate'],
+            ['export', 'Export'],
             ['archive', 'Archive'],
             ['delete', 'Delete'],
           ]}

@@ -54,10 +54,15 @@
     <GamesList />
   </div>
   <div class="w-100 bg-main-700 flex flex-col">
-    <div class="flexcc px1 h12 bg-main-500 text-white">
-      <h2 class="text-2xl p2 tracking-wider flex-grow">Library</h2>
+    <div class="flexcc px2 h12 bg-main-500 text-white">
+      <h2 class="text-2xl tracking-wider flex-grow ml2">Library</h2>
       <button
-        class="w10 h10 flexcc bg-white/20 rounded-md hover:bg-white/30"
+        on:click={handleImport}
+        class="bg-white/20 my2 h8 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/30"
+        >Import</button
+      >
+      <button
+        class="w8 h8 flexcc bg-white/20 rounded-md b b-white/10 hover:bg-white/30"
         on:click={handleNewLibraryItem}><PlusIcon /></button
       >
     </div>

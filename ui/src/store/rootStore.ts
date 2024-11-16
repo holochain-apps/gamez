@@ -116,7 +116,6 @@ export function createRootStore(
       input.type = 'file';
       input.accept = '.json';
       input.addEventListener('change', (e: any) => {
-        console.log('READING!');
         const file = e.currentTarget.files[0];
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -124,6 +123,7 @@ export function createRootStore(
           const state = JSON.parse(text) as GameSpace;
           const validState = validateGameSpace(state);
           if (validState) {
+            validState.players = [];
             validState.creator = pubKey;
             resolve(createGameSpace(validState));
           } else {

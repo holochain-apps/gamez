@@ -15,7 +15,7 @@
   $: sortedTaggedGameSpaces = derived(gameDocsStates, ($states) => {
     const loadedGameDocs = zip(Object.values($gameDocs), $states);
     return loadedGameDocs
-      .filter(([_, $state]) => $state !== null && $state.isLibraryItem)
+      .filter(([_, $state]) => $state !== null && $state.isLibraryItem && !$state.isArchived)
       .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
   });
 
@@ -27,13 +27,6 @@
   });
 
   let presetsItems = Object.values(presets);
-
-  // $: allNames = derived(gameDocsStates, ($states) =>
-  //   $states.filter((s) => s).map(($state) => $state?.name),
-  // );
-  // $: unimportedGlobalLibrary = derived(allNames, ($names) => {
-  //   return Object.values(presets).filter((space) => $names.indexOf(space.name) === -1);
-  // });
 
   async function handlePlayFromLibrary(gameSpace: GameSpace) {
     const newGameSpace: GameSpace = {
@@ -75,6 +68,10 @@
     gameSpace.change({ type: 'set-is-archived', value: false }, true);
   }
 
+  function handleExport(gameSpace: GameSpaceSyn) {
+    gameSpace.exportAsJson();
+  }
+
   let showArchive = false;
 </script>
 
@@ -89,6 +86,7 @@
         onEdit={() => handleEdit(gameSpace.hash)}
         onDuplicate={() => handleDuplicate($state)}
         onDelete={() => handleDelete(gameSpace.hash)}
+        onExport={() => handleExport(gameSpace)}
       />
     {/if}
   {/each}
