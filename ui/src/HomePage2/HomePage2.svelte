@@ -50,7 +50,7 @@
   >
 </div> -->
 <div class="flex-grow h-0 flex">
-  <div class="flex-grow">
+  <div class="flex-grow overflow-auto">
     <GamesList />
   </div>
   <div class="w-100 bg-main-700 flex flex-col">

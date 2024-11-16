@@ -5,14 +5,13 @@
   import { tooltip } from '~/shared/tooltip';
 
   export let agent: string | AgentPubKey;
-  export let inRoom: boolean;
   export let isPlaying: boolean;
   export let isCreator: boolean;
 </script>
 
 <div
   class="relative mr2"
-  use:tooltip={`${isCreator ? 'Creator.' : ''} ${inRoom ? 'In room.' : 'Disconnected.'} ${isPlaying ? 'Playing.' : ''}`}
+  use:tooltip={`${isCreator ? 'Creator.' : ''} ${isPlaying ? 'Playing.' : ''}`}
 >
   <AgentAvatar
     class={cx('relative z-20', {
