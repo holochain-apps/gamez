@@ -11,7 +11,7 @@ import {
 } from '@holochain-syn/core';
 import { type AppClient, decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
 
-const ROOT_TAG = 'simpler-syn';
+export const ROOT_TAG = 'simpler-syn';
 
 export default class SimplerSyn {
   synClient: SynClient;

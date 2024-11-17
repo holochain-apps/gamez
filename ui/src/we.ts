@@ -6,18 +6,15 @@ import type {
   WAL,
   WeaveServices,
 } from '@theweave/api';
-import { get } from 'svelte/store';
 
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
 import { LazyHoloHashMap } from '@holochain-open-dev/utils';
 import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
-import type { AppClient, RoleName, ZomeName } from '@holochain/client';
+import type { AppClient, RoleName } from '@holochain/client';
 
-import { SynDoc } from './lib/SimplerSyn';
-import type { BoardEphemeralState, BoardState } from './lib/store/board';
-import { BoardType } from './lib/store/boardList';
-import { getMyDna, hashToB64, waitUntilAvailable } from './lib/util';
-import { type GameSpace, getContext } from './store';
+import { ROOT_TAG } from './lib/SimplerSyn';
+import { getMyDna } from './lib/util';
+import { type GameSpace } from './store';
 
 const ROLE_NAME = 'gamez';
 const ZOME_NAME = 'syn';
@@ -85,7 +82,7 @@ export const appletServices: AppletServices = {
   ): Promise<Array<WAL>> => {
     const synClient = new SynClient(appletClient, ROLE_NAME, ZOME_NAME);
     const synStore = new SynStore(synClient);
-    const boardHashes = asyncDerived(synStore.documentsByTag.get(BoardType.active), (x) =>
+    const boardHashes = asyncDerived(synStore.documentsByTag.get(ROOT_TAG), (x) =>
       Array.from(x.keys()),
     );
 

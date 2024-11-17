@@ -11,34 +11,13 @@
   export let onResizeElement = (id: string, width: number, height: number) => {};
   export let onMoveElement = (id: string, x: number, y: number) => {};
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
-  // export let onAddPiece = (id: string, x: number, y: number) => {};
-  // export let isCreator: boolean;
-  // export let isSteward: boolean;
-  // export let isPlaying: boolean;
 
   $: state = gameSpace.state;
   $: permissions = gameSpace.permissions;
-  // $: isArchived = $state.status === 'archived';
   $: everythingLocked = !$permissions.canEditComponents;
   $: {
     gameSpace.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
-    // const { width, height } = boardContainer.getBoundingClientRect();
-    // gameSpace.ephemerealChange({
-    //   type: 'update-player-position',
-    //   player: gameSpace.pubKey,
-    //   playerPosition: {
-    //     panX: panX - width / 2 / zoom,
-    //     panY: panY - height / zoom,
-    //     zoom: zoom,
-    //     cursorX: mouseCoords.x,
-    //     cursorY: mouseCoords.y,
-    //   },
-    // });
-    // This is absolutely not performant enough to do with Syn
   }
-
-  // $: ephemeral = gameSpace.ephemeral;
-  // $: playersPositions = $ephemeral?.playersPositions || {};
 
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();

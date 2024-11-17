@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import { cloneDeep } from 'lodash';
   import '@shoelace-style/shoelace/dist/components/select/select.js';
   import '@shoelace-style/shoelace/dist/components/option/option.js';
@@ -142,4 +142,4 @@
     position: relative;
     z-index: 10;
   }
-</style>
+</style> -->

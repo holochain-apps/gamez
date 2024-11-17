@@ -7,7 +7,6 @@
 
   import { isWeaveContext } from '@theweave/api';
 
-  import { type Board } from '~/lib/store';
   import { route, goBack } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
   import { cx } from '~/lib/util';
@@ -20,7 +19,6 @@
 
   const { profilesStore, pubKey } = getContext();
 
-  export let activeBoard: Board = null;
   export let title = 'Board Gamez';
   export let canChangeTitle: boolean = false;
   export let onChangeTitle = (name: string) => {};

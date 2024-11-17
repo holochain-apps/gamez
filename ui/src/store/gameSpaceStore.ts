@@ -2,7 +2,6 @@ import { derived, get, type Readable, type Writable, writable } from 'svelte/sto
 
 import { type SynDoc } from '~/lib/SimplerSyn';
 
-import * as eph from './ephemeralState';
 import { applyDelta, type Delta } from './grammar';
 import { type GameSpace } from './types';
 
@@ -18,7 +17,6 @@ export type GameSpaceSyn = ReturnType<typeof createGameSpaceSynStore>;
 export function createGameSpaceSynStore(synDoc: SynDoc) {
   console.log('SYN DOC', synDoc);
   const state = synDoc.state as Writable<GameSpace>;
-  const ephemeral = synDoc.ephemeral as Readable<eph.State>;
   const pubKey = synDoc.pubKey;
   const hash = synDoc.hash;
   const participants = synDoc.participants;
@@ -149,17 +147,6 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     console.timeEnd('Running session change');
   }
 
-  async function ephemerealChange(delta: eph.Delta | eph.Delta[]) {
-    const deltas = Array.isArray(delta) ? delta : [delta];
-    // console.time('Running ephemeral state change');
-    await synDoc.change((_state, ephemerealState) => {
-      for (const delta of deltas) {
-        eph.applyDelta(delta, ephemerealState);
-      }
-    }, false);
-    // console.time('Running ephemeral state change');
-  }
-
   function joinGame() {
     change({ type: 'add-player', player: pubKey });
   }
@@ -225,8 +212,6 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
 
     // CHANGES
     change,
-    ephemerealChange,
-    ephemeral,
     joinGame,
     leaveGame,
   };
