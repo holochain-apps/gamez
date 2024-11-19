@@ -2,13 +2,16 @@
   import { decodeHashFromBase64 } from '@holochain/client';
   import Avatar from '~/shared/Avatar.svelte';
   import Input from '../ui/Input.svelte';
-  import Checkbox from '../ui/Checkbox.svelte';
+  // import Checkbox from '../ui/Checkbox.svelte';
+  import IntegerInput from '../ui/IntegerInput.svelte';
 
   // export let isSteward: boolean;
   export let creator: string;
   export let name: string;
   export let onNameChange: (name: string) => void;
   // export let isStewarded: boolean;
+  export let maxPlayersSlots: number;
+  export let onMaxPlayersSlotsChange: (maxPlayersSlots: number) => void;
   export let canEdit: boolean;
   // export let onIsStewardedChange: (isStewarded: boolean) => void;
 </script>
@@ -26,5 +29,11 @@
       disabled={!isSteward}
       onInput={onIsStewardedChange}
     /> -->
+    <IntegerInput
+      value={maxPlayersSlots}
+      label="Max players slots"
+      disabled={!canEdit}
+      onInput={onMaxPlayersSlotsChange}
+    />
   </div>
 </div>

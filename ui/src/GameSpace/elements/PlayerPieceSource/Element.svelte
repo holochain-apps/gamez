@@ -142,7 +142,7 @@
 </script>
 
 <div class={cx(klass, 'h-full w-full bg-main-900 rounded-md p2')}>
-  {#if $state.playersSlots.filter((s) => s.pubKey).length === 0}
+  {#if $state.playersSlots.length === 0}
     <div class="opacity-70 flexcc h-full w-full">No players</div>
   {/if}
   <div

@@ -22,7 +22,7 @@
   import ConfigMenu from './ConfigMenu';
   import { tooltip } from '~/shared/tooltip';
   import { cloneDeep } from 'lodash';
-  import { uuid } from '~/lib/util';
+  import { colorSequence, uuid } from '~/lib/util';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -103,6 +103,25 @@
   function handleNameChange(name: string) {
     gameSpace.change({ type: 'set-name', name });
   }
+
+  function handleMaxPlayersSlotsChange(maxPlayersSlots: number) {
+    if (maxPlayersSlots === 0 || maxPlayersSlots === $state.playersSlots.length) {
+      return;
+    }
+
+    let newPlayersSlots = cloneDeep($state.playersSlots).slice(0, maxPlayersSlots);
+    if (newPlayersSlots.length < maxPlayersSlots) {
+      for (let i = newPlayersSlots.length; i < maxPlayersSlots; i++) {
+        newPlayersSlots.push({ color: '#000', pubKey: null });
+      }
+    }
+
+    for (let i = 0; i < newPlayersSlots.length; i++) {
+      newPlayersSlots[i].color = colorSequence(i, maxPlayersSlots);
+    }
+
+    gameSpace.change({ type: 'set-players-slots', playersSlots: newPlayersSlots });
+  }
 </script>
 
 {#if $state}
@@ -160,6 +179,8 @@
               creator={$state.creator}
               name={$state.name}
               onNameChange={handleNameChange}
+              maxPlayersSlots={$state.playersSlots.length}
+              onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
               canEdit={$permissions.canEditSpace}
             />
           {/if}

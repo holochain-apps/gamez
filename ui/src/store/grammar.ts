@@ -12,6 +12,7 @@ export type Delta =
   | { type: 'set-is-archived'; value: boolean }
   | { type: 'set-is-library-item'; value: boolean }
   | { type: 'set-name'; name: string }
+  | { type: 'set-players-slots'; playersSlots: GameSpace['playersSlots'] }
   | { type: 'set-is-stewarded'; isStewarded: boolean }
   | { type: 'add-player'; player: AgentPubKeyB64 }
   | { type: 'remove-player'; player: AgentPubKeyB64 }
@@ -53,6 +54,9 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
       break;
     case 'set-name':
       $state.name = delta.name;
+      break;
+    case 'set-players-slots':
+      $state.playersSlots = delta.playersSlots;
       break;
     case 'set-is-stewarded':
       $state.isStewarded = delta.isStewarded;

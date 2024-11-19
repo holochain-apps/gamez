@@ -13,10 +13,10 @@
 
   $: state = gameSpace.state;
   $: playerInfo = $state ? $state.playersSlots[el.playerSlot] : null;
-  $: color = playerInfo?.color || '#000';
+  $: color = playerInfo ? playerInfo.color : '#000';
   $: contrastColor = '#fff';
 
-  $: size = Math.min(el.width, el.height) - (playerInfo.color ? 6 : 0);
+  $: size = Math.min(el.width, el.height);
 
   $: {
     console.log(el);
