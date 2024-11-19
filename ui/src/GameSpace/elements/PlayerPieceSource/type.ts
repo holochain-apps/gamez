@@ -5,7 +5,6 @@ export type PlayerPieceSourceElement = GElementBase & {
   version: number;
   showNames: boolean;
   canOnlyPickOwnPiece: boolean;
-  colorCoded: boolean;
   size: number;
   limit: number;
   createdPieces: string[];

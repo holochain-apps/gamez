@@ -3,6 +3,8 @@ import { v1 as uuidv1 } from 'uuid';
 
 import { type AgentPubKeyB64, encodeHashToBase64 } from '@holochain/client';
 
+import { colorSequence } from '~/lib/util';
+
 import * as elements from '../GameSpace/elements';
 import type { GameSpace, GElement } from './types';
 
@@ -23,7 +25,7 @@ export type Delta =
 
 export function initialState(pubKey: string): GameSpace {
   return {
-    version: 5,
+    version: 7,
     name: 'Game Space',
     creator: pubKey,
     elements: [],
@@ -31,8 +33,12 @@ export function initialState(pubKey: string): GameSpace {
     isStewarded: false,
     isLibraryItem: false,
     isArchived: false,
-    minMaxPlayers: [1, 4],
-    players: [],
+    playersSlots: [
+      { color: colorSequence(0, 4), pubKey: null },
+      { color: colorSequence(1, 4), pubKey: null },
+      { color: colorSequence(2, 4), pubKey: null },
+      { color: colorSequence(3, 4), pubKey: null },
+    ],
     lastChangeAt: Date.now(),
   };
 }
@@ -52,10 +58,17 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
       $state.isStewarded = delta.isStewarded;
       break;
     case 'add-player':
-      $state.players.push(delta.player);
+      const freeSlot = $state.playersSlots.findIndex((p) => p.pubKey === null);
+      const alreadyPlaying = $state.playersSlots.find((p) => p.pubKey === delta.player);
+      if (freeSlot !== -1 && !alreadyPlaying) {
+        $state.playersSlots[freeSlot].pubKey = delta.player;
+      }
       break;
     case 'remove-player':
-      $state.players = $state.players.filter((p) => p !== delta.player);
+      const playerIndex = $state.playersSlots.findIndex((p) => p.pubKey === delta.player);
+      if (playerIndex !== -1) {
+        $state.playersSlots[playerIndex].pubKey = null;
+      }
       break;
     case 'add-element':
       const elements = $state.elements;
@@ -148,5 +161,5 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
   }
 
   $state.lastChangeAt = Date.now();
-  $state.version = 5;
+  $state.version = 7;
 };

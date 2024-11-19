@@ -1,8 +1,8 @@
-import { type DiceElement } from './type';
+import { type DiceElement, VERSION } from './type';
 
 const config = {
   type: 'Dice',
-  version: 1,
+  version: VERSION,
   label: 'Dice',
   icon: '🎲',
   build: (): Partial<DiceElement> => ({

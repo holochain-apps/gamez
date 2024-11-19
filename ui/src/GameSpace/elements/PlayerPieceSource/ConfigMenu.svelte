@@ -24,12 +24,6 @@
     onInput={(v) => onUpdate({ canOnlyPickOwnPiece: v })}
     disabled={el.lock.config}
   />
-  <Checkbox
-    value={el.colorCoded}
-    label="Color coded"
-    onInput={(v) => onUpdate({ colorCoded: v })}
-    disabled={el.lock.config}
-  />
   <IntegerInput
     value={el.limit}
     label="Limit"

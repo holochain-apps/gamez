@@ -100,11 +100,10 @@
           use:tooltip={'Players slots'}
           class="bg-main-500 b b-black/10 flex rounded-md p.5 space-x-.5 ml2"
         >
-          {#each { length: gameSpace.minMaxPlayers[1] } as _, i}
-            {@const player = gameSpace.players[i]}
+          {#each gameSpace.playersSlots as playerSlot, i}
             <div class="bg-main-700 shadow-inset relative rounded-full h5 w5 flexcc">
-              {#if player}
-                <AgentAvatar class="relative z-20" pubKey={player} size={16} />
+              {#if playerSlot.pubKey}
+                <AgentAvatar class="relative z-20" pubKey={playerSlot.pubKey} size={16} />
               {/if}
               <div class="absolute inset-0 z-10 text-xs text-main-500 font-light flexcc"
                 >{i + 1}</div

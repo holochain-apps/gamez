@@ -140,7 +140,7 @@
         <PeopleBar
           canJoinGame={$canJoinGame}
           canLeaveGame={$canLeaveGame}
-          players={$state.players}
+          playersSlots={$state.playersSlots}
           participants={$participants}
           onJoin={() => gameSpace.joinGame()}
           onLeave={() => gameSpace.leaveGame()}

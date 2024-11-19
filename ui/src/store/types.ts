@@ -2,10 +2,10 @@ import type { WeaveUrl } from '@theweave/api';
 
 import * as elements from '~/GameSpace/elements';
 
-export const VERSION = 5;
+export const VERSION = 7;
 
 export type GameSpace = {
-  version: 5;
+  version: 7;
   name: string;
   creator: string;
   elements: GElement[];
@@ -13,9 +13,13 @@ export type GameSpace = {
   isStewarded: boolean;
   isLibraryItem: boolean;
   isArchived: boolean;
-  minMaxPlayers: [number, number];
-  players: string[];
+  playersSlots: PlayerSlot[];
   lastChangeAt: number;
+};
+
+export type PlayerSlot = {
+  pubKey: string | null;
+  color: string;
 };
 
 export type LockConfig = {
@@ -50,3 +54,11 @@ export type GElement =
   | elements.PlayerPieceSource.ElType
   | elements.Dice.ElType
   | elements.TurnTracker.ElType;
+
+export type LibraryConfig = {
+  type: string;
+  version: number;
+  label: string;
+  icon: string;
+  build: (gameSpaceSyn: any) => any;
+};

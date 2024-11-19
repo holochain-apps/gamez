@@ -3,11 +3,13 @@
   import UsersIcon from '~icons/fa6-solid/users';
   import { decodeHashFromBase64 } from '@holochain/client';
   import Avatar from '~/shared/Avatar.svelte';
+  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  import type { PlayerSlot } from '~/store/types';
 
   export let canJoinGame: boolean;
   export let canLeaveGame: boolean;
   export let participants: Uint8Array[];
-  export let players: string[];
+  export let playersSlots: PlayerSlot[];
   export let onJoin: () => void;
   export let onLeave: () => void;
 
@@ -35,8 +37,15 @@
       }}>Leave Game</button
     >
   {/if}
-  {#each players as player}
-    <Avatar showNickname={false} size={32} agentPubKey={decodeHashFromBase64(player)} />
+  {#each playersSlots as playerSlot}
+    <div
+      class="w10 h10 rounded-full b-2 b-black/10 flexcc"
+      style={'background-color: ' + playerSlot.color}
+    >
+      {#if playerSlot.pubKey}
+        <AgentAvatar size={30} pubKey={decodeHashFromBase64(playerSlot.pubKey)} />
+      {/if}
+    </div>
   {/each}
   <button
     class={cx('relative h14 w14 flexcc b b-black/10 ', {

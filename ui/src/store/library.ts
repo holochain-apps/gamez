@@ -1,6 +1,6 @@
 import * as elements from '../GameSpace/elements';
 import { type GameSpaceSyn } from './gameSpaceStore';
-import { type GElement } from './types';
+import { type GElement, type LibraryConfig } from './types';
 
 export type LibraryElement = {
   type: string;
@@ -9,7 +9,9 @@ export type LibraryElement = {
   version: number;
 };
 
-export const LIBRARY: LibraryElement[] = Object.values(elements).map((el) => el.config);
+export const LIBRARY: LibraryElement[] = Object.values(elements)
+  .map((el) => (el as any).config)
+  .filter((el) => el);
 
 export function createElement(
   libraryEl: LibraryElement,
@@ -35,7 +37,7 @@ export function createElement(
     },
     wals: [],
   };
-  const config = elements[libraryEl.type as keyof typeof elements].config;
+  const config = elements[libraryEl.type].config as LibraryConfig;
   const toExtendWith = config.build.call(null, gameSpace);
 
   // @ts-ignore

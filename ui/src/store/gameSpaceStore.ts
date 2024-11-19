@@ -48,16 +48,15 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
   // elements.subscribe(processElements)
 
   const canJoinGame = derived(state, ($state) => {
-    const alreadyJoined = !!$state.players.find((v) => v === pubKey);
+    const alreadyJoined = !!$state.playersSlots.find((s) => s.pubKey === pubKey);
     if (alreadyJoined) return false;
-    const v = $state.players.length;
-    const max = $state.minMaxPlayers[1];
-    if (v >= max) return false;
+    const freeSlot = $state.playersSlots.findIndex((p) => p.pubKey === null);
+    if (freeSlot === -1) return false;
     return true;
   });
 
   const canLeaveGame = derived(state, ($state) => {
-    const alreadyJoined = !!$state.players.find((v) => v === pubKey);
+    const alreadyJoined = !!$state.playersSlots.find((s) => s.pubKey === pubKey);
     if (!alreadyJoined) return false;
     return true;
   });

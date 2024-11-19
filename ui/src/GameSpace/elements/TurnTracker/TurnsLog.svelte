@@ -1,5 +1,6 @@
 <script lang="ts">
   import PlayerName from '~/shared/PlayerName.svelte';
+  import { type PlayerSlot } from '~/store';
   import { type TurnStarted } from './type';
   import { formatTime } from './utils';
   import { tooltip } from '~/shared/tooltip';
@@ -8,6 +9,7 @@
   let klass = '';
   export { klass as class };
   export let turnsLog: TurnStarted[];
+  export let playersSlots: PlayerSlot[];
 
   let timeTick = 1;
   $: turnsLogWithRelativeTime = turnsLog.map((turn, i) => {
@@ -37,11 +39,14 @@
   {style}
 >
   {#each turnsLogWithRelativeTime.toReversed() as turn}
+    {@const slot = playersSlots[turn.playerSlot]}
     <div use:tooltip={formatDateInt(turn.time)}>
-      {#if turn.player}
-        <PlayerName class="font-bold" agentPubKey={turn.player} />: {formatTime(turn.elapsed)}
-      {:else}
+      {#if turn.playerSlot === -1}
         <strong class="opacity-50">[PAUSED]</strong>: {formatTime(turn.elapsed)}
+      {:else if slot && slot.pubKey}
+        <PlayerName class="font-bold" agentPubKey={slot.pubKey} />: {formatTime(turn.elapsed)}
+      {:else}
+        Player {turn.playerSlot + 1}
       {/if}
     </div>
   {/each}

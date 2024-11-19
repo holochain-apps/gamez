@@ -12,7 +12,6 @@ const config = {
     width: 100,
     showNames: false,
     canOnlyPickOwnPiece: true,
-    colorCoded: true,
     size: 30,
     limit: 5,
     createdPieces: [],

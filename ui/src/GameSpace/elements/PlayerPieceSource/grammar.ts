@@ -2,7 +2,6 @@ import type { Delta, GameSpace } from '~/store';
 
 import { type PlayerPieceElement } from '../PlayerPiece/type';
 import type { PlayerPieceSourceElement } from './type';
-import { playerColor } from './utils';
 
 function forEachPieceSourceContainingElement(
   status: GameSpace,
@@ -37,18 +36,6 @@ function isWithinRectangle(
 
 export const applyDelta = (delta: Delta, status: GameSpace) => {
   switch (delta.type) {
-    case 'add-player':
-    case 'remove-player':
-      forEachPieceSource(status, (ps) => {
-        ps.createdPieces.forEach((pieceUuid) => {
-          const piece = status.elements.find((e) => e.uuid === pieceUuid) as PlayerPieceElement;
-          if (piece) {
-            const playerIndex = status.players.indexOf(piece.agent);
-            piece.colorRing = playerColor(playerIndex, status.players.length);
-          }
-        });
-      });
-      break;
     case 'update-element':
       {
         const el = status.elements.find((e) => e.uuid === delta.element.uuid);
@@ -62,13 +49,6 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
               if (pieceSourceDelta.size) {
                 piece.width = pieceSourceDelta.size;
                 piece.height = pieceSourceDelta.size;
-              }
-
-              if (pieceSourceDelta.colorCoded !== undefined) {
-                const playerIndex = status.players.indexOf(piece.agent);
-                piece.colorRing = pieceSourceDelta.colorCoded
-                  ? playerColor(playerIndex, status.players.length)
-                  : '';
               }
             }
           });

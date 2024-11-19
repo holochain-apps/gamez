@@ -8,7 +8,6 @@
 
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
   import type { PlayerPieceSourceElement } from './type';
-  import { playerColor as playerColorUtil } from './utils';
 
   export let gameSpace: GameSpaceSyn;
   export let el: PlayerPieceSourceElement;
@@ -26,14 +25,14 @@
   let prevCreatedPieces: string[] = [];
   $: {
     if (el.createdPieces !== prevCreatedPieces) {
-      const result: { [key: string]: number } = {};
+      const result: { [key: number]: number } = {};
       el.createdPieces.forEach((pieceUuid) => {
         const piece = elements.find((e) => e.uuid === pieceUuid) as PlayerPieceType;
         if (piece) {
-          if (!result[piece.agent]) {
-            result[piece.agent] = 0;
+          if (!result[piece.playerSlot]) {
+            result[piece.playerSlot] = 0;
           }
-          result[piece.agent]++;
+          result[piece.playerSlot]++;
         }
         playedPiecesCountByAgent = result;
       });
@@ -77,15 +76,13 @@
     }, 50);
   }
 
-  $: playerColor = (i: number) => (el.colorCoded ? playerColorUtil(i, $state.players.length) : '');
-
-  type DragState = { agent: string; x: number; y: number } | null;
+  type DragState = { playerSlotIndex: number; x: number; y: number } | null;
   let dragState: DragState = null;
-  function handleDragStart(ev: MouseEvent, agent: string) {
+  function handleDragStart(ev: MouseEvent, playerSlotIndex: number) {
     if (isLocked) return;
     ev.stopPropagation();
     ev.preventDefault();
-    dragState = { agent, x: ev.clientX, y: ev.clientY };
+    dragState = { playerSlotIndex, x: ev.clientX, y: ev.clientY };
 
     function handleMouseMoving(e: MouseEvent) {
       const x = e.clientX;
@@ -96,8 +93,7 @@
     function handleMouseUp() {
       const surfacePos = gameSpace.getSurfaceCoordinates(dragState.x, dragState.y);
       if (surfacePos) {
-        const colorRing = playerColor($state.players.indexOf(dragState.agent));
-        handleAddPiece(surfacePos, dragState.agent, colorRing);
+        handleAddPiece(surfacePos, dragState.playerSlotIndex);
       }
       dragState = null;
       document.body.classList.remove('cursor-grabbing');
@@ -110,18 +106,17 @@
     document.body.classList.add('cursor-grabbing');
   }
 
-  async function handleAddPiece(pos: { x: number; y: number }, agent: string, colorRing: string) {
+  async function handleAddPiece(pos: { x: number; y: number }, playerSlotIndex: number) {
     const newEl: PlayerPieceType = {
       type: 'PlayerPiece' as 'PlayerPiece',
-      version: 2 as 2,
+      version: 3 as 3,
       width: el.size,
       height: el.size,
       x: pos.x,
       y: pos.y,
       z: gameSpace.topZ(),
       rotation: 0,
-      agent: agent,
-      colorRing: colorRing,
+      playerSlot: playerSlotIndex,
       wals: [],
       lock: {
         position: false,
@@ -147,43 +142,46 @@
 </script>
 
 <div class={cx(klass, 'h-full w-full bg-main-900 rounded-md p2')}>
-  {#if $state.players.length === 0}
+  {#if $state.playersSlots.filter((s) => s.pubKey).length === 0}
     <div class="opacity-70 flexcc h-full w-full">No players</div>
   {/if}
   <div
-    class={cx(`w-full grid gap-2`, {
+    class={cx(`w-full grid gap-x-2`, {
       'grid-cols-[auto_1fr]': el.showNames,
       'grid-cols-1': !el.showNames,
     })}
   >
-    {#each $state.players as player, i}
-      {@const hasPiecesLeft = el.limit
-        ? el.limit - (playedPiecesCountByAgent[player] || 0) > 0
-        : true}
-      {@const ownPieces = player === gameSpace.pubKey}
+    {#each $state.playersSlots as playerSlot, i}
+      {@const playerPubKey = playerSlot.pubKey}
+      {@const hasPiecesLeft = el.limit ? el.limit - (playedPiecesCountByAgent[i] || 0) > 0 : true}
+      {@const ownPieces = playerPubKey === gameSpace.pubKey}
       {@const isAllowedToGrab =
         hasPiecesLeft &&
         ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece) &&
         !isLocked}
       {#if el.showNames}
         <div class="flexce text-xs">
-          <PlayerName agentPubKey={player} />
+          {#if playerPubKey}
+            <PlayerName agentPubKey={playerPubKey} />
+          {:else}
+            Player {i + 1}
+          {/if}
         </div>
       {/if}
       <div
-        class={cx('flexcs min-w-0 overflow-hidden', {
+        class={cx('flexcs min-w-0 overflow-hidden py1.5', {
           'cursor-not-allowed': !isAllowedToGrab,
           'cursor-grab': isAllowedToGrab,
         })}
         draggable={true}
-        on:dragstart={(ev) => (isAllowedToGrab ? handleDragStart(ev, player) : null)}
+        on:dragstart={(ev) => (isAllowedToGrab ? handleDragStart(ev, i) : null)}
         bind:this={piecesContainer[i]}
       >
         <div class="flex">
           {#each { length: el.limit || 1 } as _, j}
             {@const isPlayed = el.limit
-              ? (playedPiecesCountByAgent[player] || 0) +
-                  (dragState && dragState.agent === player ? 1 : 0) >=
+              ? (playedPiecesCountByAgent[i] || 0) +
+                  (dragState && dragState.playerSlotIndex === i ? 1 : 0) >=
                 el.limit - j
               : false}
             <div
@@ -193,11 +191,11 @@
               style={j > 0 ? `margin-left: var(--overlap); z-index: ${10 + j}` : ''}
             >
               <PlayerPieceEl
+                {gameSpace}
                 el={{
                   width: el.size,
                   height: el.size,
-                  agent: player,
-                  colorRing: el.colorCoded ? playerColor(i) : '',
+                  playerSlot: i,
                 }}
               />
             </div>
@@ -209,13 +207,13 @@
 </div>
 
 {#if dragState}
-  {@const colorRing = playerColor($state.players.indexOf(dragState.agent))}
   <Portal target="body">
     <div class="fixed z-100 top-0 left-0">
       <PlayerPieceEl
         class="inline-block fixed z-100 cursor-grabbing"
         style={`transform: translate(${dragState.x - el.size / 2}px, ${dragState.y - el.size / 2}px) scale(${zoomLevel});`}
-        el={{ width: el.size, height: el.size, agent: dragState.agent, colorRing }}
+        {gameSpace}
+        el={{ width: el.size, height: el.size, playerSlot: dragState.playerSlotIndex }}
       />
     </div>
   </Portal>

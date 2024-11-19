@@ -69,4 +69,10 @@ export function waitUntilAvailable<T>(readable: Readable<T | null>): Promise<T> 
   });
 }
 
+export function colorSequence(i: number, max: number): string {
+  if (i === -1) return '';
+  const hue = (i / max) * 360;
+  return `hsl(${hue}, 60%, 50%)`;
+}
+
 export const cx = classnames;

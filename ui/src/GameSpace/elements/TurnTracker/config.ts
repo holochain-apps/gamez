@@ -1,8 +1,8 @@
-import { type TurnTrackerElement } from './type';
+import { type TurnTrackerElement, VERSION } from './type';
 
 const config = {
   type: 'TurnTracker',
-  version: 1,
+  version: VERSION,
   label: 'Turn Tracker',
   icon: '⏱',
   build: (): Partial<TurnTrackerElement> => ({
@@ -10,6 +10,7 @@ const config = {
     width: 200,
     turnsLog: [],
     showTimers: true,
+    showEmptyPlayersSlots: true,
   }),
 };
 

@@ -123,7 +123,7 @@ export function createRootStore(
           const state = JSON.parse(text) as GameSpace;
           const validState = validateGameSpace(state);
           if (validState) {
-            validState.players = [];
+            validState.playersSlots = validState.playersSlots.map((s) => ({ ...s, pubKey: null }));
             validState.creator = pubKey;
             resolve(createGameSpace(validState));
           } else {

@@ -4,6 +4,7 @@ import path from 'path';
 import UnoCSS from 'unocss/vite';
 import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
+import checker from 'vite-plugin-checker';
 
 import { dnaVersion, version } from './package.json';
 
@@ -12,7 +13,14 @@ import { dnaVersion, version } from './package.json';
 // https://vitejs.dev/config/
 // @unocss-include
 export default defineConfig({
-  plugins: [svelte(), UnoCSS(), Icons({ compiler: 'svelte', defaultClass: 'block' })],
+  plugins: [
+    svelte(),
+    UnoCSS(),
+    Icons({ compiler: 'svelte', defaultClass: 'block' }),
+    checker({
+      typescript: { tsconfigPath: path.resolve(__dirname, './tsconfig.json') },
+    }),
+  ],
   server: {
     hmr: {
       host: 'localhost',

@@ -5,11 +5,15 @@ export default {
   elements: [],
   isStewarded: false,
   lastChangeAt: 1731434284003,
-  minMaxPlayers: [1, 4],
   name: 'Blank',
-  players: [],
+  playersSlots: [
+    { color: '#ff0000', pubKey: null },
+    { color: '#00ff00', pubKey: null },
+    { color: '#0000ff', pubKey: null },
+    { color: '#ffff00', pubKey: null },
+  ],
   isLibraryItem: true,
   isArchived: false,
-  version: 5,
+  version: 7,
   wals: [],
 } as const satisfies GameSpace;

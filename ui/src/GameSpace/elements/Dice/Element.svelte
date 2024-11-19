@@ -11,7 +11,9 @@
   export let isLocked: boolean;
   $: state = gameSpace.state;
 
-  $: canPlay = $state.players.includes(gameSpace.pubKey) && !isLocked;
+  $: slotIndex = $state.playersSlots.findIndex((s) => s.pubKey === gameSpace.pubKey);
+  $: playerSlot = slotIndex !== -1 ? $state.playersSlots[slotIndex] : null;
+  $: canPlay = playerSlot && !isLocked;
 
   function handleContainerClick() {
     if (!canPlay) return;
@@ -19,7 +21,7 @@
       faces: d.faces,
       result: Math.floor(Math.random() * d.faces + 1),
     }));
-    const roll = { dice: rolledDice, player: gameSpace.pubKey };
+    const roll = { dice: rolledDice, playerSlot: slotIndex };
     const rolls = el.rolls.concat([roll]);
     // Optimization for snappier interface
     lastRoll = roll;
@@ -28,7 +30,7 @@
     }, 50);
   }
 
-  let lastRoll: { dice: { faces: number; result: number }[]; player: string };
+  let lastRoll: { dice: { faces: number; result: number }[]; playerSlot: number };
   $: lastRoll = el.rolls[el.rolls.length - 1];
   function diceChanged(rolls: Roll[], dice: DieType[]) {
     const last = rolls[rolls.length - 1];
@@ -54,9 +56,12 @@
 >
   <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
   {#if showLastRoll}
-    <div class="z-20 absolute -top-2 -left-2"
-      ><AgentAvatar pubKey={lastRoll.player} size={28} /></div
-    >
+    {@const playerSlot = $state.playersSlots[lastRoll.playerSlot]}
+    {#if playerSlot && playerSlot.pubKey}
+      <div class="z-20 absolute -top-2 -left-2"
+        ><AgentAvatar pubKey={playerSlot.pubKey} size={28} /></div
+      >
+    {/if}
   {/if}
   <div class="relative z-20 flexcc content-center h-full flex-wrap">
     {#if showLastRoll}
@@ -82,10 +87,15 @@
       style={`max-height: ${el.height}px;`}
     >
       {#each el.rolls.toReversed() as roll}
+        {@const playerSlot = $state.playersSlots[roll.playerSlot]}
+
         <div>
-          <PlayerName class="font-bold" agentPubKey={roll.player} />: {roll.dice
-            .map((r) => `${r.result}/${r.faces}`)
-            .join(', ')}
+          {#if playerSlot && playerSlot.pubKey}
+            <PlayerName class="font-bold" agentPubKey={playerSlot.pubKey} />:
+          {:else}
+            <span>Player {roll.playerSlot + 1}:</span>
+          {/if}
+          {roll.dice.map((r) => `${r.result}/${r.faces}`).join(', ')}
         </div>
       {/each}
     </div>
