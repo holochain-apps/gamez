@@ -24,6 +24,12 @@
     onInput={(v) => onUpdate({ canOnlyPickOwnPiece: v })}
     disabled={el.lock.config}
   />
+  <Checkbox
+    value={el.showEmptyPlayersSlots}
+    label="Show empty players slots"
+    onInput={(v) => onUpdate({ showEmptyPlayersSlots: v })}
+    disabled={el.lock.config}
+  />
   <IntegerInput
     value={el.limit}
     label="Limit"

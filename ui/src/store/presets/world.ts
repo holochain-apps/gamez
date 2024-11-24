@@ -26,6 +26,7 @@ export default {
     },
     {
       canOnlyPickOwnPiece: true,
+      showEmptyPlayersSlots: false,
       createdPieces: [],
       height: 202.03619909502268,
       limit: 0,
