@@ -3,8 +3,9 @@
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
   import '@holochain-open-dev/stores/dist/debug-store.js';
 
-  import Avatar from '~/shared/Avatar.svelte';
   import { getContext } from '~/store';
+  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  import AgentName from '~/shared/AgentName.svelte';
 
   const { profilesStore } = getContext();
 
@@ -27,8 +28,9 @@
       {:else}
         {#each $agents.status == 'complete' ? Array.from($agents.value) : [] as agentPubKey}
           <div class="b-b-2 b-main-700 last:b-0">
-            <div class="bg-main-900 p2">
-              <Avatar {agentPubKey} size={40} namePosition="row" />
+            <div class="bg-main-900 p2 flexcs">
+              <AgentAvatar pubKey={agentPubKey} size={40} />
+              <AgentName class="ml2" pubKey={agentPubKey} />
             </div>
           </div>
         {/each}

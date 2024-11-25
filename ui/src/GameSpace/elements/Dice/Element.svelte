@@ -3,7 +3,7 @@
   import { type GameSpaceSyn } from '~/store';
   import type { DiceElement, Roll, Die as DieType } from './type';
   import Die from './Die.svelte';
-  import PlayerName from '~/shared/PlayerName.svelte';
+  import AgentName from '~/shared/AgentName.svelte';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
   export let el: DiceElement;
@@ -91,7 +91,7 @@
 
         <div>
           {#if playerSlot && playerSlot.pubKey}
-            <PlayerName class="font-bold" agentPubKey={playerSlot.pubKey} />:
+            <AgentName class="font-bold" pubKey={playerSlot.pubKey} />:
           {:else}
             <span>Player {roll.playerSlot + 1}:</span>
           {/if}

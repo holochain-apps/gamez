@@ -5,14 +5,12 @@
 
   const { profilesStore } = getContext();
 
-  export let agentPubKey: AgentPubKey | string;
+  export let pubKey: AgentPubKey | string;
   let klass = '';
   export { klass as class };
 
-  $: agentPubKeyB64 =
-    typeof agentPubKey == 'string' ? agentPubKey : encodeHashToBase64(agentPubKey);
-  $: agentPubKeyHash =
-    typeof agentPubKey == 'string' ? decodeHashFromBase64(agentPubKey) : agentPubKey;
+  $: agentPubKeyB64 = typeof pubKey == 'string' ? pubKey : encodeHashToBase64(pubKey);
+  $: agentPubKeyHash = typeof pubKey == 'string' ? decodeHashFromBase64(pubKey) : pubKey;
   $: profile = profilesStore.profiles.get(agentPubKeyHash);
   $: nickname =
     $profile.status == 'complete' && $profile.value

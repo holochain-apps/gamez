@@ -5,7 +5,7 @@
 
   import { type GameSpaceSyn } from '~/store';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
-  import PlayerName from '~/shared/PlayerName.svelte';
+  import AgentName from '~/shared/AgentName.svelte';
 
   import type { TurnTrackerElement, TurnStarted } from './type';
   import TurnsLog from './TurnsLog.svelte';
@@ -178,7 +178,7 @@
           </div>
 
           {#if playerSlot.pubKey}
-            <PlayerName agentPubKey={playerSlot.pubKey} class="flex-grow" />
+            <AgentName pubKey={playerSlot.pubKey} class="flex-grow" />
           {:else}
             <div class="flex-grow">Player {i + 1}</div>
           {/if}

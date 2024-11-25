@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PlayerName from '~/shared/PlayerName.svelte';
+  import AgentName from '~/shared/AgentName.svelte';
   import { type PlayerSlot } from '~/store';
   import { type TurnStarted } from './type';
   import { formatTime } from './utils';
@@ -44,7 +44,7 @@
       {#if turn.playerSlot === -1}
         <strong class="opacity-50">[PAUSED]</strong>: {formatTime(turn.elapsed)}
       {:else if slot && slot.pubKey}
-        <PlayerName class="font-bold" agentPubKey={slot.pubKey} />: {formatTime(turn.elapsed)}
+        <AgentName class="font-bold" pubKey={slot.pubKey} />: {formatTime(turn.elapsed)}
       {:else}
         Player {turn.playerSlot + 1}
       {/if}

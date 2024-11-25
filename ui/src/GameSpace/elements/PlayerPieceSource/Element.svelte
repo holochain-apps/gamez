@@ -3,7 +3,7 @@
   import Portal from 'svelte-portal';
   import { v1 as uuidv1 } from 'uuid';
 
-  import PlayerName from '~/shared/PlayerName.svelte';
+  import AgentName from '~/shared/AgentName.svelte';
   import { type GameSpaceSyn } from '~/store';
 
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
@@ -163,7 +163,7 @@
         {#if el.showNames}
           <div class="flexce text-xs">
             {#if playerPubKey}
-              <PlayerName agentPubKey={playerPubKey} />
+              <AgentName pubKey={playerPubKey} />
             {:else}
               Player {i + 1}
             {/if}

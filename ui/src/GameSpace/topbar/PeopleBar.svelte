@@ -2,8 +2,8 @@
   import cx from 'classnames';
   import UsersIcon from '~icons/fa6-solid/users';
   import { decodeHashFromBase64 } from '@holochain/client';
-  import Avatar from '~/shared/Avatar.svelte';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  import AgentName from '~/shared/AgentName.svelte';
   import type { PlayerSlot } from '~/store/types';
 
   export let canJoinGame: boolean;
@@ -64,8 +64,9 @@
     <div class="bg-main-900 p4 rounded-bl-md top-full w-60 absolute flex flex-col space-y-2 z-1000">
       <div>Sync Session Participants</div>
       {#each participants as participant}
-        <div class="">
-          <Avatar showNickname={true} size={32} agentPubKey={participant} />
+        <div class="flexcs">
+          <AgentAvatar pubKey={participant} size={32} />
+          <AgentName class="ml2" pubKey={participant} />
         </div>
       {/each}
     </div>
