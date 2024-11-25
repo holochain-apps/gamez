@@ -4,7 +4,7 @@
   import type { DiceElement, Roll, Die as DieType } from './type';
   import Die from './Die.svelte';
   import AgentName from '~/shared/AgentName.svelte';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  import PlayerIcon from '../../ui/PlayerIcon.svelte';
 
   export let el: DiceElement;
   export let gameSpace: GameSpaceSyn;
@@ -59,7 +59,12 @@
     {@const playerSlot = $state.playersSlots[lastRoll.playerSlot]}
     {#if playerSlot && playerSlot.pubKey}
       <div class="z-20 absolute -top-2 -left-2"
-        ><AgentAvatar pubKey={playerSlot.pubKey} size={28} /></div
+        ><PlayerIcon
+          pubKey={playerSlot.pubKey}
+          size={30}
+          color={playerSlot.color}
+          slot={lastRoll.playerSlot}
+        /></div
       >
     {/if}
   {/if}

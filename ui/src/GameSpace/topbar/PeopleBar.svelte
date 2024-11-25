@@ -4,6 +4,7 @@
   import { decodeHashFromBase64 } from '@holochain/client';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import AgentName from '~/shared/AgentName.svelte';
+  import PlayerIcon from '../ui/PlayerIcon.svelte';
   import type { PlayerSlot } from '~/store/types';
 
   export let canJoinGame: boolean;
@@ -37,15 +38,8 @@
       }}>Leave Game</button
     >
   {/if}
-  {#each playersSlots as playerSlot}
-    <div
-      class="w10 h10 rounded-full b-2 b-black/10 flexcc"
-      style={'background-color: ' + playerSlot.color}
-    >
-      {#if playerSlot.pubKey}
-        <AgentAvatar size={30} pubKey={decodeHashFromBase64(playerSlot.pubKey)} />
-      {/if}
-    </div>
+  {#each playersSlots as playerSlot, slot}
+    <PlayerIcon size={34} {slot} color={playerSlot.color} pubKey={playerSlot.pubKey} />
   {/each}
   <button
     class={cx('relative h14 w14 flexcc b b-black/10 ', {
