@@ -1,11 +1,11 @@
 <script lang="ts">
   import cx from 'classnames';
   import UsersIcon from '~icons/fa6-solid/users';
-  import { decodeHashFromBase64 } from '@holochain/client';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import AgentName from '~/shared/AgentName.svelte';
-  import PlayerIcon from '../ui/PlayerIcon.svelte';
   import type { PlayerSlot } from '~/store/types';
+
+  import PlayersSlots from './PlayersSlots.svelte';
 
   export let canJoinGame: boolean;
   export let canLeaveGame: boolean;
@@ -13,6 +13,7 @@
   export let playersSlots: PlayerSlot[];
   export let onJoin: () => void;
   export let onLeave: () => void;
+  export let onChangePlayersSlots: (playersSlots: PlayerSlot[]) => void;
 
   let showingParticipants = false;
 
@@ -38,9 +39,7 @@
       }}>Leave Game</button
     >
   {/if}
-  {#each playersSlots as playerSlot, slot}
-    <PlayerIcon size={34} {slot} color={playerSlot.color} pubKey={playerSlot.pubKey} />
-  {/each}
+  <PlayersSlots {playersSlots} onChange={onChangePlayersSlots} />
   <button
     class={cx('relative h14 w14 flexcc b b-black/10 ', {
       'bg-black/30 text-white': showingParticipants,
@@ -56,7 +55,7 @@
   </button>
   {#if showingParticipants}
     <div class="bg-main-900 p4 rounded-bl-md top-full w-60 absolute flex flex-col space-y-2 z-1000">
-      <div>Sync Session Participants</div>
+      <div>In the space</div>
       {#each participants as participant}
         <div class="flexcs">
           <AgentAvatar pubKey={participant} size={32} />

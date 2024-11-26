@@ -10,6 +10,7 @@
     type GameSpaceSyn,
     type GElement,
     type LibraryElement,
+    type PlayerSlot,
     createElement,
     getContext,
   } from '~/store';
@@ -122,6 +123,10 @@
 
     gameSpace.change({ type: 'set-players-slots', playersSlots: newPlayersSlots });
   }
+
+  function handlePlayersSlotsChange(playersSlots: PlayerSlot[]) {
+    gameSpace.change({ type: 'set-players-slots', playersSlots });
+  }
 </script>
 
 {#if $state}
@@ -163,6 +168,7 @@
           participants={$participants}
           onJoin={() => gameSpace.joinGame()}
           onLeave={() => gameSpace.leaveGame()}
+          onChangePlayersSlots={handlePlayersSlotsChange}
         />
       </div>
     {/if}

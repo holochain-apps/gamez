@@ -17,15 +17,17 @@
     const yiq = (r * 299 + g * 587 + b * 114) / 1000;
     return yiq >= 128 ? '#000' : '#fff';
   }
+
+  $: borderSize = size / 12;
   $: contrastingColor = getContrastingBlackOrWhite(color);
 </script>
 
 <div
-  class={`relative flexcc rounded-full b-black/10 shadow-md b-2 ${klass}`}
-  style={`background-color: ${color}; ${style}; height: ${size}px; width: ${size}px; ${style}`}
+  class={`relative flexcc rounded-full b-black/10 shadow-md ${klass}`}
+  style={`background-color: ${color}; ${style}; height: ${size}px; width: ${size}px; ${style}; border-width: ${borderSize}px;`}
 >
   {#if pubKey}
-    <AgentAvatar class="relative z-20" size={size - 4} {pubKey} />
+    <AgentAvatar class="relative z-20" size={size - borderSize * 2} {pubKey} />
   {/if}
   <div class="absolute z-10 inset-0 flexcc opacity-80" style="color: {contrastingColor};"
     >{slot + 1}</div
