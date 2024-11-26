@@ -57,7 +57,7 @@
   <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
   {#if showLastRoll}
     {@const playerSlot = $state.playersSlots[lastRoll.playerSlot]}
-    {#if playerSlot && playerSlot.pubKey}
+    {#if playerSlot}
       <div class="z-20 absolute -top-2 -left-2"
         ><PlayerIcon
           pubKey={playerSlot.pubKey}
