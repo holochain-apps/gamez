@@ -117,8 +117,14 @@
       }
     }
 
+    gameSpace.change({ type: 'set-players-slots', playersSlots: newPlayersSlots });
+  }
+
+  function handleApplyColors() {
+    let newPlayersSlots = cloneDeep($state.playersSlots);
+
     for (let i = 0; i < newPlayersSlots.length; i++) {
-      newPlayersSlots[i].color = colorSequence(i, maxPlayersSlots);
+      newPlayersSlots[i].color = colorSequence(i, newPlayersSlots.length);
     }
 
     gameSpace.change({ type: 'set-players-slots', playersSlots: newPlayersSlots });
@@ -187,6 +193,7 @@
               onNameChange={handleNameChange}
               maxPlayersSlots={$state.playersSlots.length}
               onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
+              onApplyColors={handleApplyColors}
               canEdit={$permissions.canEditSpace}
             />
           {/if}
