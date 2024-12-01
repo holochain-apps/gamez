@@ -6,7 +6,9 @@
   import AgentName from '~/shared/AgentName.svelte';
   import { cloneDeep } from 'lodash';
   import SimpleColorPicker from '../ui/SimpleColorPicker.svelte';
+  import { COLORS } from '~/lib/util';
 
+  export let pubKey: string;
   export let playersSlots: PlayerSlot[];
   export let onChange: (playersSlots: PlayerSlot[]) => void;
 
@@ -16,6 +18,35 @@
     const n = cloneDeep(playersSlots);
     n[slot].color = color;
     onChange(n);
+  }
+
+  function handleAddSlot() {
+    const newPlayersSlots = cloneDeep(playersSlots);
+    newPlayersSlots.push({ color: COLORS[0], pubKey: null });
+    onChange(newPlayersSlots);
+  }
+
+  function handleRemoveSlot() {
+    const newPlayersSlots = cloneDeep(playersSlots);
+    newPlayersSlots.pop();
+    onChange(newPlayersSlots);
+  }
+
+  function handleRemovePlayer(slot: number) {
+    const newPlayersSlots = cloneDeep(playersSlots);
+    newPlayersSlots[slot].pubKey = null;
+    onChange(newPlayersSlots);
+  }
+
+  function handleJoinSlot(slot: number) {
+    const newPlayersSlots = cloneDeep(playersSlots);
+    for (let i = 0; i < newPlayersSlots.length; i++) {
+      if (newPlayersSlots[i].pubKey === pubKey) {
+        newPlayersSlots[i].pubKey = null;
+      }
+    }
+    newPlayersSlots[slot].pubKey = pubKey;
+    onChange(newPlayersSlots);
   }
 </script>
 
@@ -42,11 +73,13 @@
         </div>
         {#if playerSlot.pubKey}
           <button
+            on:click={() => handleRemovePlayer(slot)}
             class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
             >Remove<br />Player</button
           >
         {:else}
           <button
+            on:click={() => handleJoinSlot(slot)}
             class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
             >Join Here</button
           >
@@ -58,10 +91,10 @@
 <div class="w-16 h-8 flex-shrink-0 flex">
   <button
     class="flexcc text-xs font-bold h-full w-1/2 bg-main-400 w-full rounded-l-md text-white b b-black/10 hover:bg-main-500"
-    on:click={() => onChange(playersSlots)}>-</button
+    on:click={handleRemoveSlot}>-</button
   >
   <button
     class="flexcc text-xs font-bold h-full w-1/2 bg-main-400 w-full rounded-r-md text-white b b-black/10 hover:bg-main-500"
-    on:click={() => onChange(playersSlots)}>+</button
+    on:click={handleAddSlot}>+</button
   >
 </div>

@@ -7,6 +7,7 @@
 
   import PlayersSlots from './PlayersSlots.svelte';
 
+  export let pubKey: string;
   export let canJoinGame: boolean;
   export let canLeaveGame: boolean;
   export let participants: Uint8Array[];
@@ -39,7 +40,7 @@
       }}>Leave Game</button
     >
   {/if}
-  <PlayersSlots {playersSlots} onChange={onChangePlayersSlots} />
+  <PlayersSlots {pubKey} {playersSlots} onChange={onChangePlayersSlots} />
   <button
     class={cx('relative h14 w14 flexcc b b-black/10 ', {
       'bg-black/30 text-white': showingParticipants,

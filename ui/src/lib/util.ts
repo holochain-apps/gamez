@@ -75,4 +75,8 @@ export function colorSequence(i: number, max: number): string {
   return `hsl(${hue}, 60%, 50%)`;
 }
 
+export const COLORS = ['#222222', '#777777', '#f7f7f7'].concat(
+  Array.from(new Array(12)).map((_, i) => colorSequence(i, 12)),
+);
+
 export const cx = classnames;

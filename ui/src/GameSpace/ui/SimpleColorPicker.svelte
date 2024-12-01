@@ -1,12 +1,8 @@
 <script lang="ts">
-  import { colorSequence, cx } from '~/lib/util';
+  import { COLORS, colorSequence, cx } from '~/lib/util';
 
   export let value: string;
   export let onChange: (value: string) => void;
-
-  const COLORS = ['#222222', '#777777', '#f7f7f7'].concat(
-    Array.from(new Array(12)).map((_, i) => colorSequence(i, 12)),
-  );
 </script>
 
 <div class="w-full whitespace-nowrap">

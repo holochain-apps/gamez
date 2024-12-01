@@ -23,7 +23,7 @@
   import ConfigMenu from './ConfigMenu';
   import { tooltip } from '~/shared/tooltip';
   import { cloneDeep } from 'lodash';
-  import { colorSequence, uuid } from '~/lib/util';
+  import { COLORS, colorSequence, uuid } from '~/lib/util';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -113,7 +113,7 @@
     let newPlayersSlots = cloneDeep($state.playersSlots).slice(0, maxPlayersSlots);
     if (newPlayersSlots.length < maxPlayersSlots) {
       for (let i = newPlayersSlots.length; i < maxPlayersSlots; i++) {
-        newPlayersSlots.push({ color: '#000', pubKey: null });
+        newPlayersSlots.push({ color: COLORS[0], pubKey: null });
       }
     }
 
@@ -168,6 +168,7 @@
         {/if}
 
         <PeopleBar
+          pubKey={gameSpace.pubKey}
           canJoinGame={$canJoinGame}
           canLeaveGame={$canLeaveGame}
           playersSlots={$state.playersSlots}
