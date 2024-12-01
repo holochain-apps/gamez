@@ -80,3 +80,31 @@ export const COLORS = ['#222222', '#777777', '#f7f7f7'].concat(
 );
 
 export const cx = classnames;
+
+export const addWindowEventListeners = <K extends keyof WindowEventMap>(
+  eventCallbackPairs: [K, (event: WindowEventMap[K]) => void][],
+): (() => void) => (
+  eventCallbackPairs.forEach(([event, callback]) => {
+    window.addEventListener(event, callback);
+  }),
+  () => {
+    eventCallbackPairs.forEach(([event, callback]) => {
+      window.removeEventListener(event, callback);
+    });
+  }
+);
+export const addWindowEventListener = <K extends keyof WindowEventMap>(
+  event: K,
+  callback: (event: WindowEventMap[K]) => void,
+): (() => void) => {
+  window.addEventListener(event, callback);
+  return () => {
+    window.removeEventListener(event, callback);
+  };
+};
+
+export const wrapFns = (fns: (() => void)[]) => () => fns.forEach((fn) => fn());
+
+export const EMPTY_IMAGE = new Image(1, 1);
+EMPTY_IMAGE.src =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
