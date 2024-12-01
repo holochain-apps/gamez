@@ -7,10 +7,22 @@ export default {
   lastChangeAt: 1731434284003,
   name: 'Blank',
   playersSlots: [
-    { color: '#ff0000', pubKey: null },
-    { color: '#00ff00', pubKey: null },
-    { color: '#0000ff', pubKey: null },
-    { color: '#ffff00', pubKey: null },
+    {
+      color: 'hsl(0, 60%, 50%)',
+      pubKey: null,
+    },
+    {
+      color: 'hsl(90, 60%, 50%)',
+      pubKey: null,
+    },
+    {
+      color: 'hsl(180, 60%, 50%)',
+      pubKey: null,
+    },
+    {
+      color: 'hsl(270, 60%, 50%)',
+      pubKey: null,
+    },
   ],
   isLibraryItem: true,
   isArchived: false,

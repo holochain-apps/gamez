@@ -820,8 +820,14 @@ export default {
   lastChangeAt: 1731433629880,
   name: 'Chess',
   playersSlots: [
-    { color: '#ff0000', pubKey: null },
-    { color: '#00ff00', pubKey: null },
+    {
+      color: '#222222',
+      pubKey: null,
+    },
+    {
+      color: '#f7f7f7',
+      pubKey: null,
+    },
   ],
   isLibraryItem: true,
   isArchived: false,

@@ -820,8 +820,14 @@ export default {
   lastChangeAt: 1731335551423,
   name: 'Checkers',
   playersSlots: [
-    { color: '#ff0000', pubKey: null },
-    { color: '#00ff00', pubKey: null },
+    {
+      color: '#222222',
+      pubKey: null,
+    },
+    {
+      color: 'hsl(0, 60%, 50%)',
+      pubKey: null,
+    },
   ],
   isLibraryItem: true,
   isArchived: false,

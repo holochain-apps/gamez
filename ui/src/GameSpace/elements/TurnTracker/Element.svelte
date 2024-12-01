@@ -10,6 +10,7 @@
   import type { TurnTrackerElement, TurnStarted } from './type';
   import TurnsLog from './TurnsLog.svelte';
   import { formatTime } from './utils';
+  import PlayerIcon from '../../ui/PlayerIcon.svelte';
 
   export let el: TurnTrackerElement;
   export let gameSpace: GameSpaceSyn;
@@ -164,7 +165,14 @@
     {#each playersSlots as playerSlot, i}
       {#if el.showEmptyPlayersSlots || playerSlot.pubKey}
         <div class="flexcs relative h10">
-          <div
+          <PlayerIcon
+            slot={i}
+            size={32}
+            class="mr2"
+            color={playerSlot.color}
+            pubKey={playerSlot.pubKey}
+          />
+          <!-- <div
             class="h8 w8 relative rounded-full flexcc mr2 b-2 b-black/10"
             style={`background-color: ${playerSlot.color};`}
           >
@@ -175,7 +183,7 @@
               class="text-lg absolute z-10 inset-0 flexcc mix-blend-difference text-white/50 mt.5"
               >{i + 1}</div
             >
-          </div>
+          </div> -->
 
           {#if playerSlot.pubKey}
             <AgentName pubKey={playerSlot.pubKey} class="flex-grow" />
