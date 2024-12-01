@@ -18,9 +18,8 @@ export default function validateGameSpace(inputData: any): GameSpace | null {
   if (typeof data.isStewarded !== 'boolean') throw new Error(`'isStewarded' must be a boolean`);
   if (typeof data.isArchived !== 'boolean') throw new Error(`'isArchived' must be a boolean`);
   if (typeof data.isLibraryItem !== 'boolean') throw new Error(`'isLibraryItem' must be a boolean`);
-  if (!data.minMaxPlayers || !Array.isArray(data.minMaxPlayers) || data.minMaxPlayers.length !== 2)
-    throw new Error(`'minMaxPlayers' must be an array with two numbers: [minPlayers, maxPlayers]`);
-  if (!data.players || !Array.isArray(data.players)) throw new Error(`'players' must be an array`);
+  if (!data.playersSlots || !Array.isArray(data.playersSlots))
+    throw new Error(`'playersSlots' must be an array slot and pubKey properties`);
   if (typeof data.lastChangeAt !== 'number') throw new Error(`'lastChangeAt' must be a number`);
 
   return data as GameSpace;
