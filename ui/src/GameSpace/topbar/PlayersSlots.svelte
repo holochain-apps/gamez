@@ -10,6 +10,7 @@
   export let pubKey: string;
   export let playersSlots: PlayerSlot[];
   export let onChange: (playersSlots: PlayerSlot[]) => void;
+  export let canJoinGame: boolean;
 
   function handleMove(from: number, to: number) {
     if (from !== to) {
@@ -94,18 +95,20 @@
               Player {slot + 1}
             {/if}
           </div>
-          {#if playerSlot.pubKey}
-            <button
-              on:click={() => handleRemovePlayer(slot)}
-              class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
-              >Remove<br />Player</button
-            >
-          {:else}
-            <button
-              on:click={() => handleJoinSlot(slot)}
-              class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
-              >Join Here</button
-            >
+          {#if canJoinGame}
+            {#if playerSlot.pubKey}
+              <button
+                on:click={() => handleRemovePlayer(slot)}
+                class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
+                >Remove<br />Player</button
+              >
+            {:else}
+              <button
+                on:click={() => handleJoinSlot(slot)}
+                class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
+                >Join Here</button
+              >
+            {/if}
           {/if}
         </div>
       </div>

@@ -48,6 +48,7 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
   // elements.subscribe(processElements)
 
   const canJoinGame = derived(state, ($state) => {
+    if ($state.isLibraryItem) return false;
     const alreadyJoined = !!$state.playersSlots.find((s) => s.pubKey === pubKey);
     if (alreadyJoined) return false;
     const freeSlot = $state.playersSlots.findIndex((p) => p.pubKey === null);

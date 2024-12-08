@@ -40,7 +40,7 @@
       }}>Leave Game</button
     >
   {/if}
-  <PlayersSlots {pubKey} {playersSlots} onChange={onChangePlayersSlots} />
+  <PlayersSlots {pubKey} {playersSlots} {canJoinGame} onChange={onChangePlayersSlots} />
   <button
     class={cx('relative h14 w14 flexcc b b-black/10 ', {
       'bg-black/30 text-white': showingParticipants,
