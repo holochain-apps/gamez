@@ -14,7 +14,7 @@
   const { weaveClient } = getContext();
 
   // Track the previous wals to detect changes
-  let previousWals = el.wals;
+  let previousWals: string[] = [];
 
   // Only recompute firstValidAsset if el.wals changes
   let firstValidAssetSrc: string | null = null;
