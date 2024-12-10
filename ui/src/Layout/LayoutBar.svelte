@@ -17,7 +17,7 @@
   import { getContext } from '~/store';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
-  const { profilesStore, pubKey } = getContext();
+  const { profilesStore, pubKey, weaveClient } = getContext();
 
   export let title = 'Board Gamez';
   export let canChangeTitle: boolean = false;
@@ -50,7 +50,7 @@
 <AvatarDialog bind:this={editAvatarDialog} />
 <ParticipantsDialog bind:this={participantsDialog} />
 
-<div class="flexcc flex-shrink-0 bg-main-400 b-black/10 0 b text-white px6 h-16 space-x-2">
+<div class="flexcc flex-shrink-0 bg-main-400 b-black/10 0 b text-white px2 h-16 space-x-2">
   <!-- LEFT SIDE BUTTONS -->
 
   {#if $route.id != 'home'}
@@ -96,18 +96,18 @@
     <BugIcon />
   </a>
 
-  <button
-    class="h12 w12 flexcc rounded-full hover:(bg-black/10 text-white)"
-    on:click={() => {
-      participantsDialog.open();
-    }}
-    title="Show Participants"
-    use:tooltip={'Show Participants'}
-  >
-    <UserGroupIcon />
-  </button>
+  {#if !weaveClient}
+    <button
+      class="h12 w12 flexcc rounded-full hover:(bg-black/10 text-white)"
+      on:click={() => {
+        participantsDialog.open();
+      }}
+      title="Show Participants"
+      use:tooltip={'Show Participants'}
+    >
+      <UserGroupIcon />
+    </button>
 
-  {#if !isWeaveContext()}
     <button
       on:click={editAvatar}
       title={myName ? myName : 'Edit Avatar'}
@@ -116,7 +116,5 @@
     >
       <AgentAvatar size={38} {pubKey} />
     </button>
-  {:else}
-    <AgentAvatar size={38} {pubKey} />
   {/if}
 </div>
