@@ -21,6 +21,7 @@
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
   import { appletServices } from './we';
   import { createRootStore, type RootStore, setContext as setRootStoreContext } from '~/store';
+  import ModalPromptContextWrapper from './shared/ModalPromptContextWrapper.svelte';
 
   const appId = import.meta.env.VITE_APP_ID ?? 'gamez';
   const roleName = 'gamez';
@@ -165,31 +166,31 @@
   }
 
   $: prof = state.type !== 'pending' ? state.profilesStore.myProfile : undefined;
-
-  $: console.log('APP STATE', state);
 </script>
 
 <svelte:head></svelte:head>
 {#if state.type !== 'pending'}
   <profiles-context store={state.profilesStore} id="root">
-    {#if $prof.status == 'pending'}
-      <LoadingIndicator textual={false} class="mt40" />
-    {:else if $prof.status == 'complete' && $prof.value == undefined}
-      <div class="create-profile">
-        <div class="welcome-text"><LogoIcon /></div>
-        <create-profile on:profile-created={() => {}}></create-profile>
-      </div>
-    {:else if state.type === 'standalone'}
-      <ControllerMain />
-    {:else if state.type === 'weave'}
-      {#if state.view.type === 'main'}
+    <ModalPromptContextWrapper>
+      {#if $prof.status == 'pending'}
+        <LoadingIndicator textual={false} class="mt40" />
+      {:else if $prof.status == 'complete' && $prof.value == undefined}
+        <div class="create-profile">
+          <div class="welcome-text"><LogoIcon /></div>
+          <create-profile on:profile-created={() => {}}></create-profile>
+        </div>
+      {:else if state.type === 'standalone'}
         <ControllerMain />
-      {:else if state.view.type === 'asset'}
-        <ControllerBoardAsset view={state.view} />
-      {:else if state.view.type === 'creatable'}
-        <!-- <ControllerCreatable view={state.view} /> -->
+      {:else if state.type === 'weave'}
+        {#if state.view.type === 'main'}
+          <ControllerMain />
+        {:else if state.view.type === 'asset'}
+          <ControllerBoardAsset view={state.view} />
+        {:else if state.view.type === 'creatable'}
+          <!-- <ControllerCreatable view={state.view} /> -->
+        {/if}
       {/if}
-    {/if}
+    </ModalPromptContextWrapper>
   </profiles-context>
 {:else}
   <LoadingIndicator textual={false} class="mt40" />

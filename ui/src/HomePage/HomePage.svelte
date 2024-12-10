@@ -5,6 +5,8 @@
   import GamesList from './GamesList.svelte';
   import { nav } from '~/lib/routes';
   import LibraryList from './LibraryList.svelte';
+  import ModalPrompt from '~/shared/ModalPrompt.svelte';
+  import { getModalPromptContext } from '~/shared/ModalPromptContextWrapper.svelte';
 
   const store = getContext();
 
@@ -29,10 +31,12 @@
     nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
-  async function handleNewLibraryItem() {
-    const hash = await store.createGameSpace({ isLibraryItem: true, name: 'New Library Space' });
+  async function handleNewLibraryItem(name: string) {
+    const hash = await store.createGameSpace({ isLibraryItem: true, name });
     nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
+
+  const { open: openModalPrompt } = getModalPromptContext();
 </script>
 
 <LayoutBar title={'Gamez'} />
@@ -63,7 +67,13 @@
       >
       <button
         class="w8 h8 flexcc bg-white/20 rounded-md b b-white/10 hover:bg-white/30"
-        on:click={handleNewLibraryItem}><PlusIcon /></button
+        on:click={() =>
+          openModalPrompt({
+            title: 'Create new library item',
+            onConfirm: handleNewLibraryItem,
+            placeholder: 'Name',
+            defaultValue: 'New library item',
+          })}><PlusIcon /></button
       >
     </div>
     <div class="flex-grow overflow-auto h-0">

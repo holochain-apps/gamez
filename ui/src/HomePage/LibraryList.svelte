@@ -8,6 +8,7 @@
   import { nav } from '~/lib/routes';
   import { toPromise } from '@holochain-open-dev/stores';
   import { cx } from '~/lib/util';
+  import { getModalPromptContext } from '~/shared/ModalPromptContextWrapper.svelte';
 
   const store = getContext();
   $: gameDocs = store.gameDocs;
@@ -28,9 +29,10 @@
 
   let presetsItems = Object.values(presets);
 
-  async function handlePlayFromLibrary(gameSpace: GameSpace) {
+  async function handlePlayFromLibrary(gameSpace: GameSpace, newName: string) {
     const newGameSpace: GameSpace = {
       ...cloneDeep(gameSpace),
+      name: newName,
       isLibraryItem: false,
       creator: store.pubKey,
     };
@@ -73,6 +75,8 @@
   }
 
   let showArchive = false;
+
+  const { open: openModalPrompt } = getModalPromptContext();
 </script>
 
 <div class="flex flex-col px2 pt2 space-y-2 h-full">
@@ -81,7 +85,13 @@
       <LibraryListItem
         gameSpace={$state}
         isLocked={false}
-        onPlay={() => handlePlayFromLibrary($state)}
+        onPlay={() =>
+          openModalPrompt({
+            title: 'Create new game space',
+            onConfirm: (name) => handlePlayFromLibrary($state, name),
+            placeholder: 'Name',
+            defaultValue: $state.name,
+          })}
         onArchive={() => handleArchive(gameSpace)}
         onEdit={() => handleEdit(gameSpace.hash)}
         onDuplicate={() => handleDuplicate($state)}
@@ -94,7 +104,13 @@
     <LibraryListItem
       {gameSpace}
       isLocked={true}
-      onPlay={() => handlePlayFromLibrary(gameSpace)}
+      onPlay={() =>
+        openModalPrompt({
+          title: 'Create new game space',
+          onConfirm: (name) => handlePlayFromLibrary(gameSpace, name),
+          placeholder: 'Name',
+          defaultValue: gameSpace.name,
+        })}
       onDuplicate={() => handleDuplicate(gameSpace)}
       onEditCopy={() => handleEditCopy(gameSpace)}
     />
