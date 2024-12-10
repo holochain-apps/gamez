@@ -58,11 +58,11 @@
   }
 </script>
 
-<div class="flex space-x-2">
+<div class="flex space-x-1">
   {#each playersSlots as playerSlot, slot}
     <div class="group relative">
       <PlayerIcon
-        size={34}
+        size={30}
         {slot}
         class="cursor-grab"
         color={playerSlot.color}
@@ -95,33 +95,31 @@
               Player {slot + 1}
             {/if}
           </div>
-          {#if canJoinGame}
-            {#if playerSlot.pubKey}
-              <button
-                on:click={() => handleRemovePlayer(slot)}
-                class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
-                >Remove<br />Player</button
-              >
-            {:else}
-              <button
-                on:click={() => handleJoinSlot(slot)}
-                class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
-                >Join Here</button
-              >
-            {/if}
+          {#if playerSlot.pubKey}
+            <button
+              on:click={() => handleRemovePlayer(slot)}
+              class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
+              >Remove<br />Player</button
+            >
+          {:else if canJoinGame}
+            <button
+              on:click={() => handleJoinSlot(slot)}
+              class="text-xs bg-main-400 w-full rounded-md line-height-tight py1 text-white b b-black/10 hover:bg-main-500"
+              >Join Here</button
+            >
           {/if}
         </div>
       </div>
     </div>
   {/each}
 </div>
-<div class="w-16 h-8 flex-shrink-0 flex">
+<div class="w-16 h-8 flex-shrink-0 flexcc">
   <button
-    class="flexcc text-xs font-bold h-full w-1/2 bg-main-400 w-full rounded-l-md text-white b b-black/10 hover:bg-main-500"
+    class="bg-main-300 h9 px2 pt.5 flexcc rounded-l-md text-white hover:filter-brightness-120 b b-black/10"
     on:click={handleRemoveSlot}>-</button
   >
   <button
-    class="flexcc text-xs font-bold h-full w-1/2 bg-main-400 w-full rounded-r-md text-white b b-black/10 hover:bg-main-500"
+    class="bg-main-300 h9 px2 pt.5 flexcc rounded-r-md text-white hover:filter-brightness-120 b b-black/10"
     on:click={handleAddSlot}>+</button
   >
 </div>

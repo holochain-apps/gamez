@@ -23,10 +23,10 @@
   };
 </script>
 
-<div class="flex-grow flexce space-x-2 relative">
+<div class="flex-grow flexce space-x-1 relative">
   {#if canJoinGame}
     <button
-      class="bg-main-400 h10 px2 py1 rounded-md text-white hover:bg-main-500 b b-black/10"
+      class="bg-main-300 h9 px1.5 flexcc rounded-md text-white hover:filter-brightness-120 b b-black/10"
       on:click={() => {
         onJoin();
       }}>Join Game</button
@@ -34,7 +34,7 @@
   {/if}
   {#if canLeaveGame}
     <button
-      class="bg-gray-400 h10 px2 py1 rounded-md text-white b b-black/10 hover:brightness-110"
+      class="bg-main-300 h9 px1.5 flexcc rounded-md text-white hover:filter-brightness-120 b b-black/10"
       on:click={() => {
         onLeave();
       }}>Leave Game</button
@@ -42,9 +42,8 @@
   {/if}
   <PlayersSlots {pubKey} {playersSlots} {canJoinGame} onChange={onChangePlayersSlots} />
   <button
-    class={cx('relative h14 w14 flexcc b b-black/10 ', {
-      'bg-black/30 text-white': showingParticipants,
-      'bg-white/20 hover:bg-white/30': !showingParticipants,
+    class={cx('h12 w12 text-white flexcc hover:bg-black/10', {
+      'bg-black/30!': showingParticipants,
     })}
     on:click={toggleParticipants}
   >

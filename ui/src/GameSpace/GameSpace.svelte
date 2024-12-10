@@ -3,7 +3,9 @@
   import { derived, get } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
+  import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import PocketIcon from '~/shared/icons/PocketIcon.svelte';
+  import { goBack } from '~/lib/routes';
 
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import {
@@ -24,6 +26,7 @@
   import { tooltip } from '~/shared/tooltip';
   import { cloneDeep } from 'lodash';
   import { COLORS, colorSequence, uuid } from '~/lib/util';
+  import NameTitleInput from './ui/NameTitleInput.svelte';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -136,17 +139,25 @@
 </script>
 
 {#if $state}
-  {#if !asAsset}
-    <LayoutBar
-      onChangeTitle={handleNameChange}
-      canChangeTitle={$permissions.canEditSpace}
-      title={$state.name}
-      sub={$permissions.isArchived ? ' (view only)' : ''}
-    />
-  {/if}
   <div class="h-full flex flex-col">
     {#if !$permissions.isArchived}
-      <div class="bg-main-700 h-14 flex relative">
+      <div class="bg-main-400 h-12 pl1 flexcc relative">
+        {#if !asAsset}
+          <button
+            class="h10 w10 flexcc mr1 hover:bg-black/10 rounded-full text-white"
+            on:click={goBack}
+          >
+            <ArrowLeftIcon />
+          </button>
+          <button
+            on:click={handleAddToPocket}
+            use:tooltip={'Add to pocket'}
+            class="h-10 w-10 p2 mr1 flexcc hover:bg-black/10 rounded-full text-white"
+          >
+            <PocketIcon class="h-full w-full" />
+          </button>
+        {/if}
+
         <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
           <GearIcon />
         </SidebarToggleButton>
@@ -155,17 +166,7 @@
             <CubesIcon />
           </SidebarToggleButton>
         {/if}
-        {#if !asAsset}
-          <div class="flexcc px2">
-            <button
-              on:click={handleAddToPocket}
-              use:tooltip={'Add to pocket'}
-              class="h-10 w-10 p2 bg-main-400 b b-black/10 hover:bg-main-500 rounded-md text-white"
-            >
-              <PocketIcon class="h-full w-full" />
-            </button>
-          </div>
-        {/if}
+        <NameTitleInput value={$state.name} onChange={handleNameChange} />
 
         <PeopleBar
           pubKey={gameSpace.pubKey}

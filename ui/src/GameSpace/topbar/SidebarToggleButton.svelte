@@ -7,9 +7,8 @@
 </script>
 
 <button
-  class={cx('h14 w14 flexcc b b-black/10', {
-    'bg-black/30 text-white': current === value,
-    'bg-white/20': current !== value,
+  class={cx('h12 w12 text-white flexcc hover:bg-black/10', {
+    'bg-black/30!': current === value,
   })}
   on:click={() => onClick(value)}><slot /></button
 >
