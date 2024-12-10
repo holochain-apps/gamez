@@ -1,5 +1,6 @@
 <script lang="ts">
   import '@shoelace-style/shoelace/dist/themes/light.css';
+  import 'svooltip/styles.css';
 
   import {
     AppWebsocket,

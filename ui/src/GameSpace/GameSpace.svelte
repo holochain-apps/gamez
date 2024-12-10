@@ -5,6 +5,7 @@
   import CubesIcon from '~icons/fa6-solid/cubes';
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import BookIcon from '~icons/fa6-solid/book';
+
   import PocketIcon from '~/shared/icons/PocketIcon.svelte';
   import { goBack } from '~/lib/routes';
 
