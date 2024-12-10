@@ -4,6 +4,7 @@
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
+  import BookIcon from '~icons/fa6-solid/book';
   import PocketIcon from '~/shared/icons/PocketIcon.svelte';
   import { goBack } from '~/lib/routes';
 
@@ -166,8 +167,14 @@
             <CubesIcon />
           </SidebarToggleButton>
         {/if}
+        {#if $state.isLibraryItem}
+          <div
+            use:tooltip={'This is a library item'}
+            class="p1 bg-blue-400 ml2 text-white rounded-md"><BookIcon /></div
+          >
+        {/if}
         <NameTitleInput value={$state.name} onChange={handleNameChange} />
-
+        <div></div>
         <PeopleBar
           pubKey={gameSpace.pubKey}
           canJoinGame={$canJoinGame}

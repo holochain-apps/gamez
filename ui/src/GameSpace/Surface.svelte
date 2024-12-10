@@ -225,6 +225,79 @@
     const [x, y] = canvasToBoardPos(screenToCanvasPos(ev));
     mouseCoords = { x, y };
   }
+
+  //  ██████╗ ██████╗ ██╗██████╗      ██████╗ █████╗ ███╗   ██╗██╗   ██╗ █████╗ ███████╗
+  // ██╔════╝ ██╔══██╗██║██╔══██╗    ██╔════╝██╔══██╗████╗  ██║██║   ██║██╔══██╗██╔════╝
+  // ██║  ███╗██████╔╝██║██║  ██║    ██║     ███████║██╔██╗ ██║██║   ██║███████║███████╗
+  // ██║   ██║██╔══██╗██║██║  ██║    ██║     ██╔══██║██║╚██╗██║╚██╗ ██╔╝██╔══██║╚════██║
+  // ╚██████╔╝██║  ██║██║██████╔╝    ╚██████╗██║  ██║██║ ╚████║ ╚████╔╝ ██║  ██║███████║
+  //  ╚═════╝ ╚═╝  ╚═╝╚═╝╚═════╝      ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝  ╚═══╝  ╚═╝  ╚═╝╚══════╝
+
+  let gridEl: HTMLCanvasElement;
+
+  $: {
+    if (gridEl) {
+      const gridSize = (zoom > 1 ? 15 : zoom === 0.5 ? 60 : 30) * zoom;
+      const gridColor = '#fff3';
+
+      const { width, height } = gridEl.getBoundingClientRect();
+      gridEl.width = width; // Ensure the canvas is resized properly
+      gridEl.height = height;
+
+      const physicalPanX = panX * zoom;
+      const physicalPanY = panY * zoom;
+
+      const ctx = gridEl.getContext('2d');
+
+      // Clear the canvas
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw the grid
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 0.5;
+
+      // Apply panning and zooming
+      ctx.save();
+      ctx.translate((physicalPanX % gridSize) - gridSize, (physicalPanY % gridSize) - gridSize);
+
+      // Vertical lines
+      for (let x = 0; x <= width + gridSize; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height + gridSize * 2);
+        ctx.stroke();
+      }
+
+      // Horizontal lines
+      for (let y = 0; y <= height + gridSize * 2; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width + gridSize, y);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#fff6';
+
+      if (physicalPanX > 0 && physicalPanX < width) {
+        const centerX = physicalPanX;
+        ctx.beginPath();
+        ctx.moveTo(centerX, 0);
+        ctx.lineTo(centerX, height);
+        ctx.stroke();
+      }
+
+      if (physicalPanY > 0 && physicalPanY < height) {
+        const centerY = physicalPanY;
+        ctx.beginPath();
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(width, centerY);
+        ctx.stroke();
+      }
+    }
+  }
 </script>
 
 <div
@@ -241,6 +314,10 @@
   on:mousemove={handleUpdateCoords}
   style={`background-position: ${panX * zoom}px ${panY * zoom}px; background-size: ${zoom * 150}px`}
 >
+  {#if $state.isLibraryItem}
+    <canvas bind:this={gridEl} class="absolute w-full h-full pointer-events-none bg-blue-500/15"
+    ></canvas>
+  {/if}
   <div
     class="relative w-full h-full transform-origin-tl"
     style={`transform:scale(${zoom}) translate(${panX}px, ${panY}px);`}
@@ -261,8 +338,6 @@
         zoomLevel={zoom}
       />
     {/each}
-    <div class="absolute w-[1px] h-full bg-white/25 left-0 top-[-50%]"></div>
-    <div class="absolute h-[1px] w-full bg-white/25 left-[-50%] top-0"></div>
     <!-- {#each Object.entries(playersPositions) as [hash, player] (hash)}
       <div
         class="absolute -left-6 -top-6 h12 w12 bg-red-500 rounded-full"
@@ -270,9 +345,13 @@
       ></div>
     {/each} -->
   </div>
-  <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">
-    {Math.floor(mouseCoords.x)}, {Math.floor(mouseCoords.y)}
-  </div>
+  {#if import.meta.env.MODE === 'development'}
+    <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">
+      M[{Math.floor(mouseCoords.x)}, {Math.floor(mouseCoords.y)}] | P[{Math.floor(panX)}, {Math.floor(
+        panY,
+      )}] Z {Math.floor(zoom * 100) / 100}
+    </div>
+  {/if}
 </div>
 
 <style>

@@ -16,7 +16,7 @@
 </script>
 
 <h1
-  class={cx('font-bold text-2xl px1 ml1 h9 flexcs text-white rounded-md outline-main-500', {
+  class={cx('font-bold text-2xl px1 ml2 h9 flexcs text-white rounded-md outline-main-500', {
     'hocus:(bg-gray-100 text-black/80 text-shadow-none!)': true,
   })}
   on:keydown={handleTitleKeydown}
