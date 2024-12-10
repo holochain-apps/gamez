@@ -75,7 +75,8 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
         isPlaying: $canLeaveGame,
         isArchived: $state.isArchived,
       };
-      const canEdit = (params.isCreator || params.isPlaying) && !params.isArchived;
+      const canEdit =
+        ((params.isCreator || params.isPlaying) && !params.isArchived) || $state.isLibraryItem;
       return {
         ...params,
         canJoin: $canJoinGame,
