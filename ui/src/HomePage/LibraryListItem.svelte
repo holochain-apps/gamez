@@ -68,6 +68,7 @@
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717"
         alt=""
       />
+      <div class="absolute inset-0 flexcc text-2xl text-white">{gameSpace.icon}</div>
       <div class="hidden group-hover:flexcc absolute inset-0 text-2xl text-main-900">
         <PlayIcon />
       </div>

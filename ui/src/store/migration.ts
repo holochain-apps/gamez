@@ -79,5 +79,11 @@ export default function migration(gottenState: GameSpace): GameSpace {
     gottenState.version = 7;
   }
 
+  if ((gottenState.version as 7) === 7) {
+    gottenState.icon = '♟';
+    // @ts-ignore
+    gottenState.version = 8;
+  }
+
   return gottenState;
 }

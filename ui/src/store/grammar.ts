@@ -12,6 +12,7 @@ export type Delta =
   | { type: 'set-is-archived'; value: boolean }
   | { type: 'set-is-library-item'; value: boolean }
   | { type: 'set-name'; name: string }
+  | { type: 'set-icon'; icon: string }
   | { type: 'set-players-slots'; playersSlots: GameSpace['playersSlots'] }
   | { type: 'set-is-stewarded'; isStewarded: boolean }
   | { type: 'add-player'; player: AgentPubKeyB64 }
@@ -26,8 +27,9 @@ export type Delta =
 
 export function initialState(pubKey: string): GameSpace {
   return {
-    version: 7,
+    version: 8,
     name: 'Game Space',
+    icon: '♟',
     creator: pubKey,
     elements: [],
     wals: [],
@@ -54,6 +56,9 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
       break;
     case 'set-name':
       $state.name = delta.name;
+      break;
+    case 'set-icon':
+      $state.icon = delta.icon;
       break;
     case 'set-players-slots':
       $state.playersSlots = delta.playersSlots;
@@ -165,5 +170,5 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
   }
 
   $state.lastChangeAt = Date.now();
-  $state.version = 7;
+  $state.version = 8;
 };

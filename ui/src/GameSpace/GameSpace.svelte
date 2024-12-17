@@ -110,6 +110,10 @@
     gameSpace.change({ type: 'set-name', name });
   }
 
+  function handleIconChange(icon: string) {
+    gameSpace.change({ type: 'set-icon', icon });
+  }
+
   function handleMaxPlayersSlotsChange(maxPlayersSlots: number) {
     if (maxPlayersSlots === 0 || maxPlayersSlots === $state.playersSlots.length) {
       return;
@@ -201,6 +205,8 @@
               creator={$state.creator}
               name={$state.name}
               onNameChange={handleNameChange}
+              icon={$state.icon}
+              onIconChange={handleIconChange}
               maxPlayersSlots={$state.playersSlots.length}
               onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
               onApplyColors={handleApplyColors}

@@ -90,6 +90,7 @@ export default {
   ],
   isLibraryItem: true,
   isArchived: false,
-  version: 7,
+  version: 8,
+  icon: '🗺',
   wals: [],
 } as const satisfies GameSpace;

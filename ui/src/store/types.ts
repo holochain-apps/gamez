@@ -2,10 +2,11 @@ import type { WeaveUrl } from '@theweave/api';
 
 import * as elements from '~/GameSpace/elements';
 
-export const VERSION = 7;
+export const VERSION = 8;
 
 export type GameSpace = {
-  version: 7;
+  version: typeof VERSION;
+  icon: string;
   name: string;
   creator: string;
   elements: GElement[];
