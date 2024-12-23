@@ -21,7 +21,8 @@
     "start:happ": "echo \"starting with admin $VITE_ADMIN_PORT\" && RUST_LOG=warn echo \"pass\" | hc s -f=$VITE_ADMIN_PORT --piped generate workdir/gamez.happ --run=$VITE_APP_PORT -a gamez network -b \"http://127.0.0.1:$BOOTSTRAP_PORT\"  webrtc \"ws://127.0.0.1:$SIGNAL_PORT\"",
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
     "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
-    "format": "prettier --write \"ui/**/*.{js,ts,css,svelte}\" --ignore-path ./ui/.gitignore"
+    "format": "prettier --write \"ui/**/*.{js,ts,css,svelte}\" --ignore-path ./ui/.gitignore",
+    "hash-webhapp": "weave hash-webhapp ./workdir/gamez.webhapp"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.300",
