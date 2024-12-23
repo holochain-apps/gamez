@@ -12,14 +12,6 @@
 
   let inputEl: HTMLInputElement;
 
-  $: {
-    console.log('INPUT!', inputEl);
-    if (inputEl) {
-      inputEl.focus();
-      inputEl.select();
-    }
-  }
-
   function handleKeyDown(ev: KeyboardEvent) {
     if (ev.key === 'Enter') {
       onConfirm(value);

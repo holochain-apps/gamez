@@ -40,7 +40,7 @@
   $: isSteward = gameSpace.isSteward;
   $: permissions = gameSpace.permissions;
 
-  const { addToPocket } = getContext();
+  const { addToPocket, weaveClient } = getContext();
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = asAsset ? 'none' : 'elementsLibrary';
 
@@ -155,13 +155,15 @@
           >
             <ArrowLeftIcon />
           </button>
-          <button
-            on:click={handleAddToPocket}
-            use:tooltip={'Add to pocket'}
-            class="h-10 w-10 p2 mr1 flexcc hover:bg-black/10 rounded-full text-white"
-          >
-            <PocketIcon class="h-full w-full" />
-          </button>
+          {#if weaveClient}
+            <button
+              on:click={handleAddToPocket}
+              use:tooltip={'Add to pocket'}
+              class="h-10 w-10 p2 mr1 flexcc hover:bg-black/10 rounded-full text-white"
+            >
+              <PocketIcon class="h-full w-full" />
+            </button>
+          {/if}
         {/if}
 
         <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>

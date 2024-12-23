@@ -149,7 +149,7 @@ export function createRootStore(
         hrl: [$dnaHash, decodeHashFromBase64(gameSpace.hash)],
         context: {},
       };
-      weaveClient.walToPocket(attachment);
+      // weaveClient.walToPocket(attachment);
     } else {
       console.log('Tried adding to pocket before the DNA hash was loaded');
     }
