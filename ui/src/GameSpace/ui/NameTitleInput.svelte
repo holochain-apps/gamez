@@ -3,6 +3,7 @@
 
   export let value: string;
   export let onChange: (value: string) => void;
+  export let disabled = false;
 
   function handleTitleBlur(ev: { currentTarget: HTMLHeadingElement }) {
     onChange(ev.currentTarget.innerText);
@@ -17,11 +18,11 @@
 
 <h1
   class={cx('font-bold text-2xl px1 ml2 h9 flexcs text-white rounded-md outline-main-500', {
-    'hocus:(bg-gray-100 text-black/80 text-shadow-none!)': true,
+    'hocus:(bg-gray-100 text-black/80 text-shadow-none!)': !disabled,
   })}
   on:keydown={handleTitleKeydown}
   style="text-shadow: 0 1px 0 rgba(0,0,0,.5)"
-  contenteditable={true}
+  contenteditable={!disabled}
   on:blur={handleTitleBlur}
 >
   {value}

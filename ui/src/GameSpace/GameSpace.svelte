@@ -146,26 +146,26 @@
 
 {#if $state}
   <div class="h-full flex flex-col">
-    {#if !$permissions.isArchived}
-      <div class="bg-main-400 h-12 pl1 flexcc relative">
-        {#if !asAsset}
+    <div class="bg-main-400 h-12 pl1 flexcc relative">
+      {#if !asAsset}
+        <button
+          class="h10 w10 flexcc mr1 hover:bg-black/10 rounded-full text-white"
+          on:click={goBack}
+        >
+          <ArrowLeftIcon />
+        </button>
+        {#if weaveClient && !$permissions.isArchived}
           <button
-            class="h10 w10 flexcc mr1 hover:bg-black/10 rounded-full text-white"
-            on:click={goBack}
+            on:click={handleAddToPocket}
+            use:tooltip={'Add to pocket'}
+            class="h-10 w-10 p2 mr1 flexcc hover:bg-black/10 rounded-full text-white"
           >
-            <ArrowLeftIcon />
+            <PocketIcon class="h-full w-full" />
           </button>
-          {#if weaveClient}
-            <button
-              on:click={handleAddToPocket}
-              use:tooltip={'Add to pocket'}
-              class="h-10 w-10 p2 mr1 flexcc hover:bg-black/10 rounded-full text-white"
-            >
-              <PocketIcon class="h-full w-full" />
-            </button>
-          {/if}
         {/if}
+      {/if}
 
+      {#if !$permissions.isArchived}
         <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
           <GearIcon />
         </SidebarToggleButton>
@@ -174,14 +174,19 @@
             <CubesIcon />
           </SidebarToggleButton>
         {/if}
-        {#if $state.isLibraryItem}
-          <div
-            use:tooltip={'This is a library item'}
-            class="p1 bg-blue-400 ml2 text-white rounded-md"><BookIcon /></div
-          >
-        {/if}
-        <NameTitleInput value={$state.name} onChange={handleNameChange} />
-        <div></div>
+      {/if}
+      {#if $state.isLibraryItem}
+        <div use:tooltip={'This is a library item'} class="p1 bg-blue-400 ml2 text-white rounded-md"
+          ><BookIcon /></div
+        >
+      {/if}
+      <NameTitleInput
+        value={$state.name}
+        disabled={$permissions.isArchived}
+        onChange={handleNameChange}
+      />
+      <div class="flex-grow"></div>
+      {#if !$permissions.isArchived}
         <PeopleBar
           pubKey={gameSpace.pubKey}
           canJoinGame={$canJoinGame}
@@ -192,8 +197,8 @@
           onLeave={() => gameSpace.leaveGame()}
           onChangePlayersSlots={handlePlayersSlotsChange}
         />
-      </div>
-    {/if}
+      {/if}
+    </div>
     <div class="flex flex-grow relative">
       {#if !$permissions.isArchived}
         {#if sidebar === 'elementsLibrary' && $isSteward}
