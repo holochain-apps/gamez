@@ -46,29 +46,4 @@
       {/each}
     </div>
   </TopBarDropButton>
-  <!-- <button
-    class={cx('h12 w12 text-white flexcc hover:bg-black/10', {
-      'bg-black/30!': showingParticipants,
-    })}
-    on:click={toggleParticipants}
-  >
-    <UsersIcon />
-
-    <div class="bg-red-500 text-sm text-white h4 w4 flexcc rounded-full absolute bottom-2 right-2">
-      {participants.length}
-    </div>
-  </button>
-  {#if showingParticipants}
-    <div
-      class="bg-main-900 p4 rounded-b-md top-full w-60 absolute flex flex-col space-y-2 z-1000 shadow-lg"
-    >
-      <div>In the space</div>
-      {#each participants as participant}
-        <div class="flexcs">
-          <AgentAvatar pubKey={participant} size={32} />
-          <AgentName class="ml2" pubKey={participant} />
-        </div>
-      {/each}
-    </div>
-  {/if} -->
 </div>

@@ -141,7 +141,7 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     await synDoc.change((state, _eph) => {
       console.time('Running deltas');
       for (const delta of deltas) {
-        applyDelta(delta, state);
+        applyDelta(delta, state, { pubKey });
       }
       console.timeEnd('Running deltas');
     }, force);
@@ -149,11 +149,11 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
   }
 
   function joinGame() {
-    change({ type: 'add-player', player: pubKey });
+    change({ type: 'join-game' });
   }
 
   function leaveGame() {
-    change({ type: 'remove-player', player: pubKey });
+    change({ type: 'leave-game' });
   }
 
   //  ██████╗ ████████╗██╗  ██╗███████╗██████╗

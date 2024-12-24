@@ -52,7 +52,16 @@
 
   function handleStart() {
     const turn = { playerSlot: playerSlotIndex, time: Date.now() };
-    gameSpace.change({ type: 'update-element', element: { uuid: el.uuid, turnsLog: [turn] } });
+    gameSpace.change([
+      { type: 'update-element', element: { uuid: el.uuid, turnsLog: [turn] } },
+      {
+        type: 'add-log',
+        log: {
+          type: 'turn',
+          message: 'turn started',
+        },
+      },
+    ]);
   }
 
   function handleNextTurn() {
@@ -88,19 +97,38 @@
     }
 
     const turn = { playerSlot: nextPlayer, time: Date.now() };
-    gameSpace.change({
-      type: 'update-element',
-      element: { uuid: el.uuid, turnsLog: [...el.turnsLog, turn] },
-    });
+    gameSpace.change([
+      {
+        type: 'update-element',
+        element: { uuid: el.uuid, turnsLog: [...el.turnsLog, turn] },
+      },
+      {
+        type: 'add-log',
+        log: {
+          type: 'turn',
+          message: 'turn started',
+          pubKey: $state.playersSlots[nextPlayer].pubKey,
+        },
+      },
+    ]);
   }
 
   function handlePauseTurn() {
     if (!canPauseGame) return;
     const turn = { playerSlot: -1, time: Date.now() };
-    gameSpace.change({
-      type: 'update-element',
-      element: { uuid: el.uuid, turnsLog: [...el.turnsLog, turn] },
-    });
+    gameSpace.change([
+      {
+        type: 'update-element',
+        element: { uuid: el.uuid, turnsLog: [...el.turnsLog, turn] },
+      },
+      {
+        type: 'add-log',
+        log: {
+          type: 'turn',
+          message: 'turns paused',
+        },
+      },
+    ]);
   }
 
   $: turnMarkerTopPos =

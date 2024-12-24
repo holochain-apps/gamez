@@ -20,7 +20,7 @@ function forEachPieceSourceContainingElement(
   });
 }
 
-export const applyDelta = (delta: Delta, status: GameSpace) => {
+export const applyDelta = (delta: Delta, status: GameSpace, context: any) => {
   switch (delta.type) {
     case 'update-element':
       {

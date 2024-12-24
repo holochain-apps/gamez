@@ -831,7 +831,9 @@ export default {
   ],
   isLibraryItem: true,
   isArchived: false,
-  version: 8,
+  version: 9,
   icon: '♟',
   wals: [],
+  activityLog: [],
+  notificationsConfigOverride: {},
 } as const satisfies GameSpace;

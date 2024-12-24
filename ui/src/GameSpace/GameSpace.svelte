@@ -94,7 +94,6 @@
   function handleAddElementFromLibrary(element: LibraryElement, x?: number, y?: number) {
     const surfaceCoords =
       x && y ? gameSpace.getSurfaceCoordinates(x, y) : gameSpace.getCurrentCenter();
-    console.log('SURFACE COORDs', surfaceCoords);
     if (surfaceCoords) {
       gameSpace.change({
         type: 'add-element',
@@ -206,7 +205,9 @@
           onChangePlayersSlots={handlePlayersSlotsChange}
         />
       {/if}
-      <ActivityLog agentKey={gameSpace.pubKey} />
+      {#if !$state.isLibraryItem}
+        <ActivityLog {gameSpace} />
+      {/if}
     </div>
 
     <!-- ███╗   ███╗ █████╗ ██╗███╗   ██╗    ███████╗██████╗  █████╗  ██████╗███████╗

@@ -2,7 +2,9 @@ import type { WeaveUrl } from '@theweave/api';
 
 import * as elements from '~/GameSpace/elements';
 
-export const VERSION = 8;
+export const VERSION = 9;
+
+export type AgentKey = string;
 
 export type GameSpace = {
   version: typeof VERSION;
@@ -16,6 +18,30 @@ export type GameSpace = {
   isArchived: boolean;
   playersSlots: PlayerSlot[];
   lastChangeAt: number;
+  activityLog: Log[];
+  notificationsConfigOverride: Record<AgentKey, NotificationsConfig>;
+};
+
+export const DEFAULT_NOTIFICATIONS_CONFIG: NotificationsConfig = {
+  turn: true,
+  move: false,
+  join: true,
+  left: true,
+  add: false,
+  remove: false,
+};
+
+export type NotificationsConfig = Record<LogType, boolean>;
+
+export type LogType = 'turn' | 'move' | 'join' | 'left' | 'add' | 'remove';
+
+export type Log = {
+  message: string;
+  time: number;
+  seenBy: string[];
+  type: LogType;
+  agentKey: AgentKey;
+  elRef: string | null;
 };
 
 export type PlayerSlot = {
