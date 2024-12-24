@@ -29,6 +29,7 @@
   import { cloneDeep } from 'lodash';
   import { COLORS, colorSequence, uuid } from '~/lib/util';
   import NameTitleInput from './ui/NameTitleInput.svelte';
+  import ActivityLog from './topbar/ActivityLog.svelte';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -146,6 +147,13 @@
 
 {#if $state}
   <div class="h-full flex flex-col">
+    <!-- ████████╗ ██████╗ ██████╗     ██████╗  █████╗ ██████╗
+        ╚══██╔══╝██╔═══██╗██╔══██╗    ██╔══██╗██╔══██╗██╔══██╗
+          ██║   ██║   ██║██████╔╝    ██████╔╝███████║██████╔╝
+          ██║   ██║   ██║██╔═══╝     ██╔══██╗██╔══██║██╔══██╗
+         ██║   ╚██████╔╝██║         ██████╔╝██║  ██║██║  ██║
+         ╚═╝    ╚═════╝ ╚═╝         ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+                                                            -->
     <div class="bg-main-400 h-12 pl1 flexcc relative">
       {#if !asAsset}
         <button
@@ -198,7 +206,16 @@
           onChangePlayersSlots={handlePlayersSlotsChange}
         />
       {/if}
+      <ActivityLog agentKey={gameSpace.pubKey} />
     </div>
+
+    <!-- ███╗   ███╗ █████╗ ██╗███╗   ██╗    ███████╗██████╗  █████╗  ██████╗███████╗
+        ████╗ ████║██╔══██╗██║████╗  ██║    ██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝
+        ██╔████╔██║███████║██║██╔██╗ ██║    ███████╗██████╔╝███████║██║     █████╗
+        ██║╚██╔╝██║██╔══██║██║██║╚██╗██║    ╚════██║██╔═══╝ ██╔══██║██║     ██╔══╝
+       ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║    ███████║██║     ██║  ██║╚██████╗███████╗
+      ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝    ╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝
+                                                                                 -->
     <div class="flex flex-grow relative">
       {#if !$permissions.isArchived}
         {#if sidebar === 'elementsLibrary' && $isSteward}

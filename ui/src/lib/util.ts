@@ -108,3 +108,53 @@ export const wrapFns = (fns: (() => void)[]) => () => fns.forEach((fn) => fn());
 export const EMPTY_IMAGE = new Image(1, 1);
 EMPTY_IMAGE.src =
   'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+
+// Using Intl.RelativeTimeFormat create a string like:
+// - Just now
+// - 7 minutes ago
+// - 1 hour ago
+// - Yesterday
+// - 2 days ago
+// - 1 week ago
+// - 1 month ago
+// - More than a year ago
+export const relativeTimeFormat = (date: Date): string => {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+  if (diff < minute) {
+    return rtf.format(-Math.round(diff / second), 'seconds');
+  } else if (diff < hour) {
+    return rtf.format(-Math.round(diff / minute), 'minutes');
+  } else if (diff < day) {
+    return rtf.format(-Math.round(diff / hour), 'hours');
+  } else if (diff < day * 2) {
+    return 'Yesterday';
+  } else if (diff < day * 7) {
+    return rtf.format(-Math.round(diff / day), 'days');
+  } else if (diff < day * 30) {
+    return rtf.format(-Math.round(diff / (day * 7)), 'weeks');
+  } else if (diff < day * 365) {
+    return rtf.format(-Math.round(diff / (day * 30)), 'months');
+  } else {
+    return 'More than a year ago';
+  }
+};
+
+// Using Intl.DateTimeFormat format time like: 6 Feb 2015 14:30
+export const timeFormat = (date: Date): string => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  };
+  return new Intl.DateTimeFormat('en-US', options).format(date);
+};

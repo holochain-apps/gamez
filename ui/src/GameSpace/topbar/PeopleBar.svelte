@@ -1,10 +1,10 @@
 <script lang="ts">
-  import cx from 'classnames';
   import UsersIcon from '~icons/fa6-solid/users';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import AgentName from '~/shared/AgentName.svelte';
   import type { PlayerSlot } from '~/store/types';
 
+  import TopBarDropButton from '../ui/TopBarDropButton.svelte';
   import PlayersSlots from './PlayersSlots.svelte';
 
   export let pubKey: string;
@@ -15,12 +15,6 @@
   export let onJoin: () => void;
   export let onLeave: () => void;
   export let onChangePlayersSlots: (playersSlots: PlayerSlot[]) => void;
-
-  let showingParticipants = false;
-
-  const toggleParticipants = () => {
-    showingParticipants = !showingParticipants;
-  };
 </script>
 
 <div class="flex-grow flexce space-x-1 relative">
@@ -41,7 +35,18 @@
     >
   {/if}
   <PlayersSlots {pubKey} {playersSlots} {canJoinGame} onChange={onChangePlayersSlots} />
-  <button
+  <TopBarDropButton title="Participants in space" counter={participants.length}>
+    <UsersIcon slot="icon" />
+    <div class="w-60">
+      {#each participants as participant}
+        <div class="flexcs px4 py2 bg-black/5 b-t b-black/10">
+          <AgentAvatar pubKey={participant} size={28} />
+          <AgentName class="ml2" pubKey={participant} />
+        </div>
+      {/each}
+    </div>
+  </TopBarDropButton>
+  <!-- <button
     class={cx('h12 w12 text-white flexcc hover:bg-black/10', {
       'bg-black/30!': showingParticipants,
     })}
@@ -54,7 +59,9 @@
     </div>
   </button>
   {#if showingParticipants}
-    <div class="bg-main-900 p4 rounded-bl-md top-full w-60 absolute flex flex-col space-y-2 z-1000">
+    <div
+      class="bg-main-900 p4 rounded-b-md top-full w-60 absolute flex flex-col space-y-2 z-1000 shadow-lg"
+    >
       <div>In the space</div>
       {#each participants as participant}
         <div class="flexcs">
@@ -63,5 +70,5 @@
         </div>
       {/each}
     </div>
-  {/if}
+  {/if} -->
 </div>
