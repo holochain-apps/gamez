@@ -19,7 +19,7 @@ export type GameSpace = {
   playersSlots: PlayerSlot[];
   lastChangeAt: number;
   activityLog: Log[];
-  notificationsConfigOverride: Record<AgentKey, NotificationsConfig>;
+  notificationsConfigOverride: Record<AgentKey, Partial<NotificationsConfig>>;
 };
 
 export const DEFAULT_NOTIFICATIONS_CONFIG: NotificationsConfig = {

@@ -5,7 +5,13 @@
   import { relativeTimeFormat, timeFormat } from '~/lib/util';
   import { tooltip } from '~/shared/tooltip';
   import TopBarDropButton from '../ui/TopBarDropButton.svelte';
-  import type { GameSpaceSyn, AgentKey, LogType, Log } from '~/store';
+  import {
+    type GameSpaceSyn,
+    type AgentKey,
+    type LogType,
+    type Log,
+    DEFAULT_NOTIFICATIONS_CONFIG,
+  } from '~/store';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
   export let gameSpace: GameSpaceSyn;
@@ -14,93 +20,6 @@
   $: state = gameSpace.state;
   $: notificationsConfigOverride = $state.notificationsConfigOverride;
   $: activityLog = $state.activityLog;
-
-  // let log: Log[] = [
-  //   {
-  //     message: 'Ezequiel joined at slot 4',
-  //     time: 1735041958600,
-  //     seenBy: [],
-  //     type: 'join',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel moved piece',
-  //     time: 1735021958600,
-  //     seenBy: [],
-  //     type: 'move',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel moved piece',
-  //     time: 1735020958600,
-  //     seenBy: [],
-  //     type: 'move',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel ended his turn',
-  //     time: 1735011958600,
-  //     seenBy: [],
-  //     type: 'turn',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel moved piece',
-  //     time: 1735020958600,
-  //     seenBy: [],
-  //     type: 'move',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel ended his turn',
-  //     time: 1735011958600,
-  //     seenBy: [],
-  //     type: 'turn',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel moved piece',
-  //     time: 1735020958600,
-  //     seenBy: [],
-  //     type: 'move',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel ended his turn',
-  //     time: 1735011958600,
-  //     seenBy: [],
-  //     type: 'turn',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel moved piece',
-  //     time: 1735020958600,
-  //     seenBy: [],
-  //     type: 'move',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel ended his turn',
-  //     time: 1735011958600,
-  //     seenBy: [],
-  //     type: 'turn',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel moved piece',
-  //     time: 1735020958600,
-  //     seenBy: [],
-  //     type: 'move',
-  //     agentKey: '',
-  //   },
-  //   {
-  //     message: 'Ezequiel ended his turn',
-  //     time: 1735011958600,
-  //     seenBy: [],
-  //     type: 'turn',
-  //     agentKey: '',
-  //   },
-  // ];
 
   $: notificationsCount = activityLog.filter((l) => !l.seenBy.includes(agentKey)).length;
 
@@ -119,17 +38,17 @@
 
   function markAsSeen() {
     gameSpace.change({ type: 'seen-activity-log' });
-    // log = log.map((l) => ({ ...l, seenBy: [...l.seenBy, agentKey] }));
   }
 
   $: notificationIsActivatedForLogType = (logType: LogType) =>
-    notificationsConfigOverride[agentKey]?.[logType] ?? notificationsConfigOverride[logType];
+    notificationsConfigOverride[agentKey]?.[logType] ?? DEFAULT_NOTIFICATIONS_CONFIG[logType];
 
   function setNotificationForLogType(logType: LogType, value: boolean) {
-    notificationsConfigOverride[agentKey] = {
-      ...notificationsConfigOverride[agentKey],
+    const newConfig = {
+      ...(notificationsConfigOverride[agentKey] || {}),
       [logType]: value,
     };
+    gameSpace.change({ type: 'set-notifications-config-override', config: newConfig });
   }
 </script>
 

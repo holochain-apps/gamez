@@ -7,7 +7,7 @@ import { colorSequence } from '~/lib/util';
 
 import * as elements from '../GameSpace/elements';
 import { LIBRARY } from './library';
-import type { GameSpace, GElement, LogType } from './types';
+import type { GameSpace, GElement, LogType, NotificationsConfig } from './types';
 
 export type Delta =
   | { type: 'set-is-archived'; value: boolean }
@@ -26,7 +26,8 @@ export type Delta =
   | { type: 'update-element'; element: Partial<GElement> }
   | { type: 'remove-element'; uuid: string }
   | { type: 'add-log'; log: { message: string; type: LogType; pubKey?: string } }
-  | { type: 'seen-activity-log' };
+  | { type: 'seen-activity-log' }
+  | { type: 'set-notifications-config-override'; config: Partial<NotificationsConfig> };
 
 export function initialState(pubKey: string): GameSpace {
   return {
@@ -209,6 +210,10 @@ export const applyDelta = (delta: Delta, $state: GameSpace, context: { pubKey: s
     case 'add-log':
       addLog(delta.log);
       break;
+    case 'set-notifications-config-override': {
+      $state.notificationsConfigOverride[context.pubKey] = delta.config;
+      break;
+    }
   }
 
   function getLabel(elType: string) {
