@@ -14,7 +14,7 @@
 
   async function handleAddAttachment() {
     if (store.weaveClient) {
-      const wal = await store.weaveClient.userSelectWal();
+      const wal = await store.weaveClient.assets.userSelectAsset();
       if (wal) {
         const weaveUrl = weaveUrlFromWal(wal);
         onAddAttachment(weaveUrl);
@@ -24,7 +24,7 @@
 
   async function handleOpenWal(wal: WAL) {
     try {
-      await store.weaveClient.openWal(wal);
+      await store.weaveClient.openAsset(wal);
     } catch (e) {
       alert(`Error opening link: ${e}`);
     }
@@ -36,7 +36,7 @@
     {#each attachments as attachment, index}
       {@const wal = weaveUrlToWAL(attachment)}
       <div class="flexcc">
-        {#await store.weaveClient.assetInfo(wal)}
+        {#await store.weaveClient.assets.assetInfo(wal)}
           <div title={`Resolving WAL: ${hrlToString(wal.hrl)}?${JSON.stringify(wal.context)}`}>
             ...</div
           >

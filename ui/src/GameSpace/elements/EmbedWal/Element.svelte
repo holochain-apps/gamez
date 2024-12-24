@@ -45,7 +45,7 @@
     const weaveLocation = locations.find((location) => location.type === 'asset');
     if (!weaveLocation) throw 'No valid asset available';
     const wal = weaveLocation.wal;
-    const info = await weaveClient.assetInfo(wal);
+    const info = await weaveClient.assets.assetInfo(wal);
     if (!info) throw 'Asset not found';
     const queryString = [
       'view=applet-view',
