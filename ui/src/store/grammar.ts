@@ -1,13 +1,20 @@
+import type { WAL, WeaveClient } from '@theweave/api';
 import { cloneDeep } from 'lodash';
 import { v1 as uuidv1 } from 'uuid';
 
-import { type AgentPubKeyB64, encodeHashToBase64 } from '@holochain/client';
+import { type AgentPubKeyB64, decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
 
 import { colorSequence } from '~/lib/util';
 
 import * as elements from '../GameSpace/elements';
 import { LIBRARY } from './library';
-import type { GameSpace, GElement, LogType, NotificationsConfig } from './types';
+import {
+  DEFAULT_NOTIFICATIONS_CONFIG,
+  type GameSpace,
+  type GElement,
+  type LogType,
+  type NotificationsConfig,
+} from './types';
 
 export type Delta =
   | { type: 'set-is-archived'; value: boolean }
@@ -52,7 +59,11 @@ export function initialState(pubKey: string): GameSpace {
   };
 }
 
-export const applyDelta = (delta: Delta, $state: GameSpace, context: { pubKey: string }) => {
+export const applyDelta = (
+  delta: Delta,
+  $state: GameSpace,
+  context: { pubKey: string; weaveClient?: WeaveClient; asAsset: () => WAL },
+) => {
   switch (delta.type) {
     case 'set-is-archived':
       $state.isArchived = delta.value;
@@ -230,6 +241,38 @@ export const applyDelta = (delta: Delta, $state: GameSpace, context: { pubKey: s
       agentKey: log.pubKey || context.pubKey,
       elRef: log.elRef || null,
     });
+    const nConfig = {
+      ...DEFAULT_NOTIFICATIONS_CONFIG,
+      ...($state.notificationsConfigOverride[context.pubKey] || {}),
+    };
+    if (context.weaveClient) {
+      const players = $state.playersSlots
+        .filter((p) => p.pubKey !== context.pubKey && p.pubKey)
+        .filter((p) => {
+          const nConfig = {
+            ...DEFAULT_NOTIFICATIONS_CONFIG,
+            ...($state.notificationsConfigOverride[p.pubKey] || {}),
+          };
+          return nConfig[log.type];
+        })
+        .map((p) => decodeHashFromBase64(p.pubKey));
+      console.log('SENDING NOTIFICATIONS TO', players);
+      if (players) {
+        context.weaveClient.notifyFrame([
+          {
+            title: log.message,
+            body: '',
+            notification_type: log.type,
+            urgency: 'medium',
+            fromAgent: decodeHashFromBase64(context.pubKey),
+            forAgents: players,
+            icon_src: undefined,
+            timestamp: Date.now(),
+            aboutWal: context.asAsset(),
+          },
+        ]);
+      }
+    }
   }
 
   for (let e in elements) {

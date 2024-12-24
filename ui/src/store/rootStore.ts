@@ -43,7 +43,9 @@ export function createRootStore(
     (synDocs, deletedDocs) => {
       gameDocs.update((val) => {
         const newVal = { ...val };
-        synDocs.forEach((doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc)));
+        synDocs.forEach(
+          (doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc, { weaveClient, toAsset })),
+        );
         deletedDocs.forEach((hash) => delete newVal[hash]);
         return newVal;
       });
@@ -143,16 +145,23 @@ export function createRootStore(
   }
 
   function addToPocket(gameSpace: GameSpaceSyn) {
-    const $dnaHash = get(dnaHash);
-    if ($dnaHash && weaveClient) {
-      const attachment: WAL = {
-        hrl: [$dnaHash, decodeHashFromBase64(gameSpace.hash)],
-        context: {},
-      };
-      // weaveClient.walToPocket(attachment);
+    const asset = toAsset(gameSpace.hash);
+    if (asset) {
+      weaveClient.assets.assetToPocket(asset);
     } else {
       console.log('Tried adding to pocket before the DNA hash was loaded');
     }
+  }
+
+  function toAsset(gameSpaceHash: string): WAL {
+    const $dnaHash = get(dnaHash);
+    if ($dnaHash && weaveClient) {
+      return {
+        hrl: [$dnaHash, decodeHashFromBase64(gameSpaceHash)],
+        context: {},
+      };
+    }
+    return null;
   }
 
   return {

@@ -1,3 +1,4 @@
+import type { WAL, WeaveClient } from '@theweave/api';
 import { derived, get, type Readable, type Writable, writable } from 'svelte/store';
 
 import { type SynDoc } from '~/lib/SimplerSyn';
@@ -14,7 +15,10 @@ type UiState = {
 
 export type GameSpaceSyn = ReturnType<typeof createGameSpaceSynStore>;
 
-export function createGameSpaceSynStore(synDoc: SynDoc) {
+export function createGameSpaceSynStore(
+  synDoc: SynDoc,
+  context: { weaveClient?: WeaveClient; toAsset: (gameSpaceHash: string) => WAL },
+) {
   console.log('SYN DOC', synDoc);
   const state = synDoc.state as Writable<GameSpace>;
   const pubKey = synDoc.pubKey;
@@ -141,7 +145,11 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     await synDoc.change((state, _eph) => {
       console.time('Running deltas');
       for (const delta of deltas) {
-        applyDelta(delta, state, { pubKey });
+        applyDelta(delta, state, {
+          pubKey,
+          weaveClient: context.weaveClient,
+          asAsset: () => context.toAsset(hash),
+        });
       }
       console.timeEnd('Running deltas');
     }, force);
