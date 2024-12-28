@@ -129,6 +129,7 @@
   };
 
   const handlePanningStart = (ev: MouseEvent) => {
+    if (isPanning) return;
     if (shouldHandlePanning(ev.target as HTMLElement)) {
       isPanning = true;
       const [panInitialX, panInitialY] = [panX, panY];
@@ -148,6 +149,7 @@
       }
 
       function handleMouseUp() {
+        console.log('Ending panning');
         isPanning = false;
         window.document.removeEventListener('mousemove', handleMouseMove);
         window.document.removeEventListener('mouseup', handleMouseUp);
@@ -338,12 +340,6 @@
         zoomLevel={zoom}
       />
     {/each}
-    <!-- {#each Object.entries(playersPositions) as [hash, player] (hash)}
-      <div
-        class="absolute -left-6 -top-6 h12 w12 bg-red-500 rounded-full"
-        style={`transform: scale(${player.zoom}) translate(${-player.panX}px, ${-player.panY}px);`}
-      ></div>
-    {/each} -->
   </div>
   {#if import.meta.env.MODE === 'development'}
     <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">

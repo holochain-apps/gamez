@@ -158,36 +158,6 @@
   $: Element = elements[previewEl.type].Element as any;
 
   let highlighted = false;
-  // function handleMouseOver(ev: MouseEvent) {
-  //   if (!$permissions.canEditComponents) return;
-  //   if (!draggable) {
-  //     highlighted = false;
-  //     return;
-  //   }
-  //   let target: HTMLElement = ev.target as HTMLElement;
-  //   while (true) {
-  //     if (target === ev.currentTarget) {
-  //       highlighted = true;
-  //       break;
-  //     } else if (target.draggable) {
-  //       console.log('DRAGGABLE');
-  //       highlighted = false;
-  //       break;
-  //     } else if (target.tagName === 'BUTTON') {
-  //       highlighted = false;
-  //       break;
-  //     } else if (target.tagName === 'IFRAME') {
-  //       highlighted = false;
-  //       break;
-  //     } else {
-  //       target = target.parentElement as HTMLElement;
-  //     }
-  //   }
-  // }
-
-  // function handleMouseLeave() {
-  //   highlighted = false;
-  // }
 </script>
 
 <div
