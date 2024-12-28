@@ -187,11 +187,13 @@
           ><BookIcon /></div
         >
       {/if}
-      <NameTitleInput
-        value={$state.name}
-        disabled={$permissions.isArchived}
-        onChange={handleNameChange}
-      />
+      {#if !asAsset}
+        <NameTitleInput
+          value={$state.name}
+          disabled={$permissions.isArchived}
+          onChange={handleNameChange}
+        />
+      {/if}
       <div class="flex-grow"></div>
       {#if !$permissions.isArchived}
         <PeopleBar

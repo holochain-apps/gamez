@@ -190,7 +190,7 @@
       class="absolute z-100 -inset-1 pointer-events-none bg-blue-5/10 b b-dashed b-blue-5/40 rounded-md"
     ></div>
   {/if}
-  {#if el.wals.length > 0}
+  {#if el.wals.length > 0 && el.type !== 'EmbedWal'}
     <button
       on:click={onContextMenu}
       use:tooltip={`${el.wals.length} attachments`}

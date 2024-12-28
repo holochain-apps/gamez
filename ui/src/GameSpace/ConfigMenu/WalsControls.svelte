@@ -37,7 +37,10 @@
       {@const wal = weaveUrlToWAL(attachment)}
       <div class="flexcc">
         {#await store.weaveClient.assets.assetInfo(wal)}
-          <div title={`Resolving WAL: ${hrlToString(wal.hrl)}?${JSON.stringify(wal.context)}`}>
+          <div
+            class="flex-grow"
+            title={`Resolving WAL: ${hrlToString(wal.hrl)}?${JSON.stringify(wal.context)}`}
+          >
             ...</div
           >
         {:then data}
