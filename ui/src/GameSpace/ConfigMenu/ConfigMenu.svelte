@@ -27,7 +27,18 @@
     : el.lock;
 
   let element: HTMLDivElement;
+  let adjustX = 0;
+  let adjustY = 0;
   onMount(() => {
+    const { width, height, left, top } = element.getBoundingClientRect();
+    const docW = document.documentElement.clientWidth;
+    const docH = document.documentElement.clientHeight;
+    if (left + width > docW) {
+      adjustX = left + width - docW;
+    }
+    if (top + height > docH) {
+      adjustY = top + height - docH;
+    }
     function handleClick(ev: MouseEvent) {
       if (element && !element.contains(ev.target as Node)) {
         onClose();
@@ -59,8 +70,8 @@
   bind:this={element}
   class="fixed left-0 top-0 min-w-70 rounded-md bg-gray-50 shadow-md b b-black/10 p2"
   style={`
-    top: ${y}px;
-    left: ${x}px;
+    top: ${y - adjustY}px;
+    left: ${x - adjustX}px;
   `}
 >
   <div class="flex space-x-2 mb2">
