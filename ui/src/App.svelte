@@ -17,9 +17,7 @@
   import LogoIcon from '~/shared/icons/LogoIcon.svelte';
 
   import ControllerMain from './controllers/ControllerMain.svelte';
-  // import ControllerCreatable from './controllers/ControllerCreatable.svelte';
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
-  import { appletServices } from './we';
   import { createRootStore, type RootStore, setContext as setRootStoreContext } from '~/store';
   import ModalPromptContextWrapper from './shared/ModalPromptContextWrapper.svelte';
 
@@ -30,6 +28,7 @@
   const appPort = import.meta.env.VITE_APP_PORT ?? 8888;
   const adminPort = import.meta.env.VITE_ADMIN_PORT;
   const url = `ws://localhost:${appPort}`;
+  export let weaveClient: WeaveClient | null = null;
 
   type SupportedAppletViews = Extract<AppletView, { type: 'main' | 'asset' | 'creatable' }>;
   type State =
@@ -45,7 +44,6 @@
         type: 'weave';
         client: AppWebsocket;
         profilesStore: ProfilesStore;
-        weaveClient: WeaveClient;
         view: SupportedAppletViews;
       };
 
@@ -55,25 +53,13 @@
   initialize();
 
   async function initialize(): Promise<void> {
-    // This must run before using isWeaveContext
-    if ((import.meta as any).env.DEV) {
-      try {
-        await initializeHotReload();
-      } catch (e) {
-        console.warn(
-          'Could not initialize applet hot-reloading. This is only expected to work in a We context in dev mode.',
-        );
-      }
-    }
-
-    if (!isWeaveContext()) {
-      state = { type: 'standalone', ...(await initStandalone()) };
+    if (weaveClient) {
+      state = { type: 'weave', ...(await initOnWeave(weaveClient)) };
     } else {
-      state = { type: 'weave', ...(await initOnWeave()) };
+      state = { type: 'standalone', ...(await initStandalone()) };
     }
 
-    const weaveClient = state.type === 'weave' ? state.weaveClient : undefined;
-    gameSpaceStore = createRootStore(state.client, state.profilesStore, weaveClient || null);
+    gameSpaceStore = createRootStore(state.client, state.profilesStore, weaveClient);
   }
 
   async function initStandalone(): Promise<{ profilesStore: ProfilesStore; client: AppWebsocket }> {
@@ -111,14 +97,12 @@
     };
   }
 
-  async function initOnWeave(): Promise<{
+  async function initOnWeave(weaveClient: WeaveClient): Promise<{
     profilesStore: ProfilesStore;
     client: AppWebsocket;
     weaveClient: WeaveClient;
     view: SupportedAppletViews;
   }> {
-    const weaveClient = await WeaveClient.connect(appletServices);
-
     if (weaveClient.renderInfo.type !== 'applet-view') {
       throw new Error(`${weaveClient.renderInfo.type} is not supported`);
     }
