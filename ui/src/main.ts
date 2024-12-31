@@ -6,30 +6,32 @@ import './app.css';
 import App from './App.svelte';
 import { appletServices } from './we';
 
-if ((import.meta as any).env.DEV) {
-  try {
-    await initializeHotReload();
-  } catch (e) {
-    console.warn(
-      'Could not initialize applet hot-reloading. This is only expected to work in a We context in dev mode.',
-    );
+(async () => {
+  if ((import.meta as any).env.DEV) {
+    try {
+      await initializeHotReload();
+    } catch (e) {
+      console.warn(
+        'Could not initialize applet hot-reloading. This is only expected to work in a We context in dev mode.',
+      );
+    }
   }
-}
 
-const weaveClient = isWeaveContext() ? await WeaveClient.connect(appletServices) : null;
+  const weaveClient = isWeaveContext() ? await WeaveClient.connect(appletServices) : null;
 
-let app: App = null;
-function handleVisibilityChange() {
-  if (app) return;
+  let app: App = null;
+  function handleVisibilityChange() {
+    if (app) return;
 
-  if (document.visibilityState === 'visible') {
-    app = new App({
-      target: document.body,
-      props: { weaveClient },
-    });
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    if (document.visibilityState === 'visible') {
+      app = new App({
+        target: document.body,
+        props: { weaveClient },
+      });
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
   }
-}
 
-handleVisibilityChange();
-document.addEventListener('visibilitychange', handleVisibilityChange);
+  handleVisibilityChange();
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+})();

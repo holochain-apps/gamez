@@ -14,7 +14,7 @@
     "network": "hc s clean && npm run build:happ && UI_PORT=8888 concurrently \"npm start -w ui\" \"npm run launch:happ\" \"holochain-playground\"",
     "test": "npm run build:zomes && hc app pack workdir --recursive && npm t -w tests",
     "package": "npm run build:happ && npm run package -w ui && hc web-app pack workdir --recursive",
-    "package:download-deployed": "if [ ! -f workdir/deployed.happ ]; then curl -L -o workdir/deployed.webhapp https://github.com/holochain-apps/gamez/releases/download/v0.7.2/gamez.webhapp && hc web-app unpack -o workdir/deployed workdir/deployed.webhapp && cp workdir/deployed/gamez.happ workdir/deployed.happ && rm -rf workdir/ui workdir/deployed; fi",
+    "package:download-deployed": "if [ ! -f workdir/deployed.happ ]; then curl -L -o workdir/deployed.webhapp https://github.com/holochain-apps/gamez/releases/download/v0.7.7/gamez.webhapp && hc web-app unpack -o workdir/deployed workdir/deployed.webhapp && cp workdir/deployed/gamez.happ workdir/deployed.happ && rm -rf workdir/ui workdir/deployed; fi",
     "package:deployed": "npm run package:download-deployed && npm run package -w ui && cp workdir/deployed.happ workdir/gamez.happ && hc web-app pack workdir",
     "package:test": "npm run package:download-deployed && cp workdir/deployed.happ workdir/gamez.happ",
     "launch:happ": "hc-spin -n $AGENTS workdir/gamez.happ --ui-port $UI_PORT ",
