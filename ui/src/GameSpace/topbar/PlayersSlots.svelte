@@ -7,10 +7,12 @@
   import { addWindowEventListener, COLORS, EMPTY_IMAGE, wrapFns } from '~/lib/util';
   import { tooltip } from '~/shared/tooltip';
 
+  export let connected: string[];
   export let pubKey: string;
   export let playersSlots: PlayerSlot[];
   export let onChange: (playersSlots: PlayerSlot[]) => void;
   export let canJoinGame: boolean;
+  export let canChangeSlots: boolean;
 
   function handleMove(from: number, to: number) {
     if (from !== to) {
@@ -61,13 +63,10 @@
 <div class="flex space-x-1">
   {#each playersSlots as playerSlot, slot}
     <div class="group relative">
-      <PlayerIcon
-        size={30}
-        {slot}
-        class="cursor-grab"
-        color={playerSlot.color}
-        pubKey={playerSlot.pubKey}
-      />
+      <PlayerIcon size={30} {slot} color={playerSlot.color} pubKey={playerSlot.pubKey} />
+      {#if connected.indexOf(playerSlot.pubKey) !== -1}
+        <div class="h2.5 w2.5 rounded-full bg-green-500 absolute -top-.5 -left-.5"></div>
+      {/if}
       <div class="hidden group-hover:block absolute z-30 top-full left-1/2 -translate-x-1/2">
         <div class="h4 w4 b-8 b-transparent b-b-gray-100 relative left-1/2 -translate-x-1/2 -mt1.8"
         ></div>
@@ -113,13 +112,15 @@
     </div>
   {/each}
 </div>
-<div class="w-16 h-8 flex-shrink-0 flexcc">
-  <button
-    class="bg-main-300 h9 px2 pt.5 flexcc rounded-l-md text-white hover:filter-brightness-120 b b-black/10"
-    on:click={handleRemoveSlot}>-</button
-  >
-  <button
-    class="bg-main-300 h9 px2 pt.5 flexcc rounded-r-md text-white hover:filter-brightness-120 b b-black/10"
-    on:click={handleAddSlot}>+</button
-  >
-</div>
+{#if canChangeSlots}
+  <div class="w-16 h-8 flex-shrink-0 flexcc">
+    <button
+      class="bg-main-300 h9 px2 pt.5 flexcc rounded-l-md text-white hover:filter-brightness-120 b b-black/10"
+      on:click={handleRemoveSlot}>-</button
+    >
+    <button
+      class="bg-main-300 h9 px2 pt.5 flexcc rounded-r-md text-white hover:filter-brightness-120 b b-black/10"
+      on:click={handleAddSlot}>+</button
+    >
+  </div>
+{/if}

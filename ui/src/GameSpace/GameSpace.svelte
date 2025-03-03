@@ -9,7 +9,6 @@
   import PocketIcon from '~/shared/icons/PocketIcon.svelte';
   import { goBack } from '~/lib/routes';
 
-  import LayoutBar from '~/Layout/LayoutBar.svelte';
   import {
     type GameSpaceSyn,
     type GElement,
@@ -172,7 +171,7 @@
         {/if}
       {/if}
 
-      {#if !$permissions.isArchived}
+      {#if !$permissions.isArchived && $state.isLibraryItem}
         <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
           <GearIcon />
         </SidebarToggleButton>
@@ -205,6 +204,7 @@
           onJoin={() => gameSpace.joinGame()}
           onLeave={() => gameSpace.leaveGame()}
           onChangePlayersSlots={handlePlayersSlotsChange}
+          canChangeSlots={$state.isLibraryItem}
         />
       {/if}
       {#if !$state.isLibraryItem}
@@ -220,7 +220,7 @@
       ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝    ╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝
                                                                                  -->
     <div class="flex flex-grow relative">
-      {#if !$permissions.isArchived}
+      {#if !$permissions.isArchived && $state.isLibraryItem}
         {#if sidebar === 'elementsLibrary' && $isSteward}
           <ElementsLibrary
             onAdd={handleAddElementFromLibrary}
