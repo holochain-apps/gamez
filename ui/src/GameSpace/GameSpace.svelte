@@ -29,6 +29,7 @@
   import { COLORS, colorSequence, uuid } from '~/lib/util';
   import NameTitleInput from './ui/NameTitleInput.svelte';
   import ActivityLog from './topbar/ActivityLog.svelte';
+  import Instructions from './ui/Instructions.svelte';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -144,6 +145,7 @@
 </script>
 
 {#if $state}
+  <Instructions />
   <div class="h-full flex flex-col">
     <!-- ████████╗ ██████╗ ██████╗     ██████╗  █████╗ ██████╗
         ╚══██╔══╝██╔═══██╗██╔══██╗    ██╔══██╗██╔══██╗██╔══██╗
@@ -254,6 +256,7 @@
         onRotateElement={(uuid, rotation) => {
           gameSpace.change({ type: 'rotate-element', uuid, rotation });
         }}
+        canOpenConfigMenu={$state.isLibraryItem}
         onContextMenu={handleContextMenu}
       />
     </div>

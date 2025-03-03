@@ -67,15 +67,4 @@
       </div>
     {/each}
   {/if}
-  <!-- <TopBarDropButton title="Participants in space" counter={participants.length}>
-    <UsersIcon slot="icon" />
-    <div class="w-60">
-      {#each participants as participant}
-        <div class="flexcs px4 py2 bg-black/5 b-t b-black/10">
-          <AgentAvatar pubKey={participant} size={28} />
-          <AgentName class="ml2" pubKey={participant} />
-        </div>
-      {/each}
-    </div>
-  </TopBarDropButton> -->
 </div>

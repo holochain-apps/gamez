@@ -11,6 +11,7 @@
   export let onResizeElement = (id: string, width: number, height: number) => {};
   export let onMoveElement = (id: string, x: number, y: number) => {};
   export let onContextMenu = (id: string, posX: number, posY: number) => {};
+  export let canOpenConfigMenu: boolean;
 
   $: state = gameSpace.state;
   $: permissions = gameSpace.permissions;
@@ -21,7 +22,9 @@
 
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();
-    onContextMenu(id, ev.clientX, ev.clientY);
+    if (canOpenConfigMenu) {
+      onContextMenu(id, ev.clientX, ev.clientY);
+    }
   }
 
   // ██████╗ ██████╗  █████╗  ██████╗  ██████╗ ██╗███╗   ██╗ ██████╗
