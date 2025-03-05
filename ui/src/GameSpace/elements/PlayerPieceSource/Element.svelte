@@ -8,6 +8,7 @@
 
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
   import type { PlayerPieceSourceElement } from './type';
+  import { derived } from 'svelte/store';
 
   export let gameSpace: GameSpaceSyn;
   export let el: PlayerPieceSourceElement;
@@ -139,6 +140,10 @@
       },
     ]);
   }
+
+  $: everythingEmpty = el.showEmptyPlayersSlots
+    ? false
+    : $state.playersSlots.filter((slot) => slot.pubKey).length === 0;
 </script>
 
 <div class={cx(klass, 'h-full w-full bg-main-900 rounded-md p2')}>
@@ -151,60 +156,67 @@
       'grid-cols-1': !el.showNames,
     })}
   >
-    {#each $state.playersSlots as playerSlot, i}
-      {@const playerPubKey = playerSlot.pubKey}
-      {@const hasPiecesLeft = el.limit ? el.limit - (playedPiecesCountByAgent[i] || 0) > 0 : true}
-      {@const ownPieces = playerPubKey === gameSpace.pubKey}
-      {@const isAllowedToGrab =
-        hasPiecesLeft &&
-        ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece) &&
-        !isLocked}
-      {#if el.showEmptyPlayersSlots || playerPubKey}
-        {#if el.showNames}
-          <div class="flexce text-xs">
-            {#if playerPubKey}
-              <AgentName pubKey={playerPubKey} />
-            {:else}
-              Player {i + 1}
-            {/if}
+    {#if !everythingEmpty}
+      {#each $state.playersSlots as playerSlot, i}
+        {@const playerPubKey = playerSlot.pubKey}
+        {@const hasPiecesLeft = el.limit ? el.limit - (playedPiecesCountByAgent[i] || 0) > 0 : true}
+        {@const ownPieces = playerPubKey === gameSpace.pubKey}
+        {@const isAllowedToGrab =
+          hasPiecesLeft &&
+          ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece) &&
+          !isLocked}
+        {#if el.showEmptyPlayersSlots || playerPubKey}
+          {#if el.showNames}
+            <div class="flexce text-xs">
+              {#if playerPubKey}
+                <AgentName pubKey={playerPubKey} />
+              {:else}
+                Player {i + 1}
+              {/if}
+            </div>
+          {/if}
+          <div
+            class={cx('flexcs min-w-0 overflow-hidden py1.5', {
+              'cursor-not-allowed': !isAllowedToGrab,
+              'cursor-grab': isAllowedToGrab,
+            })}
+            draggable={true}
+            on:dragstart={(ev) => (isAllowedToGrab ? handleDragStart(ev, i) : null)}
+            bind:this={piecesContainer[i]}
+          >
+            <div class="flex">
+              {#each { length: el.limit || 1 } as _, j}
+                {@const isPlayed = el.limit
+                  ? (playedPiecesCountByAgent[i] || 0) +
+                      (dragState && dragState.playerSlotIndex === i ? 1 : 0) >=
+                    el.limit - j
+                  : false}
+                <div
+                  class={cx(`block overlap mr.5 last:mr0 relative`, {
+                    'saturate-0': isPlayed,
+                  })}
+                  style={j > 0 ? `margin-left: var(--overlap); z-index: ${10 + j}` : ''}
+                >
+                  <PlayerPieceEl
+                    {gameSpace}
+                    el={{
+                      width: el.size,
+                      height: el.size,
+                      playerSlot: i,
+                    }}
+                  />
+                </div>
+              {/each}
+            </div>
           </div>
         {/if}
-        <div
-          class={cx('flexcs min-w-0 overflow-hidden py1.5', {
-            'cursor-not-allowed': !isAllowedToGrab,
-            'cursor-grab': isAllowedToGrab,
-          })}
-          draggable={true}
-          on:dragstart={(ev) => (isAllowedToGrab ? handleDragStart(ev, i) : null)}
-          bind:this={piecesContainer[i]}
-        >
-          <div class="flex">
-            {#each { length: el.limit || 1 } as _, j}
-              {@const isPlayed = el.limit
-                ? (playedPiecesCountByAgent[i] || 0) +
-                    (dragState && dragState.playerSlotIndex === i ? 1 : 0) >=
-                  el.limit - j
-                : false}
-              <div
-                class={cx(`block overlap mr.5 last:mr0 relative`, {
-                  'saturate-0': isPlayed,
-                })}
-                style={j > 0 ? `margin-left: var(--overlap); z-index: ${10 + j}` : ''}
-              >
-                <PlayerPieceEl
-                  {gameSpace}
-                  el={{
-                    width: el.size,
-                    height: el.size,
-                    playerSlot: i,
-                  }}
-                />
-              </div>
-            {/each}
-          </div>
-        </div>
-      {/if}
-    {/each}
+      {/each}
+    {:else}
+      <div class="text-black/50 text-center flexcc flex-col">
+        <div class="b-b b-black/10 pb1 mb1">Player pieces source</div>
+        <div>No players</div>
+      </div>
+    {/if}
   </div>
 </div>
 
