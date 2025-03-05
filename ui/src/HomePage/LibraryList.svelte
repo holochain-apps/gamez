@@ -27,7 +27,16 @@
       .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
   });
 
+  $: gameSpacesNames = derived(gameDocsStates, ($states) =>
+    $states
+      .filter((state) => state && state.isLibraryItem)
+      .map((state) => state.name.toLocaleLowerCase()),
+  );
+
   let presetsItems = Object.values(presets);
+  $: filteredPresetItems = presetsItems.filter(
+    (gameSpace) => $gameSpacesNames.indexOf(gameSpace.name.toLocaleLowerCase()) === -1,
+  );
 
   async function handlePlayFromLibrary(gameSpace: GameSpace, newName: string) {
     const newGameSpace: GameSpace = {
@@ -40,10 +49,10 @@
     nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
-  async function handleDuplicate(gameSpace: GameSpace) {
+  async function handleDuplicate(gameSpace: GameSpace, name: string) {
     const newGameSpace: GameSpace = {
       ...cloneDeep(gameSpace),
-      name: `Copy of ${gameSpace.name}`,
+      name,
       creator: store.pubKey,
     };
     return await store.createGameSpace(newGameSpace);
@@ -58,7 +67,7 @@
   }
 
   async function handleEditCopy(gameSpace: GameSpace) {
-    const hash = await handleDuplicate(gameSpace);
+    const hash = await handleDuplicate(gameSpace, gameSpace.name);
     nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
@@ -94,13 +103,13 @@
           })}
         onArchive={() => handleArchive(gameSpace)}
         onEdit={() => handleEdit(gameSpace.hash)}
-        onDuplicate={() => handleDuplicate($state)}
+        onDuplicate={() => handleDuplicate($state, `Copy of ${$state.name}`)}
         onDelete={() => handleDelete(gameSpace.hash)}
         onExport={() => handleExport(gameSpace)}
       />
     {/if}
   {/each}
-  {#each presetsItems as gameSpace (gameSpace.name)}
+  {#each filteredPresetItems as gameSpace (gameSpace.name)}
     <LibraryListItem
       {gameSpace}
       isLocked={true}
@@ -111,7 +120,7 @@
           placeholder: 'Name',
           defaultValue: gameSpace.name,
         })}
-      onDuplicate={() => handleDuplicate(gameSpace)}
+      onDuplicate={() => handleDuplicate(gameSpace, `Copy of ${gameSpace.name}`)}
       onEditCopy={() => handleEditCopy(gameSpace)}
     />
   {/each}

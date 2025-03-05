@@ -1,6 +1,11 @@
 <script lang="ts">
   import PlayIcon from '~icons/fa6-solid/play';
+  import PenIcon from '~icons/fa6-solid/pen';
   import LockIcon from '~icons/fa6-solid/lock';
+  import WandIcon from '~icons/fa6-solid/wand-magic-sparkles';
+  import UnarchiveIcon from '~icons/fa6-solid/trash-can-arrow-up';
+  import DeleteIcon from '~icons/fa6-solid/trash';
+  import EyeIcon from '~icons/fa6-solid/eye';
   import EllipsisVIcon from '~icons/fa6-solid/ellipsis-vertical';
   import type { GameSpace } from '~/store';
   import { tooltip } from '~/shared/tooltip';
@@ -58,62 +63,84 @@
 </script>
 
 <div class={'bg-white/10 h16  b b-white/10 rounded-md w-full flex relative'}>
-  <button
-    disabled={gameSpace.isArchived}
-    class="flexcc group hover:bg-white/10 disabled:pointer-events-none flex-grow"
-    on:click={gameSpace.isArchived ? null : onPlay}
-  >
+  <div class="flexcc flex-grow">
     <div class="h14 w14 flex-shrink-0 ml.5 relative b b-black/20 rounded-md overflow-hidden">
       <img
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717"
         alt=""
       />
       <div class="absolute inset-0 flexcc text-2xl text-white">{gameSpace.icon}</div>
-      <div class="hidden group-hover:flexcc absolute inset-0 text-2xl text-main-900">
-        <PlayIcon />
-      </div>
     </div>
-    {#if isLocked}
+    <!-- {#if isLocked}
       <div
         class="flexcc absolute top-5.5 -left-1 text-sm text-black"
         use:tooltip={'This is a pre-set space and cannot be edited'}
       >
         <LockIcon />
       </div>
-    {/if}
+    {/if} -->
     <h2 class="flex flex-grow pl2 h16 items-center text-xl text-black/70 text-left">
       {gameSpace.name}
     </h2>
-  </button>
-  <button
-    bind:this={menuButtonEl}
-    on:click={() => (menuOpen = true)}
-    class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
-  >
-    <EllipsisVIcon />
-  </button>
+  </div>
+  {#if !gameSpace.isArchived}
+    <button
+      use:tooltip={'Create new space from this and enter'}
+      on:click={gameSpace.isArchived ? null : onPlay}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <WandIcon />
+    </button>
+    <button
+      use:tooltip={'Enter edit mode'}
+      on:click={() => (isLocked ? onEditCopy() : onEdit())}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <PenIcon />
+    </button>
+
+    <button
+      bind:this={menuButtonEl}
+      on:click={() => (menuOpen = true)}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <EllipsisVIcon />
+    </button>
+  {:else}
+    <button
+      use:tooltip={'Inspect space'}
+      on:click={onEdit}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <EyeIcon />
+    </button>
+    <button
+      use:tooltip={'Restore'}
+      on:click={onUnarchive}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <UnarchiveIcon />
+    </button>
+    <button
+      use:tooltip={'Delete permanently'}
+      on:click={onDelete}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <DeleteIcon />
+    </button>
+  {/if}
 </div>
 
 {#if menuOpen}
   <FloatingMenu
     options={isLocked
-      ? [
-          ['edit-copy', 'Edit copy'],
+      ? [['duplicate', 'Duplicate']]
+      : [
           ['duplicate', 'Duplicate'],
-        ]
-      : gameSpace.isArchived
-        ? [
-            ['edit', 'Inspect'],
-            ['unarchive', 'Unarchive'],
-            ['delete', 'Delete'],
-          ]
-        : [
-            ['edit', 'Edit'],
-            ['duplicate', 'Duplicate'],
-            ['export', 'Export'],
-            ['archive', 'Archive'],
-            ['delete', 'Delete'],
-          ]}
+          ['export', 'Export'],
+          ['archive', 'Archive'],
+          ['delete', 'Delete'],
+        ]}
     target={menuButtonEl}
     onCancel={() => (menuOpen = false)}
     onSelect={onSelectMenu}

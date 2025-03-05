@@ -1,7 +1,11 @@
 <script lang="ts">
   import { derived } from 'svelte/store';
   import PlayIcon from '~icons/fa6-solid/play';
+  import DoorIcon from '~icons/fa6-solid/door-open';
   import EllipsisVIcon from '~icons/fa6-solid/ellipsis-vertical';
+  import UnarchiveIcon from '~icons/fa6-solid/trash-can-arrow-up';
+  import DeleteIcon from '~icons/fa6-solid/trash';
+  import EyeIcon from '~icons/fa6-solid/eye';
   import type { GameSpace } from '~/store';
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
   import PlayerStatus from './PlayerStatus.svelte';
@@ -69,20 +73,13 @@
 </script>
 
 <div class={'bg-white/10 h20  b b-white/10 rounded-md w-full flex relative'}>
-  <button
-    disabled={gameSpace.isArchived}
-    class="flexcc group hover:bg-white/10 disabled:pointer-events-none flex-grow"
-    on:click={gameSpace.isArchived ? null : onPlay}
-  >
+  <div class="flexcc hover:bg-white/10 disabled:pointer-events-none flex-grow">
     <div class="h18 w18 flex-shrink-0 ml.5 relative b b-black/20 rounded-md overflow-hidden">
       <img
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717"
         alt=""
       />
       <div class="absolute inset-0 flexcc text-3xl text-white">{gameSpace.icon}</div>
-      <div class="hidden group-hover:flexcc absolute inset-0 text-2xl text-main-900">
-        <PlayIcon />
-      </div>
     </div>
     <div class="flex flex-col flex-grow pl2 py1 h-full">
       <h2 class="text-xl text-black/70 text-left">
@@ -114,30 +111,55 @@
         </div>
       </div>
     </div>
-  </button>
-  <button
-    bind:this={menuButtonEl}
-    on:click={() => (menuOpen = true)}
-    class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
-  >
-    <EllipsisVIcon />
-  </button>
+  </div>
+  {#if gameSpace.isArchived}
+    <button
+      use:tooltip={'Inspect space'}
+      on:click={onEdit}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <EyeIcon />
+    </button>
+    <button
+      use:tooltip={'Restore'}
+      on:click={onUnarchive}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <UnarchiveIcon />
+    </button>
+    <button
+      use:tooltip={'Delete permanently'}
+      on:click={onDelete}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <DeleteIcon />
+    </button>
+  {:else}
+    <button
+      on:click={onPlay}
+      use:tooltip={'Enter space'}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <DoorIcon />
+    </button>
+    <button
+      bind:this={menuButtonEl}
+      on:click={() => (menuOpen = true)}
+      class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
+    >
+      <EllipsisVIcon />
+    </button>
+  {/if}
 </div>
 
 {#if menuOpen}
   <FloatingMenu
-    options={gameSpace.isArchived
-      ? [
-          ['edit', 'Inspect'],
-          ['unarchive', 'Unarchive'],
-          ['delete', 'Delete'],
-        ]
-      : [
-          ['duplicate', 'Duplicate'],
-          ['export', 'Export'],
-          ['archive', 'Archive'],
-          ['delete', 'Delete'],
-        ]}
+    options={[
+      ['duplicate', 'Duplicate'],
+      ['export', 'Export'],
+      ['archive', 'Archive'],
+      ['delete', 'Delete'],
+    ]}
     target={menuButtonEl}
     onCancel={() => (menuOpen = false)}
     onSelect={onSelectMenu}
