@@ -35,11 +35,13 @@
           }
           result[piece.playerSlot]++;
         }
-        playedPiecesCountByAgent = result;
       });
+      playedPiecesCountByAgent = result;
       prevCreatedPieces = el.createdPieces;
     }
   }
+
+  $: console.log(playedPiecesCountByAgent);
 
   // Overlap pieces to fit container width
   let piecesContainer: HTMLDivElement[] = [];
@@ -80,9 +82,9 @@
   type DragState = { playerSlotIndex: number; x: number; y: number } | null;
   let dragState: DragState = null;
   function handleDragStart(ev: MouseEvent, playerSlotIndex: number) {
-    if (isLocked) return;
     ev.stopPropagation();
     ev.preventDefault();
+    if (isLocked) return;
     dragState = { playerSlotIndex, x: ev.clientX, y: ev.clientY };
 
     function handleMouseMoving(e: MouseEvent) {
@@ -146,77 +148,83 @@
     : $state.playersSlots.filter((slot) => slot.pubKey).length === 0;
 </script>
 
-<div class={cx(klass, 'h-full w-full bg-main-900 rounded-md p2')}>
-  {#if $state.playersSlots.length === 0}
-    <div class="opacity-70 flexcc h-full w-full">No players</div>
-  {/if}
+<div class={cx(klass, 'size-full b-4 b-yellow-8 b-b-8 rounded-lg')}>
   <div
-    class={cx(`w-full grid gap-x-2`, {
-      'grid-cols-[auto_1fr]': el.showNames,
-      'grid-cols-1': !el.showNames,
-    })}
+    class={cx(klass, 'relative size-full bg-blue-9 py1 px1 shadow-[inset_0_3px_8px_3px_#0003] ')}
   >
-    {#if !everythingEmpty}
-      {#each $state.playersSlots as playerSlot, i}
-        {@const playerPubKey = playerSlot.pubKey}
-        {@const hasPiecesLeft = el.limit ? el.limit - (playedPiecesCountByAgent[i] || 0) > 0 : true}
-        {@const ownPieces = playerPubKey === gameSpace.pubKey}
-        {@const isAllowedToGrab =
-          hasPiecesLeft &&
-          ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece) &&
-          !isLocked}
-        {#if el.showEmptyPlayersSlots || playerPubKey}
-          {#if el.showNames}
-            <div class="flexce text-xs">
-              {#if playerPubKey}
-                <AgentName pubKey={playerPubKey} />
-              {:else}
-                Player {i + 1}
-              {/if}
+    <div
+      class={cx(`w-full grid gap-x-2`, {
+        'grid-cols-[auto_1fr]': el.showNames,
+        'grid-cols-1': !el.showNames,
+      })}
+    >
+      {#if !everythingEmpty}
+        {#each $state.playersSlots as playerSlot, i}
+          {@const playerPubKey = playerSlot.pubKey}
+          {@const hasPiecesLeft = el.limit
+            ? el.limit - (playedPiecesCountByAgent[i] || 0) > 0
+            : true}
+          {@const ownPieces = playerPubKey === gameSpace.pubKey}
+          {@const isAllowedToGrab =
+            hasPiecesLeft &&
+            ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece) &&
+            !isLocked}
+          {#if el.showEmptyPlayersSlots || playerPubKey}
+            {#if el.showNames}
+              <div class="flexce text-xs">
+                {#if playerPubKey}
+                  <AgentName pubKey={playerPubKey} />
+                {:else}
+                  Player {i + 1}
+                {/if}
+              </div>
+            {/if}
+            <div
+              class={cx('flexcs min-w-0 overflow-hidden py1 px1 b-1', {
+                'cursor-grab hover:bg-white/10 rounded-md b-dashed b-white/25': isAllowedToGrab,
+                'cursor-default b-transparent': !isAllowedToGrab,
+              })}
+              draggable={true}
+              on:dragstart={(ev) =>
+                isAllowedToGrab
+                  ? handleDragStart(ev, i)
+                  : (ev.stopPropagation(), ev.preventDefault())}
+              bind:this={piecesContainer[i]}
+            >
+              <div class="flex">
+                {#each { length: el.limit || 1 } as _, j}
+                  {@const isPlayed = el.limit
+                    ? (playedPiecesCountByAgent[i] || 0) +
+                        (dragState && dragState.playerSlotIndex === i ? 1 : 0) >=
+                      el.limit - j
+                    : false}
+                  <div
+                    class={cx(`block overlap mr.5 last:mr0 relative`, {
+                      'saturate-0': isPlayed,
+                    })}
+                    style={(j > 0 ? `margin-left: var(--overlap);` : '') + `z-index: ${10 + j}`}
+                  >
+                    <PlayerPieceEl
+                      {gameSpace}
+                      el={{
+                        width: el.size,
+                        height: el.size,
+                        playerSlot: i,
+                      }}
+                    />
+                  </div>
+                {/each}
+              </div>
             </div>
           {/if}
-          <div
-            class={cx('flexcs min-w-0 overflow-hidden py1.5', {
-              'cursor-not-allowed': !isAllowedToGrab,
-              'cursor-grab': isAllowedToGrab,
-            })}
-            draggable={true}
-            on:dragstart={(ev) => (isAllowedToGrab ? handleDragStart(ev, i) : null)}
-            bind:this={piecesContainer[i]}
-          >
-            <div class="flex">
-              {#each { length: el.limit || 1 } as _, j}
-                {@const isPlayed = el.limit
-                  ? (playedPiecesCountByAgent[i] || 0) +
-                      (dragState && dragState.playerSlotIndex === i ? 1 : 0) >=
-                    el.limit - j
-                  : false}
-                <div
-                  class={cx(`block overlap mr.5 last:mr0 relative`, {
-                    'saturate-0': isPlayed,
-                  })}
-                  style={j > 0 ? `margin-left: var(--overlap); z-index: ${10 + j}` : ''}
-                >
-                  <PlayerPieceEl
-                    {gameSpace}
-                    el={{
-                      width: el.size,
-                      height: el.size,
-                      playerSlot: i,
-                    }}
-                  />
-                </div>
-              {/each}
-            </div>
-          </div>
-        {/if}
-      {/each}
-    {:else}
-      <div class="text-black/50 text-center flexcc flex-col">
-        <div class="b-b b-black/10 pb1 mb1">Player pieces source</div>
-        <div>No players</div>
-      </div>
-    {/if}
+        {/each}
+      {:else}
+        <div class="text-black/50 text-center flexcc flex-col">
+          <div class="b-b b-black/10 pb1 mb1">Player pieces source</div>
+          <div>No players</div>
+        </div>
+      {/if}
+    </div>
   </div>
 </div>
 

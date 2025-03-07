@@ -162,7 +162,8 @@
 
 <div
   class={cx('absolute transform-origin-center', {
-    'cursor-pointer': dragging,
+    'cursor-grabbing': dragging,
+    'cursor-grab': draggable && !dragging,
   })}
   style={`
     width: ${previewEl.width}px;

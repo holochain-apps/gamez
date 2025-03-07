@@ -73,7 +73,7 @@
 </script>
 
 <div class={'bg-white/10 h20  b b-white/10 rounded-md w-full flex relative'}>
-  <div class="flexcc hover:bg-white/10 disabled:pointer-events-none flex-grow">
+  <div class="flexcc flex-grow">
     <div class="h18 w18 flex-shrink-0 ml.5 relative b b-black/20 rounded-md overflow-hidden">
       <img
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717"

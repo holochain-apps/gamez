@@ -34,16 +34,16 @@ function isWithinRectangle(
   return pos.x >= x && pos.x <= x + width && pos.y >= y && pos.y <= y + height;
 }
 
-export const applyDelta = (delta: Delta, status: GameSpace) => {
+export const applyDelta = (delta: Delta, $state: GameSpace) => {
   switch (delta.type) {
     case 'update-element':
       {
-        const el = status.elements.find((e) => e.uuid === delta.element.uuid);
-        if (el.type === 'PlayerPieceSource') {
+        const el = $state.elements.find((e) => e.uuid === delta.element.uuid);
+        if (el?.type === 'PlayerPieceSource') {
           if (el.createdPieces.length === 0) return;
           const pieceSourceDelta = delta.element as Partial<PlayerPieceSourceElement>;
 
-          status.elements.forEach((eachEl) => {
+          $state.elements.forEach((eachEl) => {
             if (el.createdPieces.indexOf(eachEl.uuid) !== -1) {
               const piece = eachEl as PlayerPieceElement;
               if (pieceSourceDelta.size) {
@@ -56,9 +56,9 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
       }
       break;
     case 'move-element': {
-      const el = status.elements.find((e) => e.uuid === delta.uuid);
-      if (el.type === 'PlayerPiece') {
-        forEachPieceSourceContainingElement(status, delta.uuid, (ps) => {
+      const el = $state.elements.find((e) => e.uuid === delta.uuid);
+      if (el?.type === 'PlayerPiece') {
+        forEachPieceSourceContainingElement($state, delta.uuid, (ps) => {
           if (
             isWithinRectangle(
               { x: el.x, y: el.y },
@@ -70,15 +70,15 @@ export const applyDelta = (delta: Delta, status: GameSpace) => {
           ) {
             // Piece was dragged into piece source, delete it
             ps.createdPieces = ps.createdPieces.filter((p) => p !== el.uuid);
-            const index = status.elements.findIndex((e) => e.uuid === el.uuid);
-            status.elements.splice(index, 1);
+            const index = $state.elements.findIndex((e) => e.uuid === el.uuid);
+            $state.elements.splice(index, 1);
           }
         });
       }
       break;
     }
     case 'remove-element': {
-      forEachPieceSourceContainingElement(status, delta.uuid, (ps) => {
+      forEachPieceSourceContainingElement($state, delta.uuid, (ps) => {
         ps.createdPieces = ps.createdPieces.filter((p) => p !== delta.uuid);
       });
       break;

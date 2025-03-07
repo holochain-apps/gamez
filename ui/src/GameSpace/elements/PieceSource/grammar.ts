@@ -25,7 +25,7 @@ export const applyDelta = (delta: Delta, status: GameSpace, context: any) => {
     case 'update-element':
       {
         const el = status.elements.find((e) => e.uuid === delta.element.uuid);
-        if (el.type === 'PieceSource') {
+        if (el?.type === 'PieceSource') {
           if (el.createdPieces.length === 0) return;
           const pieceSourceDelta = delta.element as Partial<PieceSourceElement>;
           const updates: Partial<PieceElement> = {};
@@ -42,7 +42,7 @@ export const applyDelta = (delta: Delta, status: GameSpace, context: any) => {
       break;
     case 'move-element': {
       const el = status.elements.find((e) => e.uuid === delta.uuid);
-      if (el.type === 'Piece') {
+      if (el?.type === 'Piece') {
         forEachPieceSourceContainingElement(status, delta.uuid, (ps) => {
           if (isWithinVisualBoundary(el, ps)) {
             // Piece was dragged into piece source, delete it
