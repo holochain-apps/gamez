@@ -1,86 +1,60 @@
 <script lang="ts">
   import CaretIcon from '~icons/fa6-solid/caret-down';
-  import { get, derived } from 'svelte/store';
-  import { cloneDeep, zip } from 'lodash';
-  import { getContext, presets, type GameSpace, type GameSpaceSyn } from '~/store';
-  import GamesListItem from './GamesListItem.svelte';
+  import { getContext, type GameSpace } from '~/store';
   import LibraryListItem from './LibraryListItem.svelte';
-  import { nav } from '~/lib/routes';
-  import { toPromise } from '@holochain-open-dev/stores';
+  import R from '~/lib/routes.svelte';
   import { cx } from '~/lib/util';
   import { getModalPromptContext } from '~/shared/ModalPromptContextWrapper.svelte';
+  import clients from '~/clients';
 
-  const store = getContext();
-  $: gameDocs = store.gameDocs;
-  $: gameDocsStates = Object.values($gameDocs).map((gameSpace) => gameSpace.state);
-  $: sortedTaggedGameSpaces = derived(gameDocsStates, ($states) => {
-    const loadedGameDocs = zip(Object.values($gameDocs), $states);
-    return loadedGameDocs
-      .filter(([_, $state]) => $state !== null && $state.isLibraryItem && !$state.isArchived)
-      .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
-  });
-
-  $: archivedGameSpaces = derived(gameDocsStates, ($states) => {
-    const loadedGameDocs = zip(Object.values($gameDocs), $states);
-    return loadedGameDocs
-      .filter(([_, $state]) => $state !== null && $state.isLibraryItem && $state.isArchived)
-      .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
-  });
-
-  $: gameSpacesNames = derived(gameDocsStates, ($states) =>
-    $states
-      .filter((state) => state && state.isLibraryItem)
-      .map((state) => state.name.toLocaleLowerCase()),
-  );
-
-  let presetsItems = Object.values(presets);
-  $: filteredPresetItems = presetsItems.filter(
-    (gameSpace) => $gameSpacesNames.indexOf(gameSpace.name.toLocaleLowerCase()) === -1,
-  );
+  const S = getContext();
 
   async function handlePlayFromLibrary(gameSpace: GameSpace, newName: string) {
     const newGameSpace: GameSpace = {
-      ...cloneDeep(gameSpace),
+      ...gameSpace,
       name: newName,
       isLibraryItem: false,
-      creator: store.pubKey,
+      creator: clients.agentKeyB64,
     };
-    const hash = await store.createGameSpace(newGameSpace);
-    nav({ id: 'gameSpace', gameSpaceHash: hash });
+    const hash = await S.cmd('create-gamespace', newGameSpace);
+    R.nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
-  async function handleDuplicate(gameSpace: GameSpace, name: string) {
+  async function handleDuplicate(sourceHash: string, name: string) {
+    const gameSpace = S.libraryItems[sourceHash]!;
     const newGameSpace: GameSpace = {
-      ...cloneDeep(gameSpace),
+      ...gameSpace.doc,
       name,
-      creator: store.pubKey,
+      creator: clients.agentKeyB64,
     };
-    return await store.createGameSpace(newGameSpace);
+    return await S.cmd('create-gamespace', newGameSpace);
   }
 
   async function handleDelete(gameSpaceHash: string) {
-    await store.deleteGameSpace(gameSpaceHash);
+    // await store.deleteGameSpace(gameSpaceHash);
+    await S.cmd('delete-gamespace', gameSpaceHash);
   }
 
   async function handleEdit(gameSpaceHash: string) {
-    nav({ id: 'gameSpace', gameSpaceHash });
+    R.nav({ id: 'gameSpace', gameSpaceHash });
   }
 
-  async function handleEditCopy(gameSpace: GameSpace) {
-    const hash = await handleDuplicate(gameSpace, gameSpace.name);
-    nav({ id: 'gameSpace', gameSpaceHash: hash });
+  async function handleEditCopy(sourceHash: string) {
+    const gameSpace = S.libraryItems[sourceHash]!;
+    const hash = await handleDuplicate(sourceHash, gameSpace.doc.name);
+    R.nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
-  async function handleArchive(gameSpace: GameSpaceSyn) {
-    gameSpace.change({ type: 'set-is-archived', value: true }, true);
+  async function handleArchive(hash: string) {
+    await S.cmd('archive', hash);
   }
 
-  async function handleUnarchive(gameSpace: GameSpaceSyn) {
-    gameSpace.change({ type: 'set-is-archived', value: false }, true);
+  async function handleUnarchive(hash: string) {
+    await S.cmd('unarchive', hash);
   }
 
-  function handleExport(gameSpace: GameSpaceSyn) {
-    gameSpace.exportAsJson();
+  async function handleExport(hash: string) {
+    await S.cmd('export-as-json', hash);
   }
 
   let showArchive = false;
@@ -89,43 +63,26 @@
 </script>
 
 <div class="flex flex-col px2 pt2 space-y-2 h-full">
-  {#each $sortedTaggedGameSpaces as [gameSpace, $state] (gameSpace.hash)}
-    {#if $state}
-      <LibraryListItem
-        gameSpace={$state}
-        isLocked={false}
-        onPlay={() =>
-          openModalPrompt({
-            title: 'Create new game space',
-            onConfirm: (name) => handlePlayFromLibrary($state, name),
-            placeholder: 'Name',
-            defaultValue: $state.name,
-          })}
-        onArchive={() => handleArchive(gameSpace)}
-        onEdit={() => handleEdit(gameSpace.hash)}
-        onDuplicate={() => handleDuplicate($state, `Copy of ${$state.name}`)}
-        onDelete={() => handleDelete(gameSpace.hash)}
-        onExport={() => handleExport(gameSpace)}
-      />
-    {/if}
-  {/each}
-  {#each filteredPresetItems as gameSpace (gameSpace.name)}
+  {#each Object.entries(S.libraryItems) as [hash, gameSpace] (hash)}
     <LibraryListItem
-      {gameSpace}
-      isLocked={true}
+      gameSpaceDoc={gameSpace}
+      isLocked={false}
       onPlay={() =>
         openModalPrompt({
           title: 'Create new game space',
-          onConfirm: (name) => handlePlayFromLibrary(gameSpace, name),
+          onConfirm: (name) => handlePlayFromLibrary(gameSpace.doc, name),
           placeholder: 'Name',
-          defaultValue: gameSpace.name,
+          defaultValue: gameSpace.doc.name,
         })}
-      onDuplicate={() => handleDuplicate(gameSpace, `Copy of ${gameSpace.name}`)}
-      onEditCopy={() => handleEditCopy(gameSpace)}
+      onArchive={() => handleArchive(hash)}
+      onEdit={() => handleEdit(hash)}
+      onDuplicate={() => handleDuplicate(hash, `Copy of ${gameSpace.doc.name}`)}
+      onDelete={() => handleDelete(hash)}
+      onExport={() => handleExport(hash)}
     />
   {/each}
   <div class="flex-grow"></div>
-  {#if $archivedGameSpaces.length !== 0}
+  {#if Object.keys(S.archivedGameSpaces).length !== 0}
     <button
       class="bg-main-200 -mx-2 p2 pr3 text-white flexcc text-left"
       on:click={() => (showArchive = !showArchive)}
@@ -135,16 +92,14 @@
     </button>
     {#if showArchive}
       <div class="flex flex-col pb2 space-y-2">
-        {#each $archivedGameSpaces as [gameSpace, $state] (gameSpace.hash)}
-          {#if $state}
-            <LibraryListItem
-              gameSpace={$state}
-              isLocked={false}
-              onUnarchive={() => handleUnarchive(gameSpace)}
-              onEdit={() => handleEdit(gameSpace.hash)}
-              onDelete={() => handleDelete(gameSpace.hash)}
-            />
-          {/if}
+        {#each Object.entries(S.archivedGameSpaces) as [hash, gameSpace] (hash)}
+          <LibraryListItem
+            gameSpaceDoc={gameSpace}
+            isLocked={false}
+            onUnarchive={() => handleUnarchive(hash)}
+            onEdit={() => handleEdit(hash)}
+            onDelete={() => handleDelete(hash)}
+          />
         {/each}
       </div>
     {/if}

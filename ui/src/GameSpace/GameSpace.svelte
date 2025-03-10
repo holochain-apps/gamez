@@ -7,7 +7,7 @@
   import BookIcon from '~icons/fa6-solid/book';
 
   import PocketIcon from '~/shared/icons/PocketIcon.svelte';
-  import { goBack } from '~/lib/routes';
+  import R from '~/lib/routes.svelte';
 
   import {
     type GameSpaceSyn,
@@ -30,6 +30,7 @@
   import NameTitleInput from './ui/NameTitleInput.svelte';
   import ActivityLog from './topbar/ActivityLog.svelte';
   import Instructions from './ui/Instructions.svelte';
+  import clients from '~/clients';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -41,7 +42,8 @@
   $: isSteward = gameSpace.isSteward;
   $: permissions = gameSpace.permissions;
 
-  const { addToPocket, weaveClient } = getContext();
+  // const { addToPocket, weaveClient } = getContext();
+  function addToPocket(...any) {}
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = asAsset ? 'none' : 'elementsLibrary';
 
@@ -158,11 +160,11 @@
       {#if !asAsset}
         <button
           class="h10 w10 flexcc mr1 hover:bg-black/10 rounded-full text-white"
-          on:click={goBack}
+          on:click={R.goBack}
         >
           <ArrowLeftIcon />
         </button>
-        {#if weaveClient && !$permissions.isArchived}
+        {#if clients.weave && !$permissions.isArchived}
           <button
             on:click={handleAddToPocket}
             use:tooltip={'Add to pocket'}

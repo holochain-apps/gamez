@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { derived } from 'svelte/store';
   import PlayIcon from '~icons/fa6-solid/play';
   import DoorIcon from '~icons/fa6-solid/door-open';
   import EllipsisVIcon from '~icons/fa6-solid/ellipsis-vertical';
@@ -8,21 +7,34 @@
   import EyeIcon from '~icons/fa6-solid/eye';
   import type { GameSpace } from '~/store';
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
-  import PlayerStatus from './PlayerStatus.svelte';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  // import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import { tooltip } from '~/shared/tooltip';
+  import type { DocStore } from '~/store/docs.svelte';
 
-  export let gameSpace: GameSpace;
-  export let onPlay = () => {};
-  export let onEdit = () => {};
-  export let onDuplicate = () => {};
-  export let onArchive = () => {};
-  export let onDelete = () => {};
-  export let onUnarchive = () => {};
-  export let onExport = () => {};
+  const {
+    gameSpaceDoc,
+    onPlay,
+    onDuplicate,
+    onEdit,
+    onArchive,
+    onDelete,
+    onUnarchive,
+    onExport,
+  }: {
+    gameSpaceDoc: DocStore<GameSpace>;
+    onPlay?: () => void;
+    onDuplicate?: () => void;
+    onEdit?: () => void;
+    onArchive?: () => void;
+    onDelete?: () => void;
+    onUnarchive?: () => void;
+    onExport?: () => void;
+  } = $props();
 
-  let menuOpen = false;
-  let menuButtonEl: HTMLButtonElement;
+  const gameSpace = $derived(gameSpaceDoc.doc);
+
+  let menuOpen = $state<boolean>(false);
+  let menuButtonEl = $state<HTMLButtonElement>(null!);
 
   // let playersStatus = derived(
   //   [gameSpace.state, gameSpace.participants],
@@ -88,11 +100,11 @@
       <div class="flex-grow"></div>
       <div class="text-left flexcs">
         <div use:tooltip={'Space creator'}>
-          <AgentAvatar
+          <!-- <AgentAvatar
             class="outline outline-2 outline-yellow-400"
             pubKey={gameSpace.creator}
             size={24}
-          />
+          /> -->
         </div>
         <div
           use:tooltip={'Players slots'}
@@ -101,7 +113,7 @@
           {#each gameSpace.playersSlots as playerSlot, i}
             <div class="bg-main-700 shadow-inset relative rounded-full h5 w5 flexcc">
               {#if playerSlot.pubKey}
-                <AgentAvatar class="relative z-20" pubKey={playerSlot.pubKey} size={16} />
+                <!-- <AgentAvatar class="relative z-20" pubKey={playerSlot.pubKey} size={16} /> -->
               {/if}
               <div class="absolute inset-0 z-10 text-xs text-main-500 font-light flexcc"
                 >{i + 1}</div
@@ -115,28 +127,28 @@
   {#if gameSpace.isArchived}
     <button
       use:tooltip={'Inspect space'}
-      on:click={onEdit}
+      onclick={onEdit}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <EyeIcon />
     </button>
     <button
       use:tooltip={'Restore'}
-      on:click={onUnarchive}
+      onclick={onUnarchive}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <UnarchiveIcon />
     </button>
     <button
       use:tooltip={'Delete permanently'}
-      on:click={onDelete}
+      onclick={onDelete}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <DeleteIcon />
     </button>
   {:else}
     <button
-      on:click={onPlay}
+      onclick={onPlay}
       use:tooltip={'Enter space'}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
@@ -144,7 +156,7 @@
     </button>
     <button
       bind:this={menuButtonEl}
-      on:click={() => (menuOpen = true)}
+      onclick={() => (menuOpen = true)}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <EllipsisVIcon />

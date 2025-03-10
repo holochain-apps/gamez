@@ -8,7 +8,7 @@ import {
   SynClient,
   SynStore,
   WorkspaceStore,
-} from '@holochain-syn/core';
+} from '@holochain-syn/dev/packages/core';
 import { type AppClient, decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
 
 export const ROOT_TAG = 'simpler-syn';

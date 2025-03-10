@@ -306,6 +306,7 @@
 </script>
 
 <div
+  role="presentation"
   class={cx(
     `inset-content-shadow flex-grow h-full overflow-hidden
   bg-main-400  b b-black/25 relative p-0 bg-[url('/noise20.png')]`,

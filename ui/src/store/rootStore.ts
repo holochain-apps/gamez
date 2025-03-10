@@ -4,7 +4,7 @@ import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
 import { derived, get, type Readable, writable } from 'svelte/store';
 
 import { ProfilesStore } from '@holochain-open-dev/profiles';
-import { SynClient, SynStore } from '@holochain-syn/core';
+import { SynClient, SynStore } from '@holochain-syn/dev/packages/core';
 import {
   type AppClient,
   decodeHashFromBase64,
@@ -12,6 +12,7 @@ import {
   encodeHashToBase64,
 } from '@holochain/client';
 
+import clients from '~/clients';
 import SimplerSyn from '~/lib/SimplerSyn';
 import { getMyDna } from '~/lib/util';
 
@@ -25,27 +26,19 @@ export type RootStore = ReturnType<typeof createRootStore>;
 
 const ROLE_NAME = 'gamez';
 
-export function createRootStore(
-  appClient: AppClient,
-  profilesStore: ProfilesStore,
-  weaveClient: WeaveClient | null,
-) {
-  const synClient = new SynClient(appClient, ROLE_NAME, 'syn');
+export function createRootStore() {
+  const synClient = new SynClient(clients.app, ROLE_NAME, 'syn');
   const synStore = new SynStore(synClient);
   const pubKey = encodeHashToBase64(synStore.client.client.myPubKey);
-  const _dnaHash = writable<DnaHash | null>(null);
-  const dnaHash = derived(_dnaHash, ($dnaHash) => $dnaHash);
 
   const gameDocs = writable<{ [key: string]: GameSpaceSyn }>({});
   const statesMap = writable<{ [key: string]: GameSpace }>({});
   const simplerSyn = new SimplerSyn(
-    appClient,
+    clients.app,
     (synDocs, deletedDocs) => {
       gameDocs.update((val) => {
         const newVal = { ...val };
-        synDocs.forEach(
-          (doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc, { weaveClient, toAsset })),
-        );
+        synDocs.forEach((doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc, { toAsset })));
         deletedDocs.forEach((hash) => delete newVal[hash]);
         return newVal;
       });
@@ -68,10 +61,6 @@ export function createRootStore(
     migration,
     VERSION,
   );
-
-  getMyDna(ROLE_NAME, appClient).then((hash) => {
-    _dnaHash.set(hash);
-  });
 
   async function createGameSpace(from: Partial<GameSpace> = {}) {
     const doc = await simplerSyn.createDoc({ ...initialState(pubKey), ...from });
@@ -147,17 +136,16 @@ export function createRootStore(
   function addToPocket(gameSpace: GameSpaceSyn) {
     const asset = toAsset(gameSpace.hash);
     if (asset) {
-      weaveClient.assets.assetToPocket(asset);
+      clients.weave.assets.assetToPocket(asset);
     } else {
       console.log('Tried adding to pocket before the DNA hash was loaded');
     }
   }
 
   function toAsset(gameSpaceHash: string): WAL {
-    const $dnaHash = get(dnaHash);
-    if ($dnaHash && weaveClient) {
+    if (clients.weave) {
       return {
-        hrl: [$dnaHash, decodeHashFromBase64(gameSpaceHash)],
+        hrl: [clients.dnaHash, decodeHashFromBase64(gameSpaceHash)],
         context: {},
       };
     }
@@ -167,18 +155,14 @@ export function createRootStore(
   return {
     createGameSpace,
     gameDocs,
-    weaveClient,
-    profilesStore,
-    pubKey,
     readyGameSpace,
     cloneGameSpace,
     deleteGameSpace,
     importFromJson,
     statesMap,
     addToPocket,
-    dnaHash,
   };
 }
 
-export const setContext = (getter: () => RootStore) => sSetContext('rootStore', { store: getter });
-export const getContext = () => sGetContext<{ store: () => RootStore }>('rootStore').store();
+export const createStoreContext = () => sSetContext('rootStore', createRootStore());
+export const getContext = () => sGetContext<{ store: () => RootStore }>('rootStore');

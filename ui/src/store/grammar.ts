@@ -4,10 +4,11 @@ import { v1 as uuidv1 } from 'uuid';
 
 import { type AgentPubKeyB64, decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
 
+import clients from '~/clients';
 import { colorSequence } from '~/lib/util';
 
-import * as elements from '../GameSpace/elements';
-import { LIBRARY } from './library';
+// import * as elements from '../GameSpace/elements';
+// import { LIBRARY } from './library';
 import {
   DEFAULT_NOTIFICATIONS_CONFIG,
   type GameSpace,
@@ -36,12 +37,12 @@ export type Delta =
   | { type: 'seen-activity-log' }
   | { type: 'set-notifications-config-override'; config: Partial<NotificationsConfig> };
 
-export function initialState(pubKey: string): GameSpace {
+export function initialState(): GameSpace {
   return {
     version: 9,
     name: 'Game Space',
     icon: '♟',
-    creator: pubKey,
+    creator: clients.agentKeyB64,
     elements: [],
     wals: [],
     isStewarded: false,
@@ -59,11 +60,7 @@ export function initialState(pubKey: string): GameSpace {
   };
 }
 
-export const applyDelta = (
-  delta: Delta,
-  $state: GameSpace,
-  context: { pubKey: string; weaveClient?: WeaveClient; asAsset: () => WAL },
-) => {
+export const applyDelta = (delta: Delta, $state: GameSpace, context: { asAsset: () => WAL }) => {
   switch (delta.type) {
     case 'set-is-archived':
       $state.isArchived = delta.value;
@@ -90,7 +87,7 @@ export const applyDelta = (
       if (removed.length > 0) {
         removed.forEach((pubKey) => {
           addLog({
-            message: context.pubKey !== pubKey ? 'was removed from the game' : 'left the game',
+            message: clients.agentKeyB64 !== pubKey ? 'was removed from the game' : 'left the game',
             type: 'left',
             pubKey,
           });
@@ -104,14 +101,14 @@ export const applyDelta = (
       break;
     case 'join-game':
       const freeSlot = $state.playersSlots.findIndex((p) => p.pubKey === null);
-      const alreadyPlaying = $state.playersSlots.find((p) => p.pubKey === context.pubKey);
+      const alreadyPlaying = $state.playersSlots.find((p) => p.pubKey === clients.agentKeyB64);
       if (freeSlot !== -1 && !alreadyPlaying) {
-        $state.playersSlots[freeSlot].pubKey = context.pubKey;
+        $state.playersSlots[freeSlot].pubKey = clients.agentKeyB64;
       }
       addLog({ message: 'joined the game', type: 'join' });
       break;
     case 'leave-game':
-      const playerIndex = $state.playersSlots.findIndex((p) => p.pubKey === context.pubKey);
+      const playerIndex = $state.playersSlots.findIndex((p) => p.pubKey === clients.agentKeyB64);
       if (playerIndex !== -1) {
         $state.playersSlots[playerIndex].pubKey = null;
         addLog({ message: 'left the game', type: 'left' });
@@ -212,8 +209,8 @@ export const applyDelta = (
     }
     case 'seen-activity-log':
       $state.activityLog.forEach((l) => {
-        if (l.seenBy.indexOf(context.pubKey) === -1) {
-          l.seenBy.push(context.pubKey);
+        if (l.seenBy.indexOf(clients.agentKeyB64) === -1) {
+          l.seenBy.push(clients.agentKeyB64);
         }
       });
       // $state.activityLog = $state.activityLog.map((l) => ({ ...l, seenBy: [...l.seenBy, agentKey] }))
@@ -222,14 +219,15 @@ export const applyDelta = (
       addLog(delta.log);
       break;
     case 'set-notifications-config-override': {
-      $state.notificationsConfigOverride[context.pubKey] = delta.config;
+      $state.notificationsConfigOverride[clients.agentKeyB64] = delta.config;
       break;
     }
   }
 
   function getLabel(elType: string) {
     // TODO: Maybe fix sometime that player pieces don't have a library item
-    return LIBRARY.find((l) => l.type === elType)?.label || 'Player Piece';
+    // return LIBRARY.find((l) => l.type === elType)?.label || 'Player Piece';
+    return '';
   }
 
   function addLog(log: { message: string; type: LogType; pubKey?: string; elRef?: string }) {
@@ -237,17 +235,17 @@ export const applyDelta = (
       type: log.type,
       message: log.message,
       time: Date.now(),
-      seenBy: [context.pubKey],
-      agentKey: log.pubKey || context.pubKey,
+      seenBy: [clients.agentKeyB64],
+      agentKey: log.pubKey || clients.agentKeyB64,
       elRef: log.elRef || null,
     });
     const nConfig = {
       ...DEFAULT_NOTIFICATIONS_CONFIG,
-      ...($state.notificationsConfigOverride[context.pubKey] || {}),
+      ...($state.notificationsConfigOverride[clients.agentKeyB64] || {}),
     };
-    if (context.weaveClient) {
+    if (clients.weave) {
       const players = $state.playersSlots
-        .filter((p) => p.pubKey !== context.pubKey && p.pubKey)
+        .filter((p) => p.pubKey !== clients.agentKeyB64 && p.pubKey)
         .filter((p) => {
           const nConfig = {
             ...DEFAULT_NOTIFICATIONS_CONFIG,
@@ -258,13 +256,13 @@ export const applyDelta = (
         .map((p) => decodeHashFromBase64(p.pubKey));
       console.log('SENDING NOTIFICATIONS TO', players);
       if (players) {
-        context.weaveClient.notifyFrame([
+        clients.weave.notifyFrame([
           {
             title: log.message,
             body: '',
             notification_type: log.type,
             urgency: 'medium',
-            fromAgent: decodeHashFromBase64(context.pubKey),
+            fromAgent: decodeHashFromBase64(clients.agentKeyB64),
             forAgents: players,
             icon_src: undefined,
             timestamp: Date.now(),
@@ -275,12 +273,12 @@ export const applyDelta = (
     }
   }
 
-  for (let e in elements) {
-    const El = elements[e];
-    if (typeof El['applyDelta'] === 'function') {
-      El['applyDelta'](delta, $state);
-    }
-  }
+  // for (let e in elements) {
+  //   const El = elements[e];
+  //   if (typeof El['applyDelta'] === 'function') {
+  //     El['applyDelta'](delta, $state);
+  //   }
+  // }
 
   $state.lastChangeAt = Date.now();
   $state.version = 9;

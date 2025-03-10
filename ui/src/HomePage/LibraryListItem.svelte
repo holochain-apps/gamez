@@ -1,7 +1,5 @@
 <script lang="ts">
-  import PlayIcon from '~icons/fa6-solid/play';
   import PenIcon from '~icons/fa6-solid/pen';
-  import LockIcon from '~icons/fa6-solid/lock';
   import WandIcon from '~icons/fa6-solid/wand-magic-sparkles';
   import UnarchiveIcon from '~icons/fa6-solid/trash-can-arrow-up';
   import DeleteIcon from '~icons/fa6-solid/trash';
@@ -10,20 +8,36 @@
   import type { GameSpace } from '~/store';
   import { tooltip } from '~/shared/tooltip';
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
+  import type { DocStore } from '~/store/docs.svelte';
 
-  export let gameSpace: GameSpace;
-  export let onPlay = () => {};
-  export let isLocked: boolean;
-  export let onEditCopy = () => {};
-  export let onDuplicate = () => {};
-  export let onEdit = () => {};
-  export let onArchive = () => {};
-  export let onDelete = () => {};
-  export let onUnarchive = () => {};
-  export let onExport = () => {};
+  const {
+    gameSpaceDoc,
+    onPlay,
+    isLocked,
+    onEditCopy,
+    onDuplicate,
+    onEdit,
+    onArchive,
+    onDelete,
+    onUnarchive,
+    onExport,
+  }: {
+    gameSpaceDoc: DocStore<GameSpace>;
+    isLocked: boolean;
+    onPlay?: () => void;
+    onEditCopy?: () => void;
+    onDuplicate?: () => void;
+    onEdit?: () => void;
+    onArchive?: () => void;
+    onDelete?: () => void;
+    onUnarchive?: () => void;
+    onExport?: () => void;
+  } = $props();
 
-  let menuOpen = false;
-  let menuButtonEl: HTMLButtonElement;
+  const gameSpace = $derived(gameSpaceDoc.doc);
+
+  let menuOpen = $state<boolean>(false);
+  let menuButtonEl = $state<HTMLButtonElement>(null!);
 
   type MenuCommands =
     | 'edit'
@@ -37,25 +51,25 @@
   function onSelectMenu(command: MenuCommands) {
     switch (command) {
       case 'edit':
-        onEdit();
+        onEdit?.();
         break;
       case 'edit-copy':
-        onEditCopy();
+        onEditCopy?.();
         break;
       case 'duplicate':
-        onDuplicate();
+        onDuplicate?.();
         break;
       case 'archive':
-        onArchive();
+        onArchive?.();
         break;
       case 'delete':
-        onDelete();
+        onDelete?.();
         break;
       case 'unarchive':
-        onUnarchive();
+        onUnarchive?.();
         break;
       case 'export':
-        onExport();
+        onExport?.();
         break;
     }
     menuOpen = false;
@@ -71,14 +85,6 @@
       />
       <div class="absolute inset-0 flexcc text-2xl text-white">{gameSpace.icon}</div>
     </div>
-    <!-- {#if isLocked}
-      <div
-        class="flexcc absolute top-5.5 -left-1 text-sm text-black"
-        use:tooltip={'This is a pre-set space and cannot be edited'}
-      >
-        <LockIcon />
-      </div>
-    {/if} -->
     <h2 class="flex flex-grow pl2 h16 items-center text-xl text-black/70 text-left">
       {gameSpace.name}
     </h2>
@@ -86,14 +92,14 @@
   {#if !gameSpace.isArchived}
     <button
       use:tooltip={'Create new space from this and enter'}
-      on:click={gameSpace.isArchived ? null : onPlay}
+      onclick={gameSpace.isArchived ? null : onPlay}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <WandIcon />
     </button>
     <button
       use:tooltip={'Enter edit mode'}
-      on:click={() => (isLocked ? onEditCopy() : onEdit())}
+      onclick={() => (isLocked ? onEditCopy() : onEdit())}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <PenIcon />
@@ -101,7 +107,7 @@
 
     <button
       bind:this={menuButtonEl}
-      on:click={() => (menuOpen = true)}
+      onclick={() => (menuOpen = true)}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <EllipsisVIcon />
@@ -109,21 +115,21 @@
   {:else}
     <button
       use:tooltip={'Inspect space'}
-      on:click={onEdit}
+      onclick={onEdit}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <EyeIcon />
     </button>
     <button
       use:tooltip={'Restore'}
-      on:click={onUnarchive}
+      onclick={onUnarchive}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <UnarchiveIcon />
     </button>
     <button
       use:tooltip={'Delete permanently'}
-      on:click={onDelete}
+      onclick={onDelete}
       class="w12 flex-shrink-0 bg-white/10 hover:bg-white/20 flexcc b-l b-white/10 h-full text-xl"
     >
       <DeleteIcon />

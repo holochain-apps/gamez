@@ -34,19 +34,6 @@ export default defineConfig({
     __DNA_VERSION__: JSON.stringify(dnaVersion), // Define a global constant
   },
   resolve: {
-    alias: generateAliases(path.resolve(__dirname, './src')),
+    alias: [{ find: '~', replacement: path.resolve(__dirname, './src') }],
   },
 });
-
-function generateAliases(srcPath) {
-  const directories = readdirSync(srcPath, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
-
-  const aliases = directories.reduce((acc, dir) => {
-    acc[`~/${dir}`] = path.resolve(srcPath, dir);
-    return acc;
-  }, {});
-
-  return aliases;
-}

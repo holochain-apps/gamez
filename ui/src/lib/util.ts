@@ -1,9 +1,6 @@
 import type { WeaveUrl } from '@theweave/api';
 import classnames from 'classnames';
-import { readable } from 'svelte/store';
-import type { Readable } from 'svelte/store';
 
-import type { AsyncStatus } from '@holochain-open-dev/stores';
 import {
   type AppClient,
   CellType,
@@ -46,28 +43,28 @@ export type AssetSpec = {
   weaveUrl: WeaveUrl;
 };
 
-export function isComplete<T>(data: AsyncStatus<T>): data is { status: 'complete'; value: T } {
-  return data.status === 'complete';
-}
+// export function isComplete<T>(data: AsyncStatus<T>): data is { status: 'complete'; value: T } {
+//   return data.status === 'complete';
+// }
 
 export const hashToB64 = encodeHashToBase64;
 
 export const b64ToHash = decodeHashFromBase64;
 
-export function waitUntilAvailable<T>(readable: Readable<T | null>): Promise<T> {
-  return new Promise((resolve) => {
-    const unsubscribe = readable.subscribe((data) => {
-      if (data != null) {
-        resolve(data);
-      }
-    });
+// export function waitUntilAvailable<T>(readable: Readable<T | null>): Promise<T> {
+//   return new Promise((resolve) => {
+//     const unsubscribe = readable.subscribe((data) => {
+//       if (data != null) {
+//         resolve(data);
+//       }
+//     });
 
-    setTimeout(() => {
-      unsubscribe();
-      throw new Error('Timed out');
-    }, 5000);
-  });
-}
+//     setTimeout(() => {
+//       unsubscribe();
+//       throw new Error('Timed out');
+//     }, 5000);
+//   });
+// }
 
 export function colorSequence(i: number, max: number): string {
   if (i === -1) return '';

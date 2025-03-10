@@ -1,23 +1,24 @@
 <script lang="ts">
-  import { get } from 'svelte/store';
+  // import { get } from 'svelte/store';
   import CircleInfoIcon from '~icons/fa6-solid/circle-info';
   import BugIcon from '~icons/fa6-solid/bug';
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import UserGroupIcon from '~icons/fa6-solid/user-group';
 
-  import { isWeaveContext } from '@theweave/api';
+  // import { isWeaveContext } from '@theweave/api';
 
-  import { route, goBack } from '~/lib/routes';
+  import R from '~/lib/routes.svelte';
+  import clients from '~/clients';
   import { tooltip } from '~/shared/tooltip';
   import { cx } from '~/lib/util';
 
-  import AboutDialog from './AboutDialog.svelte';
-  import AvatarDialog from './AvatarDialog.svelte';
-  import ParticipantsDialog from './ParticipantsDialog.svelte';
-  import { getContext } from '~/store';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  // import AboutDialog from './AboutDialog.svelte';
+  // import AvatarDialog from './AvatarDialog.svelte';
+  // import ParticipantsDialog from './ParticipantsDialog.svelte';
+  // import { getContext } from '~/store';
+  // import AgentAvatar from '~/shared/AgentAvatar.svelte';
 
-  const { profilesStore, pubKey, weaveClient } = getContext();
+  // const { profilesStore, pubKey, weaveClient } = getContext();
 
   export let title = 'Board Gamez';
   export let canChangeTitle: boolean = false;
@@ -28,8 +29,8 @@
   let editAvatarDialog;
   let participantsDialog;
   //@ts-ignore
-  $: myProfile = get(profilesStore.myProfile).value;
-  $: myName = myProfile ? myProfile.nickname : '';
+  // $: myProfile = get(profilesStore.myProfile).value;
+  // $: myName = myProfile ? myProfile.nickname : '';
 
   const editAvatar = () => {
     editAvatarDialog.open();
@@ -46,15 +47,15 @@
   }
 </script>
 
-<AboutDialog bind:this={aboutDialog} />
-<AvatarDialog bind:this={editAvatarDialog} />
-<ParticipantsDialog bind:this={participantsDialog} />
+<!-- <AboutDialog bind:this={aboutDialog} /> -->
+<!-- <AvatarDialog bind:this={editAvatarDialog} /> -->
+<!-- <ParticipantsDialog bind:this={participantsDialog} /> -->
 
 <div class="flexcc flex-shrink-0 bg-main-400 b-black/10 0 b text-white px2 h-16 space-x-2">
   <!-- LEFT SIDE BUTTONS -->
 
-  {#if $route.id != 'home'}
-    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={goBack}>
+  {#if R.route.id != 'home'}
+    <button class="h12 w12 flexcc hover:bg-black/10 rounded-full" on:click={R.goBack}>
       <ArrowLeftIcon />
     </button>
   {/if}
@@ -96,7 +97,7 @@
     <BugIcon />
   </a>
 
-  {#if !weaveClient}
+  {#if !clients.weave}
     <button
       class="h12 w12 flexcc rounded-full hover:(bg-black/10 text-white)"
       on:click={() => {
@@ -108,13 +109,13 @@
       <UserGroupIcon />
     </button>
 
-    <button
+    <!-- <button
       on:click={editAvatar}
       title={myName ? myName : 'Edit Avatar'}
       class="ml4! flexcc hover:brightness-120"
       use:tooltip={'Edit profile'}
     >
-      <AgentAvatar size={38} {pubKey} />
-    </button>
+      <AgentAvatar size={38} pubKey={clients.agent} />
+    </button> -->
   {/if}
 </div>

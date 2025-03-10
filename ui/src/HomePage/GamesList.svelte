@@ -1,93 +1,76 @@
 <script lang="ts">
   import CaretIcon from '~icons/fa6-solid/caret-down';
-  import { get, derived } from 'svelte/store';
-  import { cloneDeep, zip } from 'lodash';
-  import { getContext, type GameSpace, type GameSpaceSyn } from '~/store';
+  import { getContext, type GameSpace } from '~/store';
   import GamesListItem from './GamesListItem.svelte';
-  import { nav } from '~/lib/routes';
+  import R from '~/lib/routes.svelte';
   import { cx } from '~/lib/util';
+  import clients from '~/clients';
 
-  const store = getContext();
-  $: gameDocs = store.gameDocs;
-  $: gameDocsStates = Object.values($gameDocs).map((gameSpace) => gameSpace.state);
-  $: gameSpaces = derived(gameDocsStates, ($states) => {
-    const loadedGameDocs = zip(Object.values($gameDocs), $states);
-    return loadedGameDocs
-      .filter(([_, $state]) => $state !== null && !$state.isLibraryItem && !$state.isArchived)
-      .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
-  });
-
-  $: archivedGameSpaces = derived(gameDocsStates, ($states) => {
-    const loadedGameDocs = zip(Object.values($gameDocs), $states);
-    return loadedGameDocs
-      .filter(([_, $state]) => $state !== null && !$state.isLibraryItem && $state.isArchived)
-      .sort(([_1, $stA], [_2, $stB]) => $stB.lastChangeAt - $stA.lastChangeAt);
-  });
+  const S = getContext();
 
   async function handlePlay(gameSpaceHash: string) {
-    nav({ id: 'gameSpace', gameSpaceHash });
+    R.nav({ id: 'gameSpace', gameSpaceHash });
   }
 
-  async function handleDuplicate(gameSpace: GameSpace) {
+  async function handleDuplicate(hash: string) {
+    const gameSpace = S.gameSpaces[hash];
     const newGameSpace: GameSpace = {
-      ...cloneDeep(gameSpace),
-      name: `Copy of ${gameSpace.name}`,
-      creator: store.pubKey,
+      ...gameSpace.doc,
+      name: `Copy of ${gameSpace.doc.name}`,
+      creator: clients.agentKeyB64,
     };
-    return await store.createGameSpace(newGameSpace);
+    return await S.cmd('create-gamespace', newGameSpace);
   }
 
   async function handleDelete(gameSpaceHash: string) {
-    await store.deleteGameSpace(gameSpaceHash);
+    await S.cmd('delete-gamespace', gameSpaceHash);
   }
 
-  async function handleArchive(gameSpace: GameSpaceSyn) {
-    gameSpace.change({ type: 'set-is-archived', value: true }, true);
+  async function handleArchive(hash: string) {
+    await S.cmd('archive', hash);
   }
 
-  async function handleUnarchive(gameSpace: GameSpaceSyn) {
-    gameSpace.change({ type: 'set-is-archived', value: false }, true);
+  async function handleUnarchive(hash: string) {
+    await S.cmd('unarchive', hash);
   }
 
-  function handleExport(gameSpace: GameSpaceSyn) {
-    gameSpace.exportAsJson();
+  async function handleExport(hash: string) {
+    await S.cmd('export-as-json', hash);
   }
 
-  let showArchive = false;
+  let showArchive = $state<boolean>(false);
 </script>
 
 <div class="flex flex-col px2 pt2 space-y-2 h-full">
-  {#each $gameSpaces as [gameSpace, $state] (gameSpace.hash)}
+  {#each Object.entries(S.gameSpaces) as [hash, gameSpace] (hash)}
     <GamesListItem
-      gameSpace={$state}
-      onPlay={() => handlePlay(gameSpace.hash)}
-      onDuplicate={() => handleDuplicate($state)}
-      onArchive={() => handleArchive(gameSpace)}
-      onDelete={() => handleDelete(gameSpace.hash)}
-      onExport={() => handleExport(gameSpace)}
+      gameSpaceDoc={gameSpace}
+      onPlay={() => handlePlay(hash)}
+      onDuplicate={() => handleDuplicate(hash)}
+      onArchive={() => handleArchive(hash)}
+      onDelete={() => handleDelete(hash)}
+      onExport={() => handleExport(hash)}
     />
   {/each}
 
   <div class="flex-grow"></div>
-  {#if $archivedGameSpaces.length !== 0}
+  {#if Object.keys(S.archivedGameSpaces).length > 0}
     <button
       class="bg-main-200 -mx-2 p2 pr3 text-white flexcc text-left"
-      on:click={() => (showArchive = !showArchive)}
+      onclick={() => (showArchive = !showArchive)}
     >
       <div class="flex-grow">Archive</div>
       <CaretIcon class={cx('transition-transform', { 'rotate-180': !showArchive })} />
     </button>
     {#if showArchive}
       <div class="flex flex-col pb2 space-y-2">
-        {#each $archivedGameSpaces as [gameSpace, $state] (gameSpace.hash)}
-          {#if $state}
-            <GamesListItem
-              gameSpace={$state}
-              onEdit={() => handlePlay(gameSpace.hash)}
-              onUnarchive={() => handleUnarchive(gameSpace)}
-              onDelete={() => handleDelete(gameSpace.hash)}
-            />
-          {/if}
+        {#each Object.entries(S.archivedGameSpaces) as [hash, gameSpace] (hash)}
+          <GamesListItem
+            gameSpaceDoc={gameSpace}
+            onEdit={() => handlePlay(hash)}
+            onUnarchive={() => handleUnarchive(hash)}
+            onDelete={() => handleDelete(hash)}
+          />
         {/each}
       </div>
     {/if}

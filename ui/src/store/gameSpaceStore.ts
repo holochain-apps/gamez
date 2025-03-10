@@ -17,7 +17,7 @@ export type GameSpaceSyn = ReturnType<typeof createGameSpaceSynStore>;
 
 export function createGameSpaceSynStore(
   synDoc: SynDoc,
-  context: { weaveClient?: WeaveClient; toAsset: (gameSpaceHash: string) => WAL },
+  context: { toAsset: (gameSpaceHash: string) => WAL },
 ) {
   console.log('SYN DOC', synDoc);
   const state = synDoc.state as Writable<GameSpace>;
@@ -146,8 +146,6 @@ export function createGameSpaceSynStore(
       console.time('Running deltas');
       for (const delta of deltas) {
         applyDelta(delta, state, {
-          pubKey,
-          weaveClient: context.weaveClient,
           asAsset: () => context.toAsset(hash),
         });
       }

@@ -1,5 +1,3 @@
-import { get, writable } from 'svelte/store';
-
 export type Route =
   | {
       id: 'home';
@@ -25,13 +23,19 @@ export type Route =
     };
 
 const history: Route[] = [];
-const route = writable<Route>({ id: 'home' });
+let route = $state<Route>({ id: 'home' });
 const nav = (newRoute: Route) => {
-  history.push(get(route));
-  route.set(newRoute);
+  history.push(route);
+  route = newRoute;
 };
 const goBack = () => {
   nav(history.pop());
 };
 
-export { route, nav, goBack };
+export default {
+  get route() {
+    return route;
+  },
+  nav,
+  goBack,
+};

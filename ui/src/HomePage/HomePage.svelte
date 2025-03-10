@@ -3,37 +3,26 @@
   import { getContext } from '~/store';
   import LayoutBar from '~/Layout/LayoutBar.svelte';
   import GamesList from './GamesList.svelte';
-  import { nav } from '~/lib/routes';
+  import R from '~/lib/routes.svelte';
   import LibraryList from './LibraryList.svelte';
-  import ModalPrompt from '~/shared/ModalPrompt.svelte';
+  // import ModalPrompt from '~/shared/ModalPrompt.svelte';
   import { getModalPromptContext } from '~/shared/ModalPromptContextWrapper.svelte';
 
-  const store = getContext();
-
-  type Tab = 'active' | 'library' | 'globalLibrary' | 'draft' | 'archived';
-  let activeTab: Tab = 'active';
-  function setActiveTab(tab: Tab) {
-    activeTab = tab;
-  }
-
-  // let activeTab2: Tab = 'groupLibrary';
-  // function setActiveTab2(tab: Tab) {
-  //   activeTab2 = tab;
-  // }
+  const S = getContext();
 
   async function handleCreateNewSpace() {
-    const hash = await store.createGameSpace();
-    nav({ id: 'gameSpace', gameSpaceHash: hash });
+    const hash = await S.cmd('create-gamespace', {});
+    R.nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
   async function handleImport() {
-    const hash = await store.importFromJson();
-    nav({ id: 'gameSpace', gameSpaceHash: hash });
+    const hash = await S.cmd('import-from-json');
+    R.nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
   async function handleNewLibraryItem(name: string) {
-    const hash = await store.createGameSpace({ isLibraryItem: true, name });
-    nav({ id: 'gameSpace', gameSpaceHash: hash });
+    const hash = await S.cmd('create-gamespace', { isLibraryItem: true, name });
+    R.nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
   const { open: openModalPrompt } = getModalPromptContext();
@@ -41,18 +30,6 @@
 
 <LayoutBar title={'Gamez'} />
 
-<!-- <div class="h12 flex bg-main-500">
-  <button
-    on:click={handleImport}
-    class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
-    >Import</button
-  >
-  <button
-    on:click={handleCreateNewSpace}
-    class="bg-white/10 my2 mr2 rounded-md b b-white/10 text-white/80 text-sm uppercase px2 hover:bg-white/20"
-    >New Draft</button
-  >
-</div> -->
 <div class="flex-grow h-0 flex">
   <div class="flex-grow overflow-auto">
     <GamesList />

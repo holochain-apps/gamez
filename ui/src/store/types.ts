@@ -1,6 +1,6 @@
 import type { WeaveUrl } from '@theweave/api';
 
-import * as elements from '~/GameSpace/elements';
+// import * as elements from '~/GameSpace/elements';
 
 export const VERSION = 9;
 
@@ -72,15 +72,17 @@ export type GElementBase = {
   wals: WeaveUrl[];
 };
 
-export type GElement =
-  | elements.Piece.ElType
-  | elements.Image.ElType
-  | elements.PieceSource.ElType
-  | elements.EmbedWal.ElType
-  | elements.PlayerPiece.ElType
-  | elements.PlayerPieceSource.ElType
-  | elements.Dice.ElType
-  | elements.TurnTracker.ElType;
+export type GElement = any;
+
+// export type GElement =
+//   | elements.Piece.ElType
+//   | elements.Image.ElType
+//   | elements.PieceSource.ElType
+//   | elements.EmbedWal.ElType
+//   | elements.PlayerPiece.ElType
+//   | elements.PlayerPieceSource.ElType
+//   | elements.Dice.ElType
+//   | elements.TurnTracker.ElType;
 
 export type LibraryConfig = {
   type: string;
