@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { derived, get } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
@@ -10,49 +9,46 @@
   import R from '~/lib/routes.svelte';
 
   import {
-    type GameSpaceSyn,
+    // type GameSpaceSyn,
     type GElement,
-    type LibraryElement,
+    // type LibraryElement,
     type PlayerSlot,
     createElement,
     getContext,
   } from '~/store';
 
   import Surface from './Surface.svelte';
-  import PeopleBar from './topbar/PeopleBar.svelte';
+  // import PeopleBar from './topbar/PeopleBar.svelte';
   import SidebarToggleButton from './topbar/SidebarToggleButton.svelte';
   import ElementsLibrary from './sidebar/ElementsLibrary.svelte';
   import SpaceConfigurator from './sidebar/SpaceConfigurator.svelte';
-  import ConfigMenu from './ConfigMenu';
+  // import ConfigMenu from './ConfigMenu';
   import { tooltip } from '~/shared/tooltip';
   import { cloneDeep } from 'lodash';
-  import { COLORS, colorSequence, uuid } from '~/lib/util';
+  import { b64ToHash, COLORS, colorSequence, uuid } from '~/lib/util';
   import NameTitleInput from './ui/NameTitleInput.svelte';
-  import ActivityLog from './topbar/ActivityLog.svelte';
+  // import ActivityLog from './topbar/ActivityLog.svelte';
   import Instructions from './ui/Instructions.svelte';
   import clients from '~/clients';
+  import type { LibraryElement } from '~/store/library';
 
-  export let gameSpace: GameSpaceSyn;
-  export let asAsset: boolean = false;
-  $: state = gameSpace.state;
-  $: allParticipants = gameSpace.participants;
-  $: participants = derived(allParticipants, ($p) => $p?.active || []);
-  $: canJoinGame = gameSpace.canJoinGame;
-  $: canLeaveGame = gameSpace.canLeaveGame;
-  $: isSteward = gameSpace.isSteward;
-  $: permissions = gameSpace.permissions;
+  const { hash, useAssetView }: { hash: string; useAssetView: boolean } = $props();
+  const S = getContext();
 
-  // const { addToPocket, weaveClient } = getContext();
-  function addToPocket(...any) {}
+  console.log(hash, S.docs, S.docs[hash]);
 
-  let sidebar: 'none' | 'elementsLibrary' | 'configurator' = asAsset ? 'none' : 'elementsLibrary';
+  const GS = $derived(S.docs[hash]);
+
+  let sidebar = $state<'none' | 'elementsLibrary' | 'configurator'>(
+    useAssetView ? 'none' : 'elementsLibrary',
+  );
 
   onMount(async () => {
-    await gameSpace.joinSession();
+    GS.cmd('join-session');
   });
 
   onDestroy(() => {
-    gameSpace.leaveSession();
+    GS.cmd('leave-session');
   });
 
   const toggleSidebar = (value: typeof sidebar) => {
@@ -63,7 +59,7 @@
     }
   };
 
-  let contextMenuState: { id: string; x: number; y: number } | null = null;
+  let contextMenuState = $state<{ id: string; x: number; y: number } | null>(null);
   function handleContextMenu(id: string, x: number, y: number) {
     contextMenuState = { id, x, y };
   }
@@ -73,210 +69,198 @@
   }
 
   function handleUpdateElement(el: Partial<GElement>) {
-    gameSpace.change({ type: 'update-element', element: { ...el } });
+    GS.cmd('update-element', el);
   }
 
   function handleRemoveElement(id: string) {
-    gameSpace.change({ type: 'remove-element', uuid: id });
+    GS.cmd('remove-element', id);
     closeContextMenu();
   }
 
   function handleDuplicateElement(id: string) {
-    const el = $state.elements.find((el) => el.uuid === id);
+    const el = GS.elements.find((el) => el.uuid === id);
     if (!el) return;
     const newEl = cloneDeep(el);
     newEl.uuid = uuid();
     newEl.x += 5;
     newEl.y += 5;
-    console.log(newEl);
-    gameSpace.change({ type: 'add-element', element: newEl });
+    GS.cmd('add-element', newEl);
     contextMenuState = { id: newEl.uuid, x: contextMenuState.x + 5, y: contextMenuState.y + 5 };
   }
 
   function handleAddElementFromLibrary(element: LibraryElement, x?: number, y?: number) {
-    const surfaceCoords =
-      x && y ? gameSpace.getSurfaceCoordinates(x, y) : gameSpace.getCurrentCenter();
+    const surfaceCoords = x && y ? GS.getSurfaceCoordinates(x, y) : GS.getCurrentCenter();
     if (surfaceCoords) {
-      gameSpace.change({
-        type: 'add-element',
-        element: createElement(element, surfaceCoords.x, surfaceCoords.y, gameSpace),
-      });
+      GS.cmd('add-element', createElement(element, surfaceCoords.x, surfaceCoords.y, GS));
     }
-  }
-
-  function handleAddToPocket() {
-    addToPocket(gameSpace);
   }
 
   function handleNameChange(name: string) {
-    gameSpace.change({ type: 'set-name', name });
+    GS.cmd('update', { name });
+    // gameSpace.change({ type: 'set-name', name });
   }
 
   function handleIconChange(icon: string) {
-    gameSpace.change({ type: 'set-icon', icon });
+    GS.cmd('update', { icon });
   }
 
   function handleMaxPlayersSlotsChange(maxPlayersSlots: number) {
-    if (maxPlayersSlots === 0 || maxPlayersSlots === $state.playersSlots.length) {
+    if (maxPlayersSlots === 0 || maxPlayersSlots === GS.playersSlots.length) {
       return;
     }
 
-    let newPlayersSlots = cloneDeep($state.playersSlots).slice(0, maxPlayersSlots);
+    let newPlayersSlots = GS.playersSlots.slice(0, maxPlayersSlots);
     if (newPlayersSlots.length < maxPlayersSlots) {
       for (let i = newPlayersSlots.length; i < maxPlayersSlots; i++) {
         newPlayersSlots.push({ color: COLORS[0], pubKey: null });
       }
     }
 
-    gameSpace.change({ type: 'set-players-slots', playersSlots: newPlayersSlots });
+    GS.cmd('update', { playersSlots: newPlayersSlots });
   }
 
   function handleApplyColors() {
-    let newPlayersSlots = cloneDeep($state.playersSlots);
+    let newPlayersSlots = { ...GS.playersSlots };
 
     for (let i = 0; i < newPlayersSlots.length; i++) {
       newPlayersSlots[i].color = colorSequence(i, newPlayersSlots.length);
     }
 
-    gameSpace.change({ type: 'set-players-slots', playersSlots: newPlayersSlots });
+    GS.cmd('update', { playersSlots: newPlayersSlots });
   }
 
   function handlePlayersSlotsChange(playersSlots: PlayerSlot[]) {
-    gameSpace.change({ type: 'set-players-slots', playersSlots });
+    GS.cmd('update', { playersSlots });
   }
 </script>
 
-{#if $state}
-  <Instructions />
-  <div class="h-full flex flex-col">
-    <!-- ████████╗ ██████╗ ██████╗     ██████╗  █████╗ ██████╗
+<Instructions />
+<div class="h-full flex flex-col">
+  <!-- ████████╗ ██████╗ ██████╗     ██████╗  █████╗ ██████╗
         ╚══██╔══╝██╔═══██╗██╔══██╗    ██╔══██╗██╔══██╗██╔══██╗
           ██║   ██║   ██║██████╔╝    ██████╔╝███████║██████╔╝
           ██║   ██║   ██║██╔═══╝     ██╔══██╗██╔══██║██╔══██╗
          ██║   ╚██████╔╝██║         ██████╔╝██║  ██║██║  ██║
          ╚═╝    ╚═════╝ ╚═╝         ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
                                                             -->
-    <div class="bg-main-400 h-12 pl1 flexcc relative">
-      {#if !asAsset}
+  <div class="bg-main-400 h-12 pl1 flexcc relative">
+    {#if !useAssetView}
+      <button
+        class="h10 w10 flexcc mr1 hover:bg-black/10 rounded-full text-white"
+        onclick={R.goBack}
+      >
+        <ArrowLeftIcon />
+      </button>
+      {#if clients.weave && !GS.permissions.isArchived}
         <button
-          class="h10 w10 flexcc mr1 hover:bg-black/10 rounded-full text-white"
-          on:click={R.goBack}
+          onclick={() => GS.cmd('add-to-pocket')}
+          use:tooltip={'Add to pocket'}
+          class="h-10 w-10 p2 mr1 flexcc hover:bg-black/10 rounded-full text-white"
         >
-          <ArrowLeftIcon />
+          <PocketIcon class="h-full w-full" />
         </button>
-        {#if clients.weave && !$permissions.isArchived}
-          <button
-            on:click={handleAddToPocket}
-            use:tooltip={'Add to pocket'}
-            class="h-10 w-10 p2 mr1 flexcc hover:bg-black/10 rounded-full text-white"
-          >
-            <PocketIcon class="h-full w-full" />
-          </button>
-        {/if}
       {/if}
+    {/if}
 
-      {#if !$permissions.isArchived && $state.isLibraryItem}
-        <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
-          <GearIcon />
+    {#if !GS.permissions.isArchived && GS.isLibraryItem}
+      <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
+        <GearIcon />
+      </SidebarToggleButton>
+      {#if GS.isSteward}
+        <SidebarToggleButton current={sidebar} value="elementsLibrary" onClick={toggleSidebar}>
+          <CubesIcon />
         </SidebarToggleButton>
-        {#if $isSteward}
-          <SidebarToggleButton current={sidebar} value="elementsLibrary" onClick={toggleSidebar}>
-            <CubesIcon />
-          </SidebarToggleButton>
-        {/if}
       {/if}
-      {#if $state.isLibraryItem}
-        <div use:tooltip={'This is a library item'} class="p1 bg-blue-400 ml2 text-white rounded-md"
-          ><BookIcon /></div
-        >
-      {/if}
-      {#if !asAsset}
-        <NameTitleInput
-          value={$state.name}
-          disabled={$permissions.isArchived}
-          onChange={handleNameChange}
-        />
-      {/if}
-      <div class="flex-grow"></div>
-      {#if !$permissions.isArchived}
-        <PeopleBar
-          pubKey={gameSpace.pubKey}
-          canJoinGame={$canJoinGame}
-          canLeaveGame={$canLeaveGame}
-          playersSlots={$state.playersSlots}
-          participants={$participants}
-          onJoin={() => gameSpace.joinGame()}
-          onLeave={() => gameSpace.leaveGame()}
-          onChangePlayersSlots={handlePlayersSlotsChange}
-          canChangeSlots={$state.isLibraryItem}
-        />
-      {/if}
-      {#if !$state.isLibraryItem}
-        <ActivityLog {gameSpace} />
-      {/if}
-    </div>
+    {/if}
+    {#if GS.isLibraryItem}
+      <div use:tooltip={'This is a library item'} class="p1 bg-blue-400 ml2 text-white rounded-md"
+        ><BookIcon /></div
+      >
+    {/if}
+    {#if !useAssetView}
+      <NameTitleInput
+        value={GS.name}
+        disabled={GS.permissions.isArchived}
+        onChange={handleNameChange}
+      />
+    {/if}
+    <div class="flex-grow"></div>
+    {#if !GS.permissions.isArchived}
+      <!-- <PeopleBar
+        pubKey={clients.agentKeyB64}
+        canJoinGame={GS.canJoinGame}
+        canLeaveGame={GS.canLeaveGame}
+        playersSlots={GS.playersSlots}
+        participants={GS.participants.active.map(b64ToHash)}
+        onJoin={() => GS.cmd('join-game')}
+        onLeave={() => GS.cmd('leave-game')}
+        onChangePlayersSlots={handlePlayersSlotsChange}
+        canChangeSlots={GS.isLibraryItem}
+      /> -->
+    {/if}
+    {#if !GS.isLibraryItem}
+      <!-- <ActivityLog gameSpace={GS} /> -->
+    {/if}
+  </div>
 
-    <!-- ███╗   ███╗ █████╗ ██╗███╗   ██╗    ███████╗██████╗  █████╗  ██████╗███████╗
+  <!-- ███╗   ███╗ █████╗ ██╗███╗   ██╗    ███████╗██████╗  █████╗  ██████╗███████╗
         ████╗ ████║██╔══██╗██║████╗  ██║    ██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝
         ██╔████╔██║███████║██║██╔██╗ ██║    ███████╗██████╔╝███████║██║     █████╗
         ██║╚██╔╝██║██╔══██║██║██║╚██╗██║    ╚════██║██╔═══╝ ██╔══██║██║     ██╔══╝
        ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║    ███████║██║     ██║  ██║╚██████╗███████╗
       ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝    ╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝
                                                                                  -->
-    <div class="flex flex-grow relative">
-      {#if !$permissions.isArchived && $state.isLibraryItem}
-        {#if sidebar === 'elementsLibrary' && $isSteward}
-          <ElementsLibrary
-            onAdd={handleAddElementFromLibrary}
-            canAdd={$permissions.canAddComponents}
-          />
-        {:else if sidebar === 'configurator'}
-          {#if state}
-            <SpaceConfigurator
-              creator={$state.creator}
-              name={$state.name}
-              onNameChange={handleNameChange}
-              icon={$state.icon}
-              onIconChange={handleIconChange}
-              maxPlayersSlots={$state.playersSlots.length}
-              onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
-              onApplyColors={handleApplyColors}
-              canEdit={$permissions.canEditSpace}
-            />
-          {/if}
-        {/if}
+  <div class="flex flex-grow relative">
+    {#if !GS.permissions.isArchived && GS.isLibraryItem}
+      {#if sidebar === 'elementsLibrary' && GS.isSteward}
+        <ElementsLibrary
+          onAdd={handleAddElementFromLibrary}
+          canAdd={GS.permissions.canAddComponents}
+        />
+      {:else if sidebar === 'configurator'}
+        <SpaceConfigurator
+          creator={GS.creator}
+          name={GS.name}
+          onNameChange={handleNameChange}
+          icon={GS.icon}
+          onIconChange={handleIconChange}
+          maxPlayersSlots={GS.playersSlots.length}
+          onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
+          onApplyColors={handleApplyColors}
+          canEdit={GS.permissions.canEditSpace}
+        />
       {/if}
-      <Surface
-        {gameSpace}
-        elements={$state.elements}
-        onMoveElement={(uuid, x, y) => {
-          gameSpace.change({ type: 'move-element', uuid, x, y });
-        }}
-        onResizeElement={(uuid, width, height) => {
-          gameSpace.change({ type: 'resize-element', uuid, width, height });
-        }}
-        onRotateElement={(uuid, rotation) => {
-          gameSpace.change({ type: 'rotate-element', uuid, rotation });
-        }}
-        canOpenConfigMenu={$state.isLibraryItem}
-        onContextMenu={handleContextMenu}
-      />
-    </div>
-  </div>
-  {#if contextMenuState}
-    <ConfigMenu
-      x={contextMenuState.x}
-      y={contextMenuState.y}
-      onClose={closeContextMenu}
-      el={(() => {
-        state; // trigger reactivity
-        return gameSpace.el(contextMenuState.id);
-      })()}
-      {gameSpace}
-      onUpdateEl={handleUpdateElement}
-      onMoveZ={(z) => gameSpace.change({ type: 'move-z', uuid: contextMenuState.id, z })}
-      onRemoveEl={() => handleRemoveElement(contextMenuState.id)}
-      onDuplicate={() => handleDuplicateElement(contextMenuState.id)}
+    {/if}
+    <Surface
+      gameSpace={GS}
+      elements={GS.elements}
+      onMoveElement={(uuid, x, y) => {
+        GS.cmd('update-element', { uuid, x, y });
+        // gameSpace.change({ type: 'move-element', uuid, x, y });
+      }}
+      onResizeElement={(uuid, width, height) => {
+        GS.cmd('update-element', { uuid, width, height });
+        // gameSpace.change({ type: 'resize-element', uuid, width, height });
+      }}
+      onRotateElement={(uuid, rotation) => {
+        GS.cmd('update-element', { uuid, rotation });
+        // gameSpace.change({ type: 'rotate-element', uuid, rotation });
+      }}
+      canOpenConfigMenu={GS.isLibraryItem}
+      onContextMenu={handleContextMenu}
     />
-  {/if}
+  </div>
+</div>
+{#if contextMenuState}
+  <!-- <ConfigMenu
+    x={contextMenuState.x}
+    y={contextMenuState.y}
+    onClose={closeContextMenu}
+    el={GS.el(contextMenuState.id)}
+    gameSpace={GS}
+    onUpdateEl={handleUpdateElement}
+    onMoveZ={(z) => GS.cmd('move-z', contextMenuState.id, z)}
+    onRemoveEl={() => handleRemoveElement(contextMenuState.id)}
+    onDuplicate={() => handleDuplicateElement(contextMenuState.id)}
+  /> -->
 {/if}

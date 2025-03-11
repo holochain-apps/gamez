@@ -15,8 +15,8 @@
   async function handleDuplicate(hash: string) {
     const gameSpace = S.gameSpaces[hash];
     const newGameSpace: GameSpace = {
-      ...gameSpace.doc,
-      name: `Copy of ${gameSpace.doc.name}`,
+      ...gameSpace,
+      name: `Copy of ${gameSpace.name}`,
       creator: clients.agentKeyB64,
     };
     return await S.cmd('create-gamespace', newGameSpace);
@@ -44,7 +44,7 @@
 <div class="flex flex-col px2 pt2 space-y-2 h-full">
   {#each Object.entries(S.gameSpaces) as [hash, gameSpace] (hash)}
     <GamesListItem
-      gameSpaceDoc={gameSpace}
+      {gameSpace}
       onPlay={() => handlePlay(hash)}
       onDuplicate={() => handleDuplicate(hash)}
       onArchive={() => handleArchive(hash)}
@@ -66,7 +66,7 @@
       <div class="flex flex-col pb2 space-y-2">
         {#each Object.entries(S.archivedGameSpaces) as [hash, gameSpace] (hash)}
           <GamesListItem
-            gameSpaceDoc={gameSpace}
+            {gameSpace}
             onEdit={() => handlePlay(hash)}
             onUnarchive={() => handleUnarchive(hash)}
             onDelete={() => handleDelete(hash)}

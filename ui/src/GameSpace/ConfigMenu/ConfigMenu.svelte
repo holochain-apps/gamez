@@ -3,7 +3,7 @@
   import TrashIcon from '~icons/fa6-solid/trash';
   import CloneIcon from '~icons/fa6-solid/clone';
 
-  import { type GElement, type LockConfig, type GameSpaceSyn } from '~/store';
+  import { type GElement, type LockConfig, GameSpace } from '~/store';
   import LockConfigEl from './LockConfig.svelte';
   import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';
@@ -19,10 +19,9 @@
   export let onClose: () => void;
   export let onDuplicate: () => void;
   export let el: GElement;
-  export let gameSpace: GameSpaceSyn;
+  export let gameSpace: GameSpace;
 
-  $: permissions = gameSpace.permissions;
-  $: resolvedLock = !$permissions.canEditComponents
+  $: resolvedLock = !gameSpace.permissions.canEditComponents
     ? { position: true, size: true, rotation: true, config: true, wals: true, remove: true }
     : el.lock;
 
@@ -104,7 +103,7 @@
   <LockConfigEl
     onLock={handleLockUpdate}
     lockConfig={el.lock}
-    canEditLock={$permissions.canEditComponents}
+    canEditLock={gameSpace.permissions.canEditComponents}
   />
 
   <svelte:component

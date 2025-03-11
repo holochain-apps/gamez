@@ -5,10 +5,10 @@
   // import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
   import ModalPromptContextWrapper from './shared/ModalPromptContextWrapper.svelte';
   import clients from './clients';
-  import { createStoreContext, getContext, type GameSpace } from './store';
-  import { initialState } from './store/grammar';
+  import { createStoreContext, getContext } from './store';
   import R from '~/lib/routes.svelte';
-  import NewGameSpace from './NewGameSpace.svelte';
+  // import NewGameSpace from './GameSpace/NewGameSpace.svelte';
+  import GameSpace from './GameSpace/GameSpace.svelte';
   import { cx } from './lib/util';
   import HomePage from './HomePage/HomePage.svelte';
 
@@ -32,7 +32,7 @@
     {/each} -->
     <!-- <button onclick={() => S.cmd('create-document', initialState())}>Create document</button> -->
   {:else if R.route.id === 'gameSpace'}
-    <NewGameSpace hash={R.route.gameSpaceHash} />
+    <GameSpace hash={R.route.gameSpaceHash} useAssetView={!!clients.wal} />
   {/if}
   <!-- <ControllerCreatable view={state.view} /> -->
 </ModalPromptContextWrapper>

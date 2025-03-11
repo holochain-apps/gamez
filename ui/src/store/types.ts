@@ -6,21 +6,21 @@ export const VERSION = 9;
 
 export type AgentKey = string;
 
-export type GameSpace = {
-  version: typeof VERSION;
-  icon: string;
-  name: string;
-  creator: string;
-  elements: GElement[];
-  wals: WeaveUrl[];
-  isStewarded: boolean;
-  isLibraryItem: boolean;
-  isArchived: boolean;
-  playersSlots: PlayerSlot[];
-  lastChangeAt: number;
-  activityLog: Log[];
-  notificationsConfigOverride: Record<AgentKey, Partial<NotificationsConfig>>;
-};
+// export type GameSpace = {
+//   version: typeof VERSION;
+//   icon: string;
+//   name: string;
+//   creator: string;
+//   elements: GElement[];
+//   wals: WeaveUrl[];
+//   isStewarded: boolean;
+//   isLibraryItem: boolean;
+//   isArchived: boolean;
+//   playersSlots: PlayerSlot[];
+//   lastChangeAt: number;
+//   activityLog: Log[];
+//   notificationsConfigOverride: Record<AgentKey, Partial<NotificationsConfig>>;
+// };
 
 export const DEFAULT_NOTIFICATIONS_CONFIG: NotificationsConfig = {
   turn: true,

@@ -1,18 +1,18 @@
 <script lang="ts">
   import RectangleListIcon from '~icons/fa6-solid/rectangle-list';
-  import { type GameSpaceSyn } from '~/store';
+  import { type GameSpace } from '~/store';
   import type { DiceElement, Roll, Die as DieType } from './type';
   import Die from './Die.svelte';
   import AgentName from '~/shared/AgentName.svelte';
   import PlayerIcon from '../../ui/PlayerIcon.svelte';
+  import clients from '~/clients';
 
   export let el: DiceElement;
-  export let gameSpace: GameSpaceSyn;
+  export let gameSpace: GameSpace;
   export let isLocked: boolean;
-  $: state = gameSpace.state;
 
-  $: slotIndex = $state.playersSlots.findIndex((s) => s.pubKey === gameSpace.pubKey);
-  $: playerSlot = slotIndex !== -1 ? $state.playersSlots[slotIndex] : null;
+  $: slotIndex = gameSpace.playersSlots.findIndex((s) => s.pubKey === clients.agentKeyB64);
+  $: playerSlot = slotIndex !== -1 ? gameSpace.playersSlots[slotIndex] : null;
   $: canPlay = playerSlot && !isLocked;
 
   function handleContainerClick() {
@@ -26,7 +26,7 @@
     // Optimization for snappier interface
     lastRoll = roll;
     setTimeout(() => {
-      gameSpace.change({ type: 'update-element', element: { uuid: el.uuid, rolls } });
+      gameSpace.cmd('update-element', { uuid: el.uuid, rolls });
     }, 50);
   }
 
@@ -51,12 +51,13 @@
 </script>
 
 <div
+  role="presentation"
   class="relative h-full w-full bg-green-7 b-4 b-yellow-8 b-b-8 shadow-[inset_0_3px_8px_3px_#0003] rounded-lg"
-  on:click={handleContainerClick}
+  onclick={handleContainerClick}
 >
   <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
   {#if showLastRoll}
-    {@const playerSlot = $state.playersSlots[lastRoll.playerSlot]}
+    {@const playerSlot = gameSpace.playersSlots[lastRoll.playerSlot]}
     {#if playerSlot}
       <div class="z-20 absolute -top-2 -left-2"
         ><PlayerIcon
@@ -82,17 +83,17 @@
   {#if el.rolls.length > 0}
     <button
       class="absolute -top-2 -right-2 text-xs bg-gray-200 hover:bg-gray-100 rounded-md h6 w6 z-30 flexcc b b-black/10"
-      on:click={handleToggleLog}><RectangleListIcon /></button
+      onclick={handleToggleLog}><RectangleListIcon /></button
     >
   {/if}
   {#if showLog}
     <div
       class="absolute -top-1 right-8 z-110 bg-gray-200 rounded-md p1 text-[8px] b b-black/10 shadow-md text-right font-mono overflow-auto whitespace-nowrap"
-      on:wheel={(ev) => ev.stopPropagation()}
+      onwheel={(ev) => ev.stopPropagation()}
       style={`max-height: ${el.height}px;`}
     >
       {#each el.rolls.toReversed() as roll}
-        {@const playerSlot = $state.playersSlots[roll.playerSlot]}
+        {@const playerSlot = gameSpace.playersSlots[roll.playerSlot]}
 
         <div>
           {#if playerSlot && playerSlot.pubKey}

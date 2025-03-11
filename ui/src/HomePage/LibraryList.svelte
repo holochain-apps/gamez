@@ -23,7 +23,7 @@
   async function handleDuplicate(sourceHash: string, name: string) {
     const gameSpace = S.libraryItems[sourceHash]!;
     const newGameSpace: GameSpace = {
-      ...gameSpace.doc,
+      ...gameSpace,
       name,
       creator: clients.agentKeyB64,
     };
@@ -31,18 +31,11 @@
   }
 
   async function handleDelete(gameSpaceHash: string) {
-    // await store.deleteGameSpace(gameSpaceHash);
     await S.cmd('delete-gamespace', gameSpaceHash);
   }
 
   async function handleEdit(gameSpaceHash: string) {
     R.nav({ id: 'gameSpace', gameSpaceHash });
-  }
-
-  async function handleEditCopy(sourceHash: string) {
-    const gameSpace = S.libraryItems[sourceHash]!;
-    const hash = await handleDuplicate(sourceHash, gameSpace.doc.name);
-    R.nav({ id: 'gameSpace', gameSpaceHash: hash });
   }
 
   async function handleArchive(hash: string) {
@@ -65,18 +58,18 @@
 <div class="flex flex-col px2 pt2 space-y-2 h-full">
   {#each Object.entries(S.libraryItems) as [hash, gameSpace] (hash)}
     <LibraryListItem
-      gameSpaceDoc={gameSpace}
+      {gameSpace}
       isLocked={false}
       onPlay={() =>
         openModalPrompt({
           title: 'Create new game space',
-          onConfirm: (name) => handlePlayFromLibrary(gameSpace.doc, name),
+          onConfirm: (name) => handlePlayFromLibrary(gameSpace, name),
           placeholder: 'Name',
-          defaultValue: gameSpace.doc.name,
+          defaultValue: gameSpace.name,
         })}
       onArchive={() => handleArchive(hash)}
       onEdit={() => handleEdit(hash)}
-      onDuplicate={() => handleDuplicate(hash, `Copy of ${gameSpace.doc.name}`)}
+      onDuplicate={() => handleDuplicate(hash, `Copy of ${gameSpace.name}`)}
       onDelete={() => handleDelete(hash)}
       onExport={() => handleExport(hash)}
     />
@@ -94,7 +87,7 @@
       <div class="flex flex-col pb2 space-y-2">
         {#each Object.entries(S.archivedGameSpaces) as [hash, gameSpace] (hash)}
           <LibraryListItem
-            gameSpaceDoc={gameSpace}
+            {gameSpace}
             isLocked={false}
             onUnarchive={() => handleUnarchive(hash)}
             onEdit={() => handleEdit(hash)}

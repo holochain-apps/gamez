@@ -9,10 +9,9 @@
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
   // import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import { tooltip } from '~/shared/tooltip';
-  import type { DocStore } from '~/store/docs.svelte';
 
   const {
-    gameSpaceDoc,
+    gameSpace,
     onPlay,
     onDuplicate,
     onEdit,
@@ -21,7 +20,7 @@
     onUnarchive,
     onExport,
   }: {
-    gameSpaceDoc: DocStore<GameSpace>;
+    gameSpace: GameSpace;
     onPlay?: () => void;
     onDuplicate?: () => void;
     onEdit?: () => void;
@@ -30,8 +29,6 @@
     onUnarchive?: () => void;
     onExport?: () => void;
   } = $props();
-
-  const gameSpace = $derived(gameSpaceDoc.doc);
 
   let menuOpen = $state<boolean>(false);
   let menuButtonEl = $state<HTMLButtonElement>(null!);

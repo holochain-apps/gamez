@@ -1,4 +1,4 @@
-import type { WeaveUrl } from '@theweave/api';
+import type { WAL, WeaveUrl } from '@theweave/api';
 import classnames from 'classnames';
 
 import {
@@ -9,6 +9,8 @@ import {
   encodeHashToBase64,
   type EntryHash,
 } from '@holochain/client';
+
+import clients from '~/clients';
 
 export { v1 as uuid } from 'uuid';
 
@@ -155,3 +157,54 @@ export const timeFormat = (date: Date): string => {
   };
   return new Intl.DateTimeFormat('en-US', options).format(date);
 };
+
+export function importFromJson(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', (e: any) => {
+      const file = e.currentTarget.files[0];
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const text = e.target.result as string;
+        const state = JSON.parse(text);
+        return state;
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  });
+}
+export function exportAsJson(fileName: string, val: any) {
+  const jsonString = JSON.stringify(val, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export function filterMap<T>(map: { [key: string]: T }, filterBy: (value: T) => boolean) {
+  return Object.entries(map).reduce(
+    (all, [key, value]) => {
+      if (filterBy(value)) {
+        all[key] = value;
+      }
+      return all;
+    },
+    {} as { [key: string]: T },
+  );
+}
+
+export function toAsset(hash: string): WAL {
+  if (clients.weave) {
+    return {
+      hrl: [clients.dnaHash, decodeHashFromBase64(hash)],
+      context: {},
+    };
+  }
+  return null;
+}

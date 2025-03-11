@@ -1,5 +1,5 @@
 import * as elements from '../GameSpace/elements';
-import { type GameSpaceSyn } from './gameSpaceStore';
+import { type GameSpace } from './main.svelte';
 import { type GElement, type LibraryConfig } from './types';
 
 export type LibraryElement = {
@@ -17,7 +17,7 @@ export function createElement(
   libraryEl: LibraryElement,
   x: number,
   y: number,
-  gameSpace: GameSpaceSyn,
+  gameSpace: GameSpace,
 ): GElement {
   const base: Partial<GElement> = {
     uuid: '',

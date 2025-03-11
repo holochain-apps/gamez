@@ -2,23 +2,31 @@
   import cx from 'classnames';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { type GElement, type GameSpaceSyn } from '~/store';
+  import { type GElement, GameSpace } from '~/store';
   import Element from './Element';
 
-  export let gameSpace: GameSpaceSyn;
-  export let elements: GElement[];
-  export let onRotateElement = (id: string, rotation: number) => {};
-  export let onResizeElement = (id: string, width: number, height: number) => {};
-  export let onMoveElement = (id: string, x: number, y: number) => {};
-  export let onContextMenu = (id: string, posX: number, posY: number) => {};
-  export let canOpenConfigMenu: boolean;
+  const {
+    gameSpace,
+    elements,
+    onRotateElement,
+    onResizeElement,
+    onMoveElement,
+    onContextMenu,
+    canOpenConfigMenu,
+  }: {
+    gameSpace: GameSpace;
+    elements: GElement[];
+    onRotateElement: (id: string, rotation: number) => void;
+    onResizeElement: (id: string, width: number, height: number) => void;
+    onMoveElement: (id: string, x: number, y: number) => void;
+    onContextMenu: (id: string, posX: number, posY: number) => void;
+    canOpenConfigMenu: boolean;
+  } = $props();
 
-  $: state = gameSpace.state;
-  $: permissions = gameSpace.permissions;
-  $: everythingLocked = !$permissions.canEditComponents;
-  $: {
-    gameSpace.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
-  }
+  const everythingLocked = $derived(!gameSpace.permissions.canEditComponents);
+  $effect(() => {
+    gameSpace.ui = { zoom, panX, panY, surfaceContainer: boardContainer };
+  });
 
   function handleContextMenu(ev: MouseEvent, id: string) {
     ev.preventDefault();
@@ -45,11 +53,11 @@
     offsetY: number;
     pieceId: string;
   };
-  let dragState: DragState = null;
+  let dragState = $state<DragState>(null);
 
   function handleDragStart(e: DragEvent, id: string) {
     console.log('DRAG START!');
-    if (!$permissions.canEditComponents) {
+    if (!gameSpace.permissions.canEditComponents) {
       e.preventDefault();
       return;
     }
@@ -110,12 +118,11 @@
   const maxZoom = 4; // x4 the original size
   const minZoom = 0.5;
   const zoomStep = 0.001; // % zoomed for each deltaY
-  let boardContainer: HTMLDivElement;
-  let ui = get(gameSpace.ui);
-  let zoom = ui.zoom; // From 1 to maxZoom
-  let panX = ui.panX;
-  let panY = ui.panY;
-  let isPanning = false;
+  let boardContainer = $state<HTMLDivElement>(null!);
+  let zoom = $state(gameSpace.ui.zoom); // From 1 to maxZoom
+  let panX = $state(gameSpace.ui.panX);
+  let panY = $state(gameSpace.ui.panY);
+  let isPanning = $state(false);
 
   const handleZoomInOut = (ev: WheelEvent) => {
     ev.preventDefault();
@@ -187,7 +194,7 @@
 
   // --------------
 
-  $: offsetDraggedElementPosition = (el: GElement) => {
+  const offsetDraggedElementPosition = (el: GElement) => {
     if (dragState && dragState.pieceId === el.uuid) {
       return {
         ...el,
@@ -240,7 +247,7 @@
 
   let gridEl: HTMLCanvasElement;
 
-  $: {
+  $effect(() => {
     if (gridEl) {
       const gridSize = (zoom > 1 ? 15 : zoom === 0.5 ? 60 : 30) * zoom;
       const gridColor = '#fff3';
@@ -302,7 +309,7 @@
         ctx.stroke();
       }
     }
-  }
+  });
 </script>
 
 <div
@@ -313,14 +320,14 @@
     { 'cursor-move': isPanning },
   )}
   bind:this={boardContainer}
-  on:wheel={handleZoomInOut}
-  on:mousedown={handlePanningStart}
-  on:drop={handleDragDrop}
-  on:dragover={handleDragOver}
-  on:mousemove={handleUpdateCoords}
+  onwheel={handleZoomInOut}
+  onmousedown={handlePanningStart}
+  ondrop={handleDragDrop}
+  ondragover={handleDragOver}
+  onmousemove={handleUpdateCoords}
   style={`background-position: ${panX * zoom}px ${panY * zoom}px; background-size: ${zoom * 150}px`}
 >
-  {#if $state.isLibraryItem}
+  {#if gameSpace.isLibraryItem}
     <canvas bind:this={gridEl} class="absolute w-full h-full pointer-events-none bg-blue-500/15"
     ></canvas>
   {/if}

@@ -4,10 +4,10 @@
   import ArrowsLeftRight from '~icons/fa6-solid/arrows-left-right';
   import RotateIcon from '~icons/fa6-solid/rotate-right';
   import { tooltip } from '~/shared/tooltip';
-  import type { GElement, GameSpaceSyn } from '~/store';
+  import type { GElement, GameSpace } from '~/store';
   import * as elements from '../elements';
 
-  export let gameSpace: GameSpaceSyn;
+  export let gameSpace: GameSpace;
   export let el: GElement;
   export let dragging: boolean = false;
   export let onDragStart: (ev: DragEvent) => void;
@@ -20,8 +20,6 @@
   export let draggable: boolean;
   export let resizable: boolean;
   export let rotatable: boolean;
-
-  $: permissions = gameSpace.permissions;
 
   let isHovering = false;
   let htmlEl: HTMLDivElement;
@@ -47,7 +45,7 @@
   });
 
   function startHovering() {
-    if (!$permissions.canEditComponents) return;
+    if (!gameSpace.permissions.canEditComponents) return;
     if (!resizable && !rotatable) return;
     isHovering = true;
     function handleMouseLeave() {
@@ -161,6 +159,7 @@
 </script>
 
 <div
+  role="presentation"
   class={cx('absolute transform-origin-center', {
     'cursor-grabbing': dragging,
     'cursor-grab': draggable && !dragging,
@@ -174,17 +173,17 @@
     z-index: ${el.z};
   `}
   bind:this={htmlEl}
-  on:dragstart={onDragStart}
-  on:dragend={onDragEnd}
-  on:contextmenu={onContextMenu}
-  on:mouseenter={startHovering}
+  ondragstart={onDragStart}
+  ondragend={onDragEnd}
+  oncontextmenu={onContextMenu}
+  onmouseenter={startHovering}
   {draggable}
 >
   <svelte:component
     this={Element}
     el={previewEl}
     {gameSpace}
-    isLocked={!$permissions.canEditComponents}
+    isLocked={!gameSpace.permissions.canEditComponents}
   />
   {#if highlighted}
     <div
@@ -193,7 +192,7 @@
   {/if}
   {#if el.wals.length > 0 && el.type !== 'EmbedWal'}
     <button
-      on:click={onContextMenu}
+      onclick={onContextMenu}
       use:tooltip={`${el.wals.length} attachments`}
       class="absolute -top-4 -right-4 rounded-full b b-black/10 shadow-md text-lg font-bold bg-red-500 text-white flexcc h8 w8"
       >{el.wals.length}</button
@@ -207,7 +206,7 @@
       {#if resizable}
         <button
           class="z-20 h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-1 -right-1 cursor-nwse-resize"
-          on:mousedown={handleResizeStart}
+          onmousedown={handleResizeStart}
         >
           <ArrowsLeftRight class="rotate-45 text-xs text-white" />
         </button>
@@ -215,7 +214,7 @@
       {#if rotatable}
         <button
           class="z-20 h4 w4 bg-red-500 flexcc rounded-sm absolute -bottom-5 -right-5 cursor-grab"
-          on:mousedown={handleRotateStart}
+          onmousedown={handleRotateStart}
         >
           <RotateIcon class="rotate-45 scale-x-[-1] relative top-.5 text-xs text-white" />
         </button>

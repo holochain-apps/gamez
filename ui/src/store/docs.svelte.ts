@@ -1,77 +1,93 @@
-export function createDocsStore<T>() {
-  let rawDocs = readFromLS() as { [key: string]: T };
-  let initialDocsStores = Object.entries(rawDocs).reduce((all, [hash, doc]) => {
-    all[hash] = createDocStore(doc);
-    return all;
-  }, {});
-  let docs = $state<{
-    [key: string]: ReturnType<typeof createDocStore<T>> | null;
-  }>(initialDocsStores);
-
-  $effect(() => {
-    const forLS = Object.entries(docs).reduce(
-      (all, [hash, doc]) => {
-        all[hash] = doc.doc;
-        return all;
-      },
-      {} as { [key: string]: T },
-    );
-    saveToLS(forLS);
-  });
+export function createDocsStore<T>(fromJSON: (v: any) => T) {
+  type TMap = { [key: string]: T };
+  const LS = localStorageDB<TMap>('docs', {});
+  let docs = $state<TMap>(
+    Object.entries(LS.read()).reduce((acc, [hash, doc]) => {
+      acc[hash] = fromJSON(doc);
+      return acc;
+    }, {} as TMap),
+  );
+  $effect(() => LS.write(docs));
 
   function createDocument(initialState: T) {
     const hash = crypto.randomUUID();
-    docs[hash] = createDocStore(initialState);
+    docs[hash] = initialState;
     return hash;
   }
 
   function setDocument(hash: string, doc: T) {
-    docs[hash] = createDocStore(doc);
+    docs[hash] = doc;
   }
 
   function deleteDocument(hash: string) {
     delete docs[hash];
   }
 
+  function updateDocument(hash: string, doc: Partial<T>) {
+    for (let key in doc) {
+      docs[hash][key] = doc[key];
+    }
+  }
+
   return {
     createDocument,
     deleteDocument,
     setDocument,
+    updateDocument,
     get docs() {
       return docs;
     },
   };
 }
 
-export type DocStore<T> = ReturnType<typeof createDocStore<T>>;
+// export type DocStore<T> = ReturnType<typeof createDocStore<T>>;
 
-function createDocStore<T>(initialDoc: T) {
-  let doc = $state<T>(initialDoc);
+// function createDocStore<T>(initialDoc: T) {
+//   let doc = $state<T>(initialDoc);
 
-  function update(newDoc: Partial<T>) {
-    doc = { ...doc, newDoc };
+//   function update(newDoc: Partial<T>) {
+//     doc = { ...doc, newDoc };
+//   }
+
+//   return {
+//     update,
+//     get doc() {
+//       return doc;
+//     },
+//   };
+// }
+
+function localStorageDB<T>(key: string, initial: T) {
+  function read(reviver?: (key: string, value: any) => any) {
+    const value = localStorage.getItem(key);
+    try {
+      const parsed = JSON.parse(value, reviver);
+      return (parsed || initial) as T;
+    } catch (e) {
+      return initial as T;
+    }
+  }
+
+  function write(value: T, replacer?: (key: string, value: any) => any) {
+    localStorage.setItem(key, JSON.stringify(value, replacer));
   }
 
   return {
-    update,
-    get doc() {
-      return doc;
-    },
+    read,
+    write,
   };
 }
 
-const LS_KEY = 'docs';
+// function readFromLS<T>(reviver?: (key: string, value: any) => any) {
+//   const value = localStorage.getItem(LS_KEY);
+//   try {
+//     const parsed = JSON.parse(value, reviver);
+//     return (parsed || {}) as T;
+//   } catch (e) {
+//     return {} as T;
+//   }
+// }
 
-function readFromLS() {
-  const value = localStorage.getItem(LS_KEY);
-  try {
-    const parsed = JSON.parse(value);
-    return parsed || {};
-  } catch (e) {
-    return {};
-  }
-}
-
-function saveToLS(value: any) {
-  localStorage.setItem(LS_KEY, JSON.stringify(value));
-}
+// function saveToLS<T>(value: T, replacer?: (key: string, value: any) => any) {
+//   localStorage.setItem(LS_KEY, JSON.stringify(value, replacer));
+// }

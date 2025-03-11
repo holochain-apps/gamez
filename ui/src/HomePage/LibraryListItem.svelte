@@ -8,10 +8,9 @@
   import type { GameSpace } from '~/store';
   import { tooltip } from '~/shared/tooltip';
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
-  import type { DocStore } from '~/store/docs.svelte';
 
   const {
-    gameSpaceDoc,
+    gameSpace,
     onPlay,
     isLocked,
     onEditCopy,
@@ -22,7 +21,7 @@
     onUnarchive,
     onExport,
   }: {
-    gameSpaceDoc: DocStore<GameSpace>;
+    gameSpace: GameSpace;
     isLocked: boolean;
     onPlay?: () => void;
     onEditCopy?: () => void;
@@ -33,8 +32,6 @@
     onUnarchive?: () => void;
     onExport?: () => void;
   } = $props();
-
-  const gameSpace = $derived(gameSpaceDoc.doc);
 
   let menuOpen = $state<boolean>(false);
   let menuButtonEl = $state<HTMLButtonElement>(null!);

@@ -3,13 +3,13 @@
   import { derived, readable } from 'svelte/store';
   import UsersIcon from '~icons/fa6-solid/users';
   import { hashToB64 } from '~/lib/util';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
-  import AgentName from '~/shared/AgentName.svelte';
+  // import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  // import AgentName from '~/shared/AgentName.svelte';
   import type { PlayerSlot } from '~/store/types';
 
-  import TopBarDropButton from '../ui/TopBarDropButton.svelte';
+  // import TopBarDropButton from '../ui/TopBarDropButton.svelte';
   import PlayersSlots from './PlayersSlots.svelte';
-  import AgentNameTooltip from '~/shared/AgentNameTooltip.svelte';
+  // import AgentNameTooltip from '~/shared/AgentNameTooltip.svelte';
 
   export let pubKey: string;
   export let canJoinGame: boolean;
@@ -60,9 +60,9 @@
     <span class="text-lg text-white/50 px2">|</span>
     {#each playersNotInSlots as participant}
       <div class="relative">
-        <AgentNameTooltip pubKey={participant}>
+        <!-- <AgentNameTooltip pubKey={participant}>
           <AgentAvatar pubKey={participant} size={26} />
-        </AgentNameTooltip>
+        </AgentNameTooltip> -->
         <div class="h2.5 w2.5 rounded-full bg-green-500 absolute -top-.5 -left-.5"></div>
       </div>
     {/each}
