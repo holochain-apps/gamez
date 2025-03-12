@@ -17,9 +17,9 @@
 </script>
 
 <div class="size-full">
-  <div class="relative size-full bg-red-7 rounded-lg flexcc">
+  <div class="relative size-full bg-red-7 b-3 b-white/30 rounded-lg flexcc">
     <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
-    <div class={cx('flexcc space-x-1  flex-wrap relative w-full')}>
+    <div class={cx('flexcc space-x-1  flex-wrap relative w-full p2')}>
       {#if el.limit}
         {#each { length: el.limit } as _, i}
           {@const isUsed = i >= el.limit - el.createdPieces.length}

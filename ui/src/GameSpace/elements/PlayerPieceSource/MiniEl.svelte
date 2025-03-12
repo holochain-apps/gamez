@@ -58,33 +58,31 @@
     : $state.playersSlots.filter((slot) => slot.pubKey).length === 0;
 </script>
 
-<div class={cx(klass, 'size-full rounded-lg')}>
-  <div class={cx(klass, 'relative size-full bg-cyan-5 rounded-lg py2 px1 overflow-hidden')}>
-    <div
-      class={cx(`w-full h-full grid gap-x-1 overflow-hidden`, {
-        'grid-cols-[auto_1fr]': el.showNames,
-        'grid-cols-1': !el.showNames,
-      })}
-    >
-      {#each $state.playersSlots as playerSlot, i}
-        {#if el.showNames}
-          <div class="flex-grow h-full flexcc w12 p1">
-            <div class="bg-white/40 size-full flex-grow rounded-lg"></div>
-          </div>
-        {/if}
-        <div class={cx('flexcs min-w-0 overflow-hidden')} bind:this={piecesContainer[i]}>
-          <div class="flex">
-            {#each { length: el.limit || 1 } as _, j}
-              <div
-                class="block mr.5 last:mr0 relative w8 h8 rounded-full bg-white flexcc"
-                style={(j > 0 ? `margin-left: var(--overlap);` : '') + `z-index: ${10 + j}`}
-              >
-                <PlayerIcon class="" />
-              </div>
-            {/each}
-          </div>
+<div class={cx(klass, 'relative size-full bg-cyan-5 b-3 b-white/30 rounded-lg p1 overflow-hidden')}>
+  <div
+    class={cx(`w-full h-full grid gap-x-1 overflow-hidden`, {
+      'grid-cols-[auto_1fr]': el.showNames,
+      'grid-cols-1': !el.showNames,
+    })}
+  >
+    {#each $state.playersSlots as playerSlot, i}
+      {#if el.showNames}
+        <div class="flex-grow h-full flexcc w12 p1">
+          <div class="bg-white/40 size-full flex-grow rounded-lg"></div>
         </div>
-      {/each}
-    </div>
+      {/if}
+      <div class={cx('flexcs min-w-0 overflow-hidden')} bind:this={piecesContainer[i]}>
+        <div class="flex">
+          {#each { length: el.limit || 1 } as _, j}
+            <div
+              class="block mr.5 last:mr0 relative w8 h8 rounded-full bg-white flexcc"
+              style={(j > 0 ? `margin-left: var(--overlap);` : '') + `z-index: ${10 + j}`}
+            >
+              <PlayerIcon class="" />
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/each}
   </div>
 </div>

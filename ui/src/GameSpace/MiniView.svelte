@@ -39,7 +39,7 @@
 </script>
 
 <div
-  class="absolute bottom-8 right-0 w-50 h-50 bg-main-400 b b-black/25 bg-[url('/noise20.png')] z-100"
+  class="absolute bottom-8 right-0 w-80 h-80 bg-main-400 b b-black/25 bg-[url('/noise20.png')] z-100"
   bind:this={container}
 >
   <div
@@ -87,6 +87,8 @@
           <ELS.PlayerPieceSource.MiniEl {el} {gameSpace} />
         {:else if el.type === 'PieceSource'}
           <ELS.PieceSource.MiniEl {el} {gameSpace} />
+        {:else if el.type === 'Dice'}
+          <ELS.Dice.MiniEl {el} />
         {/if}
       </div>
     {/each}
