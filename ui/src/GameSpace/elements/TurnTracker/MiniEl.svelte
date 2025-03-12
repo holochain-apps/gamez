@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { type GameSpaceSyn } from '~/store';
+  import { type GameSpace } from '~/store';
   import type { TurnTrackerElement } from './type';
 
   export let el: TurnTrackerElement;
-  export let gameSpace: GameSpaceSyn;
-  $: state = gameSpace.state;
-  $: playersSlots = $state.playersSlots;
+  export let gameSpace: GameSpace;
+  $: playersSlots = gameSpace.playersSlots;
 </script>
 
 <div class="relative h-full w-full bg-blue-300 b-3 b-white/30 rounded-lg p2 flex flex-col">

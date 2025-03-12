@@ -1,13 +1,9 @@
 <script lang="ts">
   import cx from 'classnames';
-  import { type GameSpaceSyn } from '~/store';
   import type { PieceSourceElement } from './type';
   import Piece from '../Piece/Element.svelte';
 
   export let el: PieceSourceElement;
-  export let gameSpace: GameSpaceSyn;
-
-  $: ui = gameSpace.ui;
 
   $: displayPieceEl = {
     display: el.display,

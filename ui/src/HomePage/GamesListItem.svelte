@@ -8,9 +8,9 @@
   import EyeIcon from '~icons/fa6-solid/eye';
   import type { GameSpace } from '~/store';
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
-  import PlayerStatus from './PlayerStatus.svelte';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import { tooltip } from '~/shared/tooltip';
+  import MiniView from '~/GameSpace/MiniView.svelte';
 
   export let gameSpace: GameSpace;
   export let onPlay = () => {};
@@ -23,27 +23,6 @@
 
   let menuOpen = false;
   let menuButtonEl: HTMLButtonElement;
-
-  // let playersStatus = derived(
-  //   [gameSpace.state, gameSpace.participants],
-  //   ([$state, $participants]) => {
-  //     let P: { [key: string]: PlayerStatus } = {};
-  //     let inRoomAgents = ($participants?.active || []).map(encodeHashToBase64);
-  //     [$state.creator, ...$state.players, ...inRoomAgents].forEach((agent) => {
-  //       if (!P[agent]) {
-  //         P[agent] = { inRoom: false, isPlaying: false, isCreator: false };
-  //       }
-  //     });
-  //     P[$state.creator].isCreator = true;
-  //     $state.players.forEach((agent) => {
-  //       P[agent].isPlaying = true;
-  //     });
-  //     inRoomAgents.forEach((agent) => {
-  //       P[agent].inRoom = true;
-  //     });
-  //     return P;
-  //   },
-  // );
 
   type MenuCommands = 'duplicate' | 'edit' | 'archive' | 'delete' | 'unarchive' | 'export';
 
@@ -75,11 +54,7 @@
 <div class={'bg-white/10 h20  b b-white/10 rounded-md w-full flex relative'}>
   <div class="flexcc flex-grow">
     <div class="h18 w18 flex-shrink-0 ml.5 relative b b-black/20 rounded-md overflow-hidden">
-      <img
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717"
-        alt=""
-      />
-      <div class="absolute inset-0 flexcc text-3xl text-white">{gameSpace.icon}</div>
+      <MiniView {gameSpace} />
     </div>
     <div class="flex flex-col flex-grow pl2 py1 h-full">
       <h2 class="text-xl text-black/70 text-left">

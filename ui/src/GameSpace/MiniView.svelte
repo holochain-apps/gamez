@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { containingBox, type Box, type GElement, type GameSpaceSyn } from '~/store';
+  import { containingBox, type Box, type GElement, type GameSpace } from '~/store';
   import * as ELS from './elements';
 
-  export let gameSpace: GameSpaceSyn;
-  export let elements: GElement[];
-
-  $: GS = gameSpace.state;
+  export let gameSpace: GameSpace;
+  $: elements = gameSpace.elements;
 
   let zoom = 1;
   let x = 0;
@@ -39,7 +37,7 @@
 </script>
 
 <div
-  class="absolute bottom-8 right-0 w-80 h-80 bg-main-400 b b-black/25 bg-[url('/noise20.png')] z-100"
+  class="h-full w-full bg-main-400 b b-black/25 bg-[url('/noise20.png')] pointer-events-none"
   bind:this={container}
 >
   <div
@@ -59,24 +57,17 @@
       ></div>
     {/if}
     {#each elements as el (el.uuid)}
-      {@const Element = ELS[el.type].Element}
       <div
         class="absolute"
         style={`
-      width: ${el.width}px;
-      height: ${el.height}px;
-      top: ${-el.height / 2}px;
-      left: ${-el.width / 2}px;
-      transform: translate(${el.x}px, ${el.y}px) rotate(${el.rotation}deg);
-      z-index: ${el.z};
+          width: ${el.width}px;
+          height: ${el.height}px;
+          top: ${-el.height / 2}px;
+          left: ${-el.width / 2}px;
+          transform: translate(${el.x}px, ${el.y}px) rotate(${el.rotation}deg);
+          z-index: ${el.z};
     `}
       >
-        <!-- <svelte:component
-        this={Element}
-        el={el}
-        {gameSpace}
-        isLocked={true}
-      /> -->
         {#if el.type === 'Piece'}
           <ELS.Piece.Element {el} isLocked={true} />
         {:else if el.type === 'Image'}
@@ -86,7 +77,7 @@
         {:else if el.type === 'PlayerPieceSource'}
           <ELS.PlayerPieceSource.MiniEl {el} {gameSpace} />
         {:else if el.type === 'PieceSource'}
-          <ELS.PieceSource.MiniEl {el} {gameSpace} />
+          <ELS.PieceSource.MiniEl {el} />
         {:else if el.type === 'Dice'}
           <ELS.Dice.MiniEl {el} />
         {:else if el.type === 'EmbedWal'}

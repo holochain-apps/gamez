@@ -10,6 +10,7 @@
   import type { GameSpace } from '~/store';
   import { tooltip } from '~/shared/tooltip';
   import FloatingMenu from '~/shared/FloatingMenu.svelte';
+  import MiniView from '~/GameSpace/MiniView.svelte';
 
   export let gameSpace: GameSpace;
   export let onPlay = () => {};
@@ -65,11 +66,7 @@
 <div class={'bg-white/10 h16  b b-white/10 rounded-md w-full flex relative'}>
   <div class="flexcc flex-grow">
     <div class="h14 w14 flex-shrink-0 ml.5 relative b b-black/20 rounded-md overflow-hidden">
-      <img
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Blank_Go_board.svg/600px-Blank_Go_board.svg.png?20140621020717"
-        alt=""
-      />
-      <div class="absolute inset-0 flexcc text-2xl text-white">{gameSpace.icon}</div>
+      <MiniView {gameSpace} />
     </div>
     <!-- {#if isLocked}
       <div

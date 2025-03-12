@@ -1,21 +1,15 @@
 <script lang="ts">
   import cx from 'classnames';
   import PlayerIcon from '~icons/fa6-solid/user';
-  import Portal from 'svelte-portal';
-  import { v1 as uuidv1 } from 'uuid';
 
-  import { type GameSpaceSyn } from '~/store';
+  import { type GameSpace } from '~/store';
 
-  import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
   import type { PlayerPieceSourceElement } from './type';
 
-  export let gameSpace: GameSpaceSyn;
+  export let gameSpace: GameSpace;
   export let el: PlayerPieceSourceElement;
   let klass: string = '';
   export { klass as class };
-
-  $: state = gameSpace.state;
-  $: elements = $state.elements;
 
   // Overlap pieces to fit container width
   let piecesContainer: HTMLDivElement[] = [];
@@ -52,10 +46,6 @@
       });
     }, 50);
   }
-
-  $: everythingEmpty = el.showEmptyPlayersSlots
-    ? false
-    : $state.playersSlots.filter((slot) => slot.pubKey).length === 0;
 </script>
 
 <div class={cx(klass, 'relative size-full bg-cyan-5 b-3 b-white/30 rounded-lg p1 overflow-hidden')}>
@@ -65,7 +55,7 @@
       'grid-cols-1': !el.showNames,
     })}
   >
-    {#each $state.playersSlots as playerSlot, i}
+    {#each gameSpace.playersSlots as playerSlot, i}
       {#if el.showNames}
         <div class="flex-grow h-full flexcc w12 p1">
           <div class="bg-white/40 size-full flex-grow rounded-lg"></div>

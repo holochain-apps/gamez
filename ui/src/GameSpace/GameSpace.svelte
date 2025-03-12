@@ -3,6 +3,7 @@
   import { derived, get } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
+
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import BookIcon from '~icons/fa6-solid/book';
 
@@ -30,7 +31,6 @@
   import NameTitleInput from './ui/NameTitleInput.svelte';
   import ActivityLog from './topbar/ActivityLog.svelte';
   import Instructions from './ui/Instructions.svelte';
-  import MiniView from './MiniView.svelte';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -243,7 +243,6 @@
           />
         {/if}
       {/if}
-      <MiniView {gameSpace} elements={$state.elements} />
       <Surface
         {gameSpace}
         elements={$state.elements}
