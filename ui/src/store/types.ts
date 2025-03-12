@@ -95,11 +95,9 @@ export type Box = { x: number; y: number; w: number; h: number };
 const elToBox = (gEl: GElementBase): Box => ({ x: gEl.x, y: gEl.y, w: gEl.width, h: gEl.height });
 const elTo = (gEl: GElementBase): Box => ({ x: gEl.x, y: gEl.y, w: gEl.width, h: gEl.height });
 
-export function containingBox(els: GElementBase[]): Box | null {
+export function containingBox(els: GElementBase[], offset = 0): Box | null {
   if (els.length === 0) return null;
   const boxes = els.map(elToBox);
-
-  console.log(boxes);
 
   let tl: number;
   let tr: number;
@@ -119,9 +117,9 @@ export function containingBox(els: GElementBase[]): Box | null {
   });
 
   return {
-    x: tl!,
-    y: tr!,
-    w: br! - tl!,
-    h: bl! - tr!,
+    x: tl! - offset,
+    y: tr! - offset,
+    w: br! - tl! + offset * 2,
+    h: bl! - tr! + offset * 2,
   };
 }

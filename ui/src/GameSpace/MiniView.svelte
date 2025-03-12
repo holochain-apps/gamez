@@ -1,5 +1,7 @@
 <script lang="ts">
   import { containingBox, type Box, type GElement, type GameSpaceSyn } from '~/store';
+  import * as ELS from './elements';
+
   export let gameSpace: GameSpaceSyn;
   export let elements: GElement[];
 
@@ -16,7 +18,7 @@
   $: {
     if (container && elements.length) {
       console.log('Recalculating');
-      const newBox = containingBox(elements);
+      const newBox = containingBox(elements, 50);
       const { width, height } = container!.getBoundingClientRect();
       if (newBox && width && height) {
         const wRatio = width / newBox.w;
@@ -34,30 +36,32 @@
       }
     }
   }
-
-  // $: transformedEl =
 </script>
 
-<div class="absolute bottom-8 right-0 w-40 h-40 bg-red-500 z-100" bind:this={container}>
+<div
+  class="absolute bottom-8 right-0 w-40 h-40 bg-main-400 b b-black/25 bg-[url('/noise20.png')] z-100"
+  bind:this={container}
+>
   <div
     class="bg-green relative size-full transform-origin-tl"
     style={`transform: scale(${zoom}) translate(${x}px, ${y}px); left: ${offsetX}px; top: ${offsetY}px;`}
   >
     {#if box}
       <div
-        class="bg-purple absolute"
+        class="absolute"
         style={`
-      width: ${box.w}px;
-      height: ${box.h}px;
-      top: ${0}px;
-      left: ${0}px;
-      transform: translate(${box.x}px, ${box.y}px);
-    `}
+          width: ${box.w}px;
+          height: ${box.h}px;
+          top: ${0}px;
+          left: ${0}px;
+          transform: translate(${box.x}px, ${box.y}px);
+        `}
       ></div>
     {/if}
     {#each elements as el (el.uuid)}
+      {@const Element = ELS[el.type].Element}
       <div
-        class="bg-black absolute text-white"
+        class="absolute"
         style={`
       width: ${el.width}px;
       height: ${el.height}px;
@@ -65,8 +69,22 @@
       left: ${-el.width / 2}px;
       transform: translate(${el.x}px, ${el.y}px) rotate(${el.rotation}deg);
       z-index: ${el.z};
-    `}>{el.type}</div
+    `}
       >
+        <!-- <svelte:component
+        this={Element}
+        el={el}
+        {gameSpace}
+        isLocked={true}
+      /> -->
+        {#if el.type === 'Piece'}
+          <ELS.Piece.Element {el} isLocked={true} />
+        {:else if el.type === 'Image'}
+          <ELS.Image.Element {el} isLocked={true} />
+        {:else if el.type === 'TurnTracker'}
+          <ELS.TurnTracker.MiniEl {el} {gameSpace} isLocked={true} />
+        {/if}
+      </div>
     {/each}
   </div>
 </div>
