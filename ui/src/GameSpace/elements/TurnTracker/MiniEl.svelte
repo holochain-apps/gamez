@@ -5,7 +5,6 @@
 
   export let el: TurnTrackerElement;
   export let gameSpace: GameSpaceSyn;
-  export let isLocked: boolean;
   $: state = gameSpace.state;
   $: playersSlots = $state.playersSlots;
 </script>

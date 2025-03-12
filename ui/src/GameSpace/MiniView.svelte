@@ -39,11 +39,11 @@
 </script>
 
 <div
-  class="absolute bottom-8 right-0 w-40 h-40 bg-main-400 b b-black/25 bg-[url('/noise20.png')] z-100"
+  class="absolute bottom-8 right-0 w-50 h-50 bg-main-400 b b-black/25 bg-[url('/noise20.png')] z-100"
   bind:this={container}
 >
   <div
-    class="bg-green relative size-full transform-origin-tl"
+    class="relative size-full transform-origin-tl"
     style={`transform: scale(${zoom}) translate(${x}px, ${y}px); left: ${offsetX}px; top: ${offsetY}px;`}
   >
     {#if box}
@@ -82,7 +82,9 @@
         {:else if el.type === 'Image'}
           <ELS.Image.Element {el} isLocked={true} />
         {:else if el.type === 'TurnTracker'}
-          <ELS.TurnTracker.MiniEl {el} {gameSpace} isLocked={true} />
+          <ELS.TurnTracker.MiniEl {el} {gameSpace} />
+        {:else if el.type === 'PlayerPieceSource'}
+          <ELS.PlayerPieceSource.MiniEl {el} {gameSpace} />
         {/if}
       </div>
     {/each}

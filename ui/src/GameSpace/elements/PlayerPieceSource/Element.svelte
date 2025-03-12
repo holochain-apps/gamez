@@ -8,7 +8,6 @@
 
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
   import type { PlayerPieceSourceElement } from './type';
-  import { derived } from 'svelte/store';
 
   export let gameSpace: GameSpaceSyn;
   export let el: PlayerPieceSourceElement;
