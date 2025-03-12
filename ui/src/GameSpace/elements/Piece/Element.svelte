@@ -5,12 +5,13 @@
   // export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
+  export let style = '';
   $$restProps; // This prevents Svelte warnings from unused props
 
   $: fontSize = Math.min(el.width, el.height) + 'px';
 </script>
 
-<div class={klass}>
+<div class={klass} {style}>
   {#if el.display.mode === 'emoji'}
     <div
       class="flexcc text-black/100"

@@ -85,6 +85,8 @@
           <ELS.TurnTracker.MiniEl {el} {gameSpace} />
         {:else if el.type === 'PlayerPieceSource'}
           <ELS.PlayerPieceSource.MiniEl {el} {gameSpace} />
+        {:else if el.type === 'PieceSource'}
+          <ELS.PieceSource.MiniEl {el} {gameSpace} />
         {/if}
       </div>
     {/each}

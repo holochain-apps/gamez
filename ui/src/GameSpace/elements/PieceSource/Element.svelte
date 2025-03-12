@@ -99,6 +99,10 @@
     window.document.addEventListener('mousemove', handleMouseMoving);
     window.document.addEventListener('mouseup', handleMouseUp);
   }
+
+  $: {
+    console.log('LIMIT', el.limit);
+  }
 </script>
 
 <div class="size-full b-4 b-yellow-8 b-b-8 rounded-lg">
@@ -115,16 +119,20 @@
   >
     <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
     <div class={cx('flexcc space-x-1  flex-wrap relative w-full')}>
-      {#each { length: el.limit } as _, i}
-        {@const isUsed = i >= el.limit - (el.createdPieces.length + (dragState ? 1 : 0))}
-        <div
-          class={cx('pointer-events-none my.5', {
-            'opacity-25 saturate-0': isUsed,
-          })}
-        >
-          <Piece class="relative z-20 " el={displayPieceEl} />
-        </div>
-      {/each}
+      {#if el.limit}
+        {#each { length: el.limit } as _, i}
+          {@const isUsed = i >= el.limit - (el.createdPieces.length + (dragState ? 1 : 0))}
+          <div
+            class={cx('pointer-events-none my.5', {
+              'opacity-25 saturate-0': isUsed,
+            })}
+          >
+            <Piece class="relative z-20 " el={displayPieceEl} />
+          </div>
+        {/each}
+      {:else}
+        <Piece class="relative z-20 scale-200" el={displayPieceEl} />
+      {/if}
     </div>
   </div>
 </div>
