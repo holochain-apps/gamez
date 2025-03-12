@@ -89,3 +89,39 @@ export type LibraryConfig = {
   icon: string;
   build: (gameSpaceSyn: any) => any;
 };
+
+export type Box = { x: number; y: number; w: number; h: number };
+
+const elToBox = (gEl: GElementBase): Box => ({ x: gEl.x, y: gEl.y, w: gEl.width, h: gEl.height });
+const elTo = (gEl: GElementBase): Box => ({ x: gEl.x, y: gEl.y, w: gEl.width, h: gEl.height });
+
+export function containingBox(els: GElementBase[]): Box | null {
+  if (els.length === 0) return null;
+  const boxes = els.map(elToBox);
+
+  console.log(boxes);
+
+  let tl: number;
+  let tr: number;
+  let bl: number;
+  let br: number;
+
+  boxes.forEach((b) => {
+    const Bl = b.x - b.w / 2;
+    const Br = b.x + b.w / 2;
+    const Bt = b.y - b.h / 2;
+    const Bb = b.y + b.h / 2;
+
+    if (Bl < tl || tl === undefined) tl = Bl;
+    if (Bt < tr || tr === undefined) tr = Bt;
+    if (Br > br || br === undefined) br = Br;
+    if (Bb > bl || bl === undefined) bl = Bb;
+  });
+
+  return {
+    x: tl!,
+    y: tr!,
+    w: br! - tl!,
+    h: bl! - tr!,
+  };
+}

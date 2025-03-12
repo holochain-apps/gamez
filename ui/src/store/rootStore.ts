@@ -21,8 +21,6 @@ import migration from './migration';
 import { type GameSpace, VERSION } from './types';
 import validateGameSpace from './validateGameSpace';
 
-export type RootStore = ReturnType<typeof createRootStore>;
-
 const ROLE_NAME = 'gamez';
 
 export function createRootStore(
@@ -179,6 +177,8 @@ export function createRootStore(
     dnaHash,
   };
 }
+
+export type RootStore = ReturnType<typeof createRootStore>;
 
 export const setContext = (getter: () => RootStore) => sSetContext('rootStore', { store: getter });
 export const getContext = () => sGetContext<{ store: () => RootStore }>('rootStore').store();

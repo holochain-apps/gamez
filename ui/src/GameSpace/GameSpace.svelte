@@ -30,6 +30,7 @@
   import NameTitleInput from './ui/NameTitleInput.svelte';
   import ActivityLog from './topbar/ActivityLog.svelte';
   import Instructions from './ui/Instructions.svelte';
+  import MiniView from './MiniView.svelte';
 
   export let gameSpace: GameSpaceSyn;
   export let asAsset: boolean = false;
@@ -229,21 +230,20 @@
             canAdd={$permissions.canAddComponents}
           />
         {:else if sidebar === 'configurator'}
-          {#if state}
-            <SpaceConfigurator
-              creator={$state.creator}
-              name={$state.name}
-              onNameChange={handleNameChange}
-              icon={$state.icon}
-              onIconChange={handleIconChange}
-              maxPlayersSlots={$state.playersSlots.length}
-              onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
-              onApplyColors={handleApplyColors}
-              canEdit={$permissions.canEditSpace}
-            />
-          {/if}
+          <SpaceConfigurator
+            creator={$state.creator}
+            name={$state.name}
+            onNameChange={handleNameChange}
+            icon={$state.icon}
+            onIconChange={handleIconChange}
+            maxPlayersSlots={$state.playersSlots.length}
+            onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
+            onApplyColors={handleApplyColors}
+            canEdit={$permissions.canEditSpace}
+          />
         {/if}
       {/if}
+      <MiniView {gameSpace} elements={$state.elements} />
       <Surface
         {gameSpace}
         elements={$state.elements}

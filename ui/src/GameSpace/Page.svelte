@@ -8,8 +8,6 @@
   export let asAsset: boolean = false;
 
   let gameSpace = readyGameSpace(hash);
-
-  $: console.log('GAME SPACE', gameSpace);
 </script>
 
 {#if $gameSpace}
