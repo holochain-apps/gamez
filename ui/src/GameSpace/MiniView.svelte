@@ -89,6 +89,8 @@
           <ELS.PieceSource.MiniEl {el} {gameSpace} />
         {:else if el.type === 'Dice'}
           <ELS.Dice.MiniEl {el} />
+        {:else if el.type === 'EmbedWal'}
+          <ELS.EmbedWal.MiniEl {el} />
         {/if}
       </div>
     {/each}
