@@ -27,9 +27,6 @@
         y = -newBox.y;
         offsetX = wRatio > hRatio ? (width - newBox.w * zoom) / 2 : 0;
         offsetY = hRatio > wRatio ? (height - newBox.h * zoom) / 2 : 0;
-        // offsetX = 0;
-        // console.log('M', height - newBox.h * zoom);
-        // offsetY = 54;
         box = newBox;
       }
     }
