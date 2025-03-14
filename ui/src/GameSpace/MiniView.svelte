@@ -34,7 +34,7 @@
 </script>
 
 <div
-  class="h-full w-full bg-main-400 b b-black/25 bg-[url('/noise20.png')] pointer-events-none"
+  class="h-full w-full bg-main-400 b b-black/25 bg-[url('/noise20.png')] pointer-events-none overflow-hidden"
   bind:this={container}
 >
   <div

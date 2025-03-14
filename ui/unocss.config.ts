@@ -56,10 +56,9 @@ export default defineConfig({
     colors: {
       main: (() => {
         let colors: [string, string][] = [];
-        for (let i = 10; i <= 90; i += 10) {
+        for (let i = 5; i <= 100; i += 5) {
           colors.push([`${i}0`, `hsl(var(--main-hue), var(--main-saturation), ${i}%)`]);
         }
-        colors.push([`950`, `hsl(var(--main-hue), var(--main-saturation), 95%)`]);
         return Object.fromEntries(colors);
       })(),
     },
