@@ -13,6 +13,8 @@ export type GameSpace = {
   creator: string;
   elements: GElement[];
   wals: WeaveUrl[];
+  isDeleted: boolean;
+  fromPreset: string | null;
   isStewarded: boolean;
   isLibraryItem: boolean;
   isArchived: boolean;

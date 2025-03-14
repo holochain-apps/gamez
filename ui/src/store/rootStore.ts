@@ -36,6 +36,21 @@ export function createRootStore(
 
   const gameDocs = writable<{ [key: string]: GameSpaceSyn }>({});
   const statesMap = writable<{ [key: string]: GameSpace }>({});
+  const loadedGameSpaceStores = derived(
+    [gameDocs, statesMap],
+    ([gameSpaceStores, gameSpaceStoresStates]) => {
+      return Object.entries(gameSpaceStores).reduce(
+        (all, [hash, store]) => {
+          if (gameSpaceStoresStates[hash]) {
+            all[hash] = store;
+          }
+          return all;
+        },
+        {} as { [key: string]: GameSpaceSyn },
+      );
+    },
+  );
+
   const simplerSyn = new SimplerSyn(
     appClient,
     (synDocs, deletedDocs) => {
@@ -165,6 +180,8 @@ export function createRootStore(
   return {
     createGameSpace,
     gameDocs,
+    gameSpaceStores: gameDocs,
+    loadedGameSpaceStores,
     weaveClient,
     profilesStore,
     pubKey,

@@ -4,6 +4,7 @@
   import { getContext, type GameSpaceSyn } from '~/store';
   import ArchiveItem from './ArchiveItem.svelte';
   import { nav } from '~/lib/routes';
+  import { get } from 'svelte/store';
 
   const S = getContext();
 
@@ -20,7 +21,12 @@
   }
 
   async function handleDelete(store: GameSpaceSyn) {
-    await S.deleteGameSpace(store.hash);
+    const state = get(store.state);
+    if (state.fromPreset && state.isLibraryItem) {
+      store.change({ type: 'set-deleted', isDeleted: true }, true);
+    } else {
+      await S.deleteGameSpace(store.hash);
+    }
   }
 </script>
 

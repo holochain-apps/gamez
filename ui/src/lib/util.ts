@@ -13,6 +13,8 @@ import {
   type EntryHash,
 } from '@holochain/client';
 
+import type { GameSpace } from '~/store';
+
 export { v1 as uuid } from 'uuid';
 
 export const hashEqual = (a: EntryHash, b: EntryHash): boolean => {
@@ -158,3 +160,15 @@ export const timeFormat = (date: Date): string => {
   };
   return new Intl.DateTimeFormat('en-US', options).format(date);
 };
+
+export function exportAsJson(gameSpace: GameSpace) {
+  const filename = gameSpace.name.toLocaleLowerCase().replaceAll(/\s+/g, '-') + '.json';
+  const jsonString = JSON.stringify(gameSpace, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}

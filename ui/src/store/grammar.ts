@@ -21,6 +21,7 @@ export type Delta =
   | { type: 'set-is-library-item'; value: boolean }
   | { type: 'set-name'; name: string }
   | { type: 'set-icon'; icon: string }
+  | { type: 'set-deleted'; isDeleted: boolean }
   | { type: 'set-players-slots'; playersSlots: GameSpace['playersSlots'] }
   | { type: 'set-is-stewarded'; isStewarded: boolean }
   | { type: 'join-game' }
@@ -56,6 +57,8 @@ export function initialState(pubKey: string): GameSpace {
     lastChangeAt: Date.now(),
     activityLog: [],
     notificationsConfigOverride: {},
+    isDeleted: false,
+    fromPreset: null,
   };
 }
 
@@ -76,6 +79,9 @@ export const applyDelta = (
       break;
     case 'set-icon':
       $state.icon = delta.icon;
+      break;
+    case 'set-deleted':
+      $state.isDeleted = delta.isDeleted;
       break;
     case 'set-players-slots': {
       const incoming = delta.playersSlots.map((s) => s.pubKey);

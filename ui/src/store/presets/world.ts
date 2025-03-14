@@ -95,4 +95,6 @@ export default {
   wals: [],
   activityLog: [],
   notificationsConfigOverride: {},
+  isDeleted: false,
+  fromPreset: null,
 } as const satisfies GameSpace;

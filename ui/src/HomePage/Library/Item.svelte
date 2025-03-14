@@ -9,8 +9,6 @@
 
   export let gameSpace: GameSpace;
   export let onPlay = () => {};
-  export let isLocked: boolean;
-  export let onEditCopy = () => {};
   export let onDuplicate = () => {};
   export let onEdit = () => {};
   export let onArchive = () => {};
@@ -34,9 +32,6 @@
     switch (command) {
       case 'edit':
         onEdit();
-        break;
-      case 'edit-copy':
-        onEditCopy();
         break;
       case 'duplicate':
         onDuplicate();
@@ -70,11 +65,7 @@
       {gameSpace.name}
     </h2>
     <div class="grid p1 grid-cols-3 gap-1 h12 text-xl">
-      <button
-        use:tooltip={'Enter edit mode'}
-        on:click={() => (isLocked ? onEditCopy() : onEdit())}
-        class={btnClass}
-      >
+      <button use:tooltip={'Enter edit mode'} on:click={() => onEdit()} class={btnClass}>
         <PenIcon class="h50%" />
       </button>
       <button
@@ -94,14 +85,12 @@
 
 {#if menuOpen}
   <FloatingMenu
-    options={isLocked
-      ? [['duplicate', 'Duplicate']]
-      : [
-          ['duplicate', 'Duplicate'],
-          ['export', 'Export'],
-          ['archive', 'Archive'],
-          ['delete', 'Delete'],
-        ]}
+    options={[
+      ['duplicate', 'Duplicate'],
+      ['export', 'Export'],
+      ['archive', 'Archive'],
+      ['delete', 'Delete'],
+    ]}
     target={menuButtonEl}
     onCancel={() => (menuOpen = false)}
     onSelect={onSelectMenu}
