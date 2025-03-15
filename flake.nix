@@ -26,6 +26,7 @@
         ]) ++ (with pkgs; [
           nodejs_20 # For UI development
           binaryen # For WASM optimisation
+          git
           # Add any other packages you need here
         ]);
 
