@@ -29,7 +29,7 @@
 
 {#if el.display.mode === 'emoji'}
   <button
-    disabled={el.lock.config}
+    disabled={false}
     class="flexcc w10 h10 rounded-md text-2xl bg-main-800 hover:bg-main-900 disabled:(saturate-0 opacity-50 bg-main-800) b b-black/10 text-black"
     on:click={openEmojiPicker}
     bind:this={emojiPickerTarget}>{el.display.value}</button

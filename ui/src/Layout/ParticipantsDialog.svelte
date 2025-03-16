@@ -3,13 +3,11 @@
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
   import '@holochain-open-dev/stores/dist/debug-store.js';
 
-  import { getContext } from '~/store';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
   import AgentName from '~/shared/AgentName.svelte';
+  import clients from '~/clients';
 
-  const { profilesStore } = getContext();
-
-  $: agents = profilesStore.agentsWithProfile;
+  $: agents = clients.profilesStore.agentsWithProfile;
 
   export const close = () => {
     dialog.hide();

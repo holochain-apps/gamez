@@ -120,13 +120,14 @@
       rotation: 0,
       playerSlot: playerSlotIndex,
       wals: [],
-      lock: {
-        position: false,
-        size: false,
-        rotation: false,
-        wals: false,
-        config: true,
-        remove: false,
+      can: {
+        move: true,
+        resize: false,
+        rotate: false,
+        attach: true,
+        configurate: false,
+        remove: true,
+        duplicate: false,
       },
       uuid: uuidv1(),
     };
@@ -218,8 +219,8 @@
           {/if}
         {/each}
       {:else}
-        <div class="text-black/50 text-center flexcc flex-col">
-          <div class="b-b b-black/10 pb1 mb1">Player pieces source</div>
+        <div class="text-white/80 text-center flexcc flex-col p1 text-sm">
+          <div class="b-b b-white/30 pb1 mb1">Player pieces source</div>
           <div>No players</div>
         </div>
       {/if}

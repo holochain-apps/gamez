@@ -28,7 +28,6 @@
 
 {#if el.display.mode === 'emoji'}
   <button
-    disabled={el.lock.config}
     class="flexcc w10 h10 rounded-md text-2xl bg-main-800 hover:bg-main-900 disabled:(saturate-0 opacity-50 bg-main-800) b b-black/10 text-black"
     on:click={openEmojiPicker}
     bind:this={emojiPickerTarget}>{el.display.value}</button
@@ -41,20 +40,17 @@
     label="Limit"
     value={el.limit}
     onInput={(limit) => onUpdate({ ...el, limit: limit || null })}
-    disabled={el.lock.config}
   />
   <IntegerInput
     class="flex-1 w-0"
     label="Width"
     value={el.pieceW}
     onInput={(pieceW) => onUpdate({ ...el, pieceW })}
-    disabled={el.lock.config}
   />
   <IntegerInput
     class="flex-1 w-0"
     label="Height"
     value={el.pieceH}
     onInput={(pieceH) => onUpdate({ ...el, pieceH })}
-    disabled={el.lock.config}
   />
 </div>

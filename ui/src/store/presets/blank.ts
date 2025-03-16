@@ -26,7 +26,7 @@ export default {
   ],
   isLibraryItem: true,
   isArchived: false,
-  version: 9,
+  version: 10,
   icon: '🟩',
   wals: [],
   activityLog: [],

@@ -19,6 +19,7 @@
     "@holochain/client": "0.18.1",
     "@iconify-json/fa6-regular": "^1.2.3",
     "@iconify-json/fa6-solid": "^1.2.3",
+    "@iconify-json/fa6-brands": "^1.2.3",
     "@shoelace-style/shoelace": "^2.20.1",
     "@theweave/api": "0.4.3",
     "@types/javascript-time-ago": "^2.5.0",

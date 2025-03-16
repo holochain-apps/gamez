@@ -1,6 +1,6 @@
 <script lang="ts">
   import { get, derived } from 'svelte/store';
-  import _, { cloneDeep, zip } from 'lodash';
+  import _, { cloneDeep } from 'lodash';
 
   import { getContext, presets, type GameSpace, type GameSpaceSyn } from '~/store';
   import { nav } from '~/lib/routes';
@@ -9,6 +9,7 @@
   import Item from './Item.svelte';
   import Archive from '../Archive.svelte';
   import { exportAsJson } from '~/lib/util';
+  import clients from '~/clients';
 
   const store = getContext();
   $: gameSpaceStores = store.loadedGameSpaceStores;
@@ -62,7 +63,7 @@
       ...cloneDeep(gameSpace),
       name: newName,
       isLibraryItem: false,
-      creator: store.pubKey,
+      creator: clients.agentKeyB64,
     };
     const hash = await store.createGameSpace(newGameSpace);
     nav({ id: 'gameSpace', gameSpaceHash: hash });
@@ -72,7 +73,7 @@
     const newGameSpace: GameSpace = {
       ...cloneDeep(gameSpace),
       name,
-      creator: store.pubKey,
+      creator: clients.agentKeyB64,
     };
     return await store.createGameSpace(newGameSpace);
   }
@@ -102,7 +103,7 @@
   function createFromPreset(preset: GameSpace, extend: Partial<GameSpace> = {}): GameSpace {
     return {
       ...cloneDeep(preset),
-      creator: store.pubKey,
+      creator: clients.agentKeyB64,
       fromPreset: preset.name,
       ...extend,
     };

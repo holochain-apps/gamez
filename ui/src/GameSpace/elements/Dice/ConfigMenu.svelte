@@ -70,7 +70,6 @@
 
 <div class="py2">
   <Input
-    disabled={el.lock.config}
     error={stringHasErrors}
     label="Dice"
     on:blur={handleFinishEditing}

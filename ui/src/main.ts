@@ -1,23 +1,20 @@
-import { type AppletView, initializeHotReload, isWeaveContext, WeaveClient } from '@theweave/api';
+import '@shoelace-style/shoelace/dist/themes/light.css';
+import '@theweave/elements/dist/elements/select-asset-menu';
 import '@unocss/reset/tailwind.css';
+import 'svooltip/styles.css';
 import 'virtual:uno.css';
+
+import '@holochain-open-dev/profiles/dist/elements/create-profile.js';
+import '@holochain-open-dev/profiles/dist/elements/profile-prompt.js';
+import '@holochain-open-dev/profiles/dist/elements/profiles-context.js';
 
 import './app.css';
 import App from './App.svelte';
+import clients from './clients';
 import { appletServices } from './we';
 
 (async () => {
-  if ((import.meta as any).env.DEV) {
-    try {
-      await initializeHotReload();
-    } catch (e) {
-      console.warn(
-        'Could not initialize applet hot-reloading. This is only expected to work in a We context in dev mode.',
-      );
-    }
-  }
-
-  const weaveClient = isWeaveContext() ? await WeaveClient.connect(appletServices) : null;
+  await clients.connect(appletServices);
 
   let app: App = null;
   function handleVisibilityChange() {
@@ -26,7 +23,7 @@ import { appletServices } from './we';
     if (document.visibilityState === 'visible') {
       app = new App({
         target: document.body,
-        props: { weaveClient },
+        props: {},
       });
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     }

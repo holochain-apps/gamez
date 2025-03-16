@@ -7,9 +7,10 @@
   export let hash: string;
   export let asAsset: boolean = false;
 
-  let gameSpace = readyGameSpace(hash);
+  // Ensure it's fully loaded
+  let gameSpaceStore = readyGameSpace(hash);
 </script>
 
-{#if $gameSpace}
-  <GameSpace gameSpace={$gameSpace} {asAsset} />
+{#if $gameSpaceStore}
+  <GameSpace GSS={$gameSpaceStore} {asAsset} />
 {/if}

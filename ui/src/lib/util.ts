@@ -1,4 +1,4 @@
-import type { WeaveUrl } from '@theweave/api';
+import type { WAL, WeaveUrl } from '@theweave/api';
 import classnames from 'classnames';
 import { readable } from 'svelte/store';
 import type { Readable } from 'svelte/store';
@@ -13,6 +13,7 @@ import {
   type EntryHash,
 } from '@holochain/client';
 
+import clients from '~/clients';
 import type { GameSpace } from '~/store';
 
 export { v1 as uuid } from 'uuid';
@@ -171,4 +172,15 @@ export function exportAsJson(gameSpace: GameSpace) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+export function hashToWAL(hash: string): WAL {
+  return {
+    hrl: [clients.dnaHash, decodeHashFromBase64(hash)],
+    context: {},
+  };
+}
+
+export function addGameSpaceToPocket(hash: string) {
+  return clients.weave.assets.assetToPocket(hashToWAL(hash));
 }

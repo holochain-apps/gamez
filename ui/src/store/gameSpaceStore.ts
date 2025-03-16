@@ -1,7 +1,9 @@
 import type { WAL, WeaveClient } from '@theweave/api';
-import { derived, get, type Readable, type Writable, writable } from 'svelte/store';
+import { derived, get, type Readable, readonly, type Writable, writable } from 'svelte/store';
 
+import clients from '~/clients';
 import { type SynDoc } from '~/lib/SimplerSyn';
+import { hashToWAL } from '~/lib/util';
 
 import { applyDelta, type Delta } from './grammar';
 import { type GameSpace } from './types';
@@ -15,10 +17,7 @@ type UiState = {
 
 export type GameSpaceSyn = ReturnType<typeof createGameSpaceSynStore>;
 
-export function createGameSpaceSynStore(
-  synDoc: SynDoc,
-  context: { weaveClient?: WeaveClient; toAsset: (gameSpaceHash: string) => WAL },
-) {
+export function createGameSpaceSynStore(synDoc: SynDoc) {
   console.log('SYN DOC', synDoc);
   const state = synDoc.state as Writable<GameSpace>;
   const pubKey = synDoc.pubKey;
@@ -99,6 +98,21 @@ export function createGameSpaceSynStore(
   // ╚██████╔╝██║    ███████║   ██║   ██║  ██║   ██║   ███████╗
   //  ╚═════╝ ╚═╝    ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
+  const editMode = writable<boolean>(false);
+  const editModeWasSet = writable<boolean>(false);
+
+  state.subscribe((gameSpace) => {
+    if (get(editModeWasSet) === false && gameSpace) {
+      if (gameSpace.isLibraryItem) {
+        editMode.set(true);
+        editModeWasSet.set(true);
+      } else {
+        editMode.set(false);
+        editModeWasSet.set(true);
+      }
+    }
+  });
+
   const ui = writable<UiState>({ zoom: 1, panX: 0, panY: 0, surfaceContainer: null });
 
   function getSurfaceCoordinates(clientX, clientY): { x: number; y: number } | null {
@@ -147,8 +161,8 @@ export function createGameSpaceSynStore(
       for (const delta of deltas) {
         applyDelta(delta, state, {
           pubKey,
-          weaveClient: context.weaveClient,
-          asAsset: () => context.toAsset(hash),
+          weaveClient: clients.weave,
+          asAsset: () => hashToWAL(hash),
         });
       }
       console.timeEnd('Running deltas');
@@ -195,7 +209,7 @@ export function createGameSpaceSynStore(
 
   return {
     // SYN
-    state,
+    state: readonly(state),
     pubKey,
     hash,
     participants,
@@ -212,6 +226,7 @@ export function createGameSpaceSynStore(
 
     // UI STATE
     ui,
+    editMode: readonly(editMode),
     getSurfaceCoordinates,
     getCurrentCenter,
     topZ,
@@ -225,3 +240,8 @@ export function createGameSpaceSynStore(
     leaveGame,
   };
 }
+
+// export function setContext() {
+//   setContext('game-space-store', gameSpace);
+//   setContext('game-space', state);
+// }

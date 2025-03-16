@@ -5,8 +5,6 @@
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import UserGroupIcon from '~icons/fa6-solid/user-group';
 
-  import { isWeaveContext } from '@theweave/api';
-
   import { route, goBack } from '~/lib/routes';
   import { tooltip } from '~/shared/tooltip';
   import { cx } from '~/lib/util';
@@ -14,10 +12,8 @@
   import AboutDialog from './AboutDialog.svelte';
   import AvatarDialog from './AvatarDialog.svelte';
   import ParticipantsDialog from './ParticipantsDialog.svelte';
-  import { getContext } from '~/store';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
-
-  const { profilesStore, pubKey, weaveClient } = getContext();
+  import clients from '~/clients';
 
   export let title = 'Board Gamez';
   export let canChangeTitle: boolean = false;
@@ -28,7 +24,7 @@
   let editAvatarDialog;
   let participantsDialog;
   //@ts-ignore
-  $: myProfile = get(profilesStore.myProfile).value;
+  $: myProfile = get(clients.profilesStore.myProfile).value;
   $: myName = myProfile ? myProfile.nickname : '';
 
   const editAvatar = () => {
@@ -96,7 +92,7 @@
     <BugIcon />
   </a>
 
-  {#if !weaveClient}
+  {#if !clients.weave}
     <button
       class="h12 w12 flexcc rounded-full hover:(bg-black/10 text-white)"
       on:click={() => {
@@ -114,7 +110,7 @@
       class="ml4! flexcc hover:brightness-120"
       use:tooltip={'Edit profile'}
     >
-      <AgentAvatar size={38} {pubKey} />
+      <AgentAvatar size={38} pubKey={clients.agentKeyB64} />
     </button>
   {/if}
 </div>

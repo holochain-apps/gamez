@@ -27,14 +27,7 @@ export function createElement(
     width: 100,
     height: 100,
     rotation: 0,
-    lock: {
-      position: false,
-      size: false,
-      rotation: false,
-      wals: false,
-      config: false,
-      remove: false,
-    },
+    can: {},
     wals: [],
   };
   const config = elements[libraryEl.type].config as LibraryConfig;

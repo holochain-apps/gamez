@@ -10,17 +10,16 @@
     weaveUrlFromWal,
   } from '@theweave/api';
   import { urlFromAppletHash, appletOrigin } from '@theweave/elements/dist/utils';
-  import { getContext, type GameSpaceSyn } from '~/store';
+  import { type GameSpaceSyn } from '~/store';
   import type { EmbedWalElement } from './type';
   import { cx } from '~/lib/util';
+  import clients from '~/clients';
 
   export let el: EmbedWalElement;
   export let gameSpace: GameSpaceSyn;
   let klass: string = '';
   export { klass as class };
   $$restProps; // This prevents Svelte warnings from unused props
-
-  const { weaveClient } = getContext();
 
   // Track the previous wals to detect changes
   let previousWals: string[] = [];
@@ -42,8 +41,8 @@
   }
 
   async function handleAddAttachment() {
-    if (weaveClient) {
-      const wal = await weaveClient.assets.userSelectAsset();
+    if (clients.weave) {
+      const wal = await clients.weave.assets.userSelectAsset();
       if (wal) {
         const weaveUrl = weaveUrlFromWal(wal);
         gameSpace.change({
@@ -79,7 +78,7 @@
     const weaveLocation = locations.find((location) => location.type === 'asset');
     if (!weaveLocation) throw 'No valid asset available';
     const wal = weaveLocation.wal;
-    const info = await weaveClient.assets.assetInfo(wal);
+    const info = await clients.weave.assets.assetInfo(wal);
     if (!info) throw 'Asset not found';
     const queryString = [
       'view=applet-view',
@@ -106,7 +105,7 @@
   }
 
   function handleOpenWal() {
-    weaveClient.openAsset(displayAsset.wal);
+    clients.weave.openAsset(displayAsset.wal);
   }
 </script>
 

@@ -1,10 +1,8 @@
 <script lang="ts">
   import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+  import clients from '~/clients';
 
   import { hashToB64 } from '~/lib/util';
-  import { getContext } from '~/store';
-
-  const { dnaHash } = getContext();
 
   const handleKeydown = (e) => {
     if (e.key === 'Escape') {
@@ -36,7 +34,7 @@
       >Copyright © 2023-2024 Holochain Foundation. This software is distributed under the MIT
       License</p
     >
-    <p class="small">DNA Hash: {$dnaHash ? hashToB64($dnaHash) : 'Loading...'}</p>
+    <p class="small">DNA Hash: {hashToB64(clients.dnaHash)}</p>
   </div>
 </sl-dialog>
 

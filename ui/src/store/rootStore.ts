@@ -1,19 +1,13 @@
-import { type WAL, type WeaveClient } from '@theweave/api';
-import { cloneDeep, zipObject } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
 import { derived, get, type Readable, writable } from 'svelte/store';
 
 import { ProfilesStore } from '@holochain-open-dev/profiles';
-import { SynClient, SynStore } from '@holochain-syn/core';
-import {
-  type AppClient,
-  decodeHashFromBase64,
-  type DnaHash,
-  encodeHashToBase64,
-} from '@holochain/client';
+import { SynStore } from '@holochain-syn/core';
 
+import clients from '~/clients';
 import SimplerSyn from '~/lib/SimplerSyn';
-import { getMyDna } from '~/lib/util';
+import { hashToWAL } from '~/lib/util';
 
 import { createGameSpaceSynStore, type GameSpaceSyn } from './gameSpaceStore';
 import { initialState } from './grammar';
@@ -21,21 +15,10 @@ import migration from './migration';
 import { type GameSpace, VERSION } from './types';
 import validateGameSpace from './validateGameSpace';
 
-const ROLE_NAME = 'gamez';
-
-export function createRootStore(
-  appClient: AppClient,
-  profilesStore: ProfilesStore,
-  weaveClient: WeaveClient | null,
-) {
-  const synClient = new SynClient(appClient, ROLE_NAME, 'syn');
-  const synStore = new SynStore(synClient);
-  const pubKey = encodeHashToBase64(synStore.client.client.myPubKey);
-  const _dnaHash = writable<DnaHash | null>(null);
-  const dnaHash = derived(_dnaHash, ($dnaHash) => $dnaHash);
-
+export function createRootStore() {
   const gameDocs = writable<{ [key: string]: GameSpaceSyn }>({});
   const statesMap = writable<{ [key: string]: GameSpace }>({});
+
   const loadedGameSpaceStores = derived(
     [gameDocs, statesMap],
     ([gameSpaceStores, gameSpaceStoresStates]) => {
@@ -52,13 +35,10 @@ export function createRootStore(
   );
 
   const simplerSyn = new SimplerSyn(
-    appClient,
     (synDocs, deletedDocs) => {
       gameDocs.update((val) => {
         const newVal = { ...val };
-        synDocs.forEach(
-          (doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc, { weaveClient, toAsset })),
-        );
+        synDocs.forEach((doc) => (newVal[doc.hash] = createGameSpaceSynStore(doc)));
         deletedDocs.forEach((hash) => delete newVal[hash]);
         return newVal;
       });
@@ -82,12 +62,8 @@ export function createRootStore(
     VERSION,
   );
 
-  getMyDna(ROLE_NAME, appClient).then((hash) => {
-    _dnaHash.set(hash);
-  });
-
   async function createGameSpace(from: Partial<GameSpace> = {}) {
-    const doc = await simplerSyn.createDoc({ ...initialState(pubKey), ...from });
+    const doc = await simplerSyn.createDoc({ ...initialState(clients.agentKeyB64), ...from });
     return doc.hash;
   }
 
@@ -96,7 +72,7 @@ export function createRootStore(
     const $state = $statesMap[hash];
     const $clonedState = cloneDeep($state);
     $clonedState.lastChangeAt = Date.now();
-    $clonedState.creator = pubKey;
+    $clonedState.creator = clients.agentKeyB64;
     $clonedState.name = `Clone of ${$state.name}`;
 
     const $states = Object.values(get(statesMap));
@@ -139,7 +115,7 @@ export function createRootStore(
           const validState = validateGameSpace(state);
           if (validState) {
             validState.playersSlots = validState.playersSlots.map((s) => ({ ...s, pubKey: null }));
-            validState.creator = pubKey;
+            validState.creator = clients.agentKeyB64;
             resolve(createGameSpace(validState));
           } else {
             reject(new Error('Invalid game space'));
@@ -157,45 +133,20 @@ export function createRootStore(
     );
   }
 
-  function addToPocket(gameSpace: GameSpaceSyn) {
-    const asset = toAsset(gameSpace.hash);
-    if (asset) {
-      weaveClient.assets.assetToPocket(asset);
-    } else {
-      console.log('Tried adding to pocket before the DNA hash was loaded');
-    }
-  }
-
-  function toAsset(gameSpaceHash: string): WAL {
-    const $dnaHash = get(dnaHash);
-    if ($dnaHash && weaveClient) {
-      return {
-        hrl: [$dnaHash, decodeHashFromBase64(gameSpaceHash)],
-        context: {},
-      };
-    }
-    return null;
-  }
-
   return {
     createGameSpace,
     gameDocs,
     gameSpaceStores: gameDocs,
     loadedGameSpaceStores,
-    weaveClient,
-    profilesStore,
-    pubKey,
     readyGameSpace,
     cloneGameSpace,
     deleteGameSpace,
     importFromJson,
     statesMap,
-    addToPocket,
-    dnaHash,
   };
 }
 
 export type RootStore = ReturnType<typeof createRootStore>;
 
-export const setContext = (getter: () => RootStore) => sSetContext('rootStore', { store: getter });
-export const getContext = () => sGetContext<{ store: () => RootStore }>('rootStore').store();
+export const createRootStoreContext = () => sSetContext('rootStore', createRootStore());
+export const getContext = () => sGetContext<RootStore>('rootStore');

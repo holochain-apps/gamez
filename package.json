@@ -26,8 +26,8 @@
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.300",
-    "@holochain/hc-spin": "^0.400.0",
-    "@theweave/cli": "0.13.0-rc.0",
+    "@holochain/hc-spin": "^0.400.1",
+    "@theweave/cli": "0.13.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "bestzip": "^2.2.1",
     "concurrently": "^9.0.1",

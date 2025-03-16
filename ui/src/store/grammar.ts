@@ -39,7 +39,7 @@ export type Delta =
 
 export function initialState(pubKey: string): GameSpace {
   return {
-    version: 9,
+    version: 10,
     name: 'Game Space',
     icon: '♟',
     creator: pubKey,
@@ -289,5 +289,5 @@ export const applyDelta = (
   }
 
   $state.lastChangeAt = Date.now();
-  $state.version = 9;
+  $state.version = 10;
 };

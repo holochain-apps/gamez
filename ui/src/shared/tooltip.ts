@@ -9,9 +9,21 @@ export function tooltip(
   if (!content) return;
   const text = typeof content === 'string' ? content : content.content;
   const placement = typeof content === 'string' ? 'bottom' : content.placement;
-  return svooltip(node, {
+  const sv = svooltip(node, {
     content: text,
     placement,
     target: document.getElementById('tooltips'),
   });
+
+  return {
+    destroy() {
+      sv.destroy();
+    },
+    update(newContent: string | { content: string; placement: Placement }) {
+      if (!newContent) return;
+      const text = typeof newContent === 'string' ? newContent : newContent.content;
+      const placement = typeof newContent === 'string' ? 'bottom' : newContent.placement;
+      sv.update({ content: text, placement });
+    },
+  };
 }

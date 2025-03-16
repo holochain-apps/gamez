@@ -37,13 +37,14 @@
       z: gameSpace.topZ(),
       rotation: 0,
       wals: [],
-      lock: {
-        position: false,
-        size: false,
-        rotation: false,
-        wals: false,
-        config: true,
-        remove: false,
+      can: {
+        move: true,
+        resize: false,
+        rotate: false,
+        attach: true,
+        configurate: false,
+        remove: true,
+        duplicate: false,
       },
       uuid: uuidv1(),
     };
@@ -98,10 +99,6 @@
 
     window.document.addEventListener('mousemove', handleMouseMoving);
     window.document.addEventListener('mouseup', handleMouseUp);
-  }
-
-  $: {
-    console.log('LIMIT', el.limit);
   }
 </script>
 

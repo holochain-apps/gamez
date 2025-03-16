@@ -2,7 +2,7 @@ import type { WeaveUrl } from '@theweave/api';
 
 import * as elements from '~/GameSpace/elements';
 
-export const VERSION = 9;
+export const VERSION = 10;
 
 export type AgentKey = string;
 
@@ -51,13 +51,38 @@ export type PlayerSlot = {
   color: string;
 };
 
-export type LockConfig = {
-  position: boolean;
-  size: boolean;
-  rotation: boolean;
-  wals: boolean;
-  config: boolean;
+// The CanConfig does not apply for
+// changes triggered by the in-game-element
+// just the configuration menu and the
+// controls of the elements wrapper
+export type CanConfig = {
+  move: boolean; // Includes Z-index
+  resize: boolean;
+  rotate: boolean;
+  attach: boolean;
+  configurate: boolean;
   remove: boolean;
+  duplicate: boolean;
+};
+
+export const DEFAULT_CAN_CONFIG: CanConfig = {
+  move: true,
+  resize: false,
+  rotate: false,
+  attach: true,
+  configurate: false,
+  remove: false,
+  duplicate: false,
+};
+
+export const CAN_ALL: CanConfig = {
+  move: true,
+  resize: true,
+  rotate: true,
+  attach: true,
+  configurate: true,
+  remove: true,
+  duplicate: true,
 };
 
 export type GElementBase = {
@@ -70,7 +95,7 @@ export type GElementBase = {
   rotation: number;
   width: number;
   height: number;
-  lock: LockConfig;
+  can: Partial<CanConfig>;
   wals: WeaveUrl[];
 };
 

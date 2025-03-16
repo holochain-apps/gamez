@@ -1,36 +1,28 @@
 import { isEqual } from 'lodash';
 import { derived } from 'svelte/store';
 
-import { asyncDerived, get, pipe, toPromise, writable } from '@holochain-open-dev/stores';
-import {
-  DocumentStore,
-  SessionStore,
-  SynClient,
-  SynStore,
-  WorkspaceStore,
-} from '@holochain-syn/core';
-import { type AppClient, decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
+import { get, pipe, toPromise, writable } from '@holochain-open-dev/stores';
+import { DocumentStore, SessionStore, SynStore, WorkspaceStore } from '@holochain-syn/core';
+import { decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
 
-export const ROOT_TAG = 'simpler-syn';
+import { VERSION } from '~/store/types';
+
+import clients from '../clients';
+
+export const ROOT_TAG = `simpler-syn-${VERSION}`;
 
 export default class SimplerSyn {
-  synClient: SynClient;
-  synStore: SynStore;
-
   docs = writable<{ [key: string]: SynDoc }>({});
   pubKey: string;
+  synStore: SynStore;
 
   constructor(
-    private appClient: AppClient,
     private onDocsLoaded: (synDocs: SynDoc[], deletedDocs: string[]) => void,
     private migrationFun: (state: any) => any = (state) => state,
     private documentVersion: number = 0,
   ) {
-    this.synClient = new SynClient(this.appClient, 'gamez', 'syn');
-    this.synStore = new SynStore(this.synClient);
-
-    this.pubKey = encodeHashToBase64(this.synClient.client.myPubKey);
-
+    this.pubKey = clients.agentKeyB64;
+    this.synStore = new SynStore(clients.syn);
     let prevDocsHashes: string[] = null;
     this.synStore.documentsByTag.get(ROOT_TAG).subscribe(async (latestDocs) => {
       if (latestDocs.status === 'complete') {
@@ -107,7 +99,7 @@ export default class SimplerSyn {
   }
 
   public async removeDoc(hash: string) {
-    await this.synClient.removeDocumentTag(decodeHashFromBase64(hash), ROOT_TAG);
+    await clients.syn.removeDocumentTag(decodeHashFromBase64(hash), ROOT_TAG);
     this.onDocsLoaded([], [hash]);
   }
 }
