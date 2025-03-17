@@ -65,6 +65,12 @@
       />
     {/each}
   </div>
+  {#if $gameSpaces.length === 0}
+    <div class="flexcc flex-col text-lg text-black/60 pt10">
+      <div>There are no active games</div>
+      <div>You can start one from the library</div>
+    </div>
+  {/if}
 
   <div class="flex-grow"></div>
   <Archive gameSpacesStores={$archivedGameSpaces} cols={true} />

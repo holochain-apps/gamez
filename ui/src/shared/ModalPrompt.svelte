@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Portal from 'svelte-portal';
   import { fade } from 'svelte/transition';
   import Input from '~/GameSpace/ui/Input.svelte';
@@ -11,6 +12,10 @@
   let value: string = defaultValue;
 
   let inputEl: HTMLInputElement;
+
+  onMount(() => {
+    inputEl.focus();
+  });
 
   function handleKeyDown(ev: KeyboardEvent) {
     if (ev.key === 'Enter') {
