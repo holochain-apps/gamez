@@ -13,20 +13,39 @@
   let container: HTMLDivElement;
   let box: Box | null = null;
 
+  async function wait(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function waitUntilWidthAndHeight(
+    el: HTMLElement,
+    fn: (width: number, height: number) => void,
+  ) {
+    while (true) {
+      const { width, height } = el.getBoundingClientRect();
+      if (width && height) {
+        fn(width, height);
+        return;
+      } else {
+        await wait(50);
+      }
+    }
+  }
+
   $: {
     if (container && elements.length) {
       const newBox = containingBox(elements, 50);
-      const { width, height } = container!.getBoundingClientRect();
-      if (newBox && width && height) {
-        const wRatio = width / newBox.w;
-        const hRatio = height / newBox.h;
-        zoom = Math.min(wRatio, hRatio);
-        console.log(wRatio, hRatio);
-        x = -newBox.x;
-        y = -newBox.y;
-        offsetX = wRatio > hRatio ? (width - newBox.w * zoom) / 2 : 0;
-        offsetY = hRatio > wRatio ? (height - newBox.h * zoom) / 2 : 0;
-        box = newBox;
+      if (newBox) {
+        waitUntilWidthAndHeight(container!, (width, height) => {
+          const wRatio = width / newBox.w;
+          const hRatio = height / newBox.h;
+          zoom = Math.min(wRatio, hRatio);
+          x = -newBox.x;
+          y = -newBox.y;
+          offsetX = wRatio > hRatio ? (width - newBox.w * zoom) / 2 : 0;
+          offsetY = hRatio > wRatio ? (height - newBox.h * zoom) / 2 : 0;
+          box = newBox;
+        });
       }
     }
   }
