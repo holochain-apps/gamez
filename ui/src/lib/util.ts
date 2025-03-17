@@ -186,3 +186,21 @@ export function hashToWAL(hash: string): WAL {
 export function addGameSpaceToPocket(hash: string) {
   return clients.weave.assets.assetToPocket(hashToWAL(hash));
 }
+
+export async function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+export async function waitUntilWidthAndHeight(
+  el: HTMLElement,
+  fn: (width: number, height: number) => void,
+) {
+  while (true) {
+    const { width, height } = el.getBoundingClientRect();
+    if (width && height) {
+      fn(width, height);
+      return;
+    } else {
+      await wait(50);
+    }
+  }
+}

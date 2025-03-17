@@ -40,8 +40,6 @@
     }
   }
 
-  $: console.log(playedPiecesCountByAgent);
-
   // Overlap pieces to fit container width
   let piecesContainer: HTMLDivElement[] = [];
   let timeout: NodeJS.Timeout;

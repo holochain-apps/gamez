@@ -2,9 +2,10 @@
   import cx from 'classnames';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { DEFAULT_CAN_CONFIG, type GElement, type GameSpaceSyn } from '~/store';
+  import { DEFAULT_CAN_CONFIG, containingBox, type GElement, type GameSpaceSyn } from '~/store';
   import Element from './Element';
   import Grid from './Grid.svelte';
+  import { waitUntilWidthAndHeight } from '~/lib/util';
 
   export let gameSpace: GameSpaceSyn;
   export let elements: GElement[];
@@ -120,6 +121,7 @@
   let isPanning = false;
 
   const handleZoomInOut = (ev: WheelEvent) => {
+    if (!$editMode) return;
     ev.preventDefault();
     const prevZoom = zoom;
     zoom += ev.deltaY * zoomStep;
@@ -134,6 +136,7 @@
   };
 
   const handlePanningStart = (ev: MouseEvent) => {
+    if (!$editMode) return;
     if (isPanning) return;
     if (shouldHandlePanning(ev.target as HTMLElement)) {
       isPanning = true;
@@ -203,16 +206,30 @@
 
   onMount(() => {
     function centerBoard() {
-      const { width, height } = boardContainer.getBoundingClientRect();
-      setTimeout(() => {
-        const { width, height } = boardContainer.getBoundingClientRect();
-      }, 100);
-      if (panX === 0 && panY === 0 && zoom === 1) {
-        panX = width / 2;
-        panY = height / 2;
-      }
+      // const { width, height } = boardContainer.getBoundingClientRect();
+      waitUntilWidthAndHeight(boardContainer, (width, height) => {
+        const box = containingBox(elements, 50);
+        console.log('BOX', box, elements);
+        if (!box) {
+          if (panX === 0 && panY === 0 && zoom === 1) {
+            panX = width / 2;
+            panY = height / 2;
+          }
+        } else {
+          const wRatio = width / box.w;
+          const hRatio = height / box.h;
+          zoom = Math.min(maxZoom, wRatio, hRatio);
+          const offsetX = width > box.w * zoom ? (width / zoom - box.w) / 2 : 0;
+          const offsetY = height > box.h * zoom ? (height / zoom - box.h) / 2 : 0;
+
+          panX = -box.x + offsetX;
+          panY = -box.y + offsetY;
+        }
+      });
     }
+
     centerBoard();
+
     window.addEventListener('resize', centerBoard);
     return () => {
       window.removeEventListener('resize', centerBoard);

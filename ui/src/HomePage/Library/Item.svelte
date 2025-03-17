@@ -53,7 +53,7 @@
   }
 
   const btnClass =
-    'bg-main-850 rounded-md size-full hover:(bg-main-900 scale-105 transition-none) transition-transform flexcc b b-white/20';
+    'bg-main-850 rounded-md size-full disabled:(hover:scale-100 bg-main-850 opacity-50) hover:(bg-main-900 scale-105 transition-none) transition-transform flexcc b b-white/20';
 </script>
 
 <div class="w-1/2 p1">
@@ -61,7 +61,9 @@
     <div class="w-full h28">
       <MiniView {gameSpace} />
     </div>
-    <h2 class="text-xl text-black/70 p1 text-center">
+    <h2
+      class="text-xl text-black/70 p1 text-center whitespace-nowrap overflow-hidden text-ellipsis px2"
+    >
       {gameSpace.name}
     </h2>
     <div class="grid p1 grid-cols-3 gap-1 h12 text-xl">
@@ -69,8 +71,11 @@
         <PenIcon class="h50%" />
       </button>
       <button
-        use:tooltip={'Create new space from this and enter'}
+        use:tooltip={gameSpace.elements.length === 0
+          ? 'This space is empty'
+          : 'Create new space from this and enter'}
         on:click={gameSpace.isArchived ? null : onPlay}
+        disabled={gameSpace.elements.length === 0}
         class={btnClass}
       >
         <WandIcon class="h50%" />

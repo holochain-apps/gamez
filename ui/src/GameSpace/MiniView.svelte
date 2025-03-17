@@ -1,6 +1,7 @@
 <script lang="ts">
   import { containingBox, type Box, type GElement, type GameSpace } from '~/store';
   import * as ELS from './elements';
+  import { waitUntilWidthAndHeight } from '~/lib/util';
 
   export let gameSpace: GameSpace;
   $: elements = gameSpace.elements;
@@ -12,25 +13,6 @@
   let offsetY = 0;
   let container: HTMLDivElement;
   let box: Box | null = null;
-
-  async function wait(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  async function waitUntilWidthAndHeight(
-    el: HTMLElement,
-    fn: (width: number, height: number) => void,
-  ) {
-    while (true) {
-      const { width, height } = el.getBoundingClientRect();
-      if (width && height) {
-        fn(width, height);
-        return;
-      } else {
-        await wait(50);
-      }
-    }
-  }
 
   $: {
     if (container && elements.length) {
