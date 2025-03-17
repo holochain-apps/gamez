@@ -45,21 +45,11 @@ async function connect(appletServices: AppletServices): Promise<void> {
   let appClient: AppClient;
   let profilesClient: ProfilesClient;
   let weaveClient: WeaveClient | null = null;
-  let wal: WAL | null = null;
   if (isWeaveContext()) {
     weaveClient = await WeaveClient.connect(appletServices);
 
     if (weaveClient.renderInfo.type !== 'applet-view') {
       throw 'Not running in Weave applet view';
-    }
-
-    if (weaveClient.renderInfo.view.type === 'asset') {
-      console.log('Rendering as asset', weaveClient.renderInfo.view.wal.hrl);
-      console.log('CONTEXT:', weaveClient.renderInfo.view.wal.context);
-
-      wal = weaveClient.renderInfo.view.wal;
-    } else if (weaveClient.renderInfo.view.type !== 'main') {
-      throw 'Only works as asset or main thread';
     }
 
     appClient = weaveClient.renderInfo.appletClient;
@@ -110,7 +100,7 @@ async function connect(appletServices: AppletServices): Promise<void> {
 
   const view = weaveClient?.renderInfo.view || { type: 'main' };
 
-  // Validate view
+  let wal: WAL | null = null;
   switch (view.type) {
     case 'main':
       // Nothing to do
@@ -133,9 +123,15 @@ async function connect(appletServices: AppletServices): Promise<void> {
       if (view.recordInfo.entryType !== 'document') {
         throw new Error('Unknown entry type:' + view.recordInfo.entryType);
       }
+
+      console.log('Rendering as asset', view.wal.hrl);
+      console.log('CONTEXT:', view.wal.context);
+
+      wal = view.wal;
       break;
     case 'creatable':
-      if (view.name !== 'game') {
+      console.log(view);
+      if (view.name !== 'Game') {
         throw new Error('Unknown creatable: ' + view.name);
       }
       break;

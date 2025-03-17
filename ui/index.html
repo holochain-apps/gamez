@@ -7,6 +7,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="bg-main-800 text-black/70 flex flex-col min-h-0">
+    <div id="initial-loading" class="flexcc size-full">
+      <div class="h16 w16 relative flexcc">
+        <div
+          class="b-6 b-main-800 b-t-main-600 b-b-main-600 w8 h8 animate-spin animate-duration-1500 rounded-full"
+        ></div>
+        <div
+          class="b-10 b-main-800 b-t-main-600 w16 h16 animate-spin animate-duration-3000 rounded-full absolute"
+        ></div>
+      </div>
+    </div>
     <script type="module" src="./src/main.ts"></script>
     <div id="tooltips" class="z-1000"></div>
   </body>

@@ -26,10 +26,10 @@ export const appletServices: AppletServices = {
   // Types of attachment that this Applet offers for other Applets to be created
   creatables: {
     // Disable for now
-    // game: {
-    //   label: 'Game',
-    //   icon_src: ICON,
-    // },
+    game: {
+      label: 'Game',
+      icon_src: ICON,
+    },
   },
   // Types of UI widgets/blocks that this Applet supports
   blockTypes: {},

@@ -6,6 +6,7 @@
 
   import ControllerMain from './controllers/ControllerMain.svelte';
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
+  import ControllerCreatable from './controllers/ControllerCreatable.svelte';
   import ModalPromptContextWrapper from './shared/ModalPromptContextWrapper.svelte';
 
   import { createRootStoreContext } from '~/store';
@@ -18,8 +19,10 @@
 <svelte:head></svelte:head>
 <profiles-context store={clients.profilesStore} id="root">
   <ModalPromptContextWrapper>
-    {#if $prof.status == 'pending'}
-      <LoadingIndicator textual={false} class="mt40" />
+    {#if clients.view.type === 'creatable'}
+      <ControllerCreatable view={clients.view} />
+    {:else if $prof.status == 'pending'}
+      <LoadingIndicator textual={false} />
     {:else if $prof.status == 'complete' && $prof.value == undefined}
       <div class="create-profile">
         <div class="welcome-text"><LogoIcon /></div>
@@ -29,8 +32,6 @@
       <ControllerMain />
     {:else if clients.view.type === 'asset'}
       <ControllerBoardAsset view={clients.view} />
-    {:else if clients.view.type === 'creatable'}
-      <!-- <ControllerCreatable view={state.view} /> -->
     {/if}
   </ModalPromptContextWrapper>
 </profiles-context>

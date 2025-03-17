@@ -90,7 +90,7 @@ export default class SimplerSyn {
       this.migrationFun,
       this.documentVersion,
     );
-    this.synStore.client.tagDocument(document.documentHash, ROOT_TAG);
+    await this.synStore.client.tagDocument(document.documentHash, ROOT_TAG);
     this.docs.update((val) => {
       return { ...val, [synDoc.hash]: synDoc };
     });

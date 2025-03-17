@@ -15,7 +15,6 @@
 
   $: {
     if (container && elements.length) {
-      console.log('Recalculating');
       const newBox = containingBox(elements, 50);
       const { width, height } = container!.getBoundingClientRect();
       if (newBox && width && height) {

@@ -133,10 +133,25 @@ export function createRootStore() {
     );
   }
 
+  function filterSortedStores(
+    filterFun: (gameSpace: GameSpace) => boolean,
+  ): Readable<GameSpaceSyn[]> {
+    return derived([gameDocs, statesMap], ([$gameSpaceStores, $states]) => {
+      return Object.values($gameSpaceStores)
+        .filter(($store) => $store && $states[$store.hash])
+        .filter(($store) => filterFun($states[$store.hash]))
+        .sort(
+          ($storeA, $storeB) =>
+            $states[$storeB.hash].lastChangeAt - $states[$storeA.hash].lastChangeAt,
+        );
+    });
+  }
+
   return {
     createGameSpace,
     gameDocs,
     gameSpaceStores: gameDocs,
+    filterSortedStores,
     loadedGameSpaceStores,
     readyGameSpace,
     cloneGameSpace,
