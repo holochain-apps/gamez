@@ -6,7 +6,7 @@
   // import Checkbox from '../ui/Checkbox.svelte';
   import IntegerInput from '../ui/IntegerInput.svelte';
   import { tooltip } from '~/shared/tooltip';
-  import EmojiPicker from '~/shared/EmojiPicker.svelte';
+  // import EmojiPicker from '~/shared/EmojiPicker.svelte';
 
   // export let isSteward: boolean;
   export let creator: string;
@@ -21,25 +21,25 @@
   export let canEdit: boolean;
   // export let onIsStewardedChange: (isStewarded: boolean) => void;
 
-  let emojiPickerTarget: HTMLButtonElement;
-  let emojiPickerOpen = false;
-  function openEmojiPicker() {
-    emojiPickerOpen = true;
-  }
+  // let emojiPickerTarget: HTMLButtonElement;
+  // let emojiPickerOpen = false;
+  // function openEmojiPicker() {
+  //   emojiPickerOpen = true;
+  // }
 
-  function pickedEmoji(emoji: string) {
-    emojiPickerOpen = false;
-    onIconChange(emoji);
-  }
+  // function pickedEmoji(emoji: string) {
+  //   emojiPickerOpen = false;
+  //   onIconChange(emoji);
+  // }
 
-  function cancelPickEmoji() {
-    emojiPickerOpen = false;
-  }
+  // function cancelPickEmoji() {
+  //   emojiPickerOpen = false;
+  // }
 </script>
 
-{#if emojiPickerOpen}
+<!-- {#if emojiPickerOpen}
   <EmojiPicker target={emojiPickerTarget} onCancel={cancelPickEmoji} onSelect={pickedEmoji} />
-{/if}
+{/if} -->
 
 <div class="w-60 bg-main-800 h-full flex-shrink-0">
   <div class="h16 p2 relative bg-white/10 b b-black/10 flexcs">
@@ -49,6 +49,11 @@
   </div>
   <div class="p4 flex flex-col space-y-4">
     <div class="flexcc">
+      <!-- <button
+        class="flexcc -mt-1 w10 h10 flex-shrink-0 mr2 rounded-md text-2xl text-white bg-main-400 hover:bg-main-500 b b-black/10 text-black"
+        on:click={openEmojiPicker}
+        bind:this={emojiPickerTarget}>{icon}</button
+      > -->
       <Input value={name} label="Name" disabled={!canEdit} onInput={onNameChange} />
     </div>
     <!-- <Checkbox
