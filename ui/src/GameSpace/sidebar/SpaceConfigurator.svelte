@@ -49,11 +49,6 @@
   </div>
   <div class="p4 flex flex-col space-y-4">
     <div class="flexcc">
-      <button
-        class="flexcc -mt-1 w10 h10 flex-shrink-0 mr2 rounded-md text-2xl text-white bg-main-400 hover:bg-main-500 b b-black/10 text-black"
-        on:click={openEmojiPicker}
-        bind:this={emojiPickerTarget}>{icon}</button
-      >
       <Input value={name} label="Name" disabled={!canEdit} onInput={onNameChange} />
     </div>
     <!-- <Checkbox
