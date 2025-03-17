@@ -140,7 +140,7 @@
   <Portal target="body">
     <div
       class="absolute z-50 top-0 left-0 cursor-grabbing"
-      style={`transform: translate(${x}px, ${y}px)`}
+      style={`transform: translate(${x}px, ${y}px) scale(${zoomLevel});`}
     >
       <Piece class="relative z-20 " el={displayPieceEl} />
     </div>
