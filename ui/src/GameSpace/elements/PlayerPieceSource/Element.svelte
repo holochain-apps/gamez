@@ -169,7 +169,7 @@
             !isLocked}
           {#if el.showEmptyPlayersSlots || playerPubKey}
             {#if el.showNames}
-              <div class="flexce text-xs">
+              <div class="flexce text-xs text-white/80!">
                 {#if playerPubKey}
                   <AgentName pubKey={playerPubKey} />
                 {:else}

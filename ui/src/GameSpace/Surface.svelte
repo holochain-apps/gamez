@@ -206,10 +206,8 @@
 
   onMount(() => {
     function centerBoard() {
-      // const { width, height } = boardContainer.getBoundingClientRect();
       waitUntilWidthAndHeight(boardContainer, (width, height) => {
         const box = containingBox(elements, 50);
-        console.log('BOX', box, elements);
         if (!box) {
           if (panX === 0 && panY === 0 && zoom === 1) {
             panX = width / 2;
