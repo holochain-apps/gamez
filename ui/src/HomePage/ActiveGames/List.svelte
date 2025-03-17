@@ -1,12 +1,12 @@
 <script lang="ts">
-  import CaretIcon from '~icons/fa6-solid/caret-down';
   import { derived } from 'svelte/store';
   import { cloneDeep, zip } from 'lodash';
   import { getContext, type GameSpace, type GameSpaceSyn } from '~/store';
   import Item from './Item.svelte';
   import { nav } from '~/lib/routes';
-  import { cx } from '~/lib/util';
+  import { cx, exportAsJson } from '~/lib/util';
   import Archive from '../Archive.svelte';
+  import clients from '~/clients';
 
   const store = getContext();
   $: gameDocs = store.gameDocs;
@@ -34,7 +34,7 @@
     const newGameSpace: GameSpace = {
       ...cloneDeep(gameSpace),
       name: `Copy of ${gameSpace.name}`,
-      creator: store.pubKey,
+      creator: clients.agentKeyB64,
     };
     return await store.createGameSpace(newGameSpace);
   }
@@ -47,8 +47,8 @@
     gameSpace.change({ type: 'set-is-archived', value: true }, true);
   }
 
-  function handleExport(gameSpace: GameSpaceSyn) {
-    gameSpace.exportAsJson();
+  function handleExport(gameSpace: GameSpace) {
+    exportAsJson(gameSpace);
   }
 </script>
 
@@ -61,7 +61,7 @@
         onDuplicate={() => handleDuplicate($state)}
         onArchive={() => handleArchive(gameSpace)}
         onDelete={() => handleDelete(gameSpace.hash)}
-        onExport={() => handleExport(gameSpace)}
+        onExport={() => handleExport($state)}
       />
     {/each}
   </div>

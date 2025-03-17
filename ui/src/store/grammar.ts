@@ -239,44 +239,46 @@ export const applyDelta = (
   }
 
   function addLog(log: { message: string; type: LogType; pubKey?: string; elRef?: string }) {
-    $state.activityLog.push({
-      type: log.type,
-      message: log.message,
-      time: Date.now(),
-      seenBy: [context.pubKey],
-      agentKey: log.pubKey || context.pubKey,
-      elRef: log.elRef || null,
-    });
-    const nConfig = {
-      ...DEFAULT_NOTIFICATIONS_CONFIG,
-      ...($state.notificationsConfigOverride[context.pubKey] || {}),
-    };
-    if (context.weaveClient) {
-      const players = $state.playersSlots
-        .filter((p) => p.pubKey !== context.pubKey && p.pubKey)
-        .filter((p) => {
-          const nConfig = {
-            ...DEFAULT_NOTIFICATIONS_CONFIG,
-            ...($state.notificationsConfigOverride[p.pubKey] || {}),
-          };
-          return nConfig[log.type];
-        })
-        .map((p) => decodeHashFromBase64(p.pubKey));
-      console.log('SENDING NOTIFICATIONS TO', players);
-      if (players) {
-        context.weaveClient.notifyFrame([
-          {
-            title: log.message,
-            body: '',
-            notification_type: log.type,
-            urgency: 'medium',
-            fromAgent: decodeHashFromBase64(context.pubKey),
-            forAgents: players,
-            icon_src: undefined,
-            timestamp: Date.now(),
-            aboutWal: context.asAsset(),
-          },
-        ]);
+    if (!$state.isLibraryItem) {
+      $state.activityLog.push({
+        type: log.type,
+        message: log.message,
+        time: Date.now(),
+        seenBy: [context.pubKey],
+        agentKey: log.pubKey || context.pubKey,
+        elRef: log.elRef || null,
+      });
+      const nConfig = {
+        ...DEFAULT_NOTIFICATIONS_CONFIG,
+        ...($state.notificationsConfigOverride[context.pubKey] || {}),
+      };
+      if (context.weaveClient) {
+        const players = $state.playersSlots
+          .filter((p) => p.pubKey !== context.pubKey && p.pubKey)
+          .filter((p) => {
+            const nConfig = {
+              ...DEFAULT_NOTIFICATIONS_CONFIG,
+              ...($state.notificationsConfigOverride[p.pubKey] || {}),
+            };
+            return nConfig[log.type];
+          })
+          .map((p) => decodeHashFromBase64(p.pubKey));
+        console.log('SENDING NOTIFICATIONS TO', players);
+        if (players) {
+          context.weaveClient.notifyFrame([
+            {
+              title: log.message,
+              body: '',
+              notification_type: log.type,
+              urgency: 'medium',
+              fromAgent: decodeHashFromBase64(context.pubKey),
+              forAgents: players,
+              icon_src: undefined,
+              timestamp: Date.now(),
+              aboutWal: context.asAsset(),
+            },
+          ]);
+        }
       }
     }
   }

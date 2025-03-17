@@ -163,8 +163,10 @@ export const timeFormat = (date: Date): string => {
 };
 
 export function exportAsJson(gameSpace: GameSpace) {
-  const filename = gameSpace.name.toLocaleLowerCase().replaceAll(/\s+/g, '-') + '.json';
-  const jsonString = JSON.stringify(gameSpace, null, 2);
+  const toExport = { ...gameSpace };
+  toExport.activityLog = [];
+  const filename = toExport.name.toLocaleLowerCase().replaceAll(/\s+/g, '-') + '.json';
+  const jsonString = JSON.stringify(toExport, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
