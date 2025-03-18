@@ -10,12 +10,14 @@
   export let gameSpace: GameSpaceSyn;
   export let el: GElement;
   export let dragging: boolean = false;
+  export let onMouseDown: (ev: MouseEvent) => void;
   export let onDragStart: (ev: DragEvent) => void;
   export let onDragEnd: () => void;
   export let onContextMenu: (ev: MouseEvent) => void;
   export let onResized: (width: number, height: number) => void;
   export let onRotated: (rotation: number) => void;
   export let zoomLevel: number;
+  export let isSelected: boolean;
 
   export let draggable: boolean;
   export let resizable: boolean;
@@ -158,27 +160,40 @@
   $: Element = elements[previewEl.type].Element as any;
 
   let highlighted = false;
+
+  $: boxStyle = `width: ${previewEl.width}px;
+    height: ${previewEl.height}px;
+    top: ${-previewEl.height / 2}px;
+    left: ${-previewEl.width / 2}px;
+    transform: translate(${el.x}px, ${el.y}px) rotate(${previewEl.rotation}deg);`;
+
+  $: console.log('IS SELECTED', isSelected);
 </script>
 
+<!-- on:dragstart={onDragStart} -->
+<!-- on:dragend={onDragEnd} -->
+<!-- on:mouseenter={startHovering} -->
+<!-- {#if isSelected}
+  <div
+    class=" absolute transform-origin-center pointer-events-none"
+    style={`${boxStyle}; z-index: ${el.z - 1};`}
+  >
+    <div class="absolute -inset-[2px] b-dashed b b-cyan-400 bg-cyan-400/30"></div>
+  </div>
+{/if} -->
 <div
   class={cx('absolute transform-origin-center', {
     'cursor-grabbing': dragging,
     'cursor-grab': draggable && !dragging,
   })}
-  style={`
-    width: ${previewEl.width}px;
-    height: ${previewEl.height}px;
-    top: ${-previewEl.height / 2}px;
-    left: ${-previewEl.width / 2}px;
-    transform: translate(${el.x}px, ${el.y}px) rotate(${previewEl.rotation}deg);
+  style={`${boxStyle}
     z-index: ${el.z};
   `}
   bind:this={htmlEl}
-  on:dragstart={onDragStart}
-  on:dragend={onDragEnd}
-  on:contextmenu={onContextMenu}
-  on:mouseenter={startHovering}
-  {draggable}
+  on:contextmenu={(ev) => {
+    ev.preventDefault();
+  }}
+  on:mousedown={onMouseDown}
 >
   <svelte:component
     this={Element}

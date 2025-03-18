@@ -192,12 +192,12 @@ export async function wait(ms: number) {
 }
 export async function waitUntilWidthAndHeight(
   el: HTMLElement,
-  fn: (width: number, height: number) => void,
+  fn: (width: number, height: number, left: number, top: number) => void,
 ) {
   while (true) {
-    const { width, height } = el.getBoundingClientRect();
+    const { width, height, left, top } = el.getBoundingClientRect();
     if (width && height) {
-      fn(width, height);
+      fn(width, height, left, top);
       return;
     } else {
       await wait(50);
