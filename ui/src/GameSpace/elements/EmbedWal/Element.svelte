@@ -158,6 +158,7 @@
     {:else}
       <button
         class="w-full h-full flexcc cursor-pointer"
+        on:mousedown={(ev) => ev.stopPropagation()}
         on:click={() => handleAddAttachment()}
         style={`font-size: ${Math.min(Math.min(el.width, el.height) * 0.5, 200)}px;`}>📎</button
       >

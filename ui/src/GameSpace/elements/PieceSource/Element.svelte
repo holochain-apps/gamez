@@ -124,7 +124,11 @@
               'opacity-25 saturate-0': isUsed,
             })}
           >
-            <Piece class="relative z-20 " el={displayPieceEl} />
+            <Piece
+              class="relative z-20"
+              style={`width: ${el.pieceW}px; height: ${el.pieceH}px;`}
+              el={displayPieceEl}
+            />
           </div>
         {/each}
       {:else}
@@ -140,7 +144,7 @@
   <Portal target="body">
     <div
       class="absolute z-50 top-0 left-0 cursor-grabbing"
-      style={`transform: translate(${x}px, ${y}px) scale(${zoomLevel});`}
+      style={`width: ${el.pieceW}px; height: ${el.pieceH}px; transform: translate(${x}px, ${y}px)`}
     >
       <Piece class="relative z-20 " el={displayPieceEl} />
     </div>

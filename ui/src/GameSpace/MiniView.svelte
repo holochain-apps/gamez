@@ -59,8 +59,8 @@
         style={`
           width: ${el.width}px;
           height: ${el.height}px;
-          top: ${-el.height / 2}px;
-          left: ${-el.width / 2}px;
+          top: 0px;
+          left: 0px;
           transform: translate(${el.x}px, ${el.y}px) rotate(${el.rotation}deg);
           z-index: ${el.z};
     `}

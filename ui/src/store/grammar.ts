@@ -27,13 +27,14 @@ export type Delta =
   | { type: 'join-game' }
   | { type: 'leave-game' }
   | { type: 'add-element'; element: GElement }
-  | { type: 'move-element'; uuid: string; x: number; y: number }
+  | { type: 'move-element'; uuid: string; offset: { x: number; y: number } }
   | { type: 'move-elements'; uuids: string[]; offset: { x: number; y: number } }
   | { type: 'resize-element'; uuid: string; width: number; height: number }
   | { type: 'rotate-element'; uuid: string; rotation: number }
   | { type: 'move-z'; uuid: string; z: 'top' | 'bottom' | 'up' | 'down' }
   | { type: 'update-element'; element: Partial<GElement> }
   | { type: 'remove-element'; uuid: string }
+  | { type: 'remove-elements'; uuids: string[] }
   | { type: 'add-log'; log: { message: string; type: LogType; pubKey?: string } }
   | { type: 'seen-activity-log' }
   | { type: 'set-notifications-config-override'; config: Partial<NotificationsConfig> };
@@ -137,8 +138,8 @@ export const applyDelta = (
     case 'move-element': {
       $state.elements.forEach((e) => {
         if (e.uuid === delta.uuid) {
-          e.x = delta.x;
-          e.y = delta.y;
+          e.x += delta.offset.x;
+          e.y += delta.offset.y;
           const label = getLabel(e.type);
           addLog({ message: `moved ${label}`, type: 'move', elRef: delta.uuid });
         }
@@ -226,6 +227,20 @@ export const applyDelta = (
       $state.elements.splice(index, 1);
       const label = getLabel(el.type);
       addLog({ message: `removed ${label}`, type: 'remove', elRef: delta.uuid });
+
+      break;
+    }
+    case 'remove-elements': {
+      delta.uuids.forEach((uuid) => {
+        const index = $state.elements.findIndex((e) => e.uuid === uuid);
+        $state.elements.splice(index, 1);
+      });
+
+      // if (index === -1) return;
+      // const el = $state.elements[index];
+      // $state.elements.splice(index, 1);
+      // const label = getLabel(el.type);
+      // addLog({ message: `removed ${label}`, type: 'remove', elRef: delta.uuid });
 
       break;
     }

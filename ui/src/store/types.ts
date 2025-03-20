@@ -132,10 +132,10 @@ export function containingBox(els: GElementBase[], offset = 0): Box | null {
   let br: number;
 
   boxes.forEach((b) => {
-    const Bl = b.x - b.w / 2;
-    const Br = b.x + b.w / 2;
-    const Bt = b.y - b.h / 2;
-    const Bb = b.y + b.h / 2;
+    const Bl = b.x;
+    const Br = b.x + b.w;
+    const Bt = b.y;
+    const Bb = b.y + b.h;
 
     if (Bl < tl || tl === undefined) tl = Bl;
     if (Bt < tr || tr === undefined) tr = Bt;

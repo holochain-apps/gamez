@@ -241,18 +241,18 @@
           />
         {/if}
       {/if}
-      <Surface
-        gameSpace={GSS}
-        elements={$GS.elements}
-        onMoveElement={(uuid, x, y) => {
+      <!-- onMoveElement={(uuid, x, y) => {
           GSS.change({ type: 'move-element', uuid, x, y });
-        }}
-        onResizeElement={(uuid, width, height) => {
+        }} -->
+      <!-- onResizeElement={(uuid, width, height) => {
           GSS.change({ type: 'resize-element', uuid, width, height });
         }}
         onRotateElement={(uuid, rotation) => {
           GSS.change({ type: 'rotate-element', uuid, rotation });
-        }}
+        }} -->
+      <Surface
+        gameSpace={GSS}
+        elements={$GS.elements}
         canOpenConfigMenu={$GS.isLibraryItem}
         onContextMenu={handleContextMenu}
       />
