@@ -48,24 +48,24 @@
 
       ctx.restore();
 
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = '#fff6';
+      // ctx.lineWidth = 2;
+      // ctx.strokeStyle = '#fff6';
 
-      if (physicalPanX > 0 && physicalPanX < width) {
-        const centerX = physicalPanX;
-        ctx.beginPath();
-        ctx.moveTo(centerX, 0);
-        ctx.lineTo(centerX, height);
-        ctx.stroke();
-      }
+      // if (physicalPanX > 0 && physicalPanX < width) {
+      //   const centerX = physicalPanX;
+      //   ctx.beginPath();
+      //   ctx.moveTo(centerX, 0);
+      //   ctx.lineTo(centerX, height);
+      //   ctx.stroke();
+      // }
 
-      if (physicalPanY > 0 && physicalPanY < height) {
-        const centerY = physicalPanY;
-        ctx.beginPath();
-        ctx.moveTo(0, centerY);
-        ctx.lineTo(width, centerY);
-        ctx.stroke();
-      }
+      // if (physicalPanY > 0 && physicalPanY < height) {
+      //   const centerY = physicalPanY;
+      //   ctx.beginPath();
+      //   ctx.moveTo(0, centerY);
+      //   ctx.lineTo(width, centerY);
+      //   ctx.stroke();
+      // }
     }
   }
 </script>

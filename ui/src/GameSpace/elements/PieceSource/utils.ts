@@ -5,11 +5,13 @@ export function isWithinVisualBoundary(
 ): boolean {
   const centerX = element.x;
   const centerY = element.y;
-  const x = element.x - element.width / 2;
-  const y = element.y - element.height / 2;
+  const x = element.x;
+  const y = element.y;
   const width = element.width;
   const height = element.height;
   const radius = Math.min(width, height) / 2;
+
+  return isWithinRectangle(pos, x, y, width, height);
 
   // Quick check: if the point is outside the bounding box of the element
   if (!isWithinRectangle(pos, x, y, width, height)) {

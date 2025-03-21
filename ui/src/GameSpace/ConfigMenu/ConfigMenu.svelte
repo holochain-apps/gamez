@@ -83,7 +83,7 @@
 {#if shouldBeShown}
   <div
     bind:this={element}
-    class="fixed left-0 z-110 top-0 min-w-70 rounded-md bg-gray-50 shadow-md b b-black/10 p2"
+    class="fixed left-0 z-1000 top-0 min-w-70 rounded-md bg-gray-50 shadow-md b b-black/10 p2"
     style={`
     top: ${y - adjustY}px;
     left: ${x - adjustX}px;

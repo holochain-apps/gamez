@@ -32,8 +32,8 @@
       display: cloneDeep(el.display),
       width: el.pieceW,
       height: el.pieceH,
-      x,
-      y,
+      x: x - el.pieceW / 2 + 0,
+      y: y - el.pieceH / 2 + 0,
       z: gameSpace.topZ(),
       rotation: 0,
       wals: [],
@@ -60,12 +60,11 @@
     ]);
   }
 
-  let container: HTMLDivElement;
-
   type DragState = {
     x: number;
     y: number;
   } | null;
+
   let dragState: DragState = null;
   function handleMouseDown(ev: MouseEvent) {
     if (ev.button !== 0) return;
@@ -109,9 +108,6 @@
       'hover:cursor-grabbing': dragState,
       'hover:bg-red-6': canAddPiece,
     })}
-    on:dragstart={(ev) => {
-      console.log('DRAGGING?');
-    }}
     on:mousedown={canAddPiece ? handleMouseDown : null}
   >
     <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
@@ -132,19 +128,27 @@
           </div>
         {/each}
       {:else}
-        <Piece class="relative z-20 scale-200" el={displayPieceEl} />
+        <div style={`width: ${displayPieceEl.width * 2}px; ${displayPieceEl.height * 2}px;`}>
+          <Piece class="relative z-20" el={displayPieceEl} />
+        </div>
       {/if}
     </div>
   </div>
 </div>
 
 {#if dragState}
-  {@const x = dragState.x - el.pieceW / 2}
-  {@const y = dragState.y - el.pieceH / 2}
+  {@const x = dragState.x}
+  {@const y = dragState.y}
   <Portal target="body">
     <div
-      class="absolute z-50 top-0 left-0 cursor-grabbing"
-      style={`width: ${el.pieceW}px; height: ${el.pieceH}px; transform: translate(${x}px, ${y}px)`}
+      class="absolute z-1000 top-0 left-0 cursor-grabbing"
+      style={`
+        width: ${el.pieceW * zoomLevel}px;
+        height: ${el.pieceH * zoomLevel}px;
+        transform: translate(${x}px, ${y}px);
+        left: ${(-el.pieceW / 2) * zoomLevel}px;
+        top: ${(-el.pieceH / 2) * zoomLevel}px;
+      `}
     >
       <Piece class="relative z-20 " el={displayPieceEl} />
     </div>

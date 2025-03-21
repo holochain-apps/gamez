@@ -54,9 +54,11 @@ export const applyDelta = (delta: Delta, status: GameSpace, context: any) => {
       }
       break;
     }
-    case 'remove-element': {
-      forEachPieceSourceContainingElement(status, delta.uuid, (ps) => {
-        ps.createdPieces = ps.createdPieces.filter((p) => p !== delta.uuid);
+    case 'remove-elements': {
+      delta.uuids.forEach((uuid) => {
+        forEachPieceSourceContainingElement(status, uuid, (ps) => {
+          ps.createdPieces = ps.createdPieces.filter((p) => p !== uuid);
+        });
       });
       break;
     }

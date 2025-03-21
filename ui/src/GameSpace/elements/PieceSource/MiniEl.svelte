@@ -24,11 +24,19 @@
               'opacity-25 saturate-0': isUsed,
             })}
           >
-            <Piece class="relative z-20 " el={displayPieceEl} />
+            <Piece
+              style={`width: ${displayPieceEl.width}px; height: ${displayPieceEl.height}px;`}
+              class="relative z-20 "
+              el={displayPieceEl}
+            />
           </div>
         {/each}
       {:else}
-        <Piece class="relative z-20" style="transform: scale(2);" el={displayPieceEl} />
+        <Piece
+          style={`width: ${displayPieceEl.width * 2}px; height: ${displayPieceEl.height * 2}px;`}
+          class="relative z-20"
+          el={displayPieceEl}
+        />
       {/if}
     </div>
   </div>

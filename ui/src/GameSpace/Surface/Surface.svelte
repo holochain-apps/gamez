@@ -3,11 +3,11 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { DEFAULT_CAN_CONFIG, containingBox, type GElement, type GameSpaceSyn } from '~/store';
-  import Element from './Element';
-  import Grid from './Grid.svelte';
-  import ResizeHandles, { type BoxResizeHandles } from './ResizeHandles.svelte';
+  import Element from '../Element';
+  import Grid from '../Grid.svelte';
+  import ResizeHandles, { type BoxResizeHandles } from '../ResizeHandles.svelte';
   import { waitUntilWidthAndHeight } from '~/lib/util';
-  import SpaceBox from './SpaceBox.svelte';
+  import SpaceBox from '../SpaceBox.svelte';
   import { resizeBox } from '~/lib/resizeBox';
 
   export let gameSpace: GameSpaceSyn;
@@ -326,6 +326,7 @@
         const uuids = selectedElements.values().toArray();
 
         const toRemove = $editMode ? uuids : uuids.filter((uuid) => cans.get(uuid).remove);
+        selectionCmd('clear');
         gameSpace.change({ type: 'remove-elements', uuids: toRemove });
       }
     }
@@ -340,34 +341,41 @@
     }
   }
 
+  let firstCentered = false;
   onMount(() => {
     function centerBoard() {
       waitUntilWidthAndHeight(boardContainer, (width, height, left, top) => {
         canvasVp = { w: width, h: height, x: left, y: top };
-        const box = containingBox(elements, 50);
-        if (!box) {
-          if (panX === 0 && panY === 0 && zoom === 1) {
-            panX = width / 2;
-            panY = height / 2;
-          }
-        } else {
-          const wRatio = width / box.w;
-          const hRatio = height / box.h;
-          zoom = Math.min(maxZoom, wRatio, hRatio);
-          const offsetX = width > box.w * zoom ? (width / zoom - box.w) / 2 : 0;
-          const offsetY = height > box.h * zoom ? (height / zoom - box.h) / 2 : 0;
+        if (!$editMode || !firstCentered) {
+          const box = containingBox(elements, 50);
+          if (!box) {
+            if (panX === 0 && panY === 0 && zoom === 1) {
+              panX = width / 2;
+              panY = height / 2;
+            }
+          } else {
+            const wRatio = width / box.w;
+            const hRatio = height / box.h;
+            zoom = Math.min(maxZoom, wRatio, hRatio);
+            const offsetX = width > box.w * zoom ? (width / zoom - box.w) / 2 : 0;
+            const offsetY = height > box.h * zoom ? (height / zoom - box.h) / 2 : 0;
 
-          panX = -box.x + offsetX;
-          panY = -box.y + offsetY;
+            panX = -box.x + offsetX;
+            panY = -box.y + offsetY;
+          }
+          firstCentered = true;
         }
       });
     }
 
     centerBoard();
 
-    window.addEventListener('resize', centerBoard);
+    // Observe container for size changes
+    const observer = new ResizeObserver(centerBoard);
+    observer.observe(boardContainer);
+
     return () => {
-      window.removeEventListener('resize', centerBoard);
+      observer.disconnect();
     };
   });
 

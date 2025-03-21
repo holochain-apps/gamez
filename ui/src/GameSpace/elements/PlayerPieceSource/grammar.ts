@@ -77,9 +77,11 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
       }
       break;
     }
-    case 'remove-element': {
-      forEachPieceSourceContainingElement($state, delta.uuid, (ps) => {
-        ps.createdPieces = ps.createdPieces.filter((p) => p !== delta.uuid);
+    case 'remove-elements': {
+      delta.uuids.forEach((uuid) => {
+        forEachPieceSourceContainingElement($state, uuid, (ps) => {
+          ps.createdPieces = ps.createdPieces.filter((p) => p !== uuid);
+        });
       });
       break;
     }

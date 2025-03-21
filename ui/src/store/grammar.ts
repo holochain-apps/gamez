@@ -1,4 +1,5 @@
 import type { WAL, WeaveClient } from '@theweave/api';
+import * as Automerge from 'automerge';
 import { cloneDeep } from 'lodash';
 import { v1 as uuidv1 } from 'uuid';
 
@@ -33,7 +34,6 @@ export type Delta =
   | { type: 'rotate-element'; uuid: string; rotation: number }
   | { type: 'move-z'; uuid: string; z: 'top' | 'bottom' | 'up' | 'down' }
   | { type: 'update-element'; element: Partial<GElement> }
-  | { type: 'remove-element'; uuid: string }
   | { type: 'remove-elements'; uuids: string[] }
   | { type: 'add-log'; log: { message: string; type: LogType; pubKey?: string } }
   | { type: 'seen-activity-log' }
@@ -69,6 +69,8 @@ export const applyDelta = (
   $state: GameSpace,
   context: { pubKey: string; weaveClient?: WeaveClient; asAsset: () => WAL },
 ) => {
+  const S = $state as Automerge.FreezeObject<GameSpace>;
+  console.log($state, typeof $state);
   switch (delta.type) {
     case 'set-is-archived':
       $state.isArchived = delta.value;
@@ -220,28 +222,17 @@ export const applyDelta = (
         e.z = i; // This actually mutates the element
       });
       break;
-    case 'remove-element': {
-      const index = $state.elements.findIndex((e) => e.uuid === delta.uuid);
-      if (index === -1) return;
-      const el = $state.elements[index];
-      $state.elements.splice(index, 1);
-      const label = getLabel(el.type);
-      addLog({ message: `removed ${label}`, type: 'remove', elRef: delta.uuid });
 
-      break;
-    }
     case 'remove-elements': {
       delta.uuids.forEach((uuid) => {
-        const index = $state.elements.findIndex((e) => e.uuid === uuid);
-        $state.elements.splice(index, 1);
+        S.elements.deleteAt(
+          S.elements.findIndex((e) => e.uuid === uuid),
+          1,
+        );
       });
 
-      // if (index === -1) return;
-      // const el = $state.elements[index];
-      // $state.elements.splice(index, 1);
-      // const label = getLabel(el.type);
-      // addLog({ message: `removed ${label}`, type: 'remove', elRef: delta.uuid });
-
+      const labels = delta.uuids.map((uuid) => getLabel(uuid)).join(', ');
+      addLog({ message: `removed ${labels}`, type: 'remove', elRef: delta.uuids[0] });
       break;
     }
     case 'seen-activity-log':
