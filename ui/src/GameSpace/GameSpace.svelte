@@ -18,7 +18,7 @@
     createElement,
   } from '~/store';
 
-  import Surface from './Surface';
+  import Surface from './Surface.svelte';
   import PeopleBar from './topbar/PeopleBar.svelte';
   import SidebarToggleButton from './topbar/SidebarToggleButton.svelte';
   import ElementsLibrary from './sidebar/ElementsLibrary.svelte';

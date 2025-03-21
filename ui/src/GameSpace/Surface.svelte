@@ -3,11 +3,11 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { DEFAULT_CAN_CONFIG, containingBox, type GElement, type GameSpaceSyn } from '~/store';
-  import Element from '../Element';
-  import Grid from '../Grid.svelte';
-  import ResizeHandles, { type BoxResizeHandles } from '../ResizeHandles.svelte';
+  import Element from './Element';
+  import Grid from './Grid.svelte';
+  import ResizeHandles, { type BoxResizeHandles } from './ResizeHandles.svelte';
   import { waitUntilWidthAndHeight } from '~/lib/util';
-  import SpaceBox from '../SpaceBox.svelte';
+  import SpaceBox from './SpaceBox.svelte';
   import { resizeBox } from '~/lib/resizeBox';
 
   export let gameSpace: GameSpaceSyn;
