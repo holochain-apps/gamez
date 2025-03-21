@@ -103,11 +103,20 @@
   // ╚═╝  ╚═╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
 
   function selectionCmd(
-    ...cmd: ['add', ...uuids: string[]] | ['clear'] | ['set', ...uuids: string[]]
+    ...cmd:
+      | ['add', ...uuids: string[]]
+      | ['remove', ...uuids: string[]]
+      | ['clear']
+      | ['set', ...uuids: string[]]
   ) {
     switch (cmd[0]) {
       case 'add':
         selectedElements = new Set([...selectedElements, ...cmd.slice(1)]);
+        break;
+      case 'remove':
+        selectedElements = new Set(
+          [...selectedElements].filter((uuid) => !cmd.slice(1).includes(uuid)),
+        );
         break;
       case 'clear':
         console.log('Clearing selection');
@@ -126,7 +135,6 @@
       | ['surface']
       | ['elResizeHandle', uuid: string, handle: BoxResizeHandles]
   ) {
-    console.log('MOUSE DOWN', ev, cmd);
     switch (cmd[0]) {
       case 'surface': {
         if (ev.button === 0) {
@@ -155,7 +163,11 @@
           if (ev.shiftKey) {
             // Add to selection
             ev.stopPropagation();
-            selectionCmd('add', cmd[1]);
+            if (selectedElements.has(cmd[1])) {
+              selectionCmd('remove', cmd[1]);
+            } else {
+              selectionCmd('add', cmd[1]);
+            }
           } else {
             if (!selectedElements.has(cmd[1])) {
               // There is a selection, but this element is not selected
@@ -314,7 +326,6 @@
   }
 
   function handleKeydown(ev: KeyboardEvent) {
-    console.log(ev);
     if (ev.key === 'Escape') {
       selectionCmd('clear');
     } else if (ev.key === 'Shift' && nDragState.type === 'resizing') {
