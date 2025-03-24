@@ -1,3 +1,46 @@
+# UI 0.8.2
+- 🎈 Fix: Mini view now renders correctly on the first render
+- 🎈 Fix: Piece Source dragged now are rendered with the correct zooming
+- 🎈 Fix: Modal prompt for naming spaces now auto-focus on input and is dismissed with ESC
+- 🧹 Clean: Remove icon selection from space configurator since the Mini View is now used on the home screen
+- 🧹 Clean: A lot of internal code clean up
+- 🎛 Tweak: The activity log is not filled now on Library items, and when exporing a space the activity log is purged
+- 🎛 Tweak: On Play or View mode all elements are fit on the screen (with some padding) and then panning and zooming is locked
+- 🎛 Tweak: When there aren't any active games on the home screen, show a message instead
+- 🎛 Tweak: Config Menu
+  - Now instead of showing disabled elements it hides them
+  - The locking system has a different non-editable view for Play mode
+  - If there aren't any Config Menu items available on Play Mode, it won't show up
+- 🎉 New: The Selection System
+  - Big overhaul on how dragging and events are handled on the Surface component
+  - You can now select elements as you would expect (drag a square, or click, shift+click to toggle, shift+drag to add to selection)
+  - Dragging selected elements will move all elements selected
+  - Moving a single element does not select it
+- 🧨 Overhaul: The Resizing System
+  - Resizing was redone; now you can resize from any edge or corner
+  - You can Shift+Resize to keep aspect ratio
+  - You can Alt+Resize to resize symetrically
+  - The resizing overlay shows for selected elements only
+- 🎉 New: Clear Space Modes
+  - A space is in either edit mode, view mode or play mode
+  - Library items are on edit mode
+  - Active games are on view mode if you haven't joined the game, and play mode if you have
+  - Archived spaces are on view mode
+  - On active games you can switch temporarily to Edit Mode
+  - On Edit Mode you can modify the elements locks and actions ignore the locking mechanisms
+  - On Play Mode the actions available to elements are determined by the elements Can Configuration, which can only be modified from Edit Mode.
+  - Lock System -> Can Configuration
+    - The Can Configuration is part of elements and controls:
+      - Moving
+      - Resizing
+      - Rotating
+      - Adding/removing attachments
+      - Modifying the element configuration
+      - Removing and duplicating
+    - The Can Configuration applies to Play Mode only; on edit mode you can modify it, but you are not bound by it
+    - The Can Configuration can be accessed from the context menu of elements
+- ❌ Disabled: The rotation system is temporarily non-functional until next release
+
 # UI 0.8.1
  - Improved initial clients loading
  - Implemented more direct asset selection for "search", "creatables" and "pocket"
