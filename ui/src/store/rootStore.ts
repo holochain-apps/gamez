@@ -2,12 +2,8 @@ import { cloneDeep } from 'lodash';
 import { getContext as sGetContext, setContext as sSetContext } from 'svelte';
 import { derived, get, type Readable, writable } from 'svelte/store';
 
-import { ProfilesStore } from '@holochain-open-dev/profiles';
-import { SynStore } from '@holochain-syn/core';
-
 import clients from '~/clients';
 import SimplerSyn from '~/lib/SimplerSyn';
-import { hashToWAL } from '~/lib/util';
 
 import { createGameSpaceSynStore, type GameSpaceSyn } from './gameSpaceStore';
 import { initialState } from './grammar';
