@@ -2,7 +2,7 @@
   import cx from 'classnames';
   import { LIBRARY, type LibraryElement } from '~/store';
 
-  export let onAdd: (libraryElement: LibraryElement, x?: number, y?: number) => void;
+  export let onAdd: (libraryElement: LibraryElement, x: number, y: number) => void;
   export let canAdd: boolean;
 
   let dragState: {

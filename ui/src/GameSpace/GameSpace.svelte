@@ -100,12 +100,15 @@
     contextMenuState = { id: newEl.uuid, x: contextMenuState.x + 5, y: contextMenuState.y + 5 };
   }
 
-  function handleAddElementFromLibrary(element: LibraryElement, x?: number, y?: number) {
-    const surfaceCoords = x && y ? GSS.getSurfaceCoordinates(x, y) : GSS.getCurrentCenter();
+  function handleAddElementFromLibrary(element: LibraryElement, x: number, y: number) {
+    const surfaceCoords = GSS.getSurfaceCoordinates(x, y);
     if (surfaceCoords) {
+      const newEl = createElement(element, surfaceCoords.x, surfaceCoords.y, GSS);
+      newEl.x -= newEl.width / 2;
+      newEl.y -= newEl.height / 2;
       GSS.change({
         type: 'add-element',
-        element: createElement(element, surfaceCoords.x, surfaceCoords.y, GSS),
+        element: newEl,
       });
     }
   }
