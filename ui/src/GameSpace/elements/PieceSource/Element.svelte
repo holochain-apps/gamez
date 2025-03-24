@@ -2,17 +2,18 @@
   import { cloneDeep } from 'lodash';
   import { v1 as uuidv1 } from 'uuid';
   import cx from 'classnames';
-  import { type GameSpaceSyn } from '~/store';
+  import { getGSS } from '~/store';
   import type { PieceSourceElement } from './type';
   import Piece from '../Piece/Element.svelte';
   import Portal from 'svelte-portal';
 
   export let el: PieceSourceElement;
-  export let gameSpace: GameSpaceSyn;
-  export let isLocked: boolean;
 
-  $: ui = gameSpace.ui;
+  const GSS = getGSS();
+
+  $: ui = GSS.ui;
   $: zoomLevel = $ui.zoom;
+  $: mode = GSS.mode;
 
   $: displayPieceEl = {
     display: el.display,
@@ -20,12 +21,14 @@
     height: el.pieceH,
   };
 
-  $: canAddPiece = (el.limit === null || el.limit > el.createdPieces.length) && !isLocked;
+  $: canAddPiece = (el.limit === null || el.limit > el.createdPieces.length) && $mode === 'play';
+
+  $: console.log('CAN ADD PIECE', canAddPiece);
 
   async function handleAddPiece(clientX: number, clientY: number) {
     if (!canAddPiece) return;
 
-    const { x, y } = gameSpace.getSurfaceCoordinates(clientX, clientY);
+    const { x, y } = GSS.getSurfaceCoordinates(clientX, clientY);
     const newEl = {
       type: 'Piece' as 'Piece',
       version: 1 as 1,
@@ -34,7 +37,7 @@
       height: el.pieceH,
       x: x - el.pieceW / 2 + 0,
       y: y - el.pieceH / 2 + 0,
-      z: gameSpace.topZ(),
+      z: GSS.topZ(),
       rotation: 0,
       wals: [],
       can: {
@@ -48,7 +51,7 @@
       },
       uuid: uuidv1(),
     };
-    await gameSpace.change([
+    await GSS.change([
       { type: 'add-element', element: newEl },
       {
         type: 'update-element',
@@ -107,6 +110,7 @@
       'hover:cursor-grab': canAddPiece && !dragState,
       'hover:cursor-grabbing': dragState,
       'hover:bg-red-6': canAddPiece,
+      'cursor-no-drop': !canAddPiece,
     })}
     on:mousedown={canAddPiece ? handleMouseDown : null}
   >

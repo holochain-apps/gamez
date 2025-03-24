@@ -16,8 +16,8 @@
     style={`transform:scale(${vp.zoom}) translate(${vp.panX}px, ${vp.panY}px); z-index: ${z * 10};`}
   >
     <div
-      on:contextmenu={(ev) => {
-        ev.preventDefault();
+      on:contextmenu|preventDefault|stopPropagation={(ev) => {
+        console.log('Space box context menu');
       }}
       on:mousedown={onMouseDown}
       class={cx('absolute top-0 left-0 pointer-events-auto', klass)}
@@ -30,8 +30,8 @@
   </div>
 {:else}
   <div
-    on:contextmenu={(ev) => {
-      ev.preventDefault();
+    on:contextmenu|preventDefault|stopPropagation={(ev) => {
+      console.log('Space box context menu');
     }}
     on:mousedown={onMouseDown}
     class={cx('absolute top-0 left-0 pointer-events-auto', klass)}

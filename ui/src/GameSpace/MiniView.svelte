@@ -66,9 +66,9 @@
     `}
       >
         {#if el.type === 'Piece'}
-          <ELS.Piece.Element {el} isLocked={true} />
+          <ELS.Piece.Element {el} />
         {:else if el.type === 'Image'}
-          <ELS.Image.Element {el} isLocked={true} />
+          <ELS.Image.Element {el} />
         {:else if el.type === 'TurnTracker'}
           <ELS.TurnTracker.MiniEl {el} {gameSpace} />
         {:else if el.type === 'PlayerPieceSource'}

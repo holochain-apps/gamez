@@ -6,7 +6,6 @@
 
   export let el: EmbedWalElement;
   export let onUpdate: (el: Partial<EmbedWalElement>) => void;
-  $$restProps; // This prevents Svelte warnings from unused props
 </script>
 
 <div>

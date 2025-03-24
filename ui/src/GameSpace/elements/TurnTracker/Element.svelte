@@ -3,8 +3,7 @@
   import PauseIcon from '~icons/fa6-solid/pause';
   import RectangleListIcon from '~icons/fa6-solid/rectangle-list';
 
-  import { type GameSpaceSyn } from '~/store';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  import { getGSS } from '~/store';
   import AgentName from '~/shared/AgentName.svelte';
 
   import type { TurnTrackerElement, TurnStarted } from './type';
@@ -13,11 +12,14 @@
   import PlayerIcon from '../../ui/PlayerIcon.svelte';
 
   export let el: TurnTrackerElement;
-  export let gameSpace: GameSpaceSyn;
-  export let isLocked: boolean;
-  $: state = gameSpace.state;
-  $: playersSlots = $state.playersSlots;
+  const GSS = getGSS();
+  $: GS = GSS.state;
+  $: playersSlots = $GS.playersSlots;
   $: filledPlayersSlots = playersSlots.filter((p) => !!p.pubKey);
+
+  $: mode = GSS.mode;
+  $: playMode = $mode === 'play';
+  $: editMode = $mode === 'edit';
 
   let currentTurn: TurnStarted | null = null;
   let activePlayer: number = null; //
@@ -37,22 +39,21 @@
       }
     }
   }
-  $: activePlayerKey = $state.playersSlots[activePlayer]?.pubKey || null;
+  $: activePlayerKey = $GS.playersSlots[activePlayer]?.pubKey || null;
   $: visibleActivePlayerIndex =
     activePlayer !== null
       ? el.showEmptyPlayersSlots
         ? activePlayer
         : filledPlayersSlots.findIndex((p) => p.pubKey === activePlayerKey)
       : null;
-  $: isPlayerTurn = activePlayerKey === gameSpace.pubKey;
-  $: playerSlotIndex = $state.playersSlots.findIndex((p) => p.pubKey === gameSpace.pubKey);
-  $: isPlaying = playerSlotIndex !== -1;
+  $: isPlayerTurn = activePlayerKey === GSS.pubKey;
+  $: playerSlotIndex = $GS.playersSlots.findIndex((p) => p.pubKey === GSS.pubKey);
   $: isPaused = currentTurn && currentTurn.playerSlot === -1;
   $: canPauseGame = isPlayerTurn && !isPaused;
 
   function handleStart() {
     const turn = { playerSlot: playerSlotIndex, time: Date.now() };
-    gameSpace.change([
+    GSS.change([
       { type: 'update-element', element: { uuid: el.uuid, turnsLog: [turn] } },
       {
         type: 'add-log',
@@ -76,8 +77,8 @@
     } else {
       let i = activePlayer + 1;
       while (nextPlayer === null) {
-        if ($state.playersSlots[i]) {
-          if ($state.playersSlots[i].pubKey) {
+        if ($GS.playersSlots[i]) {
+          if ($GS.playersSlots[i].pubKey) {
             nextPlayer = i;
           } else {
             i++;
@@ -97,7 +98,7 @@
     }
 
     const turn = { playerSlot: nextPlayer, time: Date.now() };
-    gameSpace.change([
+    GSS.change([
       {
         type: 'update-element',
         element: { uuid: el.uuid, turnsLog: [...el.turnsLog, turn] },
@@ -107,7 +108,7 @@
         log: {
           type: 'turn',
           message: 'turn started',
-          pubKey: $state.playersSlots[nextPlayer].pubKey,
+          ...(nextPlayer !== -1 ? { pubKey: $GS.playersSlots[nextPlayer].pubKey } : {}),
         },
       },
     ]);
@@ -116,7 +117,7 @@
   function handlePauseTurn() {
     if (!canPauseGame) return;
     const turn = { playerSlot: -1, time: Date.now() };
-    gameSpace.change([
+    GSS.change([
       {
         type: 'update-element',
         element: { uuid: el.uuid, turnsLog: [...el.turnsLog, turn] },
@@ -166,20 +167,23 @@
     ev.stopPropagation();
     showLog = !showLog;
   }
+
+  const stop = (ev: MouseEvent) => ev.stopPropagation();
 </script>
 
 <div class="relative h-full w-full bg-blue-100 b-4 b-b-6 b-black/20 rounded-lg p2 flex flex-col">
   {#if el.turnsLog.length > 0}
     <button
-      class="absolute -top-2 -right-2 text-xs bg-gray-200 hover:bg-gray-100 rounded-md h6 w6 z-30 flexcc b b-black/10"
+      class="absolute -top-2 -left-2 text-xs bg-gray-200 hover:bg-gray-100 rounded-full h6 w6 z-30 flexcc b b-black/10"
+      on:mousedown={stop}
       on:click={handleToggleLog}><RectangleListIcon /></button
     >
   {/if}
   {#if showLog}
     <TurnsLog
-      class="absolute -top-1 right-8 z-110 w-50"
+      class="absolute top-3 left-1 z-110 w-50"
       style={`max-height: ${el.height}px;`}
-      playersSlots={$state.playersSlots}
+      playersSlots={$GS.playersSlots}
       turnsLog={el.turnsLog}
     />
   {/if}
@@ -247,16 +251,18 @@
   {#if !currentTurn}
     <button
       on:click={handleStart}
+      on:mousedown={stop}
       class="w-full h10 flexcc bg-blue-400 hover:bg-blue-300 rounded-md disabled:(saturate-0 hover:bg-blue-400) text-white uppercase tracking-wider b b-black/10"
-      disabled={!isPlaying || isLocked}
+      disabled={!playMode}
     >
-      {isPlaying ? 'Start' : '...'}
+      {playMode ? 'Start' : '...'}
     </button>
   {:else}
     <div class="flex space-x-2">
       <button
         on:click={handleNextTurn}
-        disabled={(!isPlayerTurn && !isPaused) || isLocked}
+        on:mousedown={stop}
+        disabled={(!isPlayerTurn && !isPaused) || !playMode}
         class="flex-grow w-full h10 flexcc bg-blue-400 hover:bg-blue-300 rounded-md disabled:(saturate-0 hover:bg-blue-400) text-white uppercase tracking-wider b b-black/10"
       >
         {isPaused ? 'Continue' : isPlayerTurn ? 'End turn' : '...'}
@@ -264,7 +270,8 @@
       {#if el.showTimers}
         <button
           on:click={handlePauseTurn}
-          disabled={!canPauseGame || isLocked}
+          on:mousedown={stop}
+          disabled={!canPauseGame || !playMode}
           class="h10 w10 flex-shrink-0 flexcc bg-blue-400 hover:bg-blue-300 disabled:(saturate-0 hover:bg-blue-400) text-white rounded-md b b-black/10"
         >
           <PauseIcon />

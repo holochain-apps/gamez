@@ -98,20 +98,49 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
   // ╚██████╔╝██║    ███████║   ██║   ██║  ██║   ██║   ███████╗
   //  ╚═════╝ ╚═╝    ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
-  const editMode = writable<boolean>(false);
-  const editModeWasSet = writable<boolean>(false);
+  type Mode = 'view' | 'play' | 'edit';
+  // const mode = writable<'edit' | 'play' | 'view'>('view');
+  // const gameSpaceDefaultMode = writable<'edit' | 'play' | 'view'>('view');
+  const editModeOverride = writable<boolean>(false);
 
-  state.subscribe((gameSpace) => {
-    if (get(editModeWasSet) === false && gameSpace) {
-      if (gameSpace.isLibraryItem) {
-        editMode.set(true);
-        editModeWasSet.set(true);
-      } else {
-        editMode.set(false);
-        editModeWasSet.set(true);
+  const mode = derived([editModeOverride, state], ([$editModeOverride, $state]) => {
+    let mode: Mode = 'view';
+
+    if (!$state.isArchived) {
+      if ($state.isLibraryItem) {
+        mode = 'edit';
+      } else if ($state.playersSlots.find((s) => s.pubKey === pubKey)) {
+        mode = 'play';
+      }
+
+      if ($editModeOverride) {
+        mode = 'edit';
       }
     }
+
+    return mode;
   });
+
+  // const modesSorted = ['view' as 'view', 'play' as 'play', 'edit' as 'edit'];
+
+  // function highestMode(modes: Mode[]): Mode {
+  //   return modesSorted[modes.map((m) => modesSorted.indexOf(m)).sort((a, b) => b - a)[0]];
+  // }
+  // const editMode = writable<boolean>(false);
+  // const initialModeSet = writable<boolean>(false);
+
+  // state.subscribe((gameSpace) => {
+  //   if (get(initialModeSet) === false && gameSpace) {
+  //     $state.playersSlots.find((s) => s.pubKey === pubKey)
+  //     if (gameSpace.isArchived) {
+  //       mode.set('view');
+  //     } else if (!gameSpace.isLibraryItem) {
+  //       mode.set('play');
+  //     } else {
+  //       mode.set('edit');
+  //     }
+  //   }
+  // });
 
   const ui = writable<UiState>({ zoom: 1, panX: 0, panY: 0, surfaceContainer: null });
 
@@ -204,7 +233,10 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
 
     // UI STATE
     ui,
-    editMode: readonly(editMode),
+    mode: readonly(mode),
+    editModeOverride: readonly(editModeOverride),
+    toggleEditModeOverride: () => editModeOverride.set(!get(editModeOverride)),
+    // editMode: readonly(editMode),
     getSurfaceCoordinates,
     getCurrentCenter,
     topZ,

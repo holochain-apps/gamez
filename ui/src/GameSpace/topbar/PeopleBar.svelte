@@ -31,7 +31,7 @@
   });
 </script>
 
-<div class="flex-grow flexce space-x-1 relative mr2">
+<div class="flex-grow flexce space-x-2 relative mr2">
   {#if canJoinGame}
     <button
       class="bg-main-300 h9 px1.5 flexcc rounded-md text-white hover:filter-brightness-120 b b-black/10"

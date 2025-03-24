@@ -3,6 +3,9 @@
   import { derived, get, readonly } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
+  import IconPen from '~icons/fa6-solid/pen';
+  import IconPlay from '~icons/fa6-solid/play';
+  import IconEye from '~icons/fa6-solid/eye';
 
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import BookIcon from '~icons/fa6-solid/book';
@@ -16,6 +19,7 @@
     type LibraryElement,
     type PlayerSlot,
     createElement,
+    setGameSpaceStoreContext,
   } from '~/store';
 
   import Surface from './Surface.svelte';
@@ -26,7 +30,7 @@
   import ConfigMenu from './ConfigMenu';
   import { tooltip } from '~/shared/tooltip';
   import { cloneDeep } from 'lodash';
-  import { addGameSpaceToPocket, COLORS, colorSequence, uuid } from '~/lib/util';
+  import { addGameSpaceToPocket, COLORS, colorSequence, cx, uuid } from '~/lib/util';
   import NameTitleInput from './ui/NameTitleInput.svelte';
   import ActivityLog from './topbar/ActivityLog.svelte';
   import Instructions from './ui/Instructions.svelte';
@@ -34,6 +38,9 @@
 
   export let GSS: GameSpaceSyn;
   export let asAsset: boolean = false;
+
+  setGameSpaceStoreContext(GSS);
+
   $: GS = GSS.state;
   $: allParticipants = GSS.participants;
   $: participants = derived(allParticipants, ($p) => $p?.active || []);
@@ -41,10 +48,8 @@
   $: canLeaveGame = GSS.canLeaveGame;
   $: isSteward = GSS.isSteward;
   $: permissions = GSS.permissions;
-  $: editMode = GSS.editMode;
-
-  setContext('game-space-store', GSS);
-  setContext('game-space', GS);
+  $: mode = GSS.mode;
+  $: editModeOverride = GSS.editModeOverride;
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = asAsset ? 'none' : 'elementsLibrary';
 
@@ -65,9 +70,10 @@
   };
 
   let contextMenuState: { id: string; x: number; y: number } | null = null;
-  function handleContextMenu(id: string, x: number, y: number) {
-    console.log('Context Menu');
-    contextMenuState = { id, x, y };
+  function handleOpenElementMenu(id: string, x: number, y: number) {
+    if ($mode !== 'view') {
+      contextMenuState = { id, x, y };
+    }
   }
 
   function closeContextMenu() {
@@ -90,7 +96,6 @@
     newEl.uuid = uuid();
     newEl.x += 5;
     newEl.y += 5;
-    console.log(newEl);
     GSS.change({ type: 'add-element', element: newEl });
     contextMenuState = { id: newEl.uuid, x: contextMenuState.x + 5, y: contextMenuState.y + 5 };
   }
@@ -172,7 +177,7 @@
         {/if}
       {/if}
 
-      {#if !$GS.isArchived && $GS.isLibraryItem}
+      {#if $mode === 'edit'}
         <SidebarToggleButton current={sidebar} value="configurator" onClick={toggleSidebar}>
           <GearIcon />
         </SidebarToggleButton>
@@ -188,14 +193,10 @@
         >
       {/if}
       {#if !asAsset}
-        <NameTitleInput
-          value={$GS.name}
-          disabled={$permissions.isArchived}
-          onChange={handleNameChange}
-        />
+        <NameTitleInput value={$GS.name} disabled={$GS.isArchived} onChange={handleNameChange} />
       {/if}
       <div class="flex-grow"></div>
-      {#if !$permissions.isArchived}
+      {#if !$GS.isArchived}
         <PeopleBar
           pubKey={GSS.pubKey}
           canJoinGame={$canJoinGame}
@@ -221,7 +222,7 @@
       ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝    ╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝
                                                                                  -->
     <div class="flex flex-grow relative">
-      {#if !$permissions.isArchived && $GS.isLibraryItem}
+      {#if $mode === 'edit'}
         {#if sidebar === 'elementsLibrary' && $isSteward}
           <ElementsLibrary
             onAdd={handleAddElementFromLibrary}
@@ -241,6 +242,22 @@
           />
         {/if}
       {/if}
+      {#if !$GS.isArchived && !$GS.isLibraryItem}
+        <button
+          use:tooltip={$editModeOverride ? 'Back to play mode' : 'Enter edit mode'}
+          on:click={() => GSS.toggleEditModeOverride()}
+          class={cx('absolute bottom-0 left-0 z-1500  text-white b b-black/10 rounded-tr-md p2', {
+            'bg-blue-500 hover:bg-blue-400': !$editModeOverride,
+            'bg-green-500 hover:bg-green-400': $editModeOverride,
+          })}
+        >
+          {#if !$editModeOverride}
+            <IconPen />
+          {:else}
+            <IconPlay />
+          {/if}
+        </button>
+      {/if}
       <!-- onMoveElement={(uuid, x, y) => {
           GSS.change({ type: 'move-element', uuid, x, y });
         }} -->
@@ -250,12 +267,7 @@
         onRotateElement={(uuid, rotation) => {
           GSS.change({ type: 'rotate-element', uuid, rotation });
         }} -->
-      <Surface
-        gameSpace={GSS}
-        elements={$GS.elements}
-        canOpenConfigMenu={$GS.isLibraryItem}
-        onContextMenu={handleContextMenu}
-      />
+      <Surface onOpenElementMenu={handleOpenElementMenu} />
     </div>
   </div>
   {#if contextMenuState}
@@ -263,8 +275,8 @@
       <select-asset-menu weave-client={weaveClient}></select-asset-menu>
     </div> -->
     <ConfigMenu
-      x={contextMenuState.x}
-      y={contextMenuState.y}
+      x={contextMenuState.x + 2}
+      y={contextMenuState.y + 2}
       onClose={closeContextMenu}
       el={(() => {
         GS; // trigger reactivity

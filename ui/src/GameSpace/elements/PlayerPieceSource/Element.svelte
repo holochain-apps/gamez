@@ -4,21 +4,24 @@
   import { v1 as uuidv1 } from 'uuid';
 
   import AgentName from '~/shared/AgentName.svelte';
-  import { type GameSpaceSyn } from '~/store';
+  import { getGSS, type GameSpaceSyn } from '~/store';
 
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
   import type { PlayerPieceSourceElement } from './type';
 
-  export let gameSpace: GameSpaceSyn;
   export let el: PlayerPieceSourceElement;
-  export let isLocked: boolean;
+
+  const GSS = getGSS();
+
   let klass: string = '';
   export { klass as class };
 
-  $: state = gameSpace.state;
-  $: elements = $state.elements;
+  $: GS = GSS.state;
+  $: elements = $GS.elements;
+  $: mode = GSS.mode;
+  $: playMode = $mode === 'play';
 
-  $: ui = gameSpace.ui;
+  $: ui = GSS.ui;
   $: zoomLevel = $ui.zoom;
 
   let playedPiecesCountByAgent: { [key: string]: number } = {};
@@ -81,7 +84,7 @@
   function handleDragStart(ev: MouseEvent, playerSlotIndex: number) {
     ev.stopPropagation();
     ev.preventDefault();
-    if (isLocked) return;
+    if (!playMode) return;
     dragState = { playerSlotIndex, x: ev.clientX, y: ev.clientY };
 
     function handleMouseMoving(e: MouseEvent) {
@@ -91,7 +94,7 @@
     }
 
     function handleMouseUp() {
-      const surfacePos = gameSpace.getSurfaceCoordinates(dragState.x, dragState.y);
+      const surfacePos = GSS.getSurfaceCoordinates(dragState.x, dragState.y);
       if (surfacePos) {
         handleAddPiece(surfacePos, dragState.playerSlotIndex);
       }
@@ -114,7 +117,7 @@
       height: el.size,
       x: pos.x,
       y: pos.y,
-      z: gameSpace.topZ(),
+      z: GSS.topZ(),
       rotation: 0,
       playerSlot: playerSlotIndex,
       wals: [],
@@ -129,7 +132,7 @@
       },
       uuid: uuidv1(),
     };
-    await gameSpace.change([
+    await GSS.change([
       { type: 'add-element', element: newEl },
       {
         type: 'update-element',
@@ -143,7 +146,7 @@
 
   $: everythingEmpty = el.showEmptyPlayersSlots
     ? false
-    : $state.playersSlots.filter((slot) => slot.pubKey).length === 0;
+    : $GS.playersSlots.filter((slot) => slot.pubKey).length === 0;
 </script>
 
 <div class={cx(klass, 'size-full b-4 b-yellow-8 b-b-8 rounded-lg')}>
@@ -157,16 +160,16 @@
       })}
     >
       {#if !everythingEmpty}
-        {#each $state.playersSlots as playerSlot, i}
+        {#each $GS.playersSlots as playerSlot, i}
           {@const playerPubKey = playerSlot.pubKey}
           {@const hasPiecesLeft = el.limit
             ? el.limit - (playedPiecesCountByAgent[i] || 0) > 0
             : true}
-          {@const ownPieces = playerPubKey === gameSpace.pubKey}
+          {@const ownPieces = playerPubKey === GSS.pubKey}
           {@const isAllowedToGrab =
             hasPiecesLeft &&
             ((ownPieces && el.canOnlyPickOwnPiece) || !el.canOnlyPickOwnPiece) &&
-            !isLocked}
+            playMode}
           {#if el.showEmptyPlayersSlots || playerPubKey}
             {#if el.showNames}
               <div class="flexce text-xs text-white/80!">
@@ -203,7 +206,6 @@
                     style={(j > 0 ? `margin-left: var(--overlap);` : '') + `z-index: ${10 + j}`}
                   >
                     <PlayerPieceEl
-                      {gameSpace}
                       el={{
                         width: el.size,
                         height: el.size,
@@ -232,7 +234,6 @@
       <PlayerPieceEl
         class="inline-block fixed z-100 cursor-grabbing"
         style={`transform: translate(${dragState.x - el.size / 2}px, ${dragState.y - el.size / 2}px) scale(${zoomLevel});`}
-        {gameSpace}
         el={{ width: el.size, height: el.size, playerSlot: dragState.playerSlotIndex }}
       />
     </div>

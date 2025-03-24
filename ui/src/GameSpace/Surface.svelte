@@ -1,8 +1,14 @@
 <script lang="ts">
   import cx from 'classnames';
   import { onMount } from 'svelte';
-  import { get } from 'svelte/store';
-  import { DEFAULT_CAN_CONFIG, containingBox, type GElement, type GameSpaceSyn } from '~/store';
+  import { derived, get, writable } from 'svelte/store';
+  import {
+    DEFAULT_CAN_CONFIG,
+    containingBox,
+    getGSS,
+    type GElement,
+    type GameSpaceSyn,
+  } from '~/store';
   import Element from './Element';
   import Grid from './Grid.svelte';
   import ResizeHandles, { type BoxResizeHandles } from './ResizeHandles.svelte';
@@ -10,13 +16,9 @@
   import SpaceBox from './SpaceBox.svelte';
   import { resizeBox } from '~/lib/resizeBox';
 
-  export let gameSpace: GameSpaceSyn;
-  export let elements: GElement[];
-  export let onRotateElement = (id: string, rotation: number) => {};
-  export let onResizeElement = (id: string, width: number, height: number) => {};
-  export let onMoveElement = (id: string, x: number, y: number) => {};
-  export let onContextMenu = (id: string, posX: number, posY: number) => {};
-  export let canOpenConfigMenu: boolean;
+  export let onOpenElementMenu: (id: string, posX: number, posY: number) => void;
+
+  let GSS = getGSS();
 
   type Box = { x: number; y: number; w: number; h: number; rotation?: number };
   type NDragState =
@@ -46,6 +48,7 @@
         type: 'fromElement';
         moved: boolean;
         fromElement: string;
+        selectOnly: boolean;
         viewportOffset: { x: number; y: number };
         spaceOffset: { x: number; y: number };
       };
@@ -64,19 +67,28 @@
   let canvasVp: { x: number; y: number; w: number; h: number };
   let selectedElements = new Set<string>();
   let boardContainer: HTMLDivElement;
-  let ui = get(gameSpace.ui);
+  let ui = get(GSS.ui);
   let zoom = ui.zoom; // From 1 to maxZoom
   let panX = ui.panX;
   let panY = ui.panY;
   let mouse: { x: number; y: number } = { x: 0, y: 0 };
   let nDragState: NDragState = { type: 'none' };
+  let panned = false;
 
   // Minimally derived
 
-  $: state = gameSpace.state;
-  $: editMode = gameSpace.editMode;
+  $: mode = GSS.mode;
+  $: editMode = $mode === 'edit';
+  $: playMode = $mode === 'play';
+
+  $: {
+    $mode;
+    panned = false;
+  }
 
   $: vp = { panX, panY, zoom };
+  $: GS = GSS.state;
+  $: elements = $GS.elements;
   $: elementsByUuid = new Map<string, GElement>(elements.map((el) => [el.uuid, el]));
   $: cans = new Map<string, typeof DEFAULT_CAN_CONFIG>(elements.map((el) => [el.uuid, getCan(el)]));
 
@@ -92,7 +104,7 @@
   // EFFECTS
 
   $: {
-    gameSpace.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
+    GSS.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
   }
 
   //  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
@@ -119,7 +131,6 @@
         );
         break;
       case 'clear':
-        console.log('Clearing selection');
         selectedElements = new Set();
         break;
       case 'set':
@@ -148,7 +159,7 @@
             resolvedSpaceBox: { ...startSpace, w: 0, h: 0 },
             touchedElements: new Set(),
           };
-        } else if (ev.button === 1 && $editMode) {
+        } else if (ev.button === 1 && editMode) {
           nDragState = { type: 'panning', panned: false };
         }
         break;
@@ -158,7 +169,7 @@
         const can = getCan(el);
         if (ev.button === 2) {
           ev.stopPropagation();
-          onContextMenu(cmd[1], ev.clientX, ev.clientY);
+          onOpenElementMenu(cmd[1], ev.clientX, ev.clientY);
         } else if (ev.button === 0) {
           if (ev.shiftKey) {
             // Add to selection
@@ -173,17 +184,16 @@
               // There is a selection, but this element is not selected
               selectionCmd('clear');
             }
-            if ($editMode || can.move) {
-              // Start dragging selection or just this one element
-              ev.stopPropagation();
-              nDragState = {
-                type: 'fromElement',
-                moved: false,
-                fromElement: cmd[1],
-                viewportOffset: { x: 0, y: 0 },
-                spaceOffset: { x: 0, y: 0 },
-              };
-            }
+            // Start dragging selection or just this one element
+            ev.stopPropagation();
+            nDragState = {
+              type: 'fromElement',
+              moved: false,
+              selectOnly: !(editMode || (can.move && playMode)),
+              fromElement: cmd[1],
+              viewportOffset: { x: 0, y: 0 },
+              spaceOffset: { x: 0, y: 0 },
+            };
           }
         }
         break;
@@ -214,6 +224,9 @@
         if (!nDragState.panned) {
           nDragState.panned = true;
         }
+        if (!panned) {
+          panned = true;
+        }
         panX += ev.movementX / zoom;
         panY += ev.movementY / zoom;
         break;
@@ -236,10 +249,12 @@
         if (!nDragState.moved) {
           nDragState.moved = true;
         }
-        nDragState.viewportOffset.x += ev.movementX;
-        nDragState.viewportOffset.y += ev.movementY;
-        nDragState.spaceOffset.x += ev.movementX / zoom;
-        nDragState.spaceOffset.y += ev.movementY / zoom;
+        if (!nDragState.selectOnly) {
+          nDragState.viewportOffset.x += ev.movementX;
+          nDragState.viewportOffset.y += ev.movementY;
+          nDragState.spaceOffset.x += ev.movementX / zoom;
+          nDragState.spaceOffset.y += ev.movementY / zoom;
+        }
         break;
       }
       case 'resizing': {
@@ -274,16 +289,16 @@
           } else {
             selectionCmd('set', nDragState.fromElement);
           }
-        } else if (selectedElements.size > 0) {
+        } else if (!nDragState.selectOnly && selectedElements.size > 0) {
           const uuids = selectedElements.values().toArray();
-          const toMove = $editMode ? uuids : uuids.filter((uuid) => cans.get(uuid).move);
-          gameSpace.change({
+          const toMove = editMode ? uuids : uuids.filter((uuid) => cans.get(uuid).move);
+          GSS.change({
             type: 'move-elements',
             uuids: toMove,
             offset: nDragState.spaceOffset,
           });
         } else {
-          gameSpace.change({
+          GSS.change({
             type: 'move-element',
             uuid: nDragState.fromElement,
             offset: nDragState.spaceOffset,
@@ -294,7 +309,7 @@
 
       case 'resizing': {
         const el = elementsByUuid.get(nDragState.fromElement);
-        gameSpace.change({
+        GSS.change({
           type: 'update-element',
           element: {
             ...el,
@@ -311,7 +326,7 @@
   }
 
   function handleWheel(ev: WheelEvent) {
-    if (!$editMode) return;
+    if (!editMode) return;
     ev.preventDefault();
     const prevZoom = zoom;
     zoom += ev.deltaY * zoomStep;
@@ -336,9 +351,9 @@
       if (selectedElements.size > 0) {
         const uuids = selectedElements.values().toArray();
 
-        const toRemove = $editMode ? uuids : uuids.filter((uuid) => cans.get(uuid).remove);
+        const toRemove = editMode ? uuids : uuids.filter((uuid) => cans.get(uuid).remove);
         selectionCmd('clear');
-        gameSpace.change({ type: 'remove-elements', uuids: toRemove });
+        GSS.change({ type: 'remove-elements', uuids: toRemove });
       }
     }
     // if (ev.keyCode === 'Esc')
@@ -353,32 +368,32 @@
   }
 
   let firstCentered = false;
-  onMount(() => {
-    function centerBoard() {
-      waitUntilWidthAndHeight(boardContainer, (width, height, left, top) => {
-        canvasVp = { w: width, h: height, x: left, y: top };
-        if (!$editMode || !firstCentered) {
-          const box = containingBox(elements, 50);
-          if (!box) {
-            if (panX === 0 && panY === 0 && zoom === 1) {
-              panX = width / 2;
-              panY = height / 2;
-            }
-          } else {
-            const wRatio = width / box.w;
-            const hRatio = height / box.h;
-            zoom = Math.min(maxZoom, wRatio, hRatio);
-            const offsetX = width > box.w * zoom ? (width / zoom - box.w) / 2 : 0;
-            const offsetY = height > box.h * zoom ? (height / zoom - box.h) / 2 : 0;
-
-            panX = -box.x + offsetX;
-            panY = -box.y + offsetY;
+  function centerBoard() {
+    waitUntilWidthAndHeight(boardContainer, (width, height, left, top) => {
+      canvasVp = { w: width, h: height, x: left, y: top };
+      if (!editMode || !panned) {
+        const box = containingBox(elements, 50);
+        if (!box) {
+          if (panX === 0 && panY === 0 && zoom === 1) {
+            panX = width / 2;
+            panY = height / 2;
           }
-          firstCentered = true;
-        }
-      });
-    }
+        } else {
+          const wRatio = width / box.w;
+          const hRatio = height / box.h;
+          zoom = Math.min(maxZoom, wRatio, hRatio);
+          const offsetX = width > box.w * zoom ? (width / zoom - box.w) / 2 : 0;
+          const offsetY = height > box.h * zoom ? (height / zoom - box.h) / 2 : 0;
 
+          panX = -box.x + offsetX;
+          panY = -box.y + offsetY;
+        }
+        firstCentered = true;
+      }
+    });
+  }
+
+  onMount(() => {
     centerBoard();
 
     // Observe container for size changes
@@ -447,7 +462,7 @@
 
   $: resolvedElementsWithEphemeralTransformation = elements.map((el) =>
     nDragState.type === 'fromElement' &&
-    (($editMode ? selectedElements.has(el.uuid) : selectedElementsThatCanBeMoved.has(el.uuid)) ||
+    ((editMode ? selectedElements.has(el.uuid) : selectedElementsThatCanBeMoved.has(el.uuid)) ||
       nDragState.fromElement === el.uuid)
       ? {
           ...el,
@@ -527,27 +542,6 @@
     };
   }
 
-  // function spaceBoxToViewportBox(box: Box): Box {
-  //   return {
-  //     x: (box.x + panX) * zoom,
-  //     y: (box.y + panY) * zoom,
-  //     w: box.w * zoom,
-  //     h: box.h * zoom,
-  //   };
-  // }
-
-  // function viewportBoxStyle(box: Box) {
-  //   return `width: ${box.w}px; height: ${box.h}px; left: ${box.x}px; top: ${box.y}px;`;
-  // }
-
-  // function elBoxStyle(el: GElement) {
-  //   return `width: ${el.width}px;
-  //   height: ${el.height}px;
-  //   top: ${-el.height / 2}px;
-  //   left: ${-el.width / 2}px;
-  //   transform: translate(${el.x}px, ${el.y}px) rotate(${el.rotation}deg);`;
-  // }
-
   function getCan(el: GElement) {
     return { ...DEFAULT_CAN_CONFIG, ...el.can };
   }
@@ -559,7 +553,10 @@
   class={cx(
     `inset-content-shadow flex-grow h-full overflow-hidden select-none
   bg-main-400  b b-black/25 relative p-0 bg-[url('/noise20.png')]`,
-    { 'cursor-grabbing': nDragState.type !== 'none' },
+    {
+      'cursor-grabbing':
+        nDragState.type !== 'none' && nDragState.type === 'fromElement' && !nDragState.selectOnly,
+    },
   )}
   bind:this={boardContainer}
   on:wheel={handleWheel}
@@ -568,7 +565,7 @@
   on:mouseup={(ev) => handleMouseUp(ev, 'surface')}
   style={`background-position: ${panX * zoom}px ${panY * zoom}px; background-size: ${zoom * 150}px`}
 >
-  {#if $state.isLibraryItem}
+  {#if editMode}
     <Grid {zoom} {panX} {panY} />
   {/if}
   {#each resolvedElementsWithEphemeralTransformation as element (element.uuid)}
@@ -581,31 +578,34 @@
       scale={true}
       onMouseDown={(e) => handleMouseDown(e, 'el', element.uuid)}
     >
-      <Element {gameSpace} el={element} />
+      <Element el={element} />
+      {#if element.wals.length}
+        <button
+          on:mousedown={(ev) => ev.stopPropagation()}
+          on:click={(ev) => onOpenElementMenu(element.uuid, ev.clientX, ev.clientY)}
+          class="absolute h6 w6 z-1000 bg-red-500 -top-2 -right-2 rounded-full b b-black/10 text-white text-center"
+        >
+          {element.wals.length}
+        </button>
+      {/if}
     </SpaceBox>
 
-    {#if ($editMode || can.move || can.resize || can.rotate) && resolvedSelection.has(element.uuid)}
-      <SpaceBox
-        {vp}
-        {box}
-        z={element.z + 0.1}
-        scale={false}
-        onMouseDown={(e) => handleMouseDown(e, 'el', element.uuid)}
-        class="group"
-      >
-        {#if $editMode || can.resize}
+    {#if resolvedSelection.has(element.uuid)}
+      <SpaceBox {vp} {box} z={element.z + 0.1} scale={false} class="group">
+        {#if editMode || (can.resize && playMode)}
           <ResizeHandles
             onMouseDown={(ev, resizeHandle) =>
               handleMouseDown(ev, 'elResizeHandle', element.uuid, resizeHandle)}
           />
         {/if}
-        {#if $editMode || can.move}
-          <div
-            class={cx('absolute z-40 -inset-[2px] b-dashed b-2 b-cyan-400 bg-cyan-400/30', {
-              'cursor-grab': nDragState.type === 'none',
-            })}
-          ></div>
-        {/if}
+        <!-- {#if editMode || (can.move && playMode)} -->
+        <div
+          on:mousedown={(e) => handleMouseDown(e, 'el', element.uuid)}
+          class={cx('absolute z-40 -inset-[2px] b-dashed b-2 b-cyan-400 bg-cyan-400/30', {
+            'cursor-grab': nDragState.type === 'fromElement' && !nDragState.selectOnly,
+          })}
+        ></div>
+        <!-- {/if} -->
       </SpaceBox>
     {/if}
   {/each}

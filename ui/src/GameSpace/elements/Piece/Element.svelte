@@ -1,13 +1,12 @@
 <script lang="ts">
   import { cx } from '~/lib/util';
   import type { PieceElement } from './type';
+  import { getGSS } from '~/store';
 
   export let el: Pick<PieceElement, 'display' | 'width' | 'height'>;
-  // export let gameSpace: any = null;
   let klass: string = '';
   export { klass as class };
   export let style = '';
-  $$restProps; // This prevents Svelte warnings from unused props
 </script>
 
 <div class={cx(klass, 'size-full flexcc')} {style}>

@@ -19,8 +19,6 @@
   function cancelPickEmoji() {
     emojiPickerOpen = false;
   }
-
-  $$restProps; // Prevents Svelte warnings
 </script>
 
 {#if emojiPickerOpen}

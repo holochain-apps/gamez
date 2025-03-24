@@ -1,16 +1,9 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
+  import { tick } from 'svelte';
   import TrashIcon from '~icons/fa6-solid/trash';
   import CloneIcon from '~icons/fa6-solid/clone';
 
-  import {
-    type GElement,
-    type CanConfig,
-    CAN_ALL,
-    DEFAULT_CAN_CONFIG,
-    type GameSpace,
-    type GameSpaceSyn,
-  } from '~/store';
+  import { type GElement, type CanConfig, DEFAULT_CAN_CONFIG, getGSS } from '~/store';
   import CanConfigEl from './CanConfig.svelte';
   import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';
@@ -18,6 +11,7 @@
   import * as E from '../elements';
   import { tooltip } from '~/shared/tooltip';
   import clients from '~/clients';
+  import CanConfigView from './CanConfigView.svelte';
 
   export let x: number;
   export let y: number;
@@ -28,40 +22,43 @@
   export let onDuplicate: () => void;
   export let el: GElement;
 
-  const gameSpaceStore = getContext('game-space-store') as GameSpaceSyn;
-  const gameSpace = getContext('game-space') as GameSpace;
+  const GSS = getGSS();
 
-  $: editMode = gameSpaceStore.editMode;
+  $: mode = GSS.mode;
   $: resolvedCan = { ...DEFAULT_CAN_CONFIG, ...el.can };
   $: resolvedEl = { ...el, can: resolvedCan } as any;
+  $: editMode = $mode === 'edit';
+  $: shouldBeShown =
+    editMode || Object.values(resolvedCan).some((v) => v) || resolvedEl.wals.length > 0;
 
   let element: HTMLDivElement;
   let adjustX = 0;
   let adjustY = 0;
-  onMount(() => {
-    if (element) {
-      const { width, height, left, top } = element.getBoundingClientRect();
-      const docW = document.documentElement.clientWidth;
-      const docH = document.documentElement.clientHeight;
-      if (left + width > docW) {
-        adjustX = left + width - docW;
-      }
-      if (top + height > docH) {
-        adjustY = top + height - docH;
-      }
-      function handleClick(ev: MouseEvent) {
-        if (element && !element.contains(ev.target as Node)) {
-          onClose();
+
+  $: {
+    x && y && el; // Reactivity stuff
+    if (shouldBeShown && element) {
+      adjustX = 0;
+      adjustY = 0;
+      tick().then(() => {
+        const { width, height, left, top } = element.getBoundingClientRect();
+        const docW = document.documentElement.clientWidth;
+        const docH = document.documentElement.clientHeight;
+        if (left + width > docW) {
+          adjustX = left + width - docW;
         }
-      }
-      window.addEventListener('mousedown', handleClick);
-      return () => {
-        window.removeEventListener('mousedown', handleClick);
-      };
-    } else {
+        if (top + height > docH) {
+          adjustY = top + height - docH;
+        }
+      });
+    }
+  }
+
+  $: handleClick = (ev: MouseEvent) => {
+    if (element && !element.contains(ev.target as Node)) {
       onClose();
     }
-  });
+  };
 
   function handleCanUpdate(canConfig: CanConfig) {
     onUpdateEl({ uuid: el.uuid, can: canConfig });
@@ -75,10 +72,9 @@
     const newWals = el.wals.filter((_, i) => i !== index);
     onUpdateEl({ uuid: el.uuid, wals: newWals });
   }
-
-  $: shouldBeShown =
-    $editMode || Object.values(resolvedCan).some((v) => v) || resolvedEl.wals.length > 0;
 </script>
+
+<svelte:window on:mousedown={handleClick} />
 
 {#if shouldBeShown}
   <div
@@ -88,17 +84,23 @@
     top: ${y - adjustY}px;
     left: ${x - adjustX}px;
   `}
+    on:contextmenu={(ev) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+    }}
   >
-    {#if $editMode}
+    {#if editMode}
       <CanConfigEl onCanChange={handleCanUpdate} canConfig={resolvedCan} />
+    {:else}
+      <CanConfigView canConfig={resolvedCan} />
     {/if}
-    {#if $editMode || resolvedCan.move || resolvedCan.duplicate || resolvedCan.remove}
+    {#if editMode || resolvedCan.move || resolvedCan.duplicate || resolvedCan.remove}
       <div class="flex space-x-2 mb2">
-        {#if $editMode || resolvedCan.move}
+        {#if editMode || resolvedCan.move}
           <ZConfig {onMoveZ} disabled={false} />
         {/if}
 
-        {#if $editMode || resolvedCan.duplicate}
+        {#if editMode || resolvedCan.duplicate}
           <button
             on:click={onDuplicate}
             use:tooltip={'Duplicate'}
@@ -107,7 +109,7 @@
             <CloneIcon />
           </button>
         {/if}
-        {#if $editMode || resolvedCan.remove}
+        {#if editMode || resolvedCan.remove}
           <button
             on:click={onRemoveEl}
             disabled={false}
@@ -125,21 +127,21 @@
       </div>
     {/if}
 
-    {#if $editMode || resolvedCan.configurate}
+    {#if editMode || resolvedCan.configurate}
       <svelte:component
         this={E[resolvedEl.type].ConfigMenu}
         el={resolvedEl}
         onUpdate={(el) => onUpdateEl({ ...el, uuid: resolvedEl.uuid })}
-        gameSpace={gameSpaceStore}
+        gameSpace={GSS}
       />
     {/if}
 
-    {#if clients.weave && ($editMode || resolvedCan.attach || resolvedEl.wals.length > 0)}
+    {#if clients.weave && (editMode || resolvedCan.attach || resolvedEl.wals.length > 0)}
       <WalsControls
         attachments={el.wals}
         onAddAttachment={handleAddAttachment}
         onRemoveAttachment={handleRemoveAttachment}
-        canModify={$editMode || resolvedCan.attach}
+        canModify={editMode || resolvedCan.attach}
       />
     {/if}
   </div>

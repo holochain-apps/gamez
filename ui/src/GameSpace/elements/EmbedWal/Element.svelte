@@ -10,16 +10,16 @@
     weaveUrlFromWal,
   } from '@theweave/api';
   import { urlFromAppletHash, appletOrigin } from '@theweave/elements/dist/utils';
-  import { type GameSpaceSyn } from '~/store';
+  import { getGSS } from '~/store';
   import type { EmbedWalElement } from './type';
   import { cx } from '~/lib/util';
   import clients from '~/clients';
 
   export let el: EmbedWalElement;
-  export let gameSpace: GameSpaceSyn;
+
+  const GSS = getGSS();
   let klass: string = '';
   export { klass as class };
-  $$restProps; // This prevents Svelte warnings from unused props
 
   // Track the previous wals to detect changes
   let previousWals: string[] = [];
@@ -45,7 +45,7 @@
       const wal = await clients.weave.assets.userSelectAsset();
       if (wal) {
         const weaveUrl = weaveUrlFromWal(wal);
-        gameSpace.change({
+        GSS.change({
           type: 'update-element',
           element: { uuid: el.uuid, wals: [...el.wals, weaveUrl] },
         });
@@ -54,7 +54,7 @@
   }
 
   async function handleRemoveAttachment() {
-    gameSpace.change({
+    GSS.change({
       type: 'update-element',
       element: { uuid: el.uuid, wals: [] },
     });
@@ -98,7 +98,7 @@
     const height = el.preview ? 30 : el.storedHeight;
     const storedHeight = el.preview ? el.height : el.storedHeight;
     const y = el.y + (el.preview ? -(storedHeight - 30) / 2 : (storedHeight - el.height) / 2);
-    gameSpace.change({
+    GSS.change({
       type: 'update-element',
       element: { uuid: el.uuid, preview: !el.preview, height, storedHeight, y },
     });

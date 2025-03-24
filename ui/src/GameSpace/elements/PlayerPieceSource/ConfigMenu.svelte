@@ -6,7 +6,6 @@
 
   export let el: PlayerPieceSourceElement;
   export let onUpdate: (el: Partial<PlayerPieceSourceElement>) => void;
-  export let gameSpace: GameSpaceSyn;
 </script>
 
 <div class="flex flex-col space-y-4">

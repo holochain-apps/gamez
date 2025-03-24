@@ -4,8 +4,6 @@
 
   export let el: TurnTrackerElement;
   export let onUpdate: (el: Partial<TurnTrackerElement>) => void;
-  // export let gameSpace: any = null;
-  $$restProps; // This prevents Svelte warnings from unused props
 </script>
 
 <div>
