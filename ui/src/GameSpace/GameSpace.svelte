@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { onMount, onDestroy, setContext } from 'svelte';
-  import { derived, get, readonly } from 'svelte/store';
+  import { onMount, onDestroy } from 'svelte';
+  import { derived } from 'svelte/store';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
   import IconPen from '~icons/fa6-solid/pen';
   import IconPlay from '~icons/fa6-solid/play';
-  import IconEye from '~icons/fa6-solid/eye';
 
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import BookIcon from '~icons/fa6-solid/book';
@@ -116,10 +115,6 @@
 
   function handleNameChange(name: string) {
     GSS.change({ type: 'set-name', name });
-  }
-
-  function handleIconChange(icon: string) {
-    GSS.change({ type: 'set-icon', icon });
   }
 
   function handleMaxPlayersSlotsChange(maxPlayersSlots: number) {
@@ -237,12 +232,9 @@
             creator={$GS.creator}
             name={$GS.name}
             onNameChange={handleNameChange}
-            icon={$GS.icon}
-            onIconChange={handleIconChange}
             maxPlayersSlots={$GS.playersSlots.length}
             onMaxPlayersSlotsChange={handleMaxPlayersSlotsChange}
             onApplyColors={handleApplyColors}
-            canEdit={$permissions.canEditSpace}
           />
         {/if}
       {/if}
@@ -262,22 +254,10 @@
           {/if}
         </button>
       {/if}
-      <!-- onMoveElement={(uuid, x, y) => {
-          GSS.change({ type: 'move-element', uuid, x, y });
-        }} -->
-      <!-- onResizeElement={(uuid, width, height) => {
-          GSS.change({ type: 'resize-element', uuid, width, height });
-        }}
-        onRotateElement={(uuid, rotation) => {
-          GSS.change({ type: 'rotate-element', uuid, rotation });
-        }} -->
       <Surface onOpenElementMenu={handleOpenElementMenu} />
     </div>
   </div>
   {#if contextMenuState}
-    <!-- <div class="fixed top-50 left-50 z-1000 h-50 w-50 bg-red-500">
-      <select-asset-menu weave-client={weaveClient}></select-asset-menu>
-    </div> -->
     <ConfigMenu
       x={contextMenuState.x + 2}
       y={contextMenuState.y + 2}

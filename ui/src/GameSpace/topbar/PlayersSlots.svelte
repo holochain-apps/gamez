@@ -4,7 +4,7 @@
   import AgentName from '~/shared/AgentName.svelte';
   import { cloneDeep } from 'lodash';
   import SimpleColorPicker from '../ui/SimpleColorPicker.svelte';
-  import { addWindowEventListener, COLORS, EMPTY_IMAGE, wrapFns } from '~/lib/util';
+  import { COLORS } from '~/lib/util';
   import { tooltip } from '~/shared/tooltip';
 
   export let connected: string[];

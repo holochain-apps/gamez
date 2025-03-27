@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { type GameSpaceSyn } from '~/store';
   import Checkbox from '../../ui/Checkbox.svelte';
   import IntegerInput from '../../ui/IntegerInput.svelte';
   import { type PlayerPieceSourceElement } from './type';

@@ -5,8 +5,6 @@
   import clients from '~/clients';
 
   export let pubKey: AgentPubKey | string;
-  let klass = '';
-  export { klass as class };
 
   $: agentPubKeyB64 = typeof pubKey == 'string' ? pubKey : encodeHashToBase64(pubKey);
   $: agentPubKeyHash = typeof pubKey == 'string' ? decodeHashFromBase64(pubKey) : pubKey;

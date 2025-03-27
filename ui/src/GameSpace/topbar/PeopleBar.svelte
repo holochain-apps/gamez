@@ -1,13 +1,8 @@
 <script lang="ts">
-  import { type Placement, tooltip as svooltip } from 'svooltip';
-  import { derived, readable } from 'svelte/store';
-  import UsersIcon from '~icons/fa6-solid/users';
   import { hashToB64 } from '~/lib/util';
   import AgentAvatar from '~/shared/AgentAvatar.svelte';
-  import AgentName from '~/shared/AgentName.svelte';
   import type { PlayerSlot } from '~/store/types';
 
-  import TopBarDropButton from '../ui/TopBarDropButton.svelte';
   import PlayersSlots from './PlayersSlots.svelte';
   import AgentNameTooltip from '~/shared/AgentNameTooltip.svelte';
 
@@ -22,7 +17,6 @@
   export let canChangeSlots: boolean;
 
   $: participantsB64 = participants.map(hashToB64);
-  $: playersInSlots = playersSlots.map((ps) => ps.pubKey);
 
   $: playersNotInSlots = participantsB64.filter((participant) => {
     return !playersSlots.some((playerSlot) => {

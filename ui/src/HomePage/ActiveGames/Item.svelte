@@ -13,7 +13,6 @@
   export let onDuplicate = () => {};
   export let onArchive = () => {};
   export let onDelete = () => {};
-  export let onUnarchive = () => {};
   export let onExport = () => {};
 
   let menuOpen = false;
