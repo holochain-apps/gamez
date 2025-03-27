@@ -1,10 +1,10 @@
 <script lang="ts">
   import FillIcon from '~icons/fa6-solid/fill';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
-  import AgentName from '~/shared/AgentName.svelte';
-  import Input from '../ui/Input.svelte';
-  import IntegerInput from '../ui/IntegerInput.svelte';
-  import { tooltip } from '~/shared/tooltip';
+  import AgentAvatar from '~/center/static/AgentAvatar.svelte';
+  import AgentName from '~/center/static/AgentName.svelte';
+  import Input from '~/GameSpace/center/input/Input.svelte';
+  import IntegerInput from '~/GameSpace/center/input/IntegerInput.svelte';
+  import { tooltip } from '~/center/lib/tooltip';
 
   export let creator: string;
   export let name: string;

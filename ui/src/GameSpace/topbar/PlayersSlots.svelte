@@ -1,11 +1,12 @@
 <script lang="ts">
-  import PlayerIcon from '../ui/PlayerIcon.svelte';
-  import type { PlayerSlot } from '~/store/types';
-  import AgentName from '~/shared/AgentName.svelte';
   import { cloneDeep } from 'lodash';
-  import SimpleColorPicker from '../ui/SimpleColorPicker.svelte';
-  import { COLORS } from '~/lib/util';
-  import { tooltip } from '~/shared/tooltip';
+  import PlayerIcon from '../center/static/PlayerIcon.svelte';
+  import type { PlayerSlot } from '~/store/types';
+  import AgentName from '~/center/static/AgentName.svelte';
+  import { COLORS } from '~/center/lib/util';
+  import { tooltip } from '~/center/lib/tooltip';
+
+  import SimpleColorPicker from '../center/input/SimpleColorPicker.svelte';
 
   export let connected: string[];
   export let pubKey: string;

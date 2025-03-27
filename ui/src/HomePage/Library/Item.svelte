@@ -3,9 +3,9 @@
   import WandIcon from '~icons/fa6-solid/wand-magic-sparkles';
   import EllipsisVIcon from '~icons/fa6-solid/ellipsis-vertical';
   import type { GameSpace } from '~/store';
-  import { tooltip } from '~/shared/tooltip';
-  import FloatingMenu from '~/shared/FloatingMenu.svelte';
-  import MiniView from '~/GameSpace/MiniView.svelte';
+  import { tooltip } from '~/center/lib/tooltip';
+  import FloatingMenu from '~/center/input/FloatingMenu.svelte';
+  import MiniView from '~/Surface/MiniView.svelte';
 
   export let gameSpace: GameSpace;
   export let onPlay = () => {};

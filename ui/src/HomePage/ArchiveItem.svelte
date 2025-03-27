@@ -3,8 +3,8 @@
   import DeleteIcon from '~icons/fa6-solid/trash';
   import EyeIcon from '~icons/fa6-solid/eye';
   import type { GameSpaceSyn } from '~/store';
-  import { tooltip } from '~/shared/tooltip';
-  import MiniView from '~/GameSpace/MiniView.svelte';
+  import { tooltip } from '~/center/lib/tooltip';
+  import MiniView from '~/Surface/MiniView.svelte';
 
   export let gameSpaceStore: GameSpaceSyn;
   export let onInspect: () => void;

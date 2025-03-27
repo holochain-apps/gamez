@@ -1,4 +1,4 @@
-import { colorSequence } from '~/lib/util';
+import { colorSequence } from '~/center/lib/util';
 
 import { type GameSpace } from './types';
 

@@ -8,8 +8,8 @@
   import ZConfig from './ZConfig.svelte';
   import WalsControls from './WalsControls.svelte';
 
-  import * as E from '../elements';
-  import { tooltip } from '~/shared/tooltip';
+  import * as E from '~/elements';
+  import { tooltip } from '~/center/lib/tooltip';
   import clients from '~/clients';
   import CanConfigView from './CanConfigView.svelte';
 

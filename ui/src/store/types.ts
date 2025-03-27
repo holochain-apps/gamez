@@ -1,6 +1,6 @@
 import type { WeaveUrl } from '@theweave/api';
 
-import * as elements from '~/GameSpace/elements';
+import * as elements from '~/elements';
 
 export const VERSION = 10;
 

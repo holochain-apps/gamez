@@ -1,11 +1,13 @@
 <script lang="ts">
   import PlusIcon from '~icons/fa6-solid/plus';
+
   import { getContext } from '~/store';
-  import LayoutBar from '~/Layout/LayoutBar.svelte';
+  import LayoutBar from '~/center/hud/LayoutBar.svelte';
+  import { nav } from '~/center/lib/routes';
+  import { getModalPromptContext } from '~/center/input/ModalPromptContextWrapper.svelte';
+
   import GamesList from './ActiveGames/List.svelte';
-  import { nav } from '~/lib/routes';
   import LibraryList from './Library/List.svelte';
-  import { getModalPromptContext } from '~/shared/ModalPromptContextWrapper.svelte';
 
   const store = getContext();
 

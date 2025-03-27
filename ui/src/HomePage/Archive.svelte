@@ -1,9 +1,9 @@
 <script lang="ts">
   import CaretIcon from '~icons/fa6-solid/caret-down';
-  import { cx } from '~/lib/util';
+  import { cx } from '~/center/lib/util';
   import { getContext, type GameSpaceSyn } from '~/store';
   import ArchiveItem from './ArchiveItem.svelte';
-  import { nav } from '~/lib/routes';
+  import { nav } from '~/center/lib/routes';
   import { get } from 'svelte/store';
 
   const S = getContext();

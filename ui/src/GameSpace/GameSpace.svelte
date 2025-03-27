@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { derived } from 'svelte/store';
+  import { cloneDeep } from 'lodash';
   import GearIcon from '~icons/fa6-solid/gear';
   import CubesIcon from '~icons/fa6-solid/cubes';
   import IconPen from '~icons/fa6-solid/pen';
@@ -9,8 +10,11 @@
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import BookIcon from '~icons/fa6-solid/book';
 
-  import PocketIcon from '~/shared/icons/PocketIcon.svelte';
-  import { goBack } from '~/lib/routes';
+  import clients from '~/clients';
+  import PocketIcon from '~/center/icons/PocketIcon.svelte';
+  import { goBack } from '~/center/lib/routes';
+  import { tooltip } from '~/center/lib/tooltip';
+  import { addGameSpaceToPocket, COLORS, colorSequence, cx, uuid } from '~/center/lib/util';
 
   import {
     type GameSpaceSyn,
@@ -21,19 +25,17 @@
     setGameSpaceStoreContext,
   } from '~/store';
 
-  import Surface from './Surface.svelte';
+  import { Surface } from '~/Surface';
+
+  import NameTitleInput from './center/input/NameTitleInput.svelte';
   import PeopleBar from './topbar/PeopleBar.svelte';
   import SidebarToggleButton from './topbar/SidebarToggleButton.svelte';
   import ElementsLibrary from './sidebar/ElementsLibrary.svelte';
   import SpaceConfigurator from './sidebar/SpaceConfigurator.svelte';
   import ConfigMenu from './ConfigMenu';
-  import { tooltip } from '~/shared/tooltip';
-  import { cloneDeep } from 'lodash';
-  import { addGameSpaceToPocket, COLORS, colorSequence, cx, uuid } from '~/lib/util';
-  import NameTitleInput from './ui/NameTitleInput.svelte';
+
   import ActivityLog from './topbar/ActivityLog.svelte';
-  import Instructions from './ui/Instructions.svelte';
-  import clients from '~/clients';
+  import Instructions from './center/static/Instructions.svelte';
 
   export let GSS: GameSpaceSyn;
   export let asAsset: boolean = false;

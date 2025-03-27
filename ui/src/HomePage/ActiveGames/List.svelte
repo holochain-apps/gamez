@@ -3,8 +3,8 @@
   import { cloneDeep, zip } from 'lodash';
   import { getContext, type GameSpace, type GameSpaceSyn } from '~/store';
   import Item from './Item.svelte';
-  import { nav } from '~/lib/routes';
-  import { cx, exportAsJson } from '~/lib/util';
+  import { nav } from '~/center/lib/routes';
+  import { cx, exportAsJson } from '~/center/lib/util';
   import Archive from '../Archive.svelte';
   import clients from '~/clients';
 

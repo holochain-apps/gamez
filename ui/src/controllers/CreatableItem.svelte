@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { GameSpace } from '~/store';
-  import MiniView from '~/GameSpace/MiniView.svelte';
+  import MiniView from '~/Surface/MiniView.svelte';
 
   export let gameSpace: GameSpace;
   export let onClick: () => void;

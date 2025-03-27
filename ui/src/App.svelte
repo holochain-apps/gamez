@@ -1,13 +1,13 @@
 <script lang="ts">
-  import LoadingIndicator from '~/shared/LoadingIndicator.svelte';
-  import LogoIcon from '~/shared/icons/LogoIcon.svelte';
+  import LoadingIndicator from '~/center/static/LoadingIndicator.svelte';
+  import LogoIcon from '~/center/icons/LogoIcon.svelte';
 
   import clients from './clients';
 
   import ControllerMain from './controllers/ControllerMain.svelte';
   import ControllerBoardAsset from './controllers/ControllerBoardAsset.svelte';
   import ControllerCreatable from './controllers/ControllerCreatable.svelte';
-  import ModalPromptContextWrapper from './shared/ModalPromptContextWrapper.svelte';
+  import ModalPromptContextWrapper from './center/input/ModalPromptContextWrapper.svelte';
 
   import { createRootStoreContext } from '~/store';
 

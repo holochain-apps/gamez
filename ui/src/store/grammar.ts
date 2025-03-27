@@ -5,9 +5,9 @@ import { v1 as uuidv1 } from 'uuid';
 
 import { type AgentPubKeyB64, decodeHashFromBase64, encodeHashToBase64 } from '@holochain/client';
 
-import { colorSequence } from '~/lib/util';
+import { colorSequence } from '~/center/lib/util';
 
-import * as elements from '../GameSpace/elements';
+import * as elements from '../elements';
 import { LIBRARY } from './library';
 import {
   DEFAULT_NOTIFICATIONS_CONFIG,

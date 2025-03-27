@@ -1,4 +1,4 @@
-import * as elements from '../GameSpace/elements';
+import * as elements from '../elements';
 import { type GameSpaceSyn } from './gameSpaceStore';
 import { type GElement, type LibraryConfig } from './types';
 

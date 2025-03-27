@@ -3,12 +3,12 @@
   import _, { cloneDeep } from 'lodash';
 
   import { getContext, presets, type GameSpace, type GameSpaceSyn } from '~/store';
-  import { nav } from '~/lib/routes';
-  import { getModalPromptContext } from '~/shared/ModalPromptContextWrapper.svelte';
+  import { nav } from '~/center/lib/routes';
+  import { getModalPromptContext } from '~/center/input/ModalPromptContextWrapper.svelte';
 
   import Item from './Item.svelte';
   import Archive from '../Archive.svelte';
-  import { exportAsJson } from '~/lib/util';
+  import { exportAsJson } from '~/center/lib/util';
   import clients from '~/clients';
 
   const store = getContext();

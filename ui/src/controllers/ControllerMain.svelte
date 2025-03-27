@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { route } from '~/lib/routes';
+  import { route } from '~/center/lib/routes';
   import { Page as GameSpacePage } from '~/GameSpace';
   import HomePage from '../HomePage';
 </script>

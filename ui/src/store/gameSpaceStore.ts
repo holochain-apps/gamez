@@ -1,12 +1,12 @@
 import { derived, get, readonly, type Writable, writable } from 'svelte/store';
 
+import { type SynDoc } from '~/center/lib/SimplerSyn';
+import { hashToWAL } from '~/center/lib/util';
 import clients from '~/clients';
-import { type SynDoc } from '~/lib/SimplerSyn';
-import { hashToWAL } from '~/lib/util';
 
+import Viewport from '../Surface/center/Viewport';
 import { applyDelta, type Delta } from './grammar';
 import { type GameSpace } from './types';
-import Viewport from './Viewport';
 
 export type GameSpaceSyn = ReturnType<typeof createGameSpaceSynStore>;
 

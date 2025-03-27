@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { hashToB64 } from '~/lib/util';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  import { hashToB64 } from '~/center/lib/util';
+  import AgentAvatar from '~/center/static/AgentAvatar.svelte';
+  import AgentNameTooltip from '~/center/static/AgentNameTooltip.svelte';
+
   import type { PlayerSlot } from '~/store/types';
 
   import PlayersSlots from './PlayersSlots.svelte';
-  import AgentNameTooltip from '~/shared/AgentNameTooltip.svelte';
 
   export let pubKey: string;
   export let canJoinGame: boolean;

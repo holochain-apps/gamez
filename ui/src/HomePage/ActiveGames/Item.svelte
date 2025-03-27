@@ -2,10 +2,10 @@
   import DoorIcon from '~icons/fa6-solid/door-open';
   import EllipsisVIcon from '~icons/fa6-solid/ellipsis-vertical';
   import type { GameSpace } from '~/store';
-  import FloatingMenu from '~/shared/FloatingMenu.svelte';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
-  import { tooltip } from '~/shared/tooltip';
-  import MiniView from '~/GameSpace/MiniView.svelte';
+  import FloatingMenu from '~/center/input/FloatingMenu.svelte';
+  import AgentAvatar from '~/center/static/AgentAvatar.svelte';
+  import { tooltip } from '~/center/lib/tooltip';
+  import MiniView from '~/Surface/MiniView.svelte';
 
   export let gameSpace: GameSpace;
   export let onPlay = () => {};

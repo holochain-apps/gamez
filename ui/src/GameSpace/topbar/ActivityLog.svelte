@@ -2,9 +2,9 @@
   import BellIcon from '~icons/fa6-solid/bell';
   import BellSlashIcon from '~icons/fa6-regular/bell-slash';
   import cx from 'classnames';
-  import { relativeTimeFormat, timeFormat } from '~/lib/util';
-  import { tooltip } from '~/shared/tooltip';
-  import TopBarDropButton from '../ui/TopBarDropButton.svelte';
+  import { relativeTimeFormat, timeFormat } from '~/center/lib/util';
+  import { tooltip } from '~/center/lib/tooltip';
+  import TopBarDropButton from '../center/input/TopBarDropButton.svelte';
   import {
     type GameSpaceSyn,
     type AgentKey,
@@ -12,7 +12,7 @@
     type Log,
     DEFAULT_NOTIFICATIONS_CONFIG,
   } from '~/store';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
+  import AgentAvatar from '~/center/static/AgentAvatar.svelte';
 
   export let gameSpace: GameSpaceSyn;
 

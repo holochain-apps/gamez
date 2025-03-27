@@ -1,8 +1,8 @@
 <script lang="ts">
   import { type AgentPubKey } from '@holochain/client';
   import cx from 'classnames';
-  import AgentAvatar from '~/shared/AgentAvatar.svelte';
-  import { tooltip } from '~/shared/tooltip';
+  import AgentAvatar from '~/center/static/AgentAvatar.svelte';
+  import { tooltip } from '~/center/lib/tooltip';
 
   export let agent: string | AgentPubKey;
   export let isPlaying: boolean;

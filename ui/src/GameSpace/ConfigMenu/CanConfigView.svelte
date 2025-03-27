@@ -9,8 +9,8 @@
   import AttachmentIcon from '~icons/fa6-solid/paperclip';
   import TrashIcon from '~icons/fa6-solid/trash';
   import CopyIcon from '~icons/fa6-solid/copy';
-  import { cx } from '~/lib/util';
-  import { tooltip } from '~/shared/tooltip';
+  import { cx } from '~/center/lib/util';
+  import { tooltip } from '~/center/lib/tooltip';
 
   const klass = (v) =>
     cx('flex-grow pointer-events-auto text-green-600/90 drop-shadow-border flexcc h-full', {

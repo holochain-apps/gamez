@@ -5,7 +5,7 @@
   import CreatableItem from './CreatableItem.svelte';
   import { cloneDeep } from 'lodash';
   import clients from '~/clients';
-  import { hashToWAL } from '~/lib/util';
+  import { hashToWAL } from '~/center/lib/util';
 
   export let view: Extract<AppletView, { type: 'creatable' }>;
 

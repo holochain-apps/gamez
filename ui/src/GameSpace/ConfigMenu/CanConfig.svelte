@@ -9,7 +9,7 @@
   import TrashIcon from '~icons/fa6-solid/trash';
   import CopyIcon from '~icons/fa6-solid/copy';
 
-  import { tooltip } from '~/shared/tooltip';
+  import { tooltip } from '~/center/lib/tooltip';
 
   import { type CanConfig } from '~/store';
 

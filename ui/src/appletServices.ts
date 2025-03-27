@@ -12,8 +12,9 @@ import { LazyHoloHashMap } from '@holochain-open-dev/utils';
 import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
 import type { AppClient, RoleName } from '@holochain/client';
 
-import { ROOT_TAG } from './lib/SimplerSyn';
-import { getMyDna } from './lib/util';
+import { ROOT_TAG } from '~/center/lib/SimplerSyn';
+import { getMyDna } from '~/center/lib/util';
+
 import { type GameSpace } from './store';
 
 const ROLE_NAME = 'gamez';
