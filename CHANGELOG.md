@@ -1,3 +1,7 @@
+# UI 0.8.3
+- 🎈 Fix: Issue with dragging of player piece source
+- 🧹 Clean: Internal refactoring and code clean up, specially around screen->container->space viewport calculations
+
 # UI 0.8.2
 - 🎈 Fix: Mini view now renders correctly on the first render
 - 🎈 Fix: Piece Source dragged now are rendered with the correct zooming
