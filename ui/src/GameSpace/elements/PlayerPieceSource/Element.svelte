@@ -4,8 +4,9 @@
   import { v1 as uuidv1 } from 'uuid';
 
   import AgentName from '~/shared/AgentName.svelte';
-  import { getGSS, type GameSpaceSyn } from '~/store';
+  import { getGSS } from '~/store';
 
+  import SpaceBox from '~/GameSpace/SpaceBox.svelte';
   import { Element as PlayerPieceEl, type ElType as PlayerPieceType } from '../PlayerPiece';
   import type { PlayerPieceSourceElement } from './type';
 
@@ -21,8 +22,8 @@
   $: mode = GSS.mode;
   $: playMode = $mode === 'play';
 
-  $: ui = GSS.ui;
-  $: zoomLevel = $ui.zoom;
+  $: vp = GSS.vp;
+  $: zoomLevel = $vp.zoom;
 
   let playedPiecesCountByAgent: { [key: string]: number } = {};
   let prevCreatedPieces: string[] = [];
@@ -79,13 +80,17 @@
     }, 50);
   }
 
-  type DragState = { playerSlotIndex: number; x: number; y: number } | null;
+  type DragState = { playerSlotIndex: number; x: number; y: number; z: number } | null;
   let dragState: DragState = null;
-  function handleDragStart(ev: MouseEvent, playerSlotIndex: number) {
+  $: dragElBox = dragState
+    ? $vp.boxCenteredAt($vp.screenToSpace(dragState), { w: el.size, h: el.size })
+    : null;
+  function handleMouseDown(ev: MouseEvent, playerSlotIndex: number) {
+    if (ev.button !== 0) return;
     ev.stopPropagation();
     ev.preventDefault();
     if (!playMode) return;
-    dragState = { playerSlotIndex, x: ev.clientX, y: ev.clientY };
+    dragState = { playerSlotIndex, x: ev.clientX, y: ev.clientY, z: GSS.topZ() };
 
     function handleMouseMoving(e: MouseEvent) {
       const x = e.clientX;
@@ -94,9 +99,9 @@
     }
 
     function handleMouseUp() {
-      const surfacePos = GSS.getSurfaceCoordinates(dragState.x, dragState.y);
-      if (surfacePos) {
-        handleAddPiece(surfacePos, dragState.playerSlotIndex);
+      if ($vp.isWithinContainer(dragState)) {
+        const spacePos = $vp.screenToSpace(dragState);
+        handleAddPiece(spacePos, dragState.playerSlotIndex);
       }
       dragState = null;
       document.body.classList.remove('cursor-grabbing');
@@ -113,10 +118,10 @@
     const newEl: PlayerPieceType = {
       type: 'PlayerPiece' as 'PlayerPiece',
       version: 3 as 3,
-      width: el.size,
-      height: el.size,
-      x: pos.x,
-      y: pos.y,
+      width: dragElBox.h,
+      height: dragElBox.w,
+      x: dragElBox.x,
+      y: dragElBox.y,
       z: GSS.topZ(),
       rotation: 0,
       playerSlot: playerSlotIndex,
@@ -142,6 +147,10 @@
         },
       },
     ]);
+  }
+
+  function toPieceEl(slot: number) {
+    return { width: el.size, height: el.size, playerSlot: slot };
   }
 
   $: everythingEmpty = el.showEmptyPlayersSlots
@@ -185,10 +194,9 @@
                 'cursor-grab hover:bg-white/10 rounded-md b-dashed b-white/25': isAllowedToGrab,
                 'cursor-default b-transparent': !isAllowedToGrab,
               })}
-              draggable={true}
-              on:dragstart={(ev) =>
+              on:mousedown={(ev) =>
                 isAllowedToGrab
-                  ? handleDragStart(ev, i)
+                  ? handleMouseDown(ev, i)
                   : (ev.stopPropagation(), ev.preventDefault())}
               bind:this={piecesContainer[i]}
             >
@@ -200,18 +208,13 @@
                       el.limit - j
                     : false}
                   <div
-                    class={cx(`block overlap mr.5 last:mr0 relative`, {
+                    class={cx(`block overlap mr.5 last:mr0 relative `, {
                       'saturate-0': isPlayed,
                     })}
+                    draggable={false}
                     style={(j > 0 ? `margin-left: var(--overlap);` : '') + `z-index: ${10 + j}`}
                   >
-                    <PlayerPieceEl
-                      el={{
-                        width: el.size,
-                        height: el.size,
-                        playerSlot: i,
-                      }}
-                    />
+                    <PlayerPieceEl el={toPieceEl(i)} />
                   </div>
                 {/each}
               </div>
@@ -229,13 +232,9 @@
 </div>
 
 {#if dragState}
-  <Portal target="body">
-    <div class="fixed z-100 top-0 left-0">
-      <PlayerPieceEl
-        class="inline-block fixed z-100 cursor-grabbing"
-        style={`transform: translate(${dragState.x - el.size / 2}px, ${dragState.y - el.size / 2}px) scale(${zoomLevel});`}
-        el={{ width: el.size, height: el.size, playerSlot: dragState.playerSlotIndex }}
-      />
-    </div>
+  <Portal target="#surface-portal">
+    <SpaceBox box={dragElBox} z={dragState.z}>
+      <PlayerPieceEl el={toPieceEl(dragState.playerSlotIndex)} />
+    </SpaceBox>
   </Portal>
 {/if}

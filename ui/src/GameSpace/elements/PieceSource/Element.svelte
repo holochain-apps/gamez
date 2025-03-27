@@ -6,13 +6,14 @@
   import type { PieceSourceElement } from './type';
   import Piece from '../Piece/Element.svelte';
   import Portal from 'svelte-portal';
+  import SpaceBox from '~/GameSpace/SpaceBox.svelte';
 
   export let el: PieceSourceElement;
 
   const GSS = getGSS();
 
-  $: ui = GSS.ui;
-  $: zoomLevel = $ui.zoom;
+  $: vp = GSS.vp;
+  $: zoomLevel = $vp.zoom;
   $: mode = GSS.mode;
 
   $: displayPieceEl = {
@@ -28,7 +29,7 @@
   async function handleAddPiece(clientX: number, clientY: number) {
     if (!canAddPiece) return;
 
-    const { x, y } = GSS.getSurfaceCoordinates(clientX, clientY);
+    const { x, y } = $vp.screenToSpace({ x: clientX, y: clientY });
     const newEl = {
       type: 'Piece' as 'Piece',
       version: 1 as 1,
@@ -66,9 +67,15 @@
   type DragState = {
     x: number;
     y: number;
+    z: number;
   } | null;
 
   let dragState: DragState = null;
+
+  $: dragElBox = dragState
+    ? $vp.boxCenteredAt($vp.screenToSpace(dragState), { w: el.pieceW, h: el.pieceW })
+    : null;
+
   function handleMouseDown(ev: MouseEvent) {
     if (ev.button !== 0) return;
     ev.preventDefault();
@@ -77,6 +84,7 @@
     dragState = {
       x: ev.clientX,
       y: ev.clientY,
+      z: GSS.topZ(),
     };
 
     function handleMouseMoving(e: MouseEvent) {
@@ -112,7 +120,8 @@
       'hover:bg-red-6': canAddPiece,
       'cursor-no-drop': !canAddPiece,
     })}
-    on:mousedown={canAddPiece ? handleMouseDown : null}
+    on:mousedown={(ev) =>
+      canAddPiece ? handleMouseDown(ev) : (ev.preventDefault(), ev.stopPropagation())}
   >
     <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
     <div class={cx('flexcc space-x-1  flex-wrap relative w-full')}>
@@ -140,7 +149,7 @@
   </div>
 </div>
 
-{#if dragState}
+<!-- {#if dragState}
   {@const x = dragState.x}
   {@const y = dragState.y}
   <Portal target="body">
@@ -156,5 +165,13 @@
     >
       <Piece class="relative z-20 " el={displayPieceEl} />
     </div>
+  </Portal>
+{/if} -->
+
+{#if dragState}
+  <Portal target="#surface-portal">
+    <SpaceBox box={dragElBox} z={dragState.z}>
+      <Piece el={displayPieceEl} />
+    </SpaceBox>
   </Portal>
 {/if}

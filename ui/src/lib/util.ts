@@ -190,17 +190,28 @@ export function addGameSpaceToPocket(hash: string) {
 export async function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-export async function waitUntilWidthAndHeight(
-  el: HTMLElement,
-  fn: (width: number, height: number, left: number, top: number) => void,
-) {
+export async function waitUntilWidthAndHeight(el: HTMLElement, fn: (rect: DOMRect) => void) {
   while (true) {
-    const { width, height, left, top } = el.getBoundingClientRect();
-    if (width && height) {
-      fn(width, height, left, top);
+    const rect = el.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      fn(rect);
       return;
     } else {
       await wait(50);
     }
   }
+}
+
+export function resizeObserver(node: HTMLElement, callback: (node: HTMLElement) => void) {
+  // Executa o callback imediatamente (equivalente ao handleContainerResized())
+  callback(node);
+
+  const observer = new ResizeObserver(() => callback(node));
+  observer.observe(node);
+
+  return {
+    destroy() {
+      observer.disconnect();
+    },
+  };
 }

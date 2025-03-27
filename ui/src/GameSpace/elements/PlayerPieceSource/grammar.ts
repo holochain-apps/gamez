@@ -59,15 +59,7 @@ export const applyDelta = (delta: Delta, $state: GameSpace) => {
       const el = $state.elements.find((e) => e.uuid === delta.uuid);
       if (el?.type === 'PlayerPiece') {
         forEachPieceSourceContainingElement($state, delta.uuid, (ps) => {
-          if (
-            isWithinRectangle(
-              { x: el.x, y: el.y },
-              ps.x - ps.width / 2,
-              ps.y - ps.height / 2,
-              ps.width,
-              ps.height,
-            )
-          ) {
+          if (isWithinRectangle({ x: el.x, y: el.y }, ps.x, ps.y, ps.width, ps.height)) {
             // Piece was dragged into piece source, delete it
             ps.createdPieces = ps.createdPieces.filter((p) => p !== el.uuid);
             const index = $state.elements.findIndex((e) => e.uuid === el.uuid);

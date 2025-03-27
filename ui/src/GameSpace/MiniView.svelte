@@ -18,14 +18,14 @@
     if (container && elements.length) {
       const newBox = containingBox(elements, 50);
       if (newBox) {
-        waitUntilWidthAndHeight(container!, (width, height) => {
-          const wRatio = width / newBox.w;
-          const hRatio = height / newBox.h;
+        waitUntilWidthAndHeight(container!, (rect) => {
+          const wRatio = rect.width / newBox.w;
+          const hRatio = rect.height / newBox.h;
           zoom = Math.min(wRatio, hRatio);
           x = -newBox.x;
           y = -newBox.y;
-          offsetX = wRatio > hRatio ? (width - newBox.w * zoom) / 2 : 0;
-          offsetY = hRatio > wRatio ? (height - newBox.h * zoom) / 2 : 0;
+          offsetX = wRatio > hRatio ? (rect.width - newBox.w * zoom) / 2 : 0;
+          offsetY = hRatio > wRatio ? (rect.height - newBox.h * zoom) / 2 : 0;
           box = newBox;
         });
       }

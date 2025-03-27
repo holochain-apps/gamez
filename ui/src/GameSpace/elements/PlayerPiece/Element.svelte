@@ -17,4 +17,14 @@
   $: size = Math.min(el.width, el.height);
 </script>
 
-<PlayerIcon pubKey={playerInfo?.pubKey} slot={el.playerSlot} {size} {color} class={klass} {style} />
+<div class="relative size-full">
+  <div class="absolute inset-0 rounded-full opacity-0 z-100"></div>
+  <PlayerIcon
+    pubKey={playerInfo?.pubKey}
+    slot={el.playerSlot}
+    {size}
+    {color}
+    class={klass}
+    {style}
+  />
+</div>

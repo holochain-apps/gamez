@@ -20,6 +20,7 @@
     class:disable-ptr-events={true}
     disable-tooltip={true}
     disable-copy={true}
+    draggable={false}
     {size}
     agent-pub-key={pubKeyB64}
   ></agent-avatar>

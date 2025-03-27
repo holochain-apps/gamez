@@ -25,6 +25,7 @@
 <div
   class={`relative flexcc rounded-full b-black/10 shadow-md ${klass}`}
   style={`background-color: ${color}; ${style}; height: ${size}px; width: ${size}px; ${style}; border-width: ${borderSize}px;`}
+  draggable="false"
 >
   {#if pubKey}
     <AgentAvatar class="relative z-20" size={size - borderSize * 2} {pubKey} />

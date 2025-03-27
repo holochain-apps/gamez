@@ -1,18 +1,10 @@
 <script lang="ts">
   import cx from 'classnames';
-  import { onMount } from 'svelte';
-  import { derived, get, writable } from 'svelte/store';
-  import {
-    DEFAULT_CAN_CONFIG,
-    containingBox,
-    getGSS,
-    type GElement,
-    type GameSpaceSyn,
-  } from '~/store';
+  import { DEFAULT_CAN_CONFIG, containingBox, getGSS, type GElement } from '~/store';
   import Element from './Element';
   import Grid from './Grid.svelte';
   import ResizeHandles, { type BoxResizeHandles } from './ResizeHandles.svelte';
-  import { waitUntilWidthAndHeight } from '~/lib/util';
+  import { resizeObserver, waitUntilWidthAndHeight } from '~/lib/util';
   import SpaceBox from './SpaceBox.svelte';
   import { resizeBox } from '~/lib/resizeBox';
 
@@ -64,13 +56,8 @@
   // ███████║   ██║   ██║  ██║   ██║   ███████╗
   // ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
-  let canvasVp: { x: number; y: number; w: number; h: number };
   let selectedElements = new Set<string>();
-  let boardContainer: HTMLDivElement;
-  let ui = get(GSS.ui);
-  let zoom = ui.zoom; // From 1 to maxZoom
-  let panX = ui.panX;
-  let panY = ui.panY;
+  $: vp = GSS.vp;
   let mouse: { x: number; y: number } = { x: 0, y: 0 };
   let nDragState: NDragState = { type: 'none' };
   let panned = false;
@@ -86,7 +73,6 @@
     panned = false;
   }
 
-  $: vp = { panX, panY, zoom };
   $: GS = GSS.state;
   $: elements = $GS.elements;
   $: elementsByUuid = new Map<string, GElement>(elements.map((el) => [el.uuid, el]));
@@ -98,14 +84,6 @@
     w: el.width,
     h: el.height,
   }));
-  // $: permissions = gameSpace.permissions;
-  // $: everythingLocked = !$permissions.canEditComponents;
-
-  // EFFECTS
-
-  $: {
-    GSS.ui.set({ zoom, panX, panY, surfaceContainer: boardContainer });
-  }
 
   //  █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
   // ██╔══██╗██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
@@ -149,8 +127,8 @@
     switch (cmd[0]) {
       case 'surface': {
         if (ev.button === 0) {
-          const startViewport = clientToViewport({ x: ev.clientX, y: ev.clientY });
-          const startSpace = viewportToSpace(startViewport);
+          const startViewport = $vp.screenToContainer({ x: ev.clientX, y: ev.clientY });
+          const startSpace = $vp.containerToSpace(startViewport);
           nDragState = {
             type: 'selecting',
             startViewport: startViewport,
@@ -206,8 +184,8 @@
             type: 'resizing',
             fromElement: cmd[1],
             fromHandle: cmd[2],
-            startViewport: clientToViewport({ x: ev.clientX, y: ev.clientY }),
-            endViewport: clientToViewport({ x: ev.clientX, y: ev.clientY }),
+            startViewport: $vp.screenToContainer({ x: ev.clientX, y: ev.clientY }),
+            endViewport: $vp.screenToContainer({ x: ev.clientX, y: ev.clientY }),
             expandSymetrically: ev.metaKey,
             keepAspectRatio: ev.shiftKey,
           };
@@ -218,7 +196,7 @@
   }
 
   function handleMouseMove(ev: MouseEvent, ...cmd: ['surface']) {
-    mouse = viewportToSpace(clientToViewport({ x: ev.clientX, y: ev.clientY }));
+    mouse = $vp.screenToSpace({ x: ev.clientX, y: ev.clientY });
     switch (nDragState.type) {
       case 'panning': {
         if (!nDragState.panned) {
@@ -227,19 +205,19 @@
         if (!panned) {
           panned = true;
         }
-        panX += ev.movementX / zoom;
-        panY += ev.movementY / zoom;
+        $vp.panX += ev.movementX / $vp.zoom;
+        $vp.panY += ev.movementY / $vp.zoom;
         break;
       }
       case 'selecting': {
-        nDragState.endViewport = clientToViewport({ x: ev.clientX, y: ev.clientY });
+        nDragState.endViewport = $vp.screenToContainer({ x: ev.clientX, y: ev.clientY });
         nDragState.resolvedViewportBox = startEndToBox(
           nDragState.startViewport,
           nDragState.endViewport,
         );
 
-        const startSpace = viewportToSpace(nDragState.startViewport);
-        const endSpace = viewportToSpace(nDragState.endViewport);
+        const startSpace = $vp.containerToSpace(nDragState.startViewport);
+        const endSpace = $vp.containerToSpace(nDragState.endViewport);
         nDragState.resolvedSpaceBox = startEndToBox(startSpace, endSpace);
 
         nDragState.touchedElements = elementsOnBox(nDragState.resolvedSpaceBox);
@@ -252,13 +230,13 @@
         if (!nDragState.selectOnly) {
           nDragState.viewportOffset.x += ev.movementX;
           nDragState.viewportOffset.y += ev.movementY;
-          nDragState.spaceOffset.x += ev.movementX / zoom;
-          nDragState.spaceOffset.y += ev.movementY / zoom;
+          nDragState.spaceOffset.x += ev.movementX / $vp.zoom;
+          nDragState.spaceOffset.y += ev.movementY / $vp.zoom;
         }
         break;
       }
       case 'resizing': {
-        nDragState.endViewport = clientToViewport({ x: ev.clientX, y: ev.clientY });
+        nDragState.endViewport = $vp.screenToContainer({ x: ev.clientX, y: ev.clientY });
         break;
       }
     }
@@ -328,16 +306,18 @@
   function handleWheel(ev: WheelEvent) {
     if (!editMode) return;
     ev.preventDefault();
-    const prevZoom = zoom;
-    zoom += ev.deltaY * zoomStep;
-    if (zoom < minZoom) zoom = minZoom;
-    if (zoom > maxZoom) zoom = maxZoom;
-    const zoomDelta = 1 - zoom / prevZoom;
+    const prevZoom = $vp.zoom;
+    let newZoom = $vp.zoom;
+    newZoom += ev.deltaY * zoomStep;
+    if (newZoom < minZoom) newZoom = minZoom;
+    if (newZoom > maxZoom) newZoom = maxZoom;
+    const zoomDelta = 1 - newZoom / prevZoom;
     if (zoomDelta !== 0) {
-      const screenPos = clientToViewport({ x: ev.clientX, y: ev.clientY });
-      panX += (screenPos.x * zoomDelta) / zoom;
-      panY += (screenPos.y * zoomDelta) / zoom;
+      const containerPos = $vp.screenToContainer({ x: ev.clientX, y: ev.clientY });
+      $vp.panX += (containerPos.x * zoomDelta) / newZoom;
+      $vp.panY += (containerPos.y * zoomDelta) / newZoom;
     }
+    $vp.zoom = newZoom;
   }
 
   function handleKeydown(ev: KeyboardEvent) {
@@ -356,7 +336,6 @@
         GSS.change({ type: 'remove-elements', uuids: toRemove });
       }
     }
-    // if (ev.keyCode === 'Esc')
   }
 
   function handleKeyup(ev: KeyboardEvent) {
@@ -367,51 +346,37 @@
     }
   }
 
-  let firstCentered = false;
-  function centerBoard() {
-    waitUntilWidthAndHeight(boardContainer, (width, height, left, top) => {
-      canvasVp = { w: width, h: height, x: left, y: top };
+  function handleContainerResized(boardContainer: HTMLDivElement) {
+    waitUntilWidthAndHeight(boardContainer, (rect) => {
+      $vp.rect = rect;
       if (!editMode || !panned) {
+        const {
+          panX,
+          panY,
+          zoom,
+          rect: { width, height },
+        } = $vp;
+
         const box = containingBox(elements, 50);
         if (!box) {
           if (panX === 0 && panY === 0 && zoom === 1) {
-            panX = width / 2;
-            panY = height / 2;
+            $vp.panX = width / 2;
+            $vp.panY = height / 2;
           }
         } else {
           const wRatio = width / box.w;
           const hRatio = height / box.h;
-          zoom = Math.min(maxZoom, wRatio, hRatio);
-          const offsetX = width > box.w * zoom ? (width / zoom - box.w) / 2 : 0;
-          const offsetY = height > box.h * zoom ? (height / zoom - box.h) / 2 : 0;
+          const newZoom = Math.min(maxZoom, wRatio, hRatio);
+          const offsetX = width > box.w * newZoom ? (width / newZoom - box.w) / 2 : 0;
+          const offsetY = height > box.h * newZoom ? (height / newZoom - box.h) / 2 : 0;
 
-          panX = -box.x + offsetX;
-          panY = -box.y + offsetY;
+          $vp.zoom = newZoom;
+          $vp.panX = -box.x + offsetX;
+          $vp.panY = -box.y + offsetY;
         }
-        firstCentered = true;
       }
     });
   }
-
-  onMount(() => {
-    centerBoard();
-
-    // Observe container for size changes
-    const observer = new ResizeObserver(centerBoard);
-    observer.observe(boardContainer);
-
-    return () => {
-      observer.disconnect();
-    };
-  });
-
-  // function handleElementResized(id: string, width: number, height: number) {
-  //   onResizeElement(id, width, height);
-  // }
-
-  // function handleElementRotated(id: string, rotation: number) {
-  //   onRotateElement(id, rotation);
-  // }
 
   // ██████╗ ███████╗███████╗ ██████╗ ██╗    ██╗   ██╗███████╗██████╗
   // ██╔══██╗██╔════╝██╔════╝██╔═══██╗██║    ██║   ██║██╔════╝██╔══██╗
@@ -426,8 +391,8 @@
       ? resizeBox(
           elementToSpaceBox(elementsByUuid.get(nDragState.fromElement)),
           nDragState.fromHandle,
-          viewportToSpace(nDragState.startViewport),
-          viewportToSpace(nDragState.endViewport),
+          $vp.containerToSpace(nDragState.startViewport),
+          $vp.containerToSpace(nDragState.endViewport),
           {
             expandSymmetrically: nDragState.expandSymetrically,
             keepAspectRatio: nDragState.keepAspectRatio,
@@ -439,19 +404,6 @@
     nDragState.type === 'selecting'
       ? new Set([...nDragState.touchedElements, ...selectedElements])
       : selectedElements;
-
-  // $: resolvedSelectionBoxesWithDragOffset = resolvedSelectionBoxes.map((v) =>
-  //   nDragState.type === 'fromElement' && selectedElements.has(v.uuid)
-  //     ? {
-  //         uuid: v.uuid,
-  //         spaceBox: {
-  //           ...v.spaceBox,
-  //           x: v.spaceBox.x + nDragState.spaceOffset.x,
-  //           y: v.spaceBox.y + nDragState.spaceOffset.y,
-  //         },
-  //       }
-  //     : v,
-  // );
 
   $: selectedElementsThatCanBeMoved = new Set(
     selectedElements
@@ -511,27 +463,6 @@
     };
   }
 
-  // Coordinates transformations
-  //----------------------------
-  // Client = screen position
-  // Viewport = container element position (left and top applied)
-  // Space = virtual canvas position (pan and zoom applied)
-
-  function clientToViewport({ x: clientX, y: clientY }: { x: number; y: number }): {
-    x: number;
-    y: number;
-  } {
-    return { x: clientX - canvasVp.x, y: clientY - canvasVp.y };
-  }
-
-  function viewportToSpace({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    return { x: x / zoom - panX, y: y / zoom - panY };
-  }
-
-  // function clientToSpace({ x, y }): { x: number; y: number } {
-  //   return viewportToSpace(clientToViewport({ x, y }));
-  // }
-
   function elementToSpaceBox(el: GElement): Box {
     return {
       x: el.x,
@@ -558,73 +489,67 @@
         nDragState.type !== 'none' && nDragState.type === 'fromElement' && !nDragState.selectOnly,
     },
   )}
-  bind:this={boardContainer}
+  use:resizeObserver={handleContainerResized}
   on:wheel={handleWheel}
   on:mousedown={(ev) => handleMouseDown(ev, 'surface')}
   on:mousemove={(ev) => handleMouseMove(ev, 'surface')}
   on:mouseup={(ev) => handleMouseUp(ev, 'surface')}
-  style={`background-position: ${panX * zoom}px ${panY * zoom}px; background-size: ${zoom * 150}px`}
+  style={`background-position: ${$vp.panX * $vp.zoom}px ${$vp.panY * $vp.zoom}px; background-size: ${$vp.zoom * 150}px`}
 >
-  {#if editMode}
-    <Grid {zoom} {panX} {panY} />
-  {/if}
-  {#each resolvedElementsWithEphemeralTransformation as element (element.uuid)}
-    {@const box = elementToSpaceBox(element)}
-    {@const can = getCan(element)}
-    <SpaceBox
-      {vp}
-      {box}
-      z={element.z}
-      scale={true}
-      onMouseDown={(e) => handleMouseDown(e, 'el', element.uuid)}
-    >
-      <Element el={element} />
-      {#if element.wals.length}
-        <button
-          on:mousedown={(ev) => ev.stopPropagation()}
-          on:click={(ev) => onOpenElementMenu(element.uuid, ev.clientX, ev.clientY)}
-          class="absolute h6 w6 z-1000 bg-red-500 -top-2 -right-2 rounded-full b b-black/10 text-white text-center"
-        >
-          {element.wals.length}
-        </button>
-      {/if}
-    </SpaceBox>
-
-    {#if resolvedSelection.has(element.uuid)}
-      <SpaceBox {vp} {box} z={element.z + 0.1} scale={false} class="group">
-        {#if editMode || (can.resize && playMode)}
-          <ResizeHandles
-            onMouseDown={(ev, resizeHandle) =>
-              handleMouseDown(ev, 'elResizeHandle', element.uuid, resizeHandle)}
-          />
-        {/if}
-        <!-- {#if editMode || (can.move && playMode)} -->
-        <div
-          on:mousedown={(e) => handleMouseDown(e, 'el', element.uuid)}
-          class={cx('absolute z-40 -inset-[2px] b-dashed b-2 b-cyan-400 bg-cyan-400/30', {
-            'cursor-grab': nDragState.type === 'fromElement' && !nDragState.selectOnly,
-          })}
-        ></div>
-        <!-- {/if} -->
-      </SpaceBox>
+  {#if $vp.rect}
+    <div id="surface-portal" class="contents"></div>
+    {#if editMode}
+      <Grid vp={$vp} />
     {/if}
-  {/each}
-  {#if nDragState.type === 'selecting'}
-    {@const box = nDragState.resolvedSpaceBox}
-    <SpaceBox
-      {vp}
-      {box}
-      z={100}
-      scale={false}
-      class="b-dashed b-2 b-cyan-400 bg-cyan-400/30 pointer-events-none!"
-    />
-  {/if}
-  {#if import.meta.env.MODE === 'development'}
-    <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">
-      M[{Math.floor(mouse.x)}, {Math.floor(mouse.y)}] | P[{Math.floor(panX)}, {Math.floor(panY)}] Z {Math.floor(
-        zoom * 100,
-      ) / 100}
-    </div>
+    {#each resolvedElementsWithEphemeralTransformation as element (element.uuid)}
+      {@const box = elementToSpaceBox(element)}
+      {@const can = getCan(element)}
+      <SpaceBox {box} z={element.z} onMouseDown={(e) => handleMouseDown(e, 'el', element.uuid)}>
+        <Element el={element} />
+        {#if element.wals.length}
+          <button
+            on:mousedown={(ev) => ev.stopPropagation()}
+            on:click={(ev) => onOpenElementMenu(element.uuid, ev.clientX, ev.clientY)}
+            class="absolute h6 w6 z-1000 bg-red-500 -top-2 -right-2 rounded-full b b-black/10 text-white text-center"
+          >
+            {element.wals.length}
+          </button>
+        {/if}
+      </SpaceBox>
+
+      {#if resolvedSelection.has(element.uuid)}
+        <SpaceBox {box} z={element.z + 0.1} scale={false} class="group">
+          {#if editMode || (can.resize && playMode)}
+            <ResizeHandles
+              onMouseDown={(ev, resizeHandle) =>
+                handleMouseDown(ev, 'elResizeHandle', element.uuid, resizeHandle)}
+            />
+          {/if}
+          <div
+            on:mousedown={(e) => handleMouseDown(e, 'el', element.uuid)}
+            class={cx('absolute z-40 -inset-[2px] b-dashed b-2 b-cyan-400 bg-cyan-400/30', {
+              'cursor-grab': nDragState.type === 'fromElement' && !nDragState.selectOnly,
+            })}
+          ></div>
+        </SpaceBox>
+      {/if}
+    {/each}
+    {#if nDragState.type === 'selecting'}
+      {@const box = nDragState.resolvedSpaceBox}
+      <SpaceBox
+        {box}
+        z={100}
+        scale={false}
+        class="b-dashed b-2 b-cyan-400 bg-cyan-400/30 pointer-events-none!"
+      />
+    {/if}
+    {#if import.meta.env.MODE === 'development'}
+      <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">
+        M[{Math.floor(mouse.x)}, {Math.floor(mouse.y)}] | P[{Math.floor($vp.panX)}, {Math.floor(
+          $vp.panY,
+        )}] Z {Math.floor($vp.zoom * 100) / 100}
+      </div>
+    {/if}
   {/if}
 </div>
 

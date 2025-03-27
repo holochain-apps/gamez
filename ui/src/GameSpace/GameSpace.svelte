@@ -42,6 +42,7 @@
   setGameSpaceStoreContext(GSS);
 
   $: GS = GSS.state;
+  $: vp = GSS.vp;
   $: allParticipants = GSS.participants;
   $: participants = derived(allParticipants, ($p) => $p?.active || []);
   $: canJoinGame = GSS.canJoinGame;
@@ -101,8 +102,8 @@
   }
 
   function handleAddElementFromLibrary(element: LibraryElement, x: number, y: number) {
-    const surfaceCoords = GSS.getSurfaceCoordinates(x, y);
-    if (surfaceCoords) {
+    if ($vp.isWithinContainer({ x, y })) {
+      const surfaceCoords = $vp.screenToSpace({ x, y });
       const newEl = createElement(element, surfaceCoords.x, surfaceCoords.y, GSS);
       newEl.x -= newEl.width / 2;
       newEl.y -= newEl.height / 2;

@@ -1,7 +1,6 @@
 <script lang="ts">
-  export let zoom: number;
-  export let panX: number;
-  export let panY: number;
+  export let vp: { panX: number; panY: number; zoom: number };
+  const { panX, panY, zoom } = vp;
 
   let gridEl: HTMLCanvasElement;
 
