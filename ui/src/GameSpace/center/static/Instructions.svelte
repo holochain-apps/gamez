@@ -17,19 +17,22 @@
 </script>
 
 <div
-  class="absolute top-14 right-2 rounded-md rounded-tr-[20px] shadow-lg bg-gray-200 z-100 b b-black/10"
+  class="absolute top-14 right-2 rounded-md rounded-tr-[20px] shadow-lg bg-gray-200 z-1500 b b-black/10"
 >
   {#if show}
     <div class="w-100 p4">
-      <div class="text-xl font-bold">Controls</div>
-      <div class="text-lg font-bold">Surface</div>
-      <div>Drag with left or middle button to pan</div>
-      <div class="text-lg font-bold">Elements library (on edit mode)</div>
-      <div>Drag and drop to board to add it</div>
-      <div class="text-lg font-bold">Elements (on edit mode)</div>
-      <div>Right Click to open configuration menu (you can delete from there)</div>
-      <div>Shift while Hovering to show resize and rotate handles</div>
-      <div>Drag and drop to move</div>
+      <div>Drag elements to move them</div>
+      <div>Right click on element to open configuration menu</div>
+      <div>You can select and move, delete, resize or rotate elements</div>
+      <div>You can currently only duplicate individual elements from the configuration menu</div>
+      <div class="text-lg font-bold">Play Mode</div>
+      <div>While in Play mode you can switch back to Edit mode from the bottom left button</div>
+      <div class="text-lg font-bold">Edit Mode</div>
+      <div>Drag and drop items to the board from the library to add them</div>
+      <div
+        >Elements movement, rotation, resizing, configuration, attachment and duplication may be
+        locked on Play Mode; you can configure this on Edit Mode</div
+      >
       <div class="text-right">
         <button on:click={() => (show = false)} class="underline text-blue-600">Dismiss</button>
       </div>

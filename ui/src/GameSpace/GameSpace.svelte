@@ -6,6 +6,7 @@
   import CubesIcon from '~icons/fa6-solid/cubes';
   import IconPen from '~icons/fa6-solid/pen';
   import IconPlay from '~icons/fa6-solid/play';
+  import EyeIcon from '~icons/fa6-solid/eye';
 
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import BookIcon from '~icons/fa6-solid/book';
@@ -256,7 +257,18 @@
           {/if}
         </button>
       {/if}
-      <Surface onOpenElementMenu={handleOpenElementMenu} />
+      <div class="flex-grow h-full">
+        {#if $mode === 'view'}
+          <div
+            use:tooltip={'You are on view-only mode'}
+            class="absolute z-100 top-0 left-50% -translate-x-1/2 px4 py1 text-2xl bg-red-400/80 b-2 b-dashed b-t-0 b-white/40 rounded-b-md text-white"
+            on:click={() => GSS.joinGame()}
+          >
+            <EyeIcon />
+          </div>
+        {/if}
+        <Surface onOpenElementMenu={handleOpenElementMenu}></Surface>
+      </div>
     </div>
   </div>
   {#if contextMenuState}

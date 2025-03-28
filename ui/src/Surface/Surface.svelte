@@ -548,6 +548,7 @@
   style={`background-position: ${$vp.panX * $vp.zoom}px ${$vp.panY * $vp.zoom}px; background-size: ${$vp.zoom * 150}px`}
 >
   {#if $vp.rect}
+    <slot />
     <div id="surface-portal" class="contents"></div>
     {#if editMode}
       <Grid vp={$vp} />
