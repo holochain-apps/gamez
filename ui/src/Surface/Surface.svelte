@@ -9,12 +9,13 @@
   import { type BoxResizeHandles } from './center/BoxResizeHandles.d';
   import ResizeHandles from './ResizeHandles.svelte';
   import SpaceBox from './SpaceBox.svelte';
+  import { rotateBox } from './center/rotateBox';
 
   export let onOpenElementMenu: (id: string, posX: number, posY: number) => void;
 
   let GSS = getGSS();
 
-  type Box = { x: number; y: number; w: number; h: number; rotation?: number };
+  type Box = { x: number; y: number; w: number; h: number; r: number };
   type NDragState =
     | { type: 'none' }
     | {
@@ -37,6 +38,12 @@
         endViewport: { x: number; y: number };
         expandSymetrically: boolean;
         keepAspectRatio: boolean;
+      }
+    | {
+        type: 'rotating';
+        fromElement: string;
+        start: { x: number; y: number };
+        end: { x: number; y: number };
       }
     | {
         type: 'fromElement';
@@ -125,6 +132,7 @@
       | ['el', uuid: string]
       | ['surface']
       | ['elResizeHandle', uuid: string, handle: BoxResizeHandles]
+      | ['elRotateHandle', uuid: string]
   ) {
     switch (cmd[0]) {
       case 'surface': {
@@ -135,8 +143,8 @@
             type: 'selecting',
             startViewport: startViewport,
             endViewport: startViewport,
-            resolvedViewportBox: { ...startViewport, w: 0, h: 0 },
-            resolvedSpaceBox: { ...startSpace, w: 0, h: 0 },
+            resolvedViewportBox: { ...startViewport, w: 0, h: 0, r: 0 },
+            resolvedSpaceBox: { ...startSpace, w: 0, h: 0, r: 0 },
             touchedElements: new Set(),
           };
         } else if (ev.button === 1 && editMode) {
@@ -181,7 +189,6 @@
       case 'elResizeHandle': {
         if (ev.button === 0) {
           ev.stopPropagation();
-          const el = elementsByUuid.get(cmd[1]);
           nDragState = {
             type: 'resizing',
             fromElement: cmd[1],
@@ -190,6 +197,18 @@
             endViewport: $vp.screenToContainer({ x: ev.clientX, y: ev.clientY }),
             expandSymetrically: ev.metaKey,
             keepAspectRatio: ev.shiftKey,
+          };
+        }
+        break;
+      }
+      case 'elRotateHandle': {
+        if (ev.button === 0) {
+          ev.stopPropagation();
+          nDragState = {
+            type: 'rotating',
+            fromElement: cmd[1],
+            start: $vp.screenToContainer({ x: ev.clientX, y: ev.clientY }),
+            end: $vp.screenToContainer({ x: ev.clientX, y: ev.clientY }),
           };
         }
         break;
@@ -239,6 +258,10 @@
       }
       case 'resizing': {
         nDragState.endViewport = $vp.screenToContainer({ x: ev.clientX, y: ev.clientY });
+        break;
+      }
+      case 'rotating': {
+        nDragState.end = $vp.screenToContainer({ x: ev.clientX, y: ev.clientY });
         break;
       }
     }
@@ -297,6 +320,18 @@
             height: resolvedResizeSpaceBox.h,
             x: resolvedResizeSpaceBox.x,
             y: resolvedResizeSpaceBox.y,
+          },
+        });
+        break;
+      }
+
+      case 'rotating': {
+        const el = elementsByUuid.get(nDragState.fromElement);
+        GSS.change({
+          type: 'update-element',
+          element: {
+            ...el,
+            rotation: resolvedRotationSpaceBox.r,
           },
         });
         break;
@@ -402,6 +437,15 @@
         )
       : null;
 
+  $: resolvedRotationSpaceBox =
+    nDragState.type === 'rotating'
+      ? rotateBox(
+          elementToSpaceBox(elementsByUuid.get(nDragState.fromElement)),
+          $vp.containerToSpace(nDragState.start),
+          $vp.containerToSpace(nDragState.end),
+        )
+      : null;
+
   $: resolvedSelection =
     nDragState.type === 'selecting'
       ? new Set([...nDragState.touchedElements, ...selectedElements])
@@ -431,7 +475,12 @@
             width: resolvedResizeSpaceBox!.w,
             height: resolvedResizeSpaceBox!.h,
           }
-        : el,
+        : nDragState.type === 'rotating' && nDragState.fromElement === el.uuid
+          ? {
+              ...el,
+              rotation: resolvedRotationSpaceBox!.r,
+            }
+          : el,
   );
 
   // ██╗   ██╗████████╗██╗██╗     ███████╗
@@ -462,6 +511,7 @@
       y: Math.min(start.y, end.y),
       w: Math.abs(start.x - end.x),
       h: Math.abs(start.y - end.y),
+      r: 0,
     };
   }
 
@@ -471,7 +521,7 @@
       y: el.y,
       w: el.width,
       h: el.height,
-      rotation: el.rotation,
+      r: el.rotation,
     };
   }
 
@@ -487,8 +537,7 @@
     `inset-content-shadow flex-grow h-full overflow-hidden select-none
   bg-main-400  b b-black/25 relative p-0 bg-[url('/noise20.png')]`,
     {
-      'cursor-grabbing':
-        nDragState.type !== 'none' && nDragState.type === 'fromElement' && !nDragState.selectOnly,
+      'cursor-grabbing!': nDragState.type !== 'none' && nDragState.type !== 'selecting',
     },
   )}
   use:resizeObserver={handleContainerResized}
@@ -526,6 +575,21 @@
               onMouseDown={(ev, resizeHandle) =>
                 handleMouseDown(ev, 'elResizeHandle', element.uuid, resizeHandle)}
             />
+          {/if}
+          {#if editMode || (can.rotate && playMode)}
+            <div class="absolute w-8 h-8 -top-8 left-50% -ml-4 flexcc">
+              <div
+                on:mousedown={(ev) => handleMouseDown(ev, 'elRotateHandle', element.uuid)}
+                class={cx(
+                  'group-hover:block b-1 b-cyan-400 hover:bg-cyan-400 bg-black/0 rounded-full w4 h4',
+                  {
+                    'cursor-grab hidden': nDragState.type === 'none',
+                    'bg-cyan-400 cursor-grabbing block':
+                      nDragState.type === 'rotating' && nDragState.fromElement === element.uuid,
+                  },
+                )}
+              ></div>
+            </div>
           {/if}
           <div
             on:mousedown={(e) => handleMouseDown(e, 'el', element.uuid)}
