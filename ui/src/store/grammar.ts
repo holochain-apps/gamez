@@ -28,6 +28,7 @@ export type Delta =
   | { type: 'join-game' }
   | { type: 'leave-game' }
   | { type: 'add-element'; element: GElement }
+  | { type: 'add-elements'; elements: GElement[] }
   | { type: 'move-element'; uuid: string; offset: { x: number; y: number } }
   | { type: 'move-elements'; uuids: string[]; offset: { x: number; y: number } }
   | { type: 'resize-element'; uuid: string; width: number; height: number }
@@ -135,6 +136,18 @@ export const applyDelta = (
       $state.elements.push(elementToAdd);
       const label = getLabel(elementToAdd.type);
       addLog({ type: 'add', message: `added ${label}`, elRef: elementToAdd.uuid });
+      break;
+    }
+    case 'add-elements': {
+      delta.elements.forEach((el) => {
+        const elements = $state.elements;
+        const maxZ = elements.reduce((max, el) => (el.z > max ? el.z : max), 0);
+        const elementToAdd = { ...el, uuid: el.uuid || uuidv1(), z: maxZ + 1 };
+        $state.elements.push(elementToAdd);
+        const label = getLabel(elementToAdd.type);
+        addLog({ type: 'add', message: `added ${label}`, elRef: elementToAdd.uuid });
+      });
+
       break;
     }
     case 'move-element': {

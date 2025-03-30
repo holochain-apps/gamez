@@ -1,5 +1,5 @@
 type Pos = { x: number; y: number };
-type Box = { x: number; y: number; w: number; h: number };
+type Box = { x: number; y: number; w: number; h: number; r: number };
 
 export default class Viewport {
   // Screen = client screen position as told by the browser
@@ -44,6 +44,7 @@ export default class Viewport {
       y: pos.y - size.h / 2,
       w: size.w,
       h: size.h,
+      r: 0,
     };
   }
 }

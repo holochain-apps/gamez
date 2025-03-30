@@ -13,7 +13,6 @@ export function rotateBox(
   start: { x: number; y: number },
   end: { x: number; y: number },
 ): Box {
-  console.log('Rotating box', box);
   // Box center
   const cx = box.x + box.w / 2;
   const cy = box.y + box.h / 2;

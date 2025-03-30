@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import cx from 'classnames';
   import { DEFAULT_CAN_CONFIG, containingBox, getGSS, type GElement } from '~/store';
   import Element from '~/elements/Element.svelte';
-  import { resizeObserver, waitUntilWidthAndHeight } from '~/center/lib/util';
+  import { resizeObserver, uuid, waitUntilWidthAndHeight } from '~/center/lib/util';
   import { resizeBox } from '~/Surface/center/resizeBox';
 
   import Grid from './Grid.svelte';
@@ -414,6 +415,57 @@
       }
     });
   }
+
+  function handleCopy(ev: ClipboardEvent) {
+    console.log('Copying!', ev);
+    const elementsToCopy = selectedElements
+      .values()
+      .toArray()
+      .filter((el) => editMode || cans.get(el).duplicate)
+      .map((uuid) => elementsByUuid.get(uuid));
+    ev.preventDefault();
+    ev.clipboardData.setData(
+      'application/json',
+      JSON.stringify({ type: 'gelements', value: elementsToCopy }),
+    );
+  }
+
+  async function handlePaste(ev: ClipboardEvent) {
+    ev.preventDefault();
+    console.log('Pasting!', ev);
+    const text = ev.clipboardData.getData('application/json');
+    try {
+      const { type, value } = JSON.parse(text);
+      if (type === 'gelements') {
+        const els = value as GElement[];
+        // Find the center of the copied elements
+        const box = containingBox(els, 0);
+        const x = mouse.x - box.w / 2;
+        const y = mouse.y - box.h / 2;
+        // For each gelement
+        // - Add new UUID
+        // - Adjust position relative to the center of the copied elements
+        els.forEach((el) => {
+          el.x = x + el.x - box.x;
+          el.y = y + el.y - box.y;
+          el.uuid = uuid();
+        });
+        await GSS.change({ type: 'add-elements', elements: els });
+        selectionCmd('set', ...els.map((el) => el.uuid));
+      }
+    } catch (e) {
+      console.log('Clipboard data not valid');
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener('copy', handleCopy);
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('copy', handleCopy);
+      document.removeEventListener('paste', handlePaste);
+    };
+  });
 
   // ██████╗ ███████╗███████╗ ██████╗ ██╗    ██╗   ██╗███████╗██████╗
   // ██╔══██╗██╔════╝██╔════╝██╔═══██╗██║    ██║   ██║██╔════╝██╔══██╗
