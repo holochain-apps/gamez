@@ -1,3 +1,7 @@
+# UI 0.8.4
+- 🎛 You can now rotate elements again, with snapping at 15 degree angles
+- 🎉 You can now copy-paste with Cmd+C/Cmd+V
+
 # UI 0.8.3
 - 🎈 Fix: Issue with dragging of player piece source
 - 🧹 Clean: Internal refactoring and code clean up, specially around screen->container->space viewport calculations
