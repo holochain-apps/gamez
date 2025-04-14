@@ -49,7 +49,7 @@
     Object.values($gameSpaceStores)
       .map(($store) => $gameSpaces[$store.hash])
       .filter(($gameSpace) => $gameSpace)
-      .filter(($gameSpace) => $gameSpace.fromPreset)
+      .filter(($gameSpace) => $gameSpace.isLibraryItem && $gameSpace.fromPreset)
       .map(($gameSpace) => $gameSpace.fromPreset),
   );
 
