@@ -1,3 +1,6 @@
+# UI 0.8.5
+- 🎈 Fix: Resolved issue where presets would disappear from game library if games were created directly from there
+
 # UI 0.8.4
 - 🎛 You can now rotate elements again, with snapping at 15 degree angles
 - 🎉 You can now copy-paste with Cmd+C/Cmd+V
