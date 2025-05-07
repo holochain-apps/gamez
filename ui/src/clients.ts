@@ -10,7 +10,12 @@ import {
 import { ProfilesStore } from '@holochain-open-dev/profiles';
 import { ProfilesClient } from '@holochain-open-dev/profiles/dist/profiles-client.js';
 import { SynClient } from '@holochain-syn/core';
-import { AdminWebsocket, type AppClient, AppWebsocket } from '@holochain/client';
+import {
+  AdminWebsocket,
+  type AppClient,
+  AppWebsocket,
+  type ProvisionedCell,
+} from '@holochain/client';
 import { CellType, type DnaHash, encodeHashToBase64, type HoloHash } from '@holochain/client';
 
 type Context = {
@@ -92,7 +97,7 @@ async function connect(appletServices: AppletServices): Promise<void> {
     console.log('App info was null?');
     throw 'App info was null for some reason';
   }
-  const dnaHash = (appInfo.cell_info[HAPP][0] as any)[CellType.Provisioned].cell_id[0];
+  const dnaHash = (appInfo.cell_info[HAPP][0].value as ProvisionedCell).cell_id[0];
 
   console.log('FINISHED SETTING UP CLIENTS');
 

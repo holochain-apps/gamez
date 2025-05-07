@@ -12,3 +12,4 @@
 .running
 *.code-workspace
 .DS_Store
+.kitsune2_bootstrap_srv
