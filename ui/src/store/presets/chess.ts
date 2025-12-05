@@ -7,6 +7,7 @@ export default {
     {
       can: {
         move: false,
+        rotate: true
       },
       height: 440,
       rotation: 0,
@@ -75,7 +76,7 @@ export default {
       can: {},
       display: {
         mode: 'emoji',
-        value: '♚',
+        value: '♛',
       },
       height: 52.277896209358204,
       rotation: 0,
@@ -92,7 +93,7 @@ export default {
       can: {},
       display: {
         mode: 'emoji',
-        value: '♛',
+        value: '♚',
       },
       height: 50.58703862776031,
       rotation: 0,
