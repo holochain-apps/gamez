@@ -22,6 +22,10 @@ export default defineConfig({
       typescript: { tsconfigPath: path.resolve(__dirname, './tsconfig.json') },
     }),
   ],
+  build: {
+    target: 'esnext',
+    minify: false
+  },
   server: {
     hmr: {
       host: 'localhost',
