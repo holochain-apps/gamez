@@ -16,8 +16,12 @@ pub fn create_board_def(board_def: BoardDef) -> ExternResult<Record> {
 }
 #[hdk_extern]
 pub fn get_board_def(original_board_def_hash: ActionHash) -> ExternResult<Option<Record>> {
-    let input = GetLinksInputBuilder::try_new(original_board_def_hash.clone(), LinkTypes::BoardDefUpdates)?.build();
-    let links = get_links(input)?;
+    let links = get_links(
+        LinkQuery::try_new(
+            original_board_def_hash.clone(),
+            LinkTypes::BoardDefUpdates,
+        )?, GetStrategy::Local
+    )?;
     let latest_link = links
         .into_iter()
         .max_by(|link_a, link_b| link_a.timestamp.cmp(&link_b.timestamp));
@@ -62,8 +66,11 @@ pub fn delete_board_def(original_board_def_hash: ActionHash) -> ExternResult<Act
 #[hdk_extern]
 pub fn get_board_defs(_: ()) -> ExternResult<Vec<Link>> {
     let path = Path::from("all_board_defs");
-    let input = GetLinksInputBuilder::try_new(path.path_entry_hash()?, LinkTypes::AllBoardDefs)?.build();
-    let links = get_links(input)?;
-
+    let links = get_links(
+        LinkQuery::try_new(
+            path.path_entry_hash()?,
+            LinkTypes::AllBoardDefs,
+        )?, GetStrategy::Local
+    )?;
     Ok(links)
 }

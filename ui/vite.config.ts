@@ -5,7 +5,7 @@ import UnoCSS from 'unocss/vite';
 import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
-
+import wasm from 'vite-plugin-wasm';
 import { dnaVersion, version } from './package.json';
 
 // Import version from package.json
@@ -15,12 +15,17 @@ import { dnaVersion, version } from './package.json';
 export default defineConfig({
   plugins: [
     svelte(),
+    wasm(),
     UnoCSS(),
     Icons({ compiler: 'svelte', defaultClass: 'block' }),
     checker({
       typescript: { tsconfigPath: path.resolve(__dirname, './tsconfig.json') },
     }),
   ],
+  build: {
+    target: 'esnext',
+    minify: false
+  },
   server: {
     hmr: {
       host: 'localhost',

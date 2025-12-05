@@ -57,31 +57,32 @@ async function connect(appletServices: AppletServices): Promise<void> {
   } else {
     console.log('APP PORT', APP_PORT);
     console.log('ADMIN PORT', ADMIN_PORT);
-    const adminWebsocket = await AdminWebsocket.connect({
-      url: new URL(`ws://localhost:${ADMIN_PORT}`),
-    });
     let tokenResp: any = {};
-    try {
-      console.log('HAPP', HAPP);
-      tokenResp = await adminWebsocket.issueAppAuthenticationToken({
-        installed_app_id: HAPP,
+    if (ADMIN_PORT) {
+      const adminWebsocket = await AdminWebsocket.connect({
+        url: new URL(`ws://localhost:${ADMIN_PORT}`),
       });
-    } catch (e) {
-      console.log('ERROR CONNECTING TO APP WEBSOCKET', e);
-      throw e;
+      try {
+        console.log('HAPP', HAPP);
+        tokenResp = await adminWebsocket.issueAppAuthenticationToken({
+          installed_app_id: HAPP,
+        });
+      } catch (e) {
+        console.log('ERROR CONNECTING TO APP WEBSOCKET', e);
+        throw e;
+      }
+      const x = await adminWebsocket.listApps({});
+      console.log('Apps', x);
+      const cellIds = await adminWebsocket.listCellIds();
+      console.log('CELL IDS', cellIds);
+      await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
     }
-
-    const x = await adminWebsocket.listApps({});
-    console.log('Apps', x);
-    const cellIds = await adminWebsocket.listCellIds();
-    console.log('CELL IDS', cellIds);
-    await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
 
     console.log('appPort and Id is', APP_PORT, HAPP);
 
     appClient = await AppWebsocket.connect({
       url: new URL(`ws://localhost:${APP_PORT}`),
-      token: tokenResp.token,
+      token: tokenResp?.token,
     });
 
     profilesClient = new ProfilesClient(appClient, HAPP);
@@ -92,7 +93,7 @@ async function connect(appletServices: AppletServices): Promise<void> {
     console.log('App info was null?');
     throw 'App info was null for some reason';
   }
-  const dnaHash = (appInfo.cell_info[HAPP][0] as any)[CellType.Provisioned].cell_id[0];
+  const dnaHash = (appInfo.cell_info[HAPP][0] as any).value.cell_id[0];
 
   console.log('FINISHED SETTING UP CLIENTS');
 

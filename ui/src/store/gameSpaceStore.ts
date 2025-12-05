@@ -79,6 +79,7 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
 
   type Mode = 'view' | 'play' | 'edit';
   const editModeOverride = writable<boolean>(false);
+  const viewRotated = writable<boolean>(false);
 
   const mode = derived([editModeOverride, state], ([$editModeOverride, $state]) => {
     let mode: Mode = 'view';
@@ -173,6 +174,8 @@ export function createGameSpaceSynStore(synDoc: SynDoc) {
     mode: readonly(mode),
     editModeOverride: readonly(editModeOverride),
     toggleEditModeOverride: () => editModeOverride.set(!get(editModeOverride)),
+    viewRotated: readonly(viewRotated),
+    toggleViewRotated: () => viewRotated.set(!get(viewRotated)),
     topZ,
 
     // CHANGES

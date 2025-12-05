@@ -14,7 +14,7 @@
   $: gameSpaceStores = store.loadedGameSpaceStores;
   $: gameSpaces = store.statesMap;
   $: libraryGameSpaceStores = store.filterSortedStores(
-    (GS) => GS.isLibraryItem && !GS.isArchived && !GS.isDeleted,
+    (GS) => !GS.isArchived && !GS.isDeleted,
   );
 
   $: presetsNamesCreatedAlready = derived(gameSpaceStores, ($gameSpaceStores) =>

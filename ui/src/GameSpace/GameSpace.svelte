@@ -7,6 +7,7 @@
   import IconPen from '~icons/fa6-solid/pen';
   import IconPlay from '~icons/fa6-solid/play';
   import EyeIcon from '~icons/fa6-solid/eye';
+  import RotateIcon from '~icons/fa6-solid/rotate';
 
   import ArrowLeftIcon from '~icons/fa6-solid/arrow-left';
   import BookIcon from '~icons/fa6-solid/book';
@@ -53,6 +54,7 @@
   $: permissions = GSS.permissions;
   $: mode = GSS.mode;
   $: editModeOverride = GSS.editModeOverride;
+  $: viewRotated = GSS.viewRotated;
 
   let sidebar: 'none' | 'elementsLibrary' | 'configurator' = asAsset ? 'none' : 'elementsLibrary';
 
@@ -256,6 +258,21 @@
             <IconPlay />
           {/if}
         </button>
+        {#if $mode === 'play'}
+          <button
+            use:tooltip={'Rotate view 180°'}
+            on:click={() => GSS.toggleViewRotated()}
+            class={cx(
+              'absolute bottom-0 left-12 z-1500  text-white b b-black/10 rounded-tr-md p2',
+              {
+                'bg-purple-500 hover:bg-purple-400': !$viewRotated,
+                'bg-orange-500 hover:bg-orange-400': $viewRotated,
+              },
+            )}
+          >
+            <RotateIcon />
+          </button>
+        {/if}
       {/if}
       <div class="flex-grow h-full">
         {#if $mode === 'view'}

@@ -1,5 +1,5 @@
 import type { WAL, WeaveClient } from '@theweave/api';
-import * as Automerge from 'automerge';
+import * as Automerge from '@automerge/automerge';
 import { cloneDeep } from 'lodash';
 import { v1 as uuidv1 } from 'uuid';
 
@@ -70,7 +70,7 @@ export const applyDelta = (
   $state: GameSpace,
   context: { pubKey: string; weaveClient?: WeaveClient; asAsset: () => WAL },
 ) => {
-  const S = $state as Automerge.FreezeObject<GameSpace>;
+  const S = $state;
   console.log($state, typeof $state);
   switch (delta.type) {
     case 'set-is-archived':
@@ -238,10 +238,10 @@ export const applyDelta = (
 
     case 'remove-elements': {
       delta.uuids.forEach((uuid) => {
-        S.elements.deleteAt(
-          S.elements.findIndex((e) => e.uuid === uuid),
-          1,
-        );
+        const index = $state.elements.findIndex((e) => e.uuid === uuid);
+        if (index !== -1) {
+          $state.elements.splice(index, 1);
+        }
       });
 
       const labels = delta.uuids.map((uuid) => getLabel(uuid)).join(', ');
