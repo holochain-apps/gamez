@@ -22,7 +22,7 @@
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
     "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
     "format": "prettier --write \"ui/**/*.{js,ts,css,svelte}\" --ignore-path ./ui/.gitignore",
-    "hash-webhapp": "weave hash-webhapp ./workdir/gamez.webhapp"
+    "hash-webhapp": "weave hash-webhapp 0.9.2 ./workdir/gamez.webhapp"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.300",

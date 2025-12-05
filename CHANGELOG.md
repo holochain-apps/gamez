@@ -1,3 +1,6 @@
+# UI 0.9.2
+- 🎛 You can now rotate a canvas
+
 # UI 0.8.5
 - 🎈 Fix: Resolved issue where presets would disappear from game library if games were created directly from there
 
