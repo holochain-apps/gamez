@@ -50,7 +50,7 @@ export const appletServices: AppletServices = {
 
       if (entryType == 'document') {
         const synClient = new SynClient(appletClient, roleName, ZOME_NAME);
-        const synStore = new SynStore(synClient, false);
+        const synStore = new SynStore(synClient, true);
         const documentHash = wal.hrl[1];
 
         // This doesn't work. Gotta move initialization of the store outside the App component
@@ -82,7 +82,7 @@ export const appletServices: AppletServices = {
     searchFilter: string,
   ): Promise<Array<WAL>> => {
     const synClient = new SynClient(appletClient, ROLE_NAME, ZOME_NAME);
-    const synStore = new SynStore(synClient, false);
+    const synStore = new SynStore(synClient, true);
     const boardHashes = asyncDerived(synStore.documentsByTag.get(ROOT_TAG), (x) =>
       Array.from(x.keys()),
     );

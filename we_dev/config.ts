@@ -61,7 +61,7 @@ export default defineConfig({
       description: 'play it!',
       icon: {
         type: 'filesystem',
-        path: './we_dev/gamez_icon.svg',
+        path: './we_dev/icon.png',
       },
       source: {
         type: 'localhost',

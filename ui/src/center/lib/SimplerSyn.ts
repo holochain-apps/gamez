@@ -21,7 +21,7 @@ export default class SimplerSyn {
     private documentVersion: number = 0,
   ) {
     this.pubKey = clients.agentKeyB64;
-    this.synStore = new SynStore(clients.syn, false);
+    this.synStore = new SynStore(clients.syn, true);
     let prevDocsHashes: string[] = null;
     this.synStore.documentsByTag.get(ROOT_TAG).subscribe(async (latestDocs) => {
       if (latestDocs.status === 'complete') {
