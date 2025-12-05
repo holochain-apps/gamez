@@ -39,12 +39,12 @@ export default defineConfig({
           registeringAgent: 1,
           joiningAgents: [2],
         },
-        {
-          name: 'vines',
-          instanceName: 'vines',
-          registeringAgent: 1,
-          joiningAgents: [2],
-        },
+        // {
+        //   name: 'vines',
+        //   instanceName: 'vines',
+        //   registeringAgent: 1,
+        //   joiningAgents: [2],
+        // },
         // {
         //   name: 'notebooks',
         //   instanceName: 'notebooks',
@@ -82,19 +82,19 @@ export default defineConfig({
     //     url: 'https://github.com/holochain-apps/kando/releases/download/v0.12.0/kando.webhapp',
     //   },
     // },
-    {
-      name: 'vines',
-      subtitle: 'foo ',
-      description: 'bar',
-      icon: {
-        type: 'https',
-        url: 'https://github.com/lightningrodlabs/vines/releases/download/we-applet-rc/icon.png',
-      },
-      source: {
-        type: 'https',
-        url: 'https://github.com/lightningrodlabs/vines/releases/download/we-applet-rc/vines-we_applet-1.12.1.webhapp',
-      },
-    },
+    // {
+    //   name: 'vines',
+    //   subtitle: 'foo ',
+    //   description: 'bar',
+    //   icon: {
+    //     type: 'https',
+    //     url: 'https://github.com/lightningrodlabs/vines/releases/download/we-applet-rc/icon.png',
+    //   },
+    //   source: {
+    //     type: 'https',
+    //     url: 'https://github.com/lightningrodlabs/vines/releases/download/we-applet-rc/vines-we_applet-1.12.1.webhapp',
+    //   },
+    // },
     //   {
     //   name: 'notebooks',
     //   subtitle: 'Collaborative note taking',

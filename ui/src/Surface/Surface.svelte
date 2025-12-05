@@ -77,6 +77,7 @@
   $: mode = GSS.mode;
   $: editMode = $mode === 'edit';
   $: playMode = $mode === 'play';
+  $: viewRotated = GSS.viewRotated;
 
   $: {
     $mode;
@@ -219,6 +220,12 @@
 
   function handleMouseMove(ev: MouseEvent, ...cmd: ['surface']) {
     mouse = $vp.screenToSpace({ x: ev.clientX, y: ev.clientY });
+    
+    // When view is rotated, invert mouse movements
+    const movementMultiplier = $viewRotated ? -1 : 1;
+    const adjustedMovementX = ev.movementX * movementMultiplier;
+    const adjustedMovementY = ev.movementY * movementMultiplier;
+    
     switch (nDragState.type) {
       case 'panning': {
         if (!nDragState.panned) {
@@ -227,8 +234,8 @@
         if (!panned) {
           panned = true;
         }
-        $vp.panX += ev.movementX / $vp.zoom;
-        $vp.panY += ev.movementY / $vp.zoom;
+        $vp.panX += adjustedMovementX / $vp.zoom;
+        $vp.panY += adjustedMovementY / $vp.zoom;
         break;
       }
       case 'selecting': {
@@ -250,10 +257,10 @@
           nDragState.moved = true;
         }
         if (!nDragState.selectOnly) {
-          nDragState.viewportOffset.x += ev.movementX;
-          nDragState.viewportOffset.y += ev.movementY;
-          nDragState.spaceOffset.x += ev.movementX / $vp.zoom;
-          nDragState.spaceOffset.y += ev.movementY / $vp.zoom;
+          nDragState.viewportOffset.x += adjustedMovementX;
+          nDragState.viewportOffset.y += adjustedMovementY;
+          nDragState.spaceOffset.x += adjustedMovementX / $vp.zoom;
+          nDragState.spaceOffset.y += adjustedMovementY / $vp.zoom;
         }
         break;
       }
@@ -586,18 +593,18 @@
 
 <div
   class={cx(
-    `inset-content-shadow flex-grow h-full overflow-hidden select-none
+    `canvas-outer inset-content-shadow flex-grow h-full overflow-hidden select-none
   bg-main-400  b b-black/25 relative p-0 bg-[url('/noise20.png')]`,
     {
       'cursor-grabbing!': nDragState.type !== 'none' && nDragState.type !== 'selecting',
     },
   )}
+  style={`background-position: ${$vp.panX * $vp.zoom}px ${$vp.panY * $vp.zoom}px; background-size: ${$vp.zoom * 150}px; ${$viewRotated ? 'transform: rotate(180deg);' : ''}`}
   use:resizeObserver={handleContainerResized}
   on:wheel={handleWheel}
   on:mousedown={(ev) => handleMouseDown(ev, 'surface')}
   on:mousemove={(ev) => handleMouseMove(ev, 'surface')}
   on:mouseup={(ev) => handleMouseUp(ev, 'surface')}
-  style={`background-position: ${$vp.panX * $vp.zoom}px ${$vp.panY * $vp.zoom}px; background-size: ${$vp.zoom * 150}px`}
 >
   {#if $vp.rect}
     <slot />
@@ -608,7 +615,13 @@
     {#each resolvedElementsWithEphemeralTransformation as element (element.uuid)}
       {@const box = elementToSpaceBox(element)}
       {@const can = getCan(element)}
-      <SpaceBox {box} z={element.z} onMouseDown={(e) => handleMouseDown(e, 'el', element.uuid)}>
+      {@const counterRotation = $viewRotated && !can.rotate ? 180 : 0}
+      <SpaceBox
+        {box}
+        z={element.z}
+        extraRotation={counterRotation}
+        onMouseDown={(e) => handleMouseDown(e, 'el', element.uuid)}
+      >
         <Element el={element} />
         {#if element.wals.length}
           <button
@@ -622,7 +635,7 @@
       </SpaceBox>
 
       {#if resolvedSelection.has(element.uuid)}
-        <SpaceBox {box} z={element.z + 0.1} scale={false} class="group">
+        <SpaceBox {box} z={element.z + 0.1} scale={false} class="group" extraRotation={counterRotation}>
           {#if editMode || (can.resize && playMode)}
             <ResizeHandles
               onMouseDown={(ev, resizeHandle) =>
@@ -663,7 +676,17 @@
       />
     {/if}
     {#if import.meta.env.MODE === 'development'}
-      <div class="bg-black/50 text-white rounded-tl-md absolute right-0 bottom-0 p1">
+      <div
+        id="position-guide"
+        class="bg-black/50 text-white absolute p1"
+        class:rounded-tl-md={!$viewRotated}
+        class:rounded-br-md={$viewRotated}
+        class:right-0={!$viewRotated}
+        class:bottom-0={!$viewRotated}
+        class:left-0={$viewRotated}
+        class:top-0={$viewRotated}
+        style={$viewRotated ? 'transform: rotate(180deg);' : ''}
+      >
         M[{Math.floor(mouse.x)}, {Math.floor(mouse.y)}] | P[{Math.floor($vp.panX)}, {Math.floor(
           $vp.panY,
         )}] Z {Math.floor($vp.zoom * 100) / 100}

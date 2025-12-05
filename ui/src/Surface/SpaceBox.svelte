@@ -11,6 +11,7 @@
   export let onMouseDown: (ev: MouseEvent) => void = undefined;
   export let z: number;
   export let scale: boolean = true;
+  export let extraRotation: number = 0; // Additional rotation to apply
   let klass: string = '';
   export { klass as class };
 </script>
@@ -28,7 +29,7 @@
       class={cx('absolute top-0 left-0 pointer-events-auto', klass)}
       style={`width: ${box.w}px;
     height: ${box.h}px;
-    transform: translate(${box.x}px, ${box.y}px) rotate(${box.r || 0}deg);`}
+    transform: translate(${box.x}px, ${box.y}px) rotate(${(box.r || 0) + extraRotation}deg);`}
     >
       <slot />
     </div>
@@ -42,7 +43,7 @@
     class={cx('absolute top-0 left-0 pointer-events-auto', klass)}
     style={`width: ${box.w * $vp.zoom}px;
     height: ${box.h * $vp.zoom}px;
-    transform: translate(${(box.x + $vp.panX) * $vp.zoom}px, ${(box.y + $vp.panY) * $vp.zoom}px) rotate(${box.r}deg);
+    transform: translate(${(box.x + $vp.panX) * $vp.zoom}px, ${(box.y + $vp.panY) * $vp.zoom}px) rotate(${box.r + extraRotation}deg);
     z-index: ${z * 10};`}
   >
     <slot />

@@ -92,7 +92,7 @@ async function connect(appletServices: AppletServices): Promise<void> {
     console.log('App info was null?');
     throw 'App info was null for some reason';
   }
-  const dnaHash = (appInfo.cell_info[HAPP][0] as any)[CellType.Provisioned].cell_id[0];
+  const dnaHash = (appInfo.cell_info[HAPP][0] as any).value.cell_id[0];
 
   console.log('FINISHED SETTING UP CLIENTS');
 
