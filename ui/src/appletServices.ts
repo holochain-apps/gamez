@@ -8,9 +8,9 @@ import type {
 } from '@theweave/api';
 
 import { asyncDerived, pipe, sliceAndJoin, toPromise } from '@holochain-open-dev/stores';
-import { LazyHoloHashMap } from '@holochain-open-dev/utils';
 import { DocumentStore, SynClient, SynStore, WorkspaceStore } from '@holochain-syn/core';
 import type { AppClient, RoleName } from '@holochain/client';
+import { LazyHoloHashMap } from '@holochain/client';
 
 import { ROOT_TAG } from '~/center/lib/SimplerSyn';
 import { getMyDna } from '~/center/lib/util';
