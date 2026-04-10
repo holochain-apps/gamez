@@ -74,6 +74,7 @@
       ...cloneDeep(gameSpace),
       name,
       creator: clients.agentKeyB64,
+      fromPreset: null,
     };
     return await store.createGameSpace(newGameSpace);
   }

@@ -75,10 +75,21 @@
   };
 
   let contextMenuState: { id: string; x: number; y: number } | null = null;
+
+  function resolveContextMenuElement() {
+    return contextMenuState ? GSS.el(contextMenuState.id) : null;
+  }
+
   function handleOpenElementMenu(id: string, x: number, y: number) {
-    if ($mode !== 'view') {
-      contextMenuState = { id, x, y };
+    if ($mode === 'view') return;
+    const el = $GS.elements.find((e) => e.uuid === id);
+    if (!el) return;
+    if ($mode === 'play') {
+      const can = el?.can ?? {};
+      const hasAction = Object.values(can).some((v) => v) || el?.wals?.length > 0;
+      if (!hasAction) return;
     }
+    contextMenuState = { id, x, y };
   }
 
   function closeContextMenu() {
@@ -288,15 +299,12 @@
       </div>
     </div>
   </div>
-  {#if contextMenuState}
+  {#if contextMenuState && resolveContextMenuElement()}
     <ConfigMenu
       x={contextMenuState.x + 2}
       y={contextMenuState.y + 2}
       onClose={closeContextMenu}
-      el={(() => {
-        GS; // trigger reactivity
-        return GSS.el(contextMenuState.id);
-      })()}
+      el={resolveContextMenuElement()}
       onUpdateEl={handleUpdateElement}
       onMoveZ={(z) => GSS.change({ type: 'move-z', uuid: contextMenuState.id, z })}
       onRemoveEl={() => handleRemoveElement(contextMenuState.id)}

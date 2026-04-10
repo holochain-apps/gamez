@@ -13,8 +13,9 @@
   {#if el.display.mode === 'emoji'}
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 100 100"
+      viewBox="-5 -5 110 115"
       preserveAspectRatio="xMidYMid meet"
+      overflow="visible"
       width="100%"
       height="100%"
     >

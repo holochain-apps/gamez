@@ -120,11 +120,14 @@
       'hover:bg-red-6': canAddPiece,
       'cursor-no-drop': !canAddPiece,
     })}
-    on:mousedown={(ev) =>
-      canAddPiece ? handleMouseDown(ev) : (ev.preventDefault(), ev.stopPropagation())}
+    on:mousedown={(ev) => {
+      if (ev.button === 2) return;
+      if ($mode !== 'play') return;
+      canAddPiece ? handleMouseDown(ev) : (ev.preventDefault(), ev.stopPropagation());
+    }}
   >
     <div class="absolute z-10 inset-0 rounded-md bg-[url('/noise20.png')] opacity-25"></div>
-    <div class={cx('flexcc space-x-1  flex-wrap relative w-full')}>
+    <div class={cx('flexcc space-x-1  flex-wrap relative w-full pointer-events-none')}>
       {#if el.limit}
         {#each { length: el.limit } as _, i}
           {@const isUsed = i >= el.limit - (el.createdPieces.length + (dragState ? 1 : 0))}

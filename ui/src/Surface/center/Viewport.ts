@@ -10,6 +10,7 @@ export default class Viewport {
   public panX: number = 0;
   public panY: number = 0;
   public rect: DOMRect = null!;
+  public rotated: boolean = false;
 
   constructor() {}
 
@@ -17,6 +18,12 @@ export default class Viewport {
     x: number;
     y: number;
   } {
+    if (this.rotated) {
+      return {
+        x: this.rect.width - (clientX - this.rect.left),
+        y: this.rect.height - (clientY - this.rect.top),
+      };
+    }
     return { x: clientX - this.rect.left, y: clientY - this.rect.top };
   }
 

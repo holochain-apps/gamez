@@ -11,7 +11,7 @@ export default {
       height: 440,
       rotation: 0,
       type: 'Image',
-      url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/512px-Chessboard_green_squares.svg.png',
+      url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chessboard_green_squares.svg/960px-Chessboard_green_squares.svg.png',
       uuid: 'c41c01f0-a037-11ef-8b06-8597ca08db5f',
       version: 1,
       wals: [],

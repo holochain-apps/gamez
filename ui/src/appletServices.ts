@@ -29,7 +29,7 @@ export const appletServices: AppletServices = {
     // Disable for now
     game: {
       label: 'Game',
-      icon_src: ICON,
+      icon_src: `data:image/svg+xml;utf8,${ICON}`,
     },
   },
   // Types of UI widgets/blocks that this Applet supports

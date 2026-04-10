@@ -78,6 +78,7 @@
   $: editMode = $mode === 'edit';
   $: playMode = $mode === 'play';
   $: viewRotated = GSS.viewRotated;
+  $: $vp.rotated = $viewRotated;
 
   $: {
     $mode;
@@ -88,6 +89,9 @@
   $: elements = $GS.elements;
   $: elementsByUuid = new Map<string, GElement>(elements.map((el) => [el.uuid, el]));
   $: cans = new Map<string, typeof DEFAULT_CAN_CONFIG>(elements.map((el) => [el.uuid, getCan(el)]));
+  $: selectedElements = new Set(
+    [...selectedElements].filter((uuid) => elementsByUuid.has(uuid)),
+  );
 
   $: elementsBoxes = elements.map((el) => ({
     x: el.x,
@@ -156,6 +160,12 @@
       }
       case 'el': {
         const el = elementsByUuid.get(cmd[1]);
+        if (!el) {
+          if (selectedElements.has(cmd[1])) {
+            selectionCmd('remove', cmd[1]);
+          }
+          break;
+        }
         const can = getCan(el);
         if (ev.button === 2) {
           ev.stopPropagation();
@@ -302,7 +312,7 @@
           }
         } else if (!nDragState.selectOnly && selectedElements.size > 0) {
           const uuids = selectedElements.values().toArray();
-          const toMove = editMode ? uuids : uuids.filter((uuid) => cans.get(uuid).move);
+          const toMove = editMode ? uuids : uuids.filter((uuid) => cans.get(uuid)?.move);
           GSS.change({
             type: 'move-elements',
             uuids: toMove,
@@ -320,6 +330,7 @@
 
       case 'resizing': {
         const el = elementsByUuid.get(nDragState.fromElement);
+        if (!el) break;
         GSS.change({
           type: 'update-element',
           element: {
@@ -335,6 +346,7 @@
 
       case 'rotating': {
         const el = elementsByUuid.get(nDragState.fromElement);
+        if (!el) break;
         GSS.change({
           type: 'update-element',
           element: {
@@ -376,7 +388,7 @@
       if (selectedElements.size > 0) {
         const uuids = selectedElements.values().toArray();
 
-        const toRemove = editMode ? uuids : uuids.filter((uuid) => cans.get(uuid).remove);
+        const toRemove = editMode ? uuids : uuids.filter((uuid) => cans.get(uuid)?.remove);
         selectionCmd('clear');
         GSS.change({ type: 'remove-elements', uuids: toRemove });
       }
@@ -428,8 +440,9 @@
     const elementsToCopy = selectedElements
       .values()
       .toArray()
-      .filter((el) => editMode || cans.get(el).duplicate)
-      .map((uuid) => elementsByUuid.get(uuid));
+      .filter((el) => editMode || cans.get(el)?.duplicate)
+      .map((uuid) => elementsByUuid.get(uuid))
+      .filter(Boolean);
     ev.preventDefault();
     ev.clipboardData.setData(
       'application/json',
@@ -438,6 +451,14 @@
   }
 
   async function handlePaste(ev: ClipboardEvent) {
+    const target = ev.target as HTMLElement;
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target.isContentEditable
+    ) {
+      return;
+    }
     ev.preventDefault();
     console.log('Pasting!', ev);
     const text = ev.clipboardData.getData('application/json');
@@ -514,7 +535,7 @@
     selectedElements
       .values()
       .toArray()
-      .filter((uuid) => cans.get(uuid).move),
+      .filter((uuid) => cans.get(uuid)?.move),
   );
 
   $: resolvedElementsWithEphemeralTransformation = elements.map((el) =>
@@ -584,8 +605,8 @@
     };
   }
 
-  function getCan(el: GElement) {
-    return { ...DEFAULT_CAN_CONFIG, ...el.can };
+  function getCan(el?: GElement) {
+    return { ...DEFAULT_CAN_CONFIG, ...(el?.can ?? {}) };
   }
 </script>
 
