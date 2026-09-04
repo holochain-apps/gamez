@@ -19,7 +19,7 @@ coordinator:
     - name: gamez
       path: ../../../target/wasm32-unknown-unknown/release/gamez.wasm
       dependencies:
-        - name: profiles_integrity
+        - name: gamez_integrity
     - name: syn
       path: ../../../target/wasm32-unknown-unknown/release/syn.wasm
       dependencies:
