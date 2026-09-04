@@ -6,24 +6,24 @@ pub struct BoardDef {
     pub board: String,
 }
 pub fn validate_create_board_def(
-    _action: EntryCreationAction,
+    _action: TypedAction<EntryCreationData>,
     _board_def: BoardDef,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_board_def(
-    _action: Update,
+    _action: TypedAction<UpdateData>,
     _board_def: BoardDef,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_board_def(
-    _action: Delete,
+    _action: TypedAction<DeleteData>,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_create_link_board_def_updates(
-    _action: CreateLink,
+    _action: TypedAction<CreateLinkData>,
     base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -53,8 +53,8 @@ pub fn validate_create_link_board_def_updates(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_board_def_updates(
-    _action: DeleteLink,
-    _original_action: CreateLink,
+    _action: TypedAction<DeleteLinkData>,
+    _original_action: TypedAction<CreateLinkData>,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,
@@ -66,7 +66,7 @@ pub fn validate_delete_link_board_def_updates(
     )
 }
 pub fn validate_create_link_all_board_defs(
-    _action: CreateLink,
+    _action: TypedAction<CreateLinkData>,
     _base_address: AnyLinkableHash,
     target_address: AnyLinkableHash,
     _tag: LinkTag,
@@ -87,8 +87,8 @@ pub fn validate_create_link_all_board_defs(
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_all_board_defs(
-    _action: DeleteLink,
-    _original_action: CreateLink,
+    _action: TypedAction<DeleteLinkData>,
+    _original_action: TypedAction<CreateLinkData>,
     _base: AnyLinkableHash,
     _target: AnyLinkableHash,
     _tag: LinkTag,

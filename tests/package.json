@@ -2,14 +2,14 @@
   "name": "tests",
   "private": true,
   "scripts": {
-    "test": "echo 'Nothing yet'"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@holochain-open-dev/file-storage": "0.7.1",
+    "@holochain-open-dev/file-storage": "^0.700.0",
     "@msgpack/msgpack": "^2.8.0",
-    "@holochain/client": "^0.17.1",
-    "@holochain/tryorama": "^0.16.0",
-    "typescript": "^5.6.3",
+    "@holochain/client": "^0.21.0",
+    "@holochain-open-dev/tryorama": "^0.20.0",
+    "typescript": "^5.9.3",
     "vitest": "^2.1.4"
   },
   "type": "module"

@@ -137,7 +137,9 @@ async function connect(appletServices: AppletServices): Promise<void> {
       }
       break;
     default:
-      throw new Error(`Unsupported applet-view type ${view.type}`);
+      // `view` narrows to `never` here now that AppletView is main | asset | creatable
+      // (weave 0.7 dropped the `block` variant). Kept as a runtime guard.
+      throw new Error(`Unsupported applet-view type ${(view as { type: string }).type}`);
   }
 
   const profilesStore = new ProfilesStore(profilesClient);
