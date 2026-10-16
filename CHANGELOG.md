@@ -1,3 +1,9 @@
+# 0.11.0
+- 🧨 New network: Holochain 0.7.1 (DNA 0.11.0). Needs Moss 0.16.0-rc.1 or later.
+  It cannot see game spaces from 0.10.x, so a group has to upgrade together.
+  Move a game space over with **Export** (game `⋯` menu) on 0.10.x and
+  **Import** (Library panel) on 0.11.0.
+
 # UI 0.9.2
 - 🎛 You can now rotate a canvas
 

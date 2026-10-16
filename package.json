@@ -26,7 +26,7 @@
     "release:happ": "bash scripts/release-happ.sh",
     "release:webhapp": "APP_VER=$(node -p \"require('./ui/package.json').version\") && git tag v$APP_VER && git push origin v$APP_VER",
     "format": "prettier --write \"ui/**/*.{js,ts,css,svelte}\" --ignore-path ./ui/.gitignore",
-    "hash-webhapp": "weave hash-webhapp 0.10.0 ./workdir/gamez.webhapp"
+    "hash-webhapp": "weave hash-webhapp 0.11.0 ./workdir/gamez.webhapp"
   },
   "devDependencies": {
     "@holochain/hc-spin": "^0.700.1-rc.0",
